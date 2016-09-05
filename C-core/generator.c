@@ -5,11 +5,16 @@
 
 typedef struct
 {
+    // Structure for proposed flatH format A_{ij} = U_j S V_i
     int block_size, block_count;
     double *U;
     double *S;
     double *V;
 } flatH;
+
+///////////////////////////////
+//  LAPACK and BLAS imports  //
+///////////////////////////////
 
 void dcopy_(int *, double *, int *, double *, int *);
 void dscal_(int *, double *, double *, int *);
@@ -21,8 +26,11 @@ void dgemm_(char *, char *, int *, int *, int *, double *, double *, int *,
 void dgesdd_(char *, int *, int *, double *, int *, double *, double *, int *,
         double *, int *, double *, int *, int *, int *);
 
+// Random generation of matrices
+
 double gaussrand()
 {
+    // Random Gaussian generation of double, got it from the Internet
     static double V1, V2, S;
     static int phase = 0;
     double X;
@@ -48,6 +56,14 @@ double gaussrand()
 
 void random_orthogonal(int n, int m, double **A)
 {
+    // Generation of a random orthogonal matrix
+    // Parameters:
+    //   n: number of rows,
+    //   m: number of columns,
+    //   *A: pointer to the matrix
+    //
+    // Works only with tall matrices (n >= m).
+    // If *A == NULL, then memory is allocated before random generation
     int i, info, lwork=m;
     int size = n*m;
     if(*A == NULL)
@@ -69,6 +85,7 @@ void random_orthogonal(int n, int m, double **A)
 
 void test_random_orthogonal()
 {
+    // Test for generation of random orthogonal matrices
     int n = 5, m = 3;
     int i, j;
     char cN = 'N', cT = 'T';
@@ -99,17 +116,22 @@ void test_random_orthogonal()
     free(a);
 }
 
+/////////////////////////////
+// FlatH matrix generation //
+/////////////////////////////
+
 int block_generate(int block_size, double *U, double *S, double *V, double *A,
         int lda, double *work)
 // Generation of block inside a matrix with given singular vectors and values
-// A: output, result is written into data (column-major order)
-// block_size: size of block to generate (block is square)
-// lda: leading dimension of A (column-major order, memory offset between
-// columns)
-// U: left (row) singular vectors
-// S: singular vectors
-// V: right (column) singular vectors
-// work: temporary array
+// Parameters:
+//   A: output, result is written into data (column-major order)
+//   block_size: size of block to generate (block is square)
+//   lda: leading dimension of A (column-major order, memory offset between
+//        columns)
+//   U: left (row) singular vectors
+//   S: singular vectors
+//   V: right (column) singular vectors
+//   work: temporary array
 {
     int i, incx = 1;
     char cN = 'N';
@@ -127,6 +149,8 @@ int block_generate(int block_size, double *U, double *S, double *V, double *A,
 
 int matrix_generate(flatH *A, double **mat)
 {
+    // Generation of matrix with given flatH structure
+    // Only for testing purposes, since generated matrix is dense
     int i, j;
     int block_count = A->block_count;
     int block_size = A->block_size;
@@ -158,6 +182,7 @@ int matrix_generate(flatH *A, double **mat)
 void generate_structure(int block_size, int block_count, double decay,
         flatH *A)
 {
+    // Generate flatH structure with given sizes and decay parameter
     int i;
     int bsize = block_size*block_size;
     int msize = bsize*block_count;
@@ -187,6 +212,7 @@ void generate_structure(int block_size, int block_count, double decay,
 
 void test_generate_matrix()
 {
+    // Testing generation of random flatH matrices
     int block_size = 2;
     int block_count = 2;
     double decay = 2.0;
