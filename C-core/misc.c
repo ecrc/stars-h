@@ -31,6 +31,7 @@ double randn()
 
 void dmatrix_print(int m, int n, double *A)
 {
+    // Print matrix
     int i, j;
     // Row cycle
     for(i = 0; i < m; i++)
@@ -56,18 +57,9 @@ void dmatrix_randn(int m, int n, double *A)
     }
 }
 
-void dmatrix_copy(int m, int n, double *A, double *B)
-{
-    int size = n*m;
-    int i;
-    for(i = 0; i < size; i++)
-    {
-        B[i] = A[i];
-    }
-}
-
 void dmatrix_qr(int m, int n, double *A, double *Q, double *R)
 {
+    // Computes QR of a matrix
     int mn = n > m ? m : n;
     int i, j;
     double tau[mn];
@@ -102,6 +94,8 @@ void dmatrix_qr(int m, int n, double *A, double *Q, double *R)
 void dmatrix_lr(int m, int n, double *A, double tol, int *rank, double **U,
         double **S, double **V)
 {
+    // Computes SVD of a matrix and computes rank for approximation with
+    // given relative error in Frobenius norm
     int mn = m > n ? n : m;
     int i;
     double stol;
