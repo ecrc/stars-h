@@ -84,9 +84,12 @@ void dmatrix_qr(int m, int n, double *A, double *Q, double *R)
     {
         int size = m*mn;
         LAPACKE_dorgqr(LAPACK_COL_MAJOR, m, n, mn, A, m, tau);
-        for(i = 0; i < size; i++)
+        if(Q != A)
         {
-            Q[i] = A[i];
+            for(i = 0; i < size; i++)
+            {
+                Q[i] = A[i];
+            }
         }
     }
 }

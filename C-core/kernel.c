@@ -4,6 +4,7 @@
 #include <string.h>
 #include "blr.h"
 #include "kernel.h"
+#include "cblas.h"
 
 /*
 double whittleKernel(double x, double beta)
@@ -89,9 +90,76 @@ block_func *STARS_get_kernel(char *name)
     {
         return block_exp_kernel;
     }
+    else if(strcmp(name, "synth") == 0)
+    {
+        return block_synth_kernel;
+    }
     else
     {
         printf("Wrong parameter to STARS_get_kernel\n");
         return NULL;
     }
+}
+
+void block_synth_kernel(int rows, int cols, int *row, int *col,
+        STARS_synthdata *row_data, STARS_synthdata *col_data, double *result)
+{
+    // Block kernel for matrix USV
+    int i, j, k;
+    int bsize = row_data->bsize;
+    int bcount = row_data->bcount;
+    double *U = row_data->U;
+    double *S = row_data->S;
+    double *V = row_data->V;
+    double *tmp_buf = (double *)malloc(bsize*sizeof(double));
+    double *ptr;
+    for(j = 0; j < cols; j++)
+        for(i = 0; i < rows; i++)
+        {
+            ptr = U+row[i];
+            for(k = 0; k < bsize; k++)
+                tmp_buf[k] = ptr[k*bcount]*S[k];
+            result[j*rows+i] = cblas_ddot(bsize, tmp_buf, 1,
+                    V+col[j]*bsize, 1);
+        }
+    free(tmp_buf);
+}
+
+STARS_synthdata *STARS_gen_synthdata(int rows, int cols, int brows, int bcols,
+        int *brow_start, int *bcol_start, int *brow_size, int *bcol_size)
+{
+    int i, j, n;
+    STARS_synthdata *data = (STARS_synthdata *)malloc(sizeof(STARS_synthdata));
+    int size = 0, max_size = 0;
+    for(i = 0; i < brows; i++)
+    {
+        n = brow_size[i];
+        size += n*n;
+        max_size = max_size > n ? max_size : n;
+    }
+    data->U = (double *)malloc(size*sizeof(double));
+    size = 0;
+    for(i = 0; i < brows; i++)
+    {
+        n = brow_size[i];
+        dmatrix_randn(n, n, data->U+size);
+        dmatrix_qr(n, n, data->U+size, data->U+size, NULL);
+        size += n*n;
+    }
+    size = 0;
+    for(i = 0; i < bcols; i++)
+    {
+        size += bcol_size[i]*bcol_size[i];
+    }
+    data->V = (double *)malloc(size*sizeof(double));
+    size = 0;
+    for(i = 0; i < bcols; i++)
+    {
+        n = bcol_size[i];
+        dmatrix_randn(n, n, data->V+size);
+        dmatrix_qr(n, n, data->V+size, data->V+size, NULL);
+        size += n*n;
+    }
+    data->S = (double *)malloc(max_size*sizeof(double));
+    return data;
 }
