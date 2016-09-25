@@ -97,6 +97,7 @@ void *STARS_gen_ssdata(int n, double beta)
     STARS_ssdata *data = (STARS_ssdata *)malloc(sizeof(STARS_ssdata));
     data->point = (double *)malloc(2*n*n*sizeof(double));
     gen_points(n, data->point);
+    zsort(n*n, data->point);
     data->count = n*n;
     data->beta = beta;
     return (void *)data;

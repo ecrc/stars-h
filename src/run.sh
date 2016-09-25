@@ -1,4 +1,3 @@
-make clean all
-cd ../testing &&
+cd .. &&
     DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"/Users/mikhala/Applications/Conda/envs/py2_conmkl/lib"\
-    && make clean all && ./spatial.out
+    && make clean all && testing/spatial.out

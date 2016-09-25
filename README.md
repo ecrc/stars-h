@@ -1,2 +1,2 @@
 # stars-h
- Software for Testing Accuracy, Reliability and Speedup of Hierarchical computations
+ Software for Testing Accuracy, Reliability and Scalability of Hierarchical computations

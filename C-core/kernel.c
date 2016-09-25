@@ -5,6 +5,7 @@
 #include "blr.h"
 #include "kernel.h"
 #include "cblas.h"
+#include "misc.h"
 
 /*
 double whittleKernel(double x, double beta)

@@ -6,10 +6,10 @@
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
         double tol)
-{
     // Private function of STARS-H
     // Uses SVD to acquire rank of each block, compresses given matrix (given
-    // by block kernel, which retruns submatrices) with relative accuracy tol
+    // by block kernel, which returns submatrices) with relative accuracy tol
+{
     int i, j, k, l, bi, rows, cols, mn, rank;
     double *U, *S, *V, *ptr, *block, *block2;
     double norm;
@@ -24,6 +24,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
     mat->A = (double **)malloc(mat->bcount*sizeof(double *));
     for(i = 0; i < format->nbrows; i++)
         for(j = 0; j < format->nbcols; j++)
+            // Cycle over every block
         {
             bi = i * format->nbcols + j;
             mat->bindex[2*bi] = i;
@@ -42,6 +43,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             dmatrix_lr(rows, cols, block, tol, &rank, &U, &S, &V);
             free(block);
             if(rank < mn/2)
+                // If block is low-rank
             {
                 mat->A[bi] = NULL;
                 mat->U[bi] = (double *)malloc(rows*rank*sizeof(double));
@@ -53,24 +55,128 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
                     {
                         ptr[k*rank+l] = S[l]*V[k*mn+l];
                     }
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, rows,
-                        cols, rank, 1., mat->U[bi], rows, mat->V[bi], rank,
-                        -1., block2, rows);
-                printf("Low rank: %i %i %f %f\n", i, j, cblas_dnrm2(rows*cols,
-                        block2, 1)/norm, norm);
                 mat->brank[bi] = rank;
                 free(block2);
             }
             else
+                // If block is NOT low-rank
             {
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
                 mat->A[bi] = block2;
                 mat->brank[bi] = -1;
-                printf("Full rank: %i %i %f\n", i, j, norm);
             }
             free(U);
             free(S);
             free(V);
         }
+    return mat;
+}
+
+void STARS_BLRmatrix_info(STARS_BLRmatrix *mat)
+    // Print information on each block of block low-rank matrix.
+{
+    int i, bi, bj, r;
+    if(mat == NULL)
+    {
+        printf("STARS_BLRmatrix NOT initialized\n");
+        return;
+    }
+    for(i = 0; i < mat->bcount; i++)
+    {
+        bi = mat->bindex[2*i];
+        bj = mat->bindex[2*i+1];
+        r = mat->brank[i];
+        if(r != -1)
+        {
+            printf("block (%i, %i): %i x %i matrix of rank %i\n", bi, bj,
+                    mat->format->ibrow_size[bi], mat->format->ibcol_size[bj],
+                    r);
+        }
+        else
+        {
+            printf("block (%i, %i): %i x %i full-rank matrix\n", bi, bj,
+                    mat->format->ibrow_size[bi], mat->format->ibcol_size[bj]);
+        }
+    }
+}
+
+void STARS_BLRmatrix_free(STARS_BLRmatrix *mat)
+    // Free memory, used by matrix
+{
+    int bi;
+    if(mat == NULL)
+    {
+        printf("STARS_BLRmatrix NOT initialized\n");
+        return;
+    }
+    for(bi = 0; bi < mat->bcount; bi++)
+    {
+        if(mat->A[bi] != NULL)  free(mat->A[bi]);
+        if(mat->U[bi] != NULL)  free(mat->U[bi]);
+        if(mat->V[bi] != NULL)  free(mat->V[bi]);
+    }
+    free(mat->A);
+    free(mat->U);
+    free(mat->V);
+    free(mat->bindex);
+    free(mat->brank);
+    free(mat);
+}
+
+void STARS_BLR_info(STARS_BLR *format)
+    // Print onfo on block partitioning
+{
+    int i;
+    if(format == NULL)
+    {
+        printf("STARS_BLR NOT initialized\n");
+        return;
+    }
+    if(format->symm == 'S')
+        printf("Symmetric partitioning into blocks\n(blocking for columns "
+                "is the same, as blocking for rows)\n");
+    printf("Block rows (start, end):");
+    if(format->nbrows > 0)
+        printf(" (%i, %i)", format->ibrow_start[i],
+                format->ibrow_start[i]+format->ibrow_size[i]);
+    for(i = 1; i < format->nbrows; i++)
+    {
+        printf(", (%i, %i)", format->ibrow_start[i],
+                format->ibrow_start[i]+format->ibrow_size[i]);
+    }
+    printf("\n");
+    if(format->symm == 'N')
+    {
+        printf("Block columns (start, end):");
+        if(format->nbcols > 0)
+            printf(" (%i, %i)", format->ibcol_start[i],
+                    format->ibcol_start[i]+format->ibcol_size[i]);
+        for(i = 0; i < format->nbcols; i++)
+        {
+            printf("(%i, %i), ", format->ibcol_start[i],
+                    format->ibcol_start[i]+format->ibcol_size[i]);
+        }
+        printf("\n");
+    }
+}
+
+void STARS_BLR_free(STARS_BLR *format)
+    // Free memory, used by block partitioning data
+{
+    if(format == NULL)
+    {
+        printf("STARS_BLR NOT initialized\n");
+        return;
+    }
+    free(format->row_order);
+    free(format->ibrow_start);
+    free(format->ibrow_size);
+    if(format->symm == 'N')
+    {
+       free(format->col_order);
+       free(format->ibcol_start);
+       free(format->ibcol_size);
+    }
+    free(format);
 }
