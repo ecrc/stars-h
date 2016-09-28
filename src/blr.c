@@ -137,6 +137,7 @@ void STARS_BLR_info(STARS_BLR *format)
         printf("Symmetric partitioning into blocks\n(blocking for columns "
                 "is the same, as blocking for rows)\n");
     printf("Block rows (start, end):");
+    i = 0;
     if(format->nbrows > 0)
         printf(" (%i, %i)", format->ibrow_start[i],
                 format->ibrow_start[i]+format->ibrow_size[i]);
@@ -149,6 +150,7 @@ void STARS_BLR_info(STARS_BLR *format)
     if(format->symm == 'N')
     {
         printf("Block columns (start, end):");
+        i = 0;
         if(format->nbcols > 0)
             printf(" (%i, %i)", format->ibcol_start[i],
                     format->ibcol_start[i]+format->ibcol_size[i]);
