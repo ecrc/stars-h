@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "stars.h"
 #include "stars-misc.h"
 #include "stars-spatial.h"
 
-void *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data, void *result)
+Array *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data)
 {
     // Block kernel for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 2D
@@ -15,7 +16,9 @@ void *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     double tmp, dist, beta = -rdata->beta;
     double *x = rdata->point;
     double *y = rdata->point+rdata->count;
-    double *out = (double *)result;
+    int shape[2] = {nrows, ncols};
+    Array *result = Array_new(2, shape, 'd', 'F');
+    double *buffer = result->buffer;
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -24,9 +27,9 @@ void *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
             tmp = y[irow[i]]-y[icol[j]];
             dist += tmp*tmp;
             dist = sqrt(dist)/beta;
-            out[j*nrows+i] = exp(dist);
+            buffer[j*nrows+i] = exp(dist);
         }
-    return NULL;
+    return result;
 }
 
 uint32_t Part1By1(uint32_t x)

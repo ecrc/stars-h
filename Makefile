@@ -15,17 +15,16 @@ all: 		lib test
 -include make.inc
 
 CC		?= cc
-CFLAGS		?= -O2 -Wall
+CFLAGS		?= -O2 -Wall -m64 -I${MKLROOT}/include
 LDFLAGS		?=
 
 ARCH		?= ar
 ARCHFLAGS	?= cr
 RANLIB		?= ranlib
 
-INCLUDE		?= 
-LIBS		?= -lmkl_rt
-LIB_DIR		?= -L/Users/mikhala/Applications/Conda/envs/py2_conmkl/lib
-
+INCLUDE		?= -I$(MKLROOT)/include
+LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
+		   -lmkl_rt -lpthread -lm -ldl
 STARSH_INCLUDE	= -Iinclude/
 STARSH_LIB	= lib/libstarsh.a
 
@@ -34,6 +33,7 @@ STARSH_LIB	= lib/libstarsh.a
 STARSH_DIR	= src
 STARSH_SRC	= $(wildcard $(STARSH_DIR)/*.c)
 STARSH_OBJ	= $(STARSH_SRC:%.c=%.o)
+STARSH_H	= $(wildcard include/stars*.h)
 TEST_DIR	= testing
 TEST_SRC	= $(wildcard $(TEST_DIR)/*.c)
 TEST_OBJ	= $(TEST_SRC:%.c=%.o)
@@ -58,8 +58,9 @@ $(STARSH_LIB):	$(STARSH_OBJ)
 
 test:		$(TEST_EXE)
 
-%.out:		%.o
-	$(CC) $(LDFLAGS) $(STARSH_LIB) $(LIBS) $(LIB_DIR) $< -o $@
+%.out:		%.c $(STARSH_H)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(STARSH_INCLUDE) $(STARSH_LIB) $(LIBS)\
+	    $(LIB_DIR) $< -o $@
 
 # Cleaning everything
 
@@ -79,6 +80,7 @@ echo:
 	@echo "STARSH_DIR  $(STARSH_DIR)"
 	@echo "STARSH_SRC  $(STARSH_SRC)"
 	@echo "STARSH_OBJ  $(STARSH_OBJ)"
+	@echo "STARSH_H    $(STARSH_H)"
 	@echo
 	@echo "TEST_DIR    $(TEST_DIR)"
 	@echo "TEST_SRC    $(TEST_SRC)"
@@ -86,5 +88,5 @@ echo:
 
 # Compiling every required object file from a C-source
 
-%.o:		%.c
+%.o:		%.c $(STARSH_H)
 	$(CC) $(CFLAGS) $(INCLUDE) $(STARSH_INCLUDE) -c $< -o $@
