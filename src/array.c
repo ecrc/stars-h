@@ -541,20 +541,20 @@ void Array_SVD(Array *array, Array **U, Array **S, Array **V)
     Array_info(array);
     if(uv_dtype == 's')
         LAPACKE_sgesdd(order, 'S', array->shape[0], array->shape[1],
-                array->buffer, array->shape[0], (*S)->buffer, (*U)->buffer,
-                array->shape[0], (*V)->buffer, mn);
+                array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
+                (*V)->buffer, ldv);
     else if(uv_dtype == 'd')
         LAPACKE_dgesdd(order, 'S', array->shape[0], array->shape[1],
-                array->buffer, array->stride[1], (*S)->buffer, (*U)->buffer,
-                (*U)->stride[1], (*V)->buffer, (*V)->stride[1]);
+                array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
+                (*V)->buffer, ldv);
     else if(uv_dtype == 'c')
         LAPACKE_cgesdd(order, 'S', array->shape[0], array->shape[1],
-                array->buffer, array->shape[0], (*S)->buffer, (*U)->buffer,
-                array->shape[0], (*V)->buffer, mn);
+                array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
+                (*V)->buffer, ldv);
     else // uv_dtype == 'z'
         LAPACKE_zgesdd(order, 'S', array->shape[0], array->shape[1],
-                array->buffer, array->shape[0], (*S)->buffer, (*U)->buffer,
-                array->shape[0], (*V)->buffer, mn);
+                array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
+                (*V)->buffer, ldv);
 }
 
 void Array_scale(Array *array, char kind, Array *factor)
