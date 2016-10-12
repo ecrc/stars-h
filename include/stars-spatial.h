@@ -8,4 +8,5 @@ typedef struct
 } STARS_ssdata;
 
 STARS_Problem *STARS_gen_ssproblem(int n, double beta);
-STARS_BLR *STARS_gen_ss_blrformat(int n, double beta);
+STARS_BLR *STARS_gen_ss_blrformat(int block_size, int block_count,
+        double beta);

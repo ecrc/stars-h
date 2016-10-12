@@ -19,7 +19,7 @@ CFLAGS		?= -O2 -Wall -m64 -I${MKLROOT}/include
 LDFLAGS		?=
 
 ARCH		?= ar
-ARCHFLAGS	?= cr
+ARCHFLAGS	?= rc
 RANLIB		?= ranlib
 
 INCLUDE		?= -I$(MKLROOT)/include
@@ -58,7 +58,7 @@ $(STARSH_LIB):	$(STARSH_OBJ)
 
 test:		$(TEST_EXE)
 
-%.out:		%.c $(STARSH_H)
+%.out:		%.c $(STARSH_LIB)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(STARSH_INCLUDE) $(STARSH_LIB) $(LIBS)\
 	    $(LIB_DIR) $< -o $@
 

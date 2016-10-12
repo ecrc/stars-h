@@ -81,7 +81,7 @@ void zsort(int n, double *points)
     }
 }
 
-void gen_points(int n, double *points)
+void gen_points_old(int n, double *points)
 {
     int i, j;
     double *A = points+n*n;
@@ -95,13 +95,24 @@ void gen_points(int n, double *points)
     }
 }
 
+void gen_points(int n, double *points)
+{
+    int i;
+    double *A = points+n;
+    for(i = 0; i < n; i++)
+    {
+        points[i] = (double)rand()/(double)RAND_MAX;
+        A[i] = (double)rand()/(double)RAND_MAX;
+    }
+}
+
 void *STARS_gen_ssdata(int n, double beta)
 {
     STARS_ssdata *data = (STARS_ssdata *)malloc(sizeof(STARS_ssdata));
-    data->point = (double *)malloc(2*n*n*sizeof(double));
+    data->point = (double *)malloc(2*n*sizeof(double));
     gen_points(n, data->point);
-    zsort(n*n, data->point);
-    data->count = n*n;
+    zsort(n, data->point);
+    data->count = n;
     data->beta = beta;
     return (void *)data;
 }
@@ -109,8 +120,8 @@ void *STARS_gen_ssdata(int n, double beta)
 STARS_Problem *STARS_gen_ssproblem(int n, double beta)
 {
     STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
-    problem->nrows = n*n;
-    problem->ncols = n*n;
+    problem->nrows = n;
+    problem->ncols = n;
     problem->symm = 'S';
     problem->dtype = 'd';
     problem->row_data = STARS_gen_ssdata(n, beta);
@@ -119,9 +130,9 @@ STARS_Problem *STARS_gen_ssproblem(int n, double beta)
     return problem;
 }
 
-STARS_BLR *STARS_gen_ss_blrformat(int n, double beta)
+STARS_BLR *STARS_gen_ss_blrformat(int block_size, int block_count, double beta)
 {
-    int i;
+    int i, n = block_size*block_count;
     STARS_BLR *blr = (STARS_BLR *)malloc(sizeof(STARS_BLR));
     blr->problem = STARS_gen_ssproblem(n, beta);
     blr->symm = 'S';
@@ -133,16 +144,16 @@ STARS_BLR *STARS_gen_ss_blrformat(int n, double beta)
     {
         blr->row_order[i] = i;
     }
-    blr->nbrows = n;
-    blr->nbcols = n;
-    blr->ibrow_start = (int *)malloc(n*sizeof(int));
+    blr->nbrows = block_count;
+    blr->nbcols = block_count;
+    blr->ibrow_start = (int *)malloc(block_count*sizeof(int));
     blr->ibcol_start = blr->ibrow_start;
-    blr->ibrow_size = (int *)malloc(n*sizeof(int));
+    blr->ibrow_size = (int *)malloc(block_count*sizeof(int));
     blr->ibcol_size = blr->ibrow_size;
-    for(i = 0; i < n; i++)
+    for(i = 0; i < block_count; i++)
     {
-        blr->ibrow_start[i] = i*n;
-        blr->ibrow_size[i] = n;
+        blr->ibrow_start[i] = i*block_size;
+        blr->ibrow_size[i] = block_size;
     }
     return blr;
 }
