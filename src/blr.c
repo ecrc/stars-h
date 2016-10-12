@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "stars.h"
 #include "stars-misc.h"
 #include "cblas.h"
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
-        double tol)
+        int maxrank, double tol)
     // Private function of STARS-H
     // Uses SVD to acquire rank of each block, compresses given matrix (given
     // by block kernel, which returns submatrices) with relative accuracy tol
+    // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
-    int i, j, k, l, bi, rows, cols, mn, rank;
+    int i, j, k, l, bi, rows, cols, mn, rank, tmprank;
     double *U, *S, *V, *ptr;
     int shape[2];
     Array *block, *block2;
@@ -38,13 +40,17 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
                     format->ibrow_start[i], format->col_order +
                     format->ibcol_start[j], format->problem->row_data,
                     format->problem->col_data);
-            norm = cblas_dnrm2(rows*cols, block->buffer, 1);
+            //norm = cblas_dnrm2(rows*cols, block->buffer, 1);
             block2 = Array_copy(block);
             dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
             Array_free(block);
             if(rank < mn/2)
                 // If block is low-rank
             {
+                if(rank < mn/2 && maxrank > 0)
+                    // If block is low-rank and maximum rank is upperbounded,
+                    // then rank should be equal to maxrank
+                    rank = maxrank;
                 mat->A[bi] = NULL;
                 shape[0] = rows;
                 shape[1] = rank;
@@ -189,4 +195,39 @@ void STARS_BLR_free(STARS_BLR *format)
        free(format->ibcol_size);
     }
     free(format);
+}
+
+void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
+{
+    int bi, i, j;
+    double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0.;
+    int rows, cols;
+    STARS_BLR *format = mat->format;
+    Array *block, *block2;
+    for(bi = 0; bi < mat->bcount; bi++)
+    {
+        i = mat->bindex[2*bi];
+        j = mat->bindex[2*bi+1];
+        rows = format->ibrow_size[i];
+        cols = format->ibcol_size[j];
+        block = (mat->problem->kernel)(rows, cols, format->row_order +
+                format->ibrow_start[i], format->col_order +
+                format->ibcol_start[j], format->problem->row_data,
+                format->problem->col_data);
+        tmpnorm = Array_norm(block);
+        norm += tmpnorm*tmpnorm;
+        if(mat->A[bi] == NULL)
+        {
+            block2 = Array_dot(mat->U[bi], mat->V[bi]);
+            tmpdiff = Array_error(block, block2);
+            Array_free(block2);
+            diff += tmpdiff*tmpdiff;
+            tmperr = tmpdiff/tmpnorm;
+            if(tmperr > maxerr)
+                maxerr = tmperr;
+        }
+    }
+    printf("Relative error of approximation of full matrix: %e\n",
+            sqrt(diff/norm));
+    printf("Maximum relative error of per-block approximation: %e\n", maxerr);
 }

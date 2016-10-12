@@ -70,7 +70,9 @@ void Array_SVD(Array *array, Array **U, Array **S, Array **V);
 void Array_scale(Array *array, char kind, Array *factor);
 // Apply row or column scaling to array
 double Array_error(Array *array, Array *array2);
-// Measure relative error of approximating array with array2
+// Measure Frobenius error of approximating array with array2
+double Array_norm(Array *array);
+// Measure Frobenius norm of array
 Array *Array_convert(Array *array, char dtype);
 // Copy array and convert data type
 
@@ -141,9 +143,10 @@ struct STARS_BLRmatrix
 };
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
-        double tol);
+        int maxrank, double tol);
 void STARS_BLRmatrix_info(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_free(STARS_BLRmatrix *mat);
 void STARS_BLR_info(STARS_BLR *format);
 void STARS_BLR_free(STARS_BLR *format);
+void STARS_BLRmatrix_error(STARS_BLRmatrix *mat);
 #endif // _STARS_H_

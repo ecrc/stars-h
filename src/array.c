@@ -642,45 +642,61 @@ double Array_error(Array *array, Array *array2)
     }
     if(array->dtype == 's')
     {
-        float norm = cblas_snrm2(array->size, array->buffer, 1);
         float *tmp_buf = (float *)malloc(array->nbytes);
         cblas_scopy(array->size, array2->buffer, 1, tmp_buf, 1);
         cblas_saxpy(array->size, -1.0, array->buffer, 1, tmp_buf, 1);
         float diff = cblas_snrm2(array->size, tmp_buf, 1);
         free(tmp_buf);
-        return diff/norm;
+        return diff;
     }
     if(array->dtype == 'd')
     {
-        double norm = cblas_dnrm2(array->size, array->buffer, 1);
         double *tmp_buf = (double *)malloc(array->nbytes);
         cblas_dcopy(array->size, array2->buffer, 1, tmp_buf, 1);
         cblas_daxpy(array->size, -1.0, array->buffer, 1, tmp_buf, 1);
         double diff = cblas_dnrm2(array->size, tmp_buf, 1);
         free(tmp_buf);
-        return diff/norm;
+        return diff;
     }
     if(array->dtype == 'c')
     {
         float complex one = -1;
-        float norm = cblas_scnrm2(array->size, array->buffer, 1);
         float complex *tmp_buf = (float complex *)malloc(array->nbytes);
         cblas_ccopy(array->size, array2->buffer, 1, tmp_buf, 1);
         cblas_caxpy(array->size, &one, array->buffer, 1, tmp_buf, 1);
         float diff = cblas_scnrm2(array->size, tmp_buf, 1);
         free(tmp_buf);
-        return diff/norm;
+        return diff;
     }
     else// array->dtype == 'z'
     {
         double complex one = -1;
-        double norm = cblas_dznrm2(array->size, array->buffer, 1);
         double complex *tmp_buf = (double complex *)malloc(array->nbytes);
         cblas_zcopy(array->size, array2->buffer, 1, tmp_buf, 1);
         cblas_zaxpy(array->size, &one, array->buffer, 1, tmp_buf, 1);
         double diff = cblas_dznrm2(array->size, tmp_buf, 1);
         free(tmp_buf);
-        return diff/norm;
+        return diff;
+    }
+}
+
+double Array_norm(Array *array)
+{
+    if(array->dtype == 's')
+    {
+        return cblas_snrm2(array->size, array->buffer, 1);
+    }
+    if(array->dtype == 'd')
+    {
+        return cblas_dnrm2(array->size, array->buffer, 1);
+    }
+    if(array->dtype == 'c')
+    {
+        return cblas_scnrm2(array->size, array->buffer, 1);
+    }
+    else// array->dtype == 'z'
+    {
+        return cblas_dznrm2(array->size, array->buffer, 1);
     }
 }
 
