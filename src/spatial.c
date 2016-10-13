@@ -32,6 +32,7 @@ Array *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
+/*
 uint32_t Part1By1(uint32_t x)
 {
   x &= 0x0000ffff;                  // x = ---- ---- ---- ---- fedc ba98 7654 3210
@@ -94,47 +95,58 @@ void gen_points_old(int n, double *points)
         }
     }
 }
+*/
 
-void gen_points(int n, double *points)
+void gen_block_points(int m, int n, int block_size, double *points)
 {
-    int i;
-    double *A = points+n;
-    for(i = 0; i < n; i++)
-    {
-        points[i] = (double)rand()/(double)RAND_MAX;
-        A[i] = (double)rand()/(double)RAND_MAX;
-    }
+    int i, j, k, ind = 0;
+    int npoints = m*n*block_size;
+    double *x = points, *y = points+npoints;
+    for(i = 0; i < m; i++)
+        for(j = 0; j < n; j++)
+            for(k = 0; k < block_size; k++)
+            {
+                x[ind] = (j+0.95*rand()/RAND_MAX)/n;
+                y[ind] = (i+0.95*rand()/RAND_MAX)/m;
+                ind++;
+            }
 }
 
-void *STARS_gen_ssdata(int n, double beta)
+void *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
+        double beta)
 {
+    int n = row_blocks*col_blocks*block_size;
     STARS_ssdata *data = (STARS_ssdata *)malloc(sizeof(STARS_ssdata));
     data->point = (double *)malloc(2*n*sizeof(double));
-    gen_points(n, data->point);
-    zsort(n, data->point);
+    gen_block_points(row_blocks, col_blocks, block_size, data->point);
     data->count = n;
     data->beta = beta;
     return (void *)data;
 }
 
-STARS_Problem *STARS_gen_ssproblem(int n, double beta)
+STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
+        int block_size, double beta)
 {
+    int n = row_blocks*col_blocks*block_size;
     STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
     problem->nrows = n;
     problem->ncols = n;
     problem->symm = 'S';
     problem->dtype = 'd';
-    problem->row_data = STARS_gen_ssdata(n, beta);
+    problem->row_data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
+            beta);
     problem->col_data = problem->row_data;
     problem->kernel = block_exp_kernel;
     return problem;
 }
 
-STARS_BLR *STARS_gen_ss_blrformat(int block_size, int block_count, double beta)
+STARS_BLR *STARS_gen_ss_blrformat(int row_blocks, int col_blocks,
+        int block_size, double beta)
 {
-    int i, n = block_size*block_count;
+    int i, block_count = row_blocks*col_blocks, n = block_size*block_count;
     STARS_BLR *blr = (STARS_BLR *)malloc(sizeof(STARS_BLR));
-    blr->problem = STARS_gen_ssproblem(n, beta);
+    blr->problem = STARS_gen_ssproblem(row_blocks, col_blocks, block_size,
+            beta);
     blr->symm = 'S';
     blr->nrows = blr->problem->nrows;
     blr->ncols = blr->nrows;

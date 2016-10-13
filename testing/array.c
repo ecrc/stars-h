@@ -9,7 +9,7 @@ void check_SVD(int m, int n);
 
 int main(int argc, char **argv)
 {
-    check_SVD(200, 20);
+    check_SVD(500, 500);
 }
 
 void check_SVD(int m, int n)

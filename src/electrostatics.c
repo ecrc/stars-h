@@ -35,23 +35,21 @@ Array *block_es_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
-void *STARS_gen_esdata(int count)
+STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
+        int block_size)
 {
-    return STARS_gen_ssdata(count, 0);
-}
-
-STARS_Problem *STARS_gen_esproblem(int count)
-{
-    STARS_Problem *problem = STARS_gen_ssproblem(count, 0);
+    STARS_Problem *problem = STARS_gen_ssproblem(row_blocks, col_blocks,
+            block_size, 0);
     problem->kernel = block_es_kernel;
     return problem;
 }
 
-STARS_BLR *STARS_gen_es_blrformat(int block_size, int block_count)
+STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
+        int block_size)
 {
-    int i, n = block_size*block_count;
+    int i, block_count = row_blocks*col_blocks, n = block_size*block_count;
     STARS_BLR *blr = (STARS_BLR *)malloc(sizeof(STARS_BLR));
-    blr->problem = STARS_gen_esproblem(n);
+    blr->problem = STARS_gen_esproblem(row_blocks, col_blocks, block_size);
     blr->symm = 'S';
     blr->nrows = blr->problem->nrows;
     blr->ncols = blr->nrows;

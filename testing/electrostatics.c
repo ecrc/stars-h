@@ -6,21 +6,22 @@
 
 int main(int argc, char **argv)
 {
-    if(argc < 5)
+    if(argc < 6)
     {
         printf("%d\n", argc);
-        printf("electrostatics.out block_size block_count maxrank tol\n");
+        printf("electrostatics.out row_blocks col_blocks block_size maxrank "
+                "tol\n");
         exit(0);
     }
-    int block_size = atoi(argv[1]), block_count = atoi(argv[2]);
-    int maxrank = atoi(argv[3]);
-    double tol = atof(argv[4]);
-    printf("bs=%d, bc=%d, mr=%d, tol=%e\n", block_size, block_count, maxrank,
-            tol);
+    int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
+    int block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
+    double tol = atof(argv[5]);
+    printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e\n", row_blocks, col_blocks,
+            block_size, maxrank, tol);
     STARS_Problem *problem;
     STARS_BLR *format;
     STARS_BLRmatrix *matrix;
-    format = STARS_gen_es_blrformat(block_size, block_count);
+    format = STARS_gen_es_blrformat(row_blocks, col_blocks, block_size);
     // Problem is generated inside STARS_gen_ss_blrformat
     matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol);
     STARS_BLRmatrix_error(matrix);

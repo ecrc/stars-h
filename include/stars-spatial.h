@@ -7,6 +7,7 @@ typedef struct
     double beta;
 } STARS_ssdata;
 
-STARS_Problem *STARS_gen_ssproblem(int n, double beta);
-STARS_BLR *STARS_gen_ss_blrformat(int block_size, int block_count,
-        double beta);
+STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
+        int block_size, double beta);
+STARS_BLR *STARS_gen_ss_blrformat(int row_blocks, int col_blocks,
+        int block_size, double beta);
