@@ -22,10 +22,19 @@ int main(int argc, char **argv)
             col_blocks, block_size, maxrank, tol, beta);
     STARS_Problem *problem;
     STARS_BLR *format;
-    STARS_BLRmatrix *matrix;
-    format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
-    // Problem is generated inside STARS_gen_ss_blrformat
-    matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol);
+    STARS_BLRmatrix *matrix = NULL;
+    while(matrix == NULL)
+    {
+        format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
+        // Problem is generated inside STARS_gen_ss_blrformat
+        matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol);
+        if(matrix == NULL)
+        {
+            free(format->problem->row_data);
+            free(format->problem);
+            STARS_BLR_free(format);
+        }
+    }
     printf("Measuring error!\n");
     STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);

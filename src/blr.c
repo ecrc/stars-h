@@ -12,7 +12,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
     // by block kernel, which returns submatrices) with relative accuracy tol
     // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
-    int i, j, k, l, bi, rows, cols, mn, rank, tmprank;
+    int i, j, k, l, bi, rows, cols, mn, rank, tmprank, error = 0;
     double *U, *S, *V, *ptr;
     int shape[2];
     char symm = format->symm;
@@ -35,7 +35,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             bi = i * format->nbcols + j;
             mat->bindex[2*bi] = i;
             mat->bindex[2*bi+1] = j;
-            if(i > j && symm == 'S')
+            if((i > j && symm == 'S') || error == 1)
             {
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
@@ -82,7 +82,10 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
                 // If block is NOT low-rank
             {
                 if(i != j)
+                {
                     printf("FULL rank offdiagonal (%i,%i)\n", i, j);
+                    error = 1;
+                }
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
                 mat->A[bi] = block2;
@@ -92,6 +95,11 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             free(S);
             free(V);
         }
+    if(error == 1)
+    {
+        STARS_BLRmatrix_free(mat);
+        return NULL;
+    }
     return mat;
 }
 
@@ -255,6 +263,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
 
 void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
         int *block_size, int *rank, void **U, void **V, void **A)
+// DO NOT FREE POINTERS OF THIS FUNCTIONS
 {
     int bi = i * mat->format->nbcols + j;
     *rank = mat->brank[bi];;
@@ -266,6 +275,7 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
 
 void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *block_size,
         void **A)
+// PLEASE CLEAN MEMORY POINTER AFTER USE
 {
     int rows = format->ibrow_size[i];
     int cols = format->ibcol_size[j];
@@ -285,7 +295,7 @@ void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
         j = mat->bindex[2*bi+1];
         if(i > j)
             continue;
-        printf("BLOCK %i %i:\n");
+        printf("BLOCK %d %d:\n", i, j);
         if(mat->A[bi] == NULL)
         {
             Array_info(mat->U[bi]);
@@ -298,5 +308,6 @@ void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
             Array_info(mat->A[bi]);
             Array_print(mat->A[bi]);
         }
+        printf("\n");
     }
 }
