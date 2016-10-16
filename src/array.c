@@ -193,7 +193,8 @@ void Array_print(Array *array)
                 offset = 0;
                 for(j = 0; j < array->ndim; j++)
                     offset += array->stride[j]*index[j];
-                printf(" %.2lf(%d)", buffer[offset], offset);
+                //printf(" %.2lf(%d)", buffer[offset], offset);
+                printf(" %.2lf", buffer[offset]);
                 index[1] += 1;
                 j = 1;
                 while(index[j] == array->shape[j])

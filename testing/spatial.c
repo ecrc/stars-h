@@ -29,6 +29,7 @@ int main(int argc, char **argv)
     printf("Measuring error!\n");
     STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
+    STARS_BLRmatrix_printKADIR(matrix);
     STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);
     STARS_BLR_free(format);

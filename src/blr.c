@@ -15,6 +15,8 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
     int i, j, k, l, bi, rows, cols, mn, rank, tmprank;
     double *U, *S, *V, *ptr;
     int shape[2];
+    char symm = format->symm;
+    //printf("'%c' format->symm\n", symm);
     Array *block, *block2;
     double norm;
     STARS_BLRmatrix *mat = (STARS_BLRmatrix *)malloc(sizeof(STARS_BLRmatrix));
@@ -33,6 +35,14 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             bi = i * format->nbcols + j;
             mat->bindex[2*bi] = i;
             mat->bindex[2*bi+1] = j;
+            if(i > j && symm == 'S')
+            {
+                mat->U[bi] = NULL;
+                mat->V[bi] = NULL;
+                mat->A[bi] = NULL;
+                mat->brank[bi] = 0;
+                continue;
+            }
             rows = format->ibrow_size[i];
             cols = format->ibcol_size[j];
             mn = rows > cols ? cols : rows;
@@ -71,6 +81,8 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             else
                 // If block is NOT low-rank
             {
+                if(i != j)
+                    printf("FULL rank offdiagonal (%i,%i)\n", i, j);
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
                 mat->A[bi] = block2;
@@ -116,6 +128,7 @@ void STARS_BLRmatrix_free(STARS_BLRmatrix *mat)
     // Free memory, used by matrix
 {
     int bi;
+    char symm = mat->format->symm;
     if(mat == NULL)
     {
         printf("STARS_BLRmatrix NOT initialized\n");
@@ -204,10 +217,13 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
     int rows, cols;
     STARS_BLR *format = mat->format;
     Array *block, *block2;
+    char symm = mat->format->symm;
     for(bi = 0; bi < mat->bcount; bi++)
     {
         i = mat->bindex[2*bi];
         j = mat->bindex[2*bi+1];
+        if(i > j && symm == 'S')
+            continue;
         rows = format->ibrow_size[i];
         cols = format->ibcol_size[j];
         block = (mat->problem->kernel)(rows, cols, format->row_order +
@@ -216,12 +232,16 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
                 format->problem->col_data);
         tmpnorm = Array_norm(block);
         norm += tmpnorm*tmpnorm;
+        if(i < j && symm == 'S')
+            norm += tmpnorm*tmpnorm;
         if(mat->A[bi] == NULL)
         {
             block2 = Array_dot(mat->U[bi], mat->V[bi]);
             tmpdiff = Array_error(block, block2);
             Array_free(block2);
             diff += tmpdiff*tmpdiff;
+            if(i < j && symm == 'S')
+                diff += tmpdiff*tmpdiff;
             tmperr = tmpdiff/tmpnorm;
             if(tmperr > maxerr)
                 maxerr = tmperr;
@@ -231,4 +251,52 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
     printf("Relative error of approximation of full matrix: %e\n",
             sqrt(diff/norm));
     printf("Maximum relative error of per-block approximation: %e\n", maxerr);
+}
+
+void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
+        int *block_size, int *rank, void **U, void **V, void **A)
+{
+    int bi = i * mat->format->nbcols + j;
+    *rank = mat->brank[bi];;
+    *block_size = mat->format->ibrow_size[bi];
+    *U = mat->U[bi]->buffer;
+    *V = mat->V[bi]->buffer;
+    *A = mat->A[bi]->buffer;
+}
+
+void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *block_size,
+        void **A)
+{
+    int rows = format->ibrow_size[i];
+    int cols = format->ibcol_size[j];
+    *block_size = rows;
+    *A = (format->problem->kernel)(rows, cols, format->row_order +
+            format->ibrow_start[i], format->col_order +
+            format->ibcol_start[j], format->problem->row_data,
+            format->problem->col_data);
+}
+
+void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
+{
+    int i, j, bi;
+    for(bi = 0; bi < mat->bcount; bi++)
+    {
+        i = mat->bindex[2*bi];
+        j = mat->bindex[2*bi+1];
+        if(i > j)
+            continue;
+        printf("BLOCK %i %i:\n");
+        if(mat->A[bi] == NULL)
+        {
+            Array_info(mat->U[bi]);
+            Array_print(mat->U[bi]);
+            Array_info(mat->V[bi]);
+            Array_print(mat->V[bi]);
+        }
+        else
+        {
+            Array_info(mat->A[bi]);
+            Array_print(mat->A[bi]);
+        }
+    }
 }
