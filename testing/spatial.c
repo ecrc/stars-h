@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "stars.h"
 #include "stars-spatial.h"
 
@@ -25,6 +26,7 @@ int main(int argc, char **argv)
     format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
     // Problem is generated inside STARS_gen_ss_blrformat
     matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol);
+    printf("Measuring error!\n");
     STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
     STARS_BLRmatrix_free(matrix);

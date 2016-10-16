@@ -226,6 +226,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
             if(tmperr > maxerr)
                 maxerr = tmperr;
         }
+        Array_free(block);
     }
     printf("Relative error of approximation of full matrix: %e\n",
             sqrt(diff/norm));
