@@ -35,7 +35,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             bi = i * format->nbcols + j;
             mat->bindex[2*bi] = i;
             mat->bindex[2*bi+1] = j;
-            if((i > j && symm == 'S') || error == 1)
+            if((i < j && symm == 'S') || error == 1)
             {
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
@@ -230,7 +230,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
     {
         i = mat->bindex[2*bi];
         j = mat->bindex[2*bi+1];
-        if(i > j && symm == 'S')
+        if(i < j && symm == 'S')
             continue;
         rows = format->ibrow_size[i];
         cols = format->ibcol_size[j];
@@ -240,7 +240,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
                 format->problem->col_data);
         tmpnorm = Array_norm(block);
         norm += tmpnorm*tmpnorm;
-        if(i < j && symm == 'S')
+        if(i != j && symm == 'S')
             norm += tmpnorm*tmpnorm;
         if(mat->A[bi] == NULL)
         {
@@ -248,7 +248,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
             tmpdiff = Array_error(block, block2);
             Array_free(block2);
             diff += tmpdiff*tmpdiff;
-            if(i < j && symm == 'S')
+            if(i != j && symm == 'S')
                 diff += tmpdiff*tmpdiff;
             tmperr = tmpdiff/tmpnorm;
             if(tmperr > maxerr)
@@ -293,7 +293,7 @@ void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
     {
         i = mat->bindex[2*bi];
         j = mat->bindex[2*bi+1];
-        if(i > j)
+        if(i < j)
             continue;
         printf("BLOCK %d %d:\n", i, j);
         if(mat->A[bi] == NULL)
