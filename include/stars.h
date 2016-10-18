@@ -143,7 +143,7 @@ struct STARS_BLRmatrix
 };
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
-        int maxrank, double tol);
+        int maxrank, double tol, int KADIR);
 void STARS_BLRmatrix_info(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_free(STARS_BLRmatrix *mat);
 void STARS_BLR_info(STARS_BLR *format);

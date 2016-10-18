@@ -6,7 +6,7 @@
 #include "cblas.h"
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
-        int maxrank, double tol)
+        int maxrank, double tol, int KADIR)
     // Private function of STARS-H
     // Uses SVD to acquire rank of each block, compresses given matrix (given
     // by block kernel, which returns submatrices) with relative accuracy tol
@@ -54,10 +54,10 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             block2 = Array_copy(block);
             dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
             Array_free(block);
-            if(rank < mn/2)
+            if((KADIR == 0 && rank < mn/2) || (KADIR == 1 && i != j))
                 // If block is low-rank
             {
-                if(rank < mn/2 && maxrank > 0)
+                if(maxrank > 0)
                     // If block is low-rank and maximum rank is upperbounded,
                     // then rank should be equal to maxrank
                     rank = maxrank;

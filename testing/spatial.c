@@ -8,18 +8,19 @@ int main(int argc, char **argv)
     // Example of how to use STARS library for spatial statistics.
     // For more information on STARS structures look inside of header files.
 {
-    if(argc < 7)
+    if(argc < 8)
     {
         printf("%d\n", argc);
         printf("electrostatics.out row_blocks col_blocks block_size maxrank "
-                "tol beta\n");
+                "tol beta KADIR\n");
         exit(0);
     }
     int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
     int block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
-    printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f\n", row_blocks,
-            col_blocks, block_size, maxrank, tol, beta);
+    int KADIR = atoi(argv[7]);
+    printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f, KADIR=%d\n",
+            row_blocks, col_blocks, block_size, maxrank, tol, beta, KADIR);
     STARS_Problem *problem;
     STARS_BLR *format;
     STARS_BLRmatrix *matrix = NULL;
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
     {
         format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
         // Problem is generated inside STARS_gen_ss_blrformat
-        matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol);
+        matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, KADIR);
         if(matrix == NULL)
         {
             free(format->problem->row_data);
