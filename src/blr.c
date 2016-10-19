@@ -46,25 +46,13 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             rows = format->ibrow_size[i];
             cols = format->ibcol_size[j];
             mn = rows > cols ? cols : rows;
-            //printf("1");
-            /*block = (mat->problem->kernel)(rows, cols, format->row_order +
+            block = (mat->problem->kernel)(rows, cols, format->row_order +
                     format->ibrow_start[i], format->col_order +
                     format->ibcol_start[j], format->problem->row_data,
-                    format->problem->col_data);*/
-            shape[0] = rows;
-            shape[1] = cols;
-            printf("%d(%d) %d(%d) %d\n", format->ibrow_start[i], rows, format->ibcol_start[j], cols, mn);
-            block = Array_new(2, shape, 'd', 'F');
-            Array_init_ones(block);
-            Array_print(block);
-            //norm = cblas_dnrm2(rows*cols, block->buffer, 1);
-            //printf("2");
+                    format->problem->col_data);
             block2 = Array_copy(block);
-            //Array_info(block);
-            //printf("%d %d\n", rows, cols);
             dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
             Array_free(block);
-            //printf("3\n");
             if((KADIR == 0 && rank < mn/2) || (KADIR == 1 && i != j))
                 // If block is low-rank
             {
@@ -108,7 +96,6 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
         }
     if(error == 1)
     {
-        printf("CLEARING\n");
         STARS_BLRmatrix_free(mat);
         return NULL;
     }

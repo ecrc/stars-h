@@ -93,6 +93,7 @@ void dmatrix_qr(int m, int n, double *A, double *Q, double *R)
             }
         }
     }
+    return;
 }
 
 void dmatrix_lr(int m, int n, double *A, double tol, int *rank, double **U,
@@ -107,11 +108,7 @@ void dmatrix_lr(int m, int n, double *A, double tol, int *rank, double **U,
     double *SS = (double *)malloc(mn*sizeof(double));
     double *SS2 = (double *)malloc(mn*sizeof(double));
     double *VV = (double *)malloc(mn*n*sizeof(double));
-    double *superb = (double *)malloc(mn*sizeof(double));
-    //printf("SVD1");
-    //LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'S', m, n, A, m, SS, UU, m, VV, n);
-    LAPACKE_dgesvd(LAPACK_COL_MAJOR, 'S', 'S', m, n, A, m, SS, UU, m, VV, n, superb);
-    //printf("SVD2\n");
+    LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'S', m, n, A, m, SS, UU, m, VV, mn);
     *rank = mn;
     SS2[mn-1] = SS[mn-1]*SS[mn-1];
     for(i = mn-2; i >= 0; i--)
@@ -124,8 +121,8 @@ void dmatrix_lr(int m, int n, double *A, double tol, int *rank, double **U,
             break;
         }
     free(SS2);
-    free(superb);
     *U = UU;
     *S = SS;
     *V = VV;
+    return;
 }

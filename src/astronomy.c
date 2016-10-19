@@ -1423,13 +1423,6 @@ Array *block_astronomy_kernel(int nrows, int ncols, int *irow, int *icol,
     long Ndphi = floor(crmax*pasDPHI)+1;
     double convert = (double)(Ndphi-1)/(crmax+tomo->pasDPHI);
     int type_mat = 1;
-    printf("ncols=%d, nrows=%d, row=%d, col=%d\n", ncols, nrows, irow[nrows-1], icol[ncols-1]);
-    //for(i = 0; i < nrows; i++)
-    //    printf(" %d", irow[i]);
-    //printf("\n");
-    //for(i = 0; i < ncols; i++)
-    //    printf(" %d", icol[i]);
-    //printf("\n");
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
             buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],

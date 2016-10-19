@@ -176,7 +176,7 @@ void scaldiag(int M,double alpha, double *A){
 
 int main(){
 
-    STARS_tomo tomo, *tomo2;
+    STARS_tomo *tomo, *tomo2;
     //TODO put the following variables as parameter
     long nssp=10;
     char files_path[]="./";
@@ -193,8 +193,8 @@ int main(){
 
     //matcov_init_tomo_tiled(&tomo, nssp, files_path, night_idx,
     //        snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
-    //tomo2 = STARS_gen_aodata(nssp, files_path, night_idx, snapshots_per_night,
-    //        snapshot_idx, obs_idx, alphaX, alphaY, nact);
+    tomo2 = STARS_gen_aodata(nssp, files_path, night_idx, snapshots_per_night,
+            snapshot_idx, obs_idx, alphaX, alphaY, nact);
 
     //int nmeas = matcov_getNumMeasurements(tomo2);
     //int shape[2] = {nmeas, nmeas};
@@ -241,20 +241,24 @@ int main(){
     int block_size = 10;
     int maxrank = 0;
     double tol = 1e-3;
-    STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));// = STARS_gen_aoproblem(tomo2);
+    
+    /*
+    STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
     problem->nrows = 12;
-    problem->ncols = 12;
+    problem->ncols = problem->nrows;
     problem->symm = 'S';
     problem->dtype = 'd';
     problem->row_data = NULL;
     problem->col_data = NULL;
     problem->kernel = NULL;
+    */
+    STARS_Problem *problem = STARS_gen_aoproblem(tomo2);
     STARS_BLR *format = STARS_gen_ao_blrformat(problem, block_size);
     STARS_BLRmatrix *mat = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
-    //STARS_BLRmatrix_free(mat);
-    //STARS_BLR_free(format);
+    STARS_BLRmatrix_free(mat);
+    STARS_BLR_free(format);
     //STARS_Problem_free(problem);
-    //free(tomo2);
+    free(tomo2);
     return 0;
 }
 
