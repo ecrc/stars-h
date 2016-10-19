@@ -15,7 +15,7 @@ all: 		lib test
 -include make.inc
 
 CC		?= cc
-CFLAGS		?= -O2 -Wall -m64 -I${MKLROOT}/include
+CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include
 LDFLAGS		?=
 
 ARCH		?= ar
