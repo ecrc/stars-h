@@ -174,7 +174,7 @@ void scaldiag(int M,double alpha, double *A){
 //
 //}
 
-int main(){
+int main(int argc, char **argv){
 
     STARS_tomo *tomo, *tomo2;
     //TODO put the following variables as parameter
@@ -190,6 +190,12 @@ int main(){
     Array *matrix, *matrix2;
     int *order;
     int i;
+    if(argc < 2)
+    {
+        printf("./astronomy.out heatmap_filename\n");
+        exit(1);
+    }
+    char *heatmap_fname = argv[1];
 
     //matcov_init_tomo_tiled(&tomo, nssp, files_path, night_idx,
     //        snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
@@ -238,7 +244,7 @@ int main(){
     //free(Cvv);
     //free(Dx);
 
-    int block_size = 10;
+    int block_size = 100;
     int maxrank = 0;
     double tol = 1e-3;
     

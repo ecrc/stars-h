@@ -37,13 +37,69 @@ int main(int argc, char **argv)
             STARS_BLR_free(format);
         }
     }
-    printf("Measuring error!\n");
-    STARS_BLRmatrix_error(matrix);
+    //printf("Measuring error!\n");
+    //STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
     //STARS_BLRmatrix_printKADIR(matrix);
     STARS_BLRmatrix_heatmap(matrix, heatmap_fname);
-    //STARS_BLRmatrix_free(matrix);
+    STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);
+    int nbrows = format->nbrows, shape[2], i;
+    double *buffer = NULL;
+    FILE *fd;
+    Array *U, *S, *V, *block;
+    STARS_BLR_getblock(format, nbrows/2, nbrows/2, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, 5*nbrows/8, 3*nbrows/8, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, 3*nbrows/4, nbrows/4, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, nbrows-1, 0, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
     STARS_BLR_free(format);
     return 0;
 }

@@ -33,6 +33,9 @@ struct Array
 };
 
 // Routines to work with N-dimensional arrays
+Array *Array_from_buffer(int ndim, int *shape, char dtype, char order,
+        void *buffer);
+// Create Array object with given shape and buffer pointer
 Array *Array_new(int ndim, int *shape, char dtype, char order);
 // Allocation of memory for array
 Array *Array_new_like(Array *array);
@@ -153,9 +156,8 @@ void STARS_BLR_info(STARS_BLR *format);
 void STARS_BLR_free(STARS_BLR *format);
 void STARS_BLRmatrix_error(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
-        int *block_size, int *rank, void **U, void **V, void **A);
-void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *block_size,
-        void **A);
+        int *shape, int *rank, void **U, void **V, void **A);
+void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A);
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_heatmap(STARS_BLRmatrix *mat, char *fname);
 #endif // _STARS_H_

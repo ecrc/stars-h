@@ -539,7 +539,6 @@ void Array_SVD(Array *array, Array **U, Array **S, Array **V)
     tmp_shape[0] = mn;
     *V = Array_new(2, tmp_shape, uv_dtype, array->order);
     *S = Array_new(1, tmp_shape, s_dtype, array->order);
-    Array_info(array);
     if(uv_dtype == 's')
         LAPACKE_sgesdd(order, 'S', array->shape[0], array->shape[1],
                 array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,

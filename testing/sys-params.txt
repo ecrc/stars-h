@@ -3,7 +3,7 @@ tel diam in meters
 cent obs
 0.2
 N WFS
-6
+10
 Nssp n subaps per wfs
 10
 GsAlt

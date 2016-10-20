@@ -263,28 +263,29 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
 }
 
 void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
-        int *block_size, int *rank, void **U, void **V, void **A)
+        int *shape, int *rank, void **U, void **V, void **A)
 // DO NOT FREE POINTERS OF THIS FUNCTIONS
 {
     int bi = i * mat->format->nbcols + j;
     *rank = mat->brank[bi];;
-    *block_size = mat->format->ibrow_size[bi];
+    shape[0] = mat->format->ibrow_size[bi];
+    shape[1] = mat->format->ibcol_size[bi];
     *U = mat->U[bi]->buffer;
     *V = mat->V[bi]->buffer;
     *A = mat->A[bi]->buffer;
 }
 
-void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *block_size,
-        void **A)
+void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A)
 // PLEASE CLEAN MEMORY POINTER AFTER USE
 {
     int rows = format->ibrow_size[i];
     int cols = format->ibcol_size[j];
-    *block_size = rows;
+    shape[0] = rows;
+    shape[1] = cols;
     *A = (format->problem->kernel)(rows, cols, format->row_order +
             format->ibrow_start[i], format->col_order +
             format->ibcol_start[j], format->problem->row_data,
-            format->problem->col_data);
+            format->problem->col_data)->buffer;
 }
 
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
