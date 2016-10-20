@@ -40,8 +40,8 @@ Array *Array_new(int ndim, int *shape, char dtype, char order);
 // Allocation of memory for array
 Array *Array_new_like(Array *array);
 // Allocation of memory for array of the same shape and dtype, as given array
-Array *Array_copy(Array *array);
-// Create copy of array, ordering is the same
+Array *Array_copy(Array *array, char order);
+// Create copy of array, ordering is the same if parameter order is 'N'
 void Array_free(Array *array);
 // Free data and auxiliary buffers of array
 void Array_info(Array *array);

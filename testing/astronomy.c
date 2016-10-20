@@ -176,95 +176,88 @@ void scaldiag(int M,double alpha, double *A){
 
 int main(int argc, char **argv){
 
-    STARS_tomo *tomo, *tomo2;
-    //TODO put the following variables as parameter
-    long nssp=10;
-    char files_path[]="./";
+    if(argc < 6)
+    {
+        printf("./astronomy.out files_path block_size maxrank tol heatmap_filename\n");
+        exit(1);
+    }
+    STARS_tomo *tomo;
+    char *files_path = argv[1];
     int night_idx=1;
     int snapshots_per_night=1;
     int snapshot_idx=1;
     int obs_idx=0;
     double alphaX=0.0;
     double alphaY=0.0;
-    int nact=100;
-    Array *matrix, *matrix2;
-    int *order;
-    int i;
-    if(argc < 2)
-    {
-        printf("./astronomy.out heatmap_filename\n");
-        exit(1);
-    }
-    char *heatmap_fname = argv[1];
-
-    //matcov_init_tomo_tiled(&tomo, nssp, files_path, night_idx,
-    //        snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
-    tomo2 = STARS_gen_aodata(nssp, files_path, night_idx, snapshots_per_night,
-            snapshot_idx, obs_idx, alphaX, alphaY, nact);
-
-    //int nmeas = matcov_getNumMeasurements(tomo2);
-    //int shape[2] = {nmeas, nmeas};
-    //int nmeasts = matcov_getNumMeasurementsTS(&tomo);
-    //order = (int *)malloc(nmeas*sizeof(int));
-    //for(i = 0; i < nmeas; i++)
-    //    order[i] = i;
-
-    //matrix = Array_new(2, shape, 'd', 'F');
-    //double *Cmm = matrix->buffer;
-    //double *R  =(double*)malloc(nmeas  *nmeasts*sizeof(double));
-
-    //matcov_comp_tile(Cmm,nmeas,nmeas,0,0,nmeas,&tomo,1);
-    //matrix2 = block_astronomy_kernel(nmeas, nmeas, order, order, &tomo, &tomo);
-    //printf("Difference: %e\n", Array_error(matrix, matrix2)/Array_norm(matrix));
-
-    //matcov_comp_tile(R,nmeas,nmeasts,0,0,nmeasts,&tomo,3);
-
-    //reconstructor(Cmm,R,nmeas,nmeasts,nmeas,nmeasts);
-
-    //double *Cpm=(double*)malloc(nmeas  *nmeasts *sizeof(double));
-    //double *Cpp=(double*)malloc(nmeasts*nmeasts*sizeof(double));
-    //double *Cee=(double*)malloc(nmeasts*nmeasts*sizeof(double));
-    //double *Cvv=(double*)malloc(nact   *nact   *sizeof(double));
-    //double *Dx =(double*)malloc(nact   *nmeasts*sizeof(double));
-
-    //matcov_comp_tile(Cmm,nmeas  ,nmeas  ,0,0,nmeas  ,&tomo,1);
-    //matcov_comp_tile(Cpm,nmeas  ,nmeasts,0,0,nmeasts,&tomo,3);
-    //matcov_comp_tile(Cpp,nmeasts,nmeasts,0,0,nmeasts,&tomo,3);
-    //TODO create Dx
-
-    //compute_Cee_Cvv(nmeasts, nmeas,nact, Cmm, Cpp, Cpm, R, Dx, Cee, Cvv);
-
-    //fprintf(stderr,"done\n");
-
-    //free(Cmm);
-    //free(Cpm);
-    //free(Cpp);
-    //free(R);
-    //free(Cee);
-    //free(Cvv);
-    //free(Dx);
-
-    int block_size = 100;
-    int maxrank = 0;
-    double tol = 1e-3;
-    
-    /*
-    STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
-    problem->nrows = 12;
-    problem->ncols = problem->nrows;
-    problem->symm = 'S';
-    problem->dtype = 'd';
-    problem->row_data = NULL;
-    problem->col_data = NULL;
-    problem->kernel = NULL;
-    */
-    STARS_Problem *problem = STARS_gen_aoproblem(tomo2);
+    char *heatmap_fname = argv[5];
+    int block_size = atoi(argv[2]);
+    int maxrank = atoi(argv[3]);
+    double tol = atof(argv[4]);
+    tomo = STARS_gen_aodata(files_path, night_idx, snapshots_per_night,
+            snapshot_idx, obs_idx, alphaX, alphaY);
+    STARS_Problem *problem = STARS_gen_aoproblem(tomo);
     STARS_BLR *format = STARS_gen_ao_blrformat(problem, block_size);
-    STARS_BLRmatrix *mat = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
+    STARS_BLRmatrix *mat = STARS_blr__compress_algebraic_svd(format, maxrank, tol, maxrank);
+    STARS_BLRmatrix_heatmap(mat, heatmap_fname);
     STARS_BLRmatrix_free(mat);
+    int nbrows = format->nbrows, shape[2], i;
+    double *buffer = NULL;
+    FILE *fd;
+    Array *U, *S, *V, *block;
+    STARS_BLR_getblock(format, nbrows/2, nbrows/2, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'C', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, 5*nbrows/8, 3*nbrows/8, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'C', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, 3*nbrows/4, nbrows/4, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'C', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
+    STARS_BLR_getblock(format, nbrows-1, 0, shape, &buffer);
+    block = Array_from_buffer(2, shape, 'd', 'C', buffer);
+    Array_SVD(block, &U, &S, &V);
+    fd = fopen(heatmap_fname, "a");
+    buffer = S->buffer;
+    for(i = 0; i < S->size; i++)
+        fprintf(fd, "%.12e ", buffer[i]);
+    fprintf(fd, "\n");
+    fclose(fd);
+    Array_free(block);
+    Array_free(U);
+    Array_free(S);
+    Array_free(V);
     STARS_BLR_free(format);
-    //STARS_Problem_free(problem);
-    free(tomo2);
+    free(tomo);
     return 0;
 }
 

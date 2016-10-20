@@ -87,7 +87,7 @@ typedef struct tomo_struct {
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-int matcov_init_tomo_tiled(struct tomo_struct *tomo, long nssp, char* files_path, int night_idx, int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX, double alphaY);
+int matcov_init_tomo_tiled(struct tomo_struct *tomo, char* files_path, int night_idx, int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX, double alphaY);
 void matcov_update_tomo_tiled(struct tomo_struct *tomo);
 void matcov_free_tomo_tiled(struct tomo_struct *tomo);
 
@@ -104,9 +104,9 @@ int matcov_update_atm_params(struct tomo_struct *tomo, int night_idx, int snapsh
 
 Array *block_astronomy_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data);
-STARS_tomo *STARS_gen_aodata(long nssp, char *files_path, int night_idx,
+STARS_tomo *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
-        double alphaY, int nact);
+        double alphaY);
 STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo);
 STARS_BLR *STARS_gen_ao_blrformat(STARS_Problem *problem, int block_size);
 #endif

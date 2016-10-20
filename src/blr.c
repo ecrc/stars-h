@@ -50,7 +50,7 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
                     format->ibrow_start[i], format->col_order +
                     format->ibcol_start[j], format->problem->row_data,
                     format->problem->col_data);
-            block2 = Array_copy(block);
+            block2 = Array_copy(block, 'N');
             dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
             //Array_SVD(block, &U, &S, &V);
             //rank = SVD_get_rank(S, tol, 'F');
@@ -270,9 +270,9 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
     *rank = mat->brank[bi];;
     shape[0] = mat->format->ibrow_size[bi];
     shape[1] = mat->format->ibcol_size[bi];
-    *U = mat->U[bi]->buffer;
-    *V = mat->V[bi]->buffer;
-    *A = mat->A[bi]->buffer;
+    *U = Array_copy(mat->U[bi], 'C')->buffer;
+    *V = Array_copy(mat->V[bi], 'C')->buffer;
+    *A = Array_copy(mat->A[bi], 'C')->buffer;
 }
 
 void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A)
@@ -282,10 +282,10 @@ void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A)
     int cols = format->ibcol_size[j];
     shape[0] = rows;
     shape[1] = cols;
-    *A = (format->problem->kernel)(rows, cols, format->row_order +
+    *A = Array_copy((format->problem->kernel)(rows, cols, format->row_order +
             format->ibrow_start[i], format->col_order +
             format->ibcol_start[j], format->problem->row_data,
-            format->problem->col_data)->buffer;
+            format->problem->col_data), 'C')->buffer;
 }
 
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)

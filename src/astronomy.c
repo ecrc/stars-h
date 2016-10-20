@@ -185,7 +185,7 @@ void generateXY(struct tomo_struct *tomo)
 }
 
 //------------------------------------------------------------------------------------
-int init_tomo_sys(struct tomo_struct *tomo, long nssp){
+int init_tomo_sys(struct tomo_struct *tomo){
     int i;
 
     char sys_filename[512];
@@ -660,13 +660,13 @@ rodconan(double r, double L0, int k)
 }
 
 //============================================================================================
-    int matcov_init_tomo_tiled(struct tomo_struct *tomo, long nssp, char* files_path, int night_idx, int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX, double alphaY){
+    int matcov_init_tomo_tiled(struct tomo_struct *tomo, char* files_path, int night_idx, int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX, double alphaY){
         
         FPRINTF(stdout, "initializing matcov...");fflush(stdout);
 
         strcpy( tomo->files_path, files_path);
         //initialize tomo struct on cpu
-        if(!init_tomo_sys(tomo, nssp)) return 0;
+        if(!init_tomo_sys(tomo)) return 0;
         tomo->alphaX[tomo->Nw-1] = alphaX / 206265.0; // convert to radian;
         tomo->alphaY[tomo->Nw-1] = alphaY / 206265.0; // convert to radian;
         if(!init_tomo_atm(tomo, night_idx, snapshots_per_night, snapshot_idx, obs_idx)) return 0;
@@ -1436,21 +1436,12 @@ Array *block_astronomy_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
-STARS_tomo *STARS_gen_aodata(long nssp, char *files_path, int night_idx,
+STARS_tomo *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
-        double alphaY, int nact)
+        double alphaY)
 {
     STARS_tomo *tomo = (STARS_tomo *)malloc(sizeof(STARS_tomo));
-    //long nssp=10;
-    //char files_path[]="./";
-    //int night_idx=1;
-    //int snapshots_per_night=1;
-    //int snapshot_idx=1;
-    //int obs_idx=0;
-    //double alphaX=0.0;
-    //double alphaY=0.0;
-    //int nact=100;
-    matcov_init_tomo_tiled(tomo, nssp, files_path, night_idx,
+    matcov_init_tomo_tiled(tomo, files_path, night_idx,
             snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
     return tomo;
 }
@@ -1458,7 +1449,7 @@ STARS_tomo *STARS_gen_aodata(long nssp, char *files_path, int night_idx,
 STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
 {
     STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
-    problem->nrows = matcov_getNumMeasurements(tomo);
+    problem->nrows = matcov_getNumMeasurements(tomo)-matcov_getNumMeasurementsTS(tomo);
     problem->ncols = problem->nrows;
     problem->symm = 'S';
     problem->dtype = 'd';

@@ -125,11 +125,114 @@ Array *Array_new_like(Array *array)
     return array2;
 }
 
-Array *Array_copy(Array *array)
+Array *Array_copy(Array *array, char order)
 {
     // Create copy of array, order and shape keep are the same
-    Array *array2 = Array_new_like(array);
-    memcpy(array2->buffer, array->buffer, array->nbytes);
+    if(order != 'F' && order != 'C' && order != 'N')
+    {
+        fprintf(stderr, "Wrong parameter order, should be 'F' or 'C'\n");
+    }
+    Array *array2;
+    if(order == array->order || order == 'N')
+    {
+        array2 = Array_new_like(array);
+        memcpy(array2->buffer, array->buffer, array->nbytes);
+        return array2;
+    }
+    int i, j, ind1 = 0, ind2 = 0;
+    int *coord = (int *)malloc(array->ndim*sizeof(int));
+    for(i = 0; i < array->ndim; i++)
+        coord[i] = 0;
+    array2 = Array_new(array->ndim, array->shape, array->dtype, order);
+    if(array->dtype == 's')
+    {
+        float *buf1 = array->buffer, *buf2 = array2->buffer;
+        for(i = 0; i < array->size; i++)
+        {
+            buf2[ind2] = buf1[ind1];
+            j = array->ndim-1;
+            coord[j] += 1;
+            ind1 += array->stride[j];
+            ind2 += array2->stride[j];
+            while(coord[j] == array->shape[j] && j > 0)
+            {
+                ind1 -= array->stride[j]*coord[j];
+                ind2 -= array2->stride[j]*coord[j];
+                coord[j] = 0;
+                j -= 1;
+                ind1 += array->stride[j];
+                ind2 += array2->stride[j];
+                coord[j] += 1;
+            }
+        }
+    }
+    else if(array->dtype == 'd')
+    {
+        double *buf1 = array->buffer, *buf2 = array2->buffer;
+        for(i = 0; i < array->size; i++)
+        {
+            buf2[ind2] = buf1[ind1];
+            j = array->ndim-1;
+            coord[j] += 1;
+            ind1 += array->stride[j];
+            ind2 += array2->stride[j];
+            while(coord[j] == array->shape[j] && j > 0)
+            {
+                ind1 -= array->stride[j]*coord[j];
+                ind2 -= array2->stride[j]*coord[j];
+                coord[j] = 0;
+                j -= 1;
+                ind1 += array->stride[j];
+                ind2 += array2->stride[j];
+                coord[j] += 1;
+            }
+        }
+    }
+    else if(array->dtype == 'c')
+    {
+        float complex *buf1 = array->buffer, *buf2 = array2->buffer;
+        for(i = 0; i < array->size; i++)
+        {
+            buf2[ind2] = buf1[ind1];
+            j = array->ndim-1;
+            coord[j] += 1;
+            ind1 += array->stride[j];
+            ind2 += array2->stride[j];
+            while(coord[j] == array->shape[j] && j > 0)
+            {
+                ind1 -= array->stride[j]*coord[j];
+                ind2 -= array2->stride[j]*coord[j];
+                coord[j] = 0;
+                j -= 1;
+                ind1 += array->stride[j];
+                ind2 += array2->stride[j];
+                coord[j] += 1;
+            }
+        }
+    }
+    else// array->dtype == 'z'
+    {
+        double complex *buf1 = array->buffer, *buf2 = array2->buffer;
+        for(i = 0; i < array->size; i++)
+        {
+            buf2[ind2] = buf1[ind1];
+            j = array->ndim-1;
+            coord[j] += 1;
+            ind1 += array->stride[j];
+            ind2 += array2->stride[j];
+            while(coord[j] == array->shape[j] && j > 0)
+            {
+                ind1 -= array->stride[j]*coord[j];
+                ind2 -= array2->stride[j]*coord[j];
+                coord[j] = 0;
+                j -= 1;
+                ind1 += array->stride[j];
+                ind2 += array2->stride[j];
+                coord[j] += 1;
+            }
+        }
+    }
+    free(coord);
     return array2;
 }
 
@@ -193,8 +296,8 @@ void Array_print(Array *array)
                 offset = 0;
                 for(j = 0; j < array->ndim; j++)
                     offset += array->stride[j]*index[j];
-                //printf(" %.2lf(%d)", buffer[offset], offset);
-                printf(" %.2lf", buffer[offset]);
+                printf(" %.2f(%d)", buffer[offset], offset);
+                //printf(" %.2lf", buffer[offset]);
                 index[1] += 1;
                 j = 1;
                 while(index[j] == array->shape[j])
@@ -207,6 +310,7 @@ void Array_print(Array *array)
             printf("\n");
         }
     }
+    free(index);
 }
 
 void Array_init(Array *array, char *kind)

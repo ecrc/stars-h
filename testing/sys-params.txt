@@ -5,7 +5,7 @@ cent obs
 N WFS
 10
 Nssp n subaps per wfs
-10
+19
 GsAlt
 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 0 0 0 0 0
 type
@@ -35,7 +35,7 @@ ncpu
 lgs_cst
 1
 noise_var
-0.002
+1000.2
 spot_width arcsec
 1
 lgs_alt (m)
