@@ -8,17 +8,18 @@ int main(int argc, char **argv)
     // Example of how to use STARS library for spatial statistics.
     // For more information on STARS structures look inside of header files.
 {
-    if(argc < 8)
+    if(argc < 9)
     {
         printf("%d\n", argc);
-        printf("electrostatics.out row_blocks col_blocks block_size maxrank "
-                "tol beta KADIR\n");
+        printf("spatial.out row_blocks col_blocks block_size maxrank "
+                "tol beta KADIR heatmap-filename\n");
         exit(0);
     }
     int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
     int block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
     int KADIR = atoi(argv[7]);
+    char *heatmap_fname = argv[8];
     printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f, KADIR=%d\n",
             row_blocks, col_blocks, block_size, maxrank, tol, beta, KADIR);
     STARS_Problem *problem;
@@ -39,8 +40,9 @@ int main(int argc, char **argv)
     printf("Measuring error!\n");
     STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
-    STARS_BLRmatrix_printKADIR(matrix);
-    STARS_BLRmatrix_free(matrix);
+    //STARS_BLRmatrix_printKADIR(matrix);
+    STARS_BLRmatrix_heatmap(matrix, heatmap_fname);
+    //STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);
     STARS_BLR_free(format);
     return 0;

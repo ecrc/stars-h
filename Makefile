@@ -14,19 +14,19 @@ all: 		lib test
 
 -include make.inc
 
-CC		?= gcc
+CC		?= cc
 CFLAGS		?= -o3 -Wall -m64 -I${MKLROOT}/include
-LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications//HPC/lib/
+#LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications/HPC/lib/
 
 ARCH		?= ar
 ARCHFLAGS	?= rc
 RANLIB		?= ranlib
 
-#INCLUDE		?= -I$(MKLROOT)/include
-#LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
-#		   -llapacke -cblas -lpthread -lm -ldl
+INCLUDE		?= -I$(MKLROOT)/include
+LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
+		   -lmkl_rt -lpthread -lm -ldl
 #LIBS		?=  -llapacke -llapack -lcblas -lrefblas -lpthread
-LIBS		?= -llapacke -lcblas -llapack -lrefblas -lgfortran
+#LIBS		?= -llapacke -lcblas -llapack -lrefblas -lgfortran
 STARSH_INCLUDE	= -Iinclude/
 STARSH_LIB	= lib/libstarsh.a
 

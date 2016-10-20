@@ -613,7 +613,7 @@ void Array_scale(Array *array, char kind, Array *factor)
                     array->stride[0]);
 }
 
-double Array_error(Array *array, Array *array2)
+double Array_diff(Array *array, Array *array2)
 {
     int error = 0;
     if(array->dtype != array2->dtype)
@@ -878,3 +878,75 @@ Array *Array_convert(Array *array, char dtype)
     }
     return array2;
 }
+
+int SVD_get_rank(Array *S, double tol, char type)
+{
+    int i, shape[2], size = S->size;
+    if(type != 'F' && type != '2')
+    {
+        fprintf(stderr, "type must be '2' or 'F', not '%c'\n", type);
+        exit(1);
+    }
+    if(S->dtype == 's')
+    {
+        float stol, tmp, *S2, *Sbuf = (float *)S->buffer;
+        if(type == 'F')
+        {
+            S2 = (float *)malloc(size*sizeof(float));
+            i = size-1;
+            tmp = Sbuf[i];
+            S2[i] = tmp*tmp;
+            for(i = size-2; i >= 0; i--)
+            {
+                tmp = Sbuf[i];
+                S2[i] = tmp*tmp+S2[i+1];
+            }
+            stol = S2[0]*tol*tol;
+            i = 1;
+            while(S2[i] > stol && i < size)
+                i++;
+            free(S2);
+            return i;
+        }
+        else// type == '2'
+        {
+            stol = Sbuf[0]*tol;
+            i = 1;
+            while(Sbuf[i] > stol && i < size)
+                i++;
+            return i;
+        }
+    }
+    else// S->dtype == 'd'
+    {
+        double stol, tmp, *S2, *Sbuf = (double *)S->buffer;
+        if(type == 'F')
+        {
+            S2 = (double *)malloc(size*sizeof(double));
+            i = size-1;
+            tmp = Sbuf[i];
+            S2[i] = tmp*tmp;
+            for(i = size-2; i >= 0; i--)
+            {
+                tmp = Sbuf[i];
+                S2[i] = tmp*tmp+S2[i+1];
+            }
+            stol = S2[0]*tol*tol;
+            i = 1;
+            while(S2[i] > stol && i < size)
+                i++;
+            free(S2);
+            return i;
+        }
+        else// type == '2'
+        {
+            stol = Sbuf[0]*tol;
+            i = 1;
+            while(Sbuf[i] > stol && i < size)
+                i++;
+            return i;
+        }
+    }
+}
+
+void SVD_get_approximation(Array *U, Array *S, Array *V, int rank);

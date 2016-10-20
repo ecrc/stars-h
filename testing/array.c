@@ -39,7 +39,8 @@ void check_SVD(int m, int n)
             }
             Array_scale(U, 'C', S);
             array2 = Array_dot(U, V);
-            printf("SVD relative error: %e\n", Array_error(array, array2));
+            printf("SVD relative error: %e\n", Array_diff(array, array2)/
+                    Array_norm(array));
             Array_free(array);
             Array_free(array2);
             Array_free(U);

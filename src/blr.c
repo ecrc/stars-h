@@ -13,11 +13,11 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
     // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
     int i, j, k, l, bi, rows, cols, mn, rank, tmprank, error = 0;
-    double *U, *S, *V, *ptr;
     int shape[2];
     char symm = format->symm;
     //printf("'%c' format->symm\n", symm);
     Array *block, *block2;
+    double *U, *S, *V, *ptr;
     double norm;
     STARS_BLRmatrix *mat = (STARS_BLRmatrix *)malloc(sizeof(STARS_BLRmatrix));
     mat->format = format;
@@ -35,23 +35,25 @@ STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
             bi = i * format->nbcols + j;
             mat->bindex[2*bi] = i;
             mat->bindex[2*bi+1] = j;
+            rows = format->ibrow_size[i];
+            cols = format->ibcol_size[j];
+            mn = rows > cols ? cols : rows;
             if((i < j && symm == 'S') || error == 1)
             {
                 mat->U[bi] = NULL;
                 mat->V[bi] = NULL;
                 mat->A[bi] = NULL;
-                mat->brank[bi] = 0;
+                mat->brank[bi] = mn;
                 continue;
             }
-            rows = format->ibrow_size[i];
-            cols = format->ibcol_size[j];
-            mn = rows > cols ? cols : rows;
             block = (mat->problem->kernel)(rows, cols, format->row_order +
                     format->ibrow_start[i], format->col_order +
                     format->ibcol_start[j], format->problem->row_data,
                     format->problem->col_data);
             block2 = Array_copy(block);
             dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
+            //Array_SVD(block, &U, &S, &V);
+            //rank = SVD_get_rank(S, tol, 'F');
             Array_free(block);
             if((KADIR == 0 && rank < mn/2) || (KADIR == 1 && i != j))
                 // If block is low-rank
@@ -244,7 +246,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
         if(mat->A[bi] == NULL)
         {
             block2 = Array_dot(mat->U[bi], mat->V[bi]);
-            tmpdiff = Array_error(block, block2);
+            tmpdiff = Array_diff(block, block2);
             Array_free(block2);
             diff += tmpdiff*tmpdiff;
             if(i != j && symm == 'S')
@@ -309,4 +311,24 @@ void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)
         }
         printf("\n");
     }
+}
+
+void STARS_BLRmatrix_heatmap(STARS_BLRmatrix *mat, char *fname)
+{
+    int i, j, bi;
+    STARS_BLR *format = mat->format;
+    FILE *fd = fopen(fname, "w");
+    fprintf(fd, "%d %d\n", format->nbrows, format->nbcols);
+    for(i = 0; i < format->nbrows; i++)
+    {
+        for(j = 0; j < format->nbrows; j++)
+        {
+            bi = i * format->nbcols + j;
+            if(format->symm == 'S' && i < j)
+                bi = j * format->nbcols + i;
+            fprintf(fd, " %d", mat->brank[bi]);
+        }
+        fprintf(fd, "\n");
+    }
+    fclose(fd);
 }

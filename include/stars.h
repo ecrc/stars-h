@@ -67,9 +67,12 @@ Array *Array_dot(Array* A, Array *B);
 // dimension of first array and first dimension of last array
 void Array_SVD(Array *array, Array **U, Array **S, Array **V);
 // Compute short SVD of 2-dimensional array
+int SVD_get_rank(Array *S, double tol, char type);
+// Find rank by singular values and given accuracy tolerance
+// (Frobenius or Spectral norm)
 void Array_scale(Array *array, char kind, Array *factor);
 // Apply row or column scaling to array
-double Array_error(Array *array, Array *array2);
+double Array_diff(Array *array, Array *array2);
 // Measure Frobenius error of approximating array with array2
 double Array_norm(Array *array);
 // Measure Frobenius norm of array
@@ -154,4 +157,5 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
 void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *block_size,
         void **A);
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat);
+void STARS_BLRmatrix_heatmap(STARS_BLRmatrix *mat, char *fname);
 #endif // _STARS_H_
