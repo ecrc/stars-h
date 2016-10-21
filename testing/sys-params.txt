@@ -1,17 +1,17 @@
 tel diam in meters
-4.2
+40.0
 cent obs
-0.2
+0.275
 N WFS
-10
+2
 Nssp n subaps per wfs
-19
+84
 GsAlt
 1e-05 1e-05 1e-05 1e-05 1e-05 1e-05 0 0 0 0 0
 type
-2 2 2 1 1
+2 2 2 2 2 2 1 1 1 1 1
 nlgs
-3
+6
 alphaX in arcsec
 102.0 51.0 -51.0 -102.0 -51.0 51.0 -16.0 -32.0 52.0 27.0 0.0
 alphaY in arcsec
@@ -35,7 +35,7 @@ ncpu
 lgs_cst
 1
 noise_var
-1000.2
+1000.002
 spot_width arcsec
 1
 lgs_alt (m)

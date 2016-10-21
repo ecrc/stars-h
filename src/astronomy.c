@@ -1450,6 +1450,7 @@ STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
 {
     STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
     problem->nrows = matcov_getNumMeasurements(tomo)-matcov_getNumMeasurementsTS(tomo);
+    printf("%d %d\n", matcov_getNumMeasurements(tomo), matcov_getNumMeasurementsTS(tomo));
     problem->ncols = problem->nrows;
     problem->symm = 'S';
     problem->dtype = 'd';

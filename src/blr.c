@@ -270,9 +270,15 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
     *rank = mat->brank[bi];;
     shape[0] = mat->format->ibrow_size[bi];
     shape[1] = mat->format->ibcol_size[bi];
-    *U = Array_copy(mat->U[bi], 'C')->buffer;
-    *V = Array_copy(mat->V[bi], 'C')->buffer;
-    *A = Array_copy(mat->A[bi], 'C')->buffer;
+    *U = NULL;
+    *V = NULL;
+    *A = NULL;
+    if(mat->U[bi] != NULL)
+        *U = Array_copy(mat->U[bi], 'C')->buffer;
+    if(mat->V[bi] != NULL)
+        *V = Array_copy(mat->V[bi], 'C')->buffer;
+    if(mat->A[bi] != NULL)
+        *A = Array_copy(mat->A[bi], 'C')->buffer;
 }
 
 void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A)

@@ -102,12 +102,13 @@ void gen_block_points(int m, int n, int block_size, double *points)
     int i, j, k, ind = 0;
     int npoints = m*n*block_size;
     double *x = points, *y = points+npoints;
+    double noise_var = 1.;
     for(i = 0; i < m; i++)
         for(j = 0; j < n; j++)
             for(k = 0; k < block_size; k++)
             {
-                x[ind] = (j+0.95*rand()/RAND_MAX)/n;
-                y[ind] = (i+0.95*rand()/RAND_MAX)/m;
+                x[ind] = (j+noise_var*rand()/RAND_MAX)/n;
+                y[ind] = (i+noise_var*rand()/RAND_MAX)/m;
                 ind++;
             }
 }
