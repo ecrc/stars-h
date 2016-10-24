@@ -267,9 +267,9 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
 // DO NOT FREE POINTERS OF THIS FUNCTIONS
 {
     int bi = i * mat->format->nbcols + j;
-    *rank = mat->brank[bi];;
-    shape[0] = mat->format->ibrow_size[bi];
-    shape[1] = mat->format->ibcol_size[bi];
+    *rank = mat->brank[bi];
+    shape[0] = mat->format->ibrow_size[i];
+    shape[1] = mat->format->ibcol_size[j];
     *U = NULL;
     *V = NULL;
     *A = NULL;
