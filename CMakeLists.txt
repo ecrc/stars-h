@@ -28,23 +28,32 @@ add_subdirectory(src)
 # TESTS
 option(STARSH_TESTING "Generates testing binaries" OFF)
 if( STARSH_TESTING )
+	## CMAKE MODULES :: MORSE
+	## REQUIRED FOR TESTS TO LINK LIBRARIES
+	if(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/.svn/entries" )
+		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse )
+	else()
+		execute_process( COMMAND mkdir -p ${CMAKE_BINARY_DIR}/cmake_modules/morse
+	                      COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse )
+	endif()
+
+
 	## MORSE INITIALIZATION
 	set( MORSE_DISTRIB_DIR "" CACHE PATH "Directory of MORSE distribution")
-	if(NOT MORSE_DISTRIB_DIR AND NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/")
+	if(MORSE_DISTRIB_DIR)
+		list(APPEND CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules)
+		list(APPEND CMAKE_MODULE_PATH "${MORSE_DISTRIB_DIR}/cmake_modules/morse")
+		set(MORSE_CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules/morse )
+	elseif(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/")
+		list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
+		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse")
+		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse )
+	else()
 		message(FATAL_ERROR "MORSE_DISTRIB_DIR is not set\n"
 		                    "Please indicate where is located your MORSE distribution directory. "
 		                    "This is necessary to find cmake_modules. \n"
 		                    "If you are a MORSE developer, you normally have access to the svn repository of the MORSE_DISTRIB_DIR: "
 		                    "svn checkout svn+ssh://yourlogin@scm.gforge.inria.fr/svnroot/morse/trunk/morse_distrib")
-	endif()
-	if(MORSE_DISTRIB_DIR)
-		list(APPEND CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${MORSE_DISTRIB_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules/morse )
-	elseif(EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/")
-		list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules/morse )
 	endif()
 	include(MorseInit)
 
@@ -130,11 +139,11 @@ if( STARSH_TESTING )
 			endif()
 		else()
 			message(WARNING "LAPACKE library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-		                     "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
 		endif()
 		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
 	endif()
 
-
+	# BUILD TESTS
 	add_subdirectory(testing)
 endif()
