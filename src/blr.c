@@ -262,11 +262,18 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
     printf("Maximum relative error of per-block approximation: %e\n", maxerr);
 }
 
-void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
+void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j, int order,
         int *shape, int *rank, void **U, void **V, void **A)
-// DO NOT FREE POINTERS OF THIS FUNCTIONS
+// PLEASE CLEAN MEMORY AFTER USE
 {
+    if(order != 'C' && order != 'F')
+    {
+        fprintf(stderr, "Parameter order should be 'C' or 'F', not '%c'\n",
+                order);
+        exit(1);
+    }
     int bi = i * mat->format->nbcols + j;
+    Array *tmp;
     *rank = mat->brank[bi];
     shape[0] = mat->format->ibrow_size[i];
     shape[1] = mat->format->ibcol_size[j];
@@ -274,24 +281,56 @@ void STARS_BLRmatrix_getblock(STARS_BLRmatrix *mat, int i, int j,
     *V = NULL;
     *A = NULL;
     if(mat->U[bi] != NULL)
-        *U = Array_copy(mat->U[bi], 'C')->buffer;
+    {
+        tmp = Array_copy(mat->U[bi], order);
+        *U = tmp->buffer;
+        free(tmp->shape);
+        free(tmp->stride);
+        free(tmp);
+    }
     if(mat->V[bi] != NULL)
-        *V = Array_copy(mat->V[bi], 'C')->buffer;
+    {
+        tmp = Array_copy(mat->V[bi], order);
+        *V = tmp->buffer;
+        free(tmp->shape);
+        free(tmp->stride);
+        free(tmp);
+    }
     if(mat->A[bi] != NULL)
-        *A = Array_copy(mat->A[bi], 'C')->buffer;
+    {
+        tmp = Array_copy(mat->A[bi], order);
+        *A = tmp->buffer;
+        free(tmp->shape);
+        free(tmp->stride);
+        free(tmp);
+    }
 }
 
-void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int *shape, void **A)
+void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int order, int *shape,
+        void **A)
 // PLEASE CLEAN MEMORY POINTER AFTER USE
 {
+    if(order != 'C' && order != 'F')
+    {
+        fprintf(stderr, "Parameter order should be 'C' or 'F', not '%c'\n",
+                order);
+        exit(1);
+    }
     int rows = format->ibrow_size[i];
     int cols = format->ibcol_size[j];
+    Array *tmp, *tmp2;
     shape[0] = rows;
     shape[1] = cols;
-    *A = Array_copy((format->problem->kernel)(rows, cols, format->row_order +
+    tmp = (format->problem->kernel)(rows, cols, format->row_order +
             format->ibrow_start[i], format->col_order +
             format->ibcol_start[j], format->problem->row_data,
-            format->problem->col_data), 'C')->buffer;
+            format->problem->col_data);
+    tmp2 = Array_copy(tmp, order);
+    *A = tmp2->buffer;
+    Array_free(tmp);
+    free(tmp2->shape);
+    free(tmp2->stride);
+    free(tmp2);
 }
 
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat)

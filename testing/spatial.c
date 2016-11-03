@@ -45,10 +45,11 @@ int main(int argc, char **argv)
     STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);
     int nbrows = format->nbrows, shape[2], i;
+    char order = 'C';
     double *buffer = NULL;
     FILE *fd;
     Array *U, *S, *V, *block;
-    STARS_BLR_getblock(format, nbrows/2, nbrows/2, shape, &buffer);
+    STARS_BLR_getblock(format, nbrows/2, nbrows/2, order, shape, &buffer);
     block = Array_from_buffer(2, shape, 'd', 'F', buffer);
     Array_SVD(block, &U, &S, &V);
     fd = fopen(heatmap_fname, "a");
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
     Array_free(U);
     Array_free(S);
     Array_free(V);
-    STARS_BLR_getblock(format, 5*nbrows/8, 3*nbrows/8, shape, &buffer);
+    STARS_BLR_getblock(format, 5*nbrows/8, 3*nbrows/8, order, shape, &buffer);
     block = Array_from_buffer(2, shape, 'd', 'F', buffer);
     Array_SVD(block, &U, &S, &V);
     fd = fopen(heatmap_fname, "a");
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
     Array_free(U);
     Array_free(S);
     Array_free(V);
-    STARS_BLR_getblock(format, 3*nbrows/4, nbrows/4, shape, &buffer);
+    STARS_BLR_getblock(format, 3*nbrows/4, nbrows/4, order, shape, &buffer);
     block = Array_from_buffer(2, shape, 'd', 'F', buffer);
     Array_SVD(block, &U, &S, &V);
     fd = fopen(heatmap_fname, "a");
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
     Array_free(U);
     Array_free(S);
     Array_free(V);
-    STARS_BLR_getblock(format, nbrows-1, 0, shape, &buffer);
+    STARS_BLR_getblock(format, nbrows-1, 0, order, shape, &buffer);
     block = Array_from_buffer(2, shape, 'd', 'F', buffer);
     Array_SVD(block, &U, &S, &V);
     fd = fopen(heatmap_fname, "a");
