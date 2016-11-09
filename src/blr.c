@@ -10,12 +10,12 @@
 
 
 int batched_lowrank_approximation(STARS_BLRmatrix *mat, int count, int *id,
-        void **UV, int maxrank)
+        int maxrank, double tol, void **UV, int *rank)
 {
     int bi, i, j;
     STARS_BLR *format = mat->format;
     int (*kernel)(int, int, int *, int *, void *, void *, void *) =
-        format->problem->kernel;
+        format->problem->kernel_noalloc;
     int max_rows = 0, max_cols = 0;
     for(i = 0; i < format->nbrows; i++)
         if(format->ibrow_size[i] > max_rows)
@@ -29,7 +29,7 @@ int batched_lowrank_approximation(STARS_BLRmatrix *mat, int count, int *id,
     int tlwork = (4*mx+7)*mx;
     int lwork = tlwork*dtype_size;
     int liwork = 8*mx*dtype_size;
-    char *block, *work, *iwork, *U, *S, *V;
+    void *block, *work, *iwork, *U, *S, *V;
     int S_dtype_size;
     if(format->problem->dtype == 's')
         S_dtype_size = sizeof(float);
@@ -57,30 +57,75 @@ int batched_lowrank_approximation(STARS_BLRmatrix *mat, int count, int *id,
         }
         #pragma omp barrier
         int tid = omp_get_thread_num();
-        char *tblock = block+block_size*tid;
-        char *twork = work+lwork*tid;
-        char *tiwork = iwork+liwork*tid;
-        char *tU = U+block_size*tid;
-        char *tV = V+block_size*tid;
-        char *tS = S+mx*S_dtype_size*tid;
-        int tinfo = 0;
+        void *tblock = block+block_size*tid;
+        void *twork = work+lwork*tid;
+        void *tiwork = iwork+liwork*tid;
+        void *tU = U+block_size*tid;
+        void *tV = V+block_size*tid;
+        void *tS = S+mx*S_dtype_size*tid;
+        int tinfo = 0, rows, cols, mn, trank, k, l, bid;
         //printf("Work in thread %d\n", tid);
         #pragma omp for
         for(bi = 0; bi < count; bi++)
         {
-            i = mat->bindex[2*bi];
-            j = mat->bindex[2*bi+1];
-            kernel(format->ibrow_size[i], format->ibcol_size[j],
-                    format->row_order +
-                    format->ibrow_start[i], format->col_order +
-                    format->ibcol_start[j], format->problem->row_data,
+            bid = id[bi];
+            i = mat->bindex[2*bid];
+            j = mat->bindex[2*bid+1];
+            rows = format->ibrow_size[i];
+            cols = format->ibcol_size[j];
+            mn = rows > cols ? cols : rows;
+            kernel(rows, cols, format->row_order+format->ibrow_start[i],
+                    format->col_order+format->ibcol_start[j],
+                    format->problem->row_data,
                     format->problem->col_data, tblock);
             //printf("%d %d\n", format->ibrow_size[i], format->ibcol_size[j]);
-            tinfo = LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S',
-                    format->ibrow_size[i],
-                    format->ibcol_size[j], tblock, format->ibrow_size[i], tS,
-                    tU, format->ibrow_size[i], tV, format->ibcol_size[j],
-                    twork, tlwork, tiwork);
+            tinfo = LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', rows, cols,
+                    tblock, rows, tS, tU, rows, tV, cols, twork, tlwork,
+                    tiwork);
+            double Sthresh = 0., Scur = 0.;
+            double *ptrS = tS, *ptr, *ptrV = tV;
+            for(k = 0; k < mn; k++)
+                Sthresh += ptrS[k]*ptrS[k];
+            Sthresh *= tol*tol;
+            trank = 1;
+            for(k = mn-1; k >= 1; k--)
+            {
+                Scur += ptrS[k]*ptrS[k];
+                if(Sthresh < Scur)
+                {
+                    trank = k+1;
+                    break;
+                }
+            }
+            if(2*trank < mn)
+            {
+                cblas_dcopy(rows*trank, tU, 1, UV[bi], 1);
+                /*
+                for(k = 0; k < trank; k++)
+                    cblas_dcopy(cols, tV+k, rows, UV[bi]+sizeof(double)*
+                            (rows*trank+k*cols), 1);
+                for(k = 0; k < cols; k++)
+                    cblas_dscal(trank, ptrS[k], UV[bi]+sizeof(double)*
+                            (rows*trank+k), cols);
+                */
+                /*
+                for(k = 0; k < cols; k++)
+                {
+                    cblas_dscal(trank, ptrS[k], tV+k*rows, 1);
+                    cblas_dcopy(trank, tV+k*rows, 1, UV[bi]+sizeof(double)*
+                            trank*(rows+k), 1);
+                }
+                */
+                ptr = UV[bi]+sizeof(double)*rows*trank;
+                for(k = 0; k < cols; k++)
+                    for(l = 0; l < trank; l++)
+                    {
+                        ptr[k*trank+l] = ptrS[l]*ptrV[k*mn+l];
+                    }
+                rank[bi] = trank;
+            }
+            else
+                rank[bi] = -1;
         }
         #pragma omp master
         {
@@ -96,8 +141,37 @@ int batched_lowrank_approximation(STARS_BLRmatrix *mat, int count, int *id,
     return 0;
 }
 
-int batched_get_block(STARS_BLR *format, int count, int *block_id, void **A)
+int batched_get_block(STARS_BLRmatrix *mat, int count, int *id, void **A)
 {
+    STARS_BLR *format = mat->format;
+    int (*kernel)(int, int, int *, int *, void *, void *, void *) =
+        format->problem->kernel_noalloc;
+    #pragma omp parallel
+    {
+        int bi, i, j, rows, cols, nthreads, tid, bid;
+        #pragma omp master
+        {
+            nthreads = omp_get_num_threads();
+            printf("Total threads %d\n", nthreads);
+            //printf("block_size %d, S_size %d\n", block_size, mx*S_dtype_size);
+        }
+        #pragma omp barrier
+        tid = omp_get_thread_num();
+        //printf("Work in thread %d\n", tid);
+        #pragma omp for
+        for(bi = 0; bi < count; bi++)
+        {
+            bid = id[bi];
+            i = mat->bindex[2*bid];
+            j = mat->bindex[2*bid+1];
+            rows = format->ibrow_size[i];
+            cols = format->ibcol_size[j];
+            kernel(rows, cols, format->row_order+format->ibrow_start[i],
+                    format->col_order+format->ibcol_start[j],
+                    format->problem->row_data,
+                    format->problem->col_data, A[bi]);
+        }
+    }
     return 0;
 }
 
@@ -107,13 +181,20 @@ STARS_BLRmatrix *STARS_blr_batched_algebraic_compress(STARS_BLR *format,
     int i, j, bi, mn;
     char symm = format->symm;
     int num_blocks = format->nbrows*format->nbcols;
+    int total_blocks = num_blocks;
     if(symm == 'S')
         num_blocks = (format->nbrows+1)*format->nbrows/2;
-    int *batched_block_id = (int *)malloc(num_blocks*sizeof(int));
+    int *block_id = (int *)malloc(num_blocks*sizeof(int));
     int batched_id = 0;
     STARS_BLRmatrix *mat = (STARS_BLRmatrix *)malloc(sizeof(STARS_BLRmatrix));
+    mat->bcount = total_blocks;
     mat->format = format;
-    mat->bindex = (int *)malloc(2*format->nbcols*format->nbrows*sizeof(int));
+    mat->bindex = (int *)malloc(2*total_blocks*sizeof(int));
+    mat->brank = (int *)malloc(total_blocks*sizeof(int));
+    int *rank = (int *)malloc(num_blocks*sizeof(int));
+    mat->U = (Array **)malloc(total_blocks*sizeof(Array *));
+    mat->V = (Array **)malloc(total_blocks*sizeof(Array *));
+    mat->A = (Array **)malloc(total_blocks*sizeof(Array *));
     for(i = 0; i < format->nbrows; i++)
         for(j = 0; j < format->nbcols; j++)
         {
@@ -122,23 +203,66 @@ STARS_BLRmatrix *STARS_blr_batched_algebraic_compress(STARS_BLR *format,
             mat->bindex[2*bi+1] = j;
             if(i < j && symm == 'S')
             {
-                //mat->U[bi] = NULL;
-                //mat->V[bi] = NULL;
-                //mat->A[bi] = NULL;
-                //mat->brank[bi] = -1;
+                mat->U[bi] = NULL;
+                mat->V[bi] = NULL;
+                mat->A[bi] = NULL;
+                mat->brank[bi] = -1;
                 continue;
             }
             //printf("bid %d\n", batched_id);
-            batched_block_id[batched_id] = bi;
+            block_id[batched_id] = bi;
             batched_id++;
         }
     int rows = format->ibrow_size[0], cols = format->ibcol_size[0];
     int uv_size = (rows+cols)*maxrank*sizeof(double);
-    void *UV_array = malloc(uv_size*num_blocks);
+    void *UV_alloc = malloc(uv_size*num_blocks);
+    mat->UV_alloc = UV_alloc;
     void **UV = malloc(num_blocks*sizeof(void *));
-    for(i = 0; i < num_blocks; i++)
-        UV[i] = UV_array+uv_size*i;
-    batched_lowrank_approximation(mat, num_blocks, batched_block_id, UV, maxrank);
+    for(bi = 0; bi < num_blocks; bi++)
+        UV[bi] = UV_alloc+uv_size*bi;
+    batched_lowrank_approximation(mat, num_blocks, block_id, maxrank,
+            tol, UV, rank);
+    int shape[2], bid;
+    int num_fullrank = 0;
+    for(bi = 0; bi < num_blocks; bi++)
+    {
+        bid = block_id[bi];
+        mat->brank[bid] = rank[bi];
+        mat->A[bid] = NULL;
+        i = mat->bindex[2*bid];
+        j = mat->bindex[2*bid+1];
+        if(rank[bi] == -1)
+        {
+            mat->U[bid] = NULL;
+            mat->V[bid] = NULL;
+            block_id[num_fullrank] = bid;
+            num_fullrank++;
+        }
+        else
+        {
+            shape[0] = format->ibrow_size[i];
+            shape[1] = rank[bi];
+            mat->U[bid] = Array_from_buffer(2, shape, 'd', 'F', UV[bi]);
+            shape[0] = shape[1];
+            shape[1] = format->ibcol_size[j];
+            mat->V[bid] = Array_from_buffer(2, shape, 'd', 'F', UV[bi]+
+                    mat->U[bid]->nbytes);
+        }
+    }
+    free(UV);
+    int a_size = rows*cols*sizeof(double);
+    void *A_alloc = malloc(num_fullrank*a_size);
+    mat->A_alloc = A_alloc;
+    void **A = malloc(num_fullrank*sizeof(void *));
+    for(bi = 0; bi < num_fullrank; bi++)
+    {
+        bid = block_id[bi];
+        A[bi] = A_alloc+a_size*bi;
+        shape[0] = format->ibrow_size[mat->bindex[2*bid]];
+        shape[1] = format->ibcol_size[mat->bindex[2*bid+1]];
+        mat->A[bid] = Array_from_buffer(2, shape, 'd', 'F', A[bi]);
+    }
+    batched_get_block(mat, num_fullrank, block_id, A);
     return mat;
 }
 
@@ -362,6 +486,8 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
     double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0.;
     int rows, cols;
     STARS_BLR *format = mat->format;
+    //Array *(*kernel)(int, int, int *, int *, void *, void *) =
+    //    mat->format->problem->kernel;
     Array *block, *block2;
     char symm = mat->format->symm;
     for(bi = 0; bi < mat->bcount; bi++)
@@ -372,7 +498,7 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
             continue;
         rows = format->ibrow_size[i];
         cols = format->ibcol_size[j];
-        block = (mat->problem->kernel)(rows, cols, format->row_order +
+        block = (format->problem->kernel)(rows, cols, format->row_order +
                 format->ibrow_start[i], format->col_order +
                 format->ibcol_start[j], format->problem->row_data,
                 format->problem->col_data);
@@ -392,6 +518,14 @@ void STARS_BLRmatrix_error(STARS_BLRmatrix *mat)
             if(tmperr > maxerr)
                 maxerr = tmperr;
         }
+        /*
+        if(mat->A[bi] != NULL)
+        {
+            block2 = mat->A[bi];
+            tmpdiff = Array_diff(block, block2);
+            diff += tmpdiff*tmpdiff;
+        }
+        */
         Array_free(block);
     }
     printf("Relative error of approximation of full matrix: %e\n",

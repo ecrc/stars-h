@@ -27,11 +27,12 @@ int main(int argc, char **argv)
     format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
     // Problem is generated inside STARS_gen_ss_blrformat
     matrix = STARS_blr_batched_algebraic_compress(format, maxrank, tol);
-    /*
+    //matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
     //printf("Measuring error!\n");
-    //STARS_BLRmatrix_error(matrix);
+    STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
     //STARS_BLRmatrix_printKADIR(matrix);
+    /*
     STARS_BLRmatrix_heatmap(matrix, heatmap_fname);
     STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);

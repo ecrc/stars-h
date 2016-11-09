@@ -99,6 +99,7 @@ struct STARS_Problem
     void *row_data, *col_data;
     // Pointers to data, corresponding to rows and columns.
     block_kernel kernel;
+    int (*kernel_noalloc)(int, int, int *, int *, void *, void *, void *); 
     // Pointer to a function, returning submatrix on intersection of
     // given rows and columns.
     char *type;
@@ -146,12 +147,18 @@ struct STARS_BLRmatrix
     // Rank of each block or -1 if block os not low-rank.
     Array **U, **V;
     // Arrays of pointers to low-rank factors U and V of each block.
+    void *UV_alloc;
+    // Pointer to memory buffer, holding buffers of all arrays U and V
     Array **A;
     // Array of pointers to data of full-rank blocks.
+    void *A_alloc;
+    // Pointer to memory buffer, holding buffers of all arrays A
 };
 
 STARS_BLRmatrix *STARS_blr__compress_algebraic_svd(STARS_BLR *format,
         int maxrank, double tol, int KADIR);
+STARS_BLRmatrix *STARS_blr_batched_algebraic_compress(STARS_BLR *format,
+        int maxrank, double tol);
 void STARS_BLRmatrix_info(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_free(STARS_BLRmatrix *mat);
 void STARS_BLR_info(STARS_BLR *format);

@@ -46,16 +46,20 @@ int block_exp_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
     int shape[2] = {nrows, ncols};
     double *buffer = (double *)result;
     printf("submatrix for [%d:%d, %d:%d]\n", irow[0], irow[nrows-1], icol[0], icol[ncols-1]);
-    for(j = 0; j < ncols; j++)
-        for(i = 0; i < nrows; i++)
-        {
-            tmp = x[irow[i]]-x[icol[j]];
-            dist = tmp*tmp;
-            tmp = y[irow[i]]-y[icol[j]];
-            dist += tmp*tmp;
-            dist = sqrt(dist)/beta;
-            buffer[j*nrows+i] = exp(dist);
-        }
+    #pragma omp parallel
+    {
+        printf("inside thread %d\n", omp_get_thread_num());
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = tmp*tmp;
+                tmp = y[irow[i]]-y[icol[j]];
+                dist += tmp*tmp;
+                dist = sqrt(dist)/beta;
+                buffer[j*nrows+i] = exp(dist);
+            }
+    }
     return 0;
 }
 
@@ -165,7 +169,8 @@ STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
     problem->row_data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
             beta);
     problem->col_data = problem->row_data;
-    problem->kernel = block_exp_kernel_noalloc;
+    problem->kernel = block_exp_kernel;
+    problem->kernel_noalloc = block_exp_kernel_noalloc;
     return problem;
 }
 
