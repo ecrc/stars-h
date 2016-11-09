@@ -8,35 +8,26 @@ int main(int argc, char **argv)
     // Example of how to use STARS library for spatial statistics.
     // For more information on STARS structures look inside of header files.
 {
-    if(argc < 9)
+    if(argc < 8)
     {
         printf("%d\n", argc);
         printf("spatial.out row_blocks col_blocks block_size maxrank "
-                "tol beta KADIR heatmap-filename\n");
+                "tol beta heatmap-filename\n");
         exit(0);
     }
     int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
     int block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
-    int KADIR = atoi(argv[7]);
-    char *heatmap_fname = argv[8];
-    printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f, KADIR=%d\n",
-            row_blocks, col_blocks, block_size, maxrank, tol, beta, KADIR);
+    char *heatmap_fname = argv[7];
+    printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f\n",
+            row_blocks, col_blocks, block_size, maxrank, tol, beta);
     STARS_Problem *problem;
     STARS_BLR *format;
     STARS_BLRmatrix *matrix = NULL;
-    while(matrix == NULL)
-    {
-        format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
-        // Problem is generated inside STARS_gen_ss_blrformat
-        matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, KADIR);
-        if(matrix == NULL)
-        {
-            free(format->problem->row_data);
-            free(format->problem);
-            STARS_BLR_free(format);
-        }
-    }
+    format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
+    // Problem is generated inside STARS_gen_ss_blrformat
+    matrix = STARS_blr_batched_algebraic_compress(format, maxrank, tol);
+    /*
     //printf("Measuring error!\n");
     //STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
@@ -102,5 +93,6 @@ int main(int argc, char **argv)
     Array_free(S);
     Array_free(V);
     STARS_BLR_free(format);
+    */
     return 0;
 }

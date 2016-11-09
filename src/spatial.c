@@ -32,6 +32,33 @@ Array *block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
+int block_exp_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result)
+{
+    // Block kernel for spatial statistics
+    // Returns exp^{-r/beta}, where r is a distance between particles in 2D
+    int i, j;
+    STARS_ssdata *rdata = (STARS_ssdata *)row_data;
+    STARS_ssdata *cdata = (STARS_ssdata *)col_data;
+    double tmp, dist, beta = -rdata->beta;
+    double *x = rdata->point;
+    double *y = rdata->point+rdata->count;
+    int shape[2] = {nrows, ncols};
+    double *buffer = (double *)result;
+    printf("submatrix for [%d:%d, %d:%d]\n", irow[0], irow[nrows-1], icol[0], icol[ncols-1]);
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            tmp = y[irow[i]]-y[icol[j]];
+            dist += tmp*tmp;
+            dist = sqrt(dist)/beta;
+            buffer[j*nrows+i] = exp(dist);
+        }
+    return 0;
+}
+
 /*
 uint32_t Part1By1(uint32_t x)
 {
@@ -134,10 +161,11 @@ STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
     problem->ncols = n;
     problem->symm = 'S';
     problem->dtype = 'd';
+    problem->dtype_size = sizeof(double);
     problem->row_data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
             beta);
     problem->col_data = problem->row_data;
-    problem->kernel = block_exp_kernel;
+    problem->kernel = block_exp_kernel_noalloc;
     return problem;
 }
 

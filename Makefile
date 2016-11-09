@@ -14,8 +14,8 @@ all: 		lib test
 
 -include make.inc
 
-CC		?= cc
-CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include -std=c11
+CC		= gcc
+CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
 #LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications/HPC/lib/
 
 ARCH		?= ar
@@ -24,7 +24,7 @@ RANLIB		?= ranlib
 
 INCLUDE		?= -I$(MKLROOT)/include
 LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
-		   -lmkl_rt -lpthread -lm -ldl
+		   -lmkl_rt -lgomp -lm
 #LIBS		?=  -llapacke -llapack -lcblas -lrefblas -lpthread
 #LIBS		?= -llapacke -lcblas -llapack -lrefblas -lgfortran
 STARSH_INCLUDE	= -Iinclude/

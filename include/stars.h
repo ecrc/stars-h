@@ -94,6 +94,8 @@ struct STARS_Problem
     char dtype;
     // Possible values are 's', 'd', 'c' or 'z', just as in LAPACK routines
     // names.
+    int dtype_size;
+    // Size of data type in bytes
     void *row_data, *col_data;
     // Pointers to data, corresponding to rows and columns.
     block_kernel kernel;
