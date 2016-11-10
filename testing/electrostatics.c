@@ -23,12 +23,13 @@ int main(int argc, char **argv)
     STARS_BLRmatrix *matrix;
     format = STARS_gen_es_blrformat(row_blocks, col_blocks, block_size);
     // Problem is generated inside STARS_gen_ss_blrformat
-    matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
+    //matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
+    matrix = STARS_blr_batched_algebraic_compress(format, maxrank, tol);
     printf("Measuring error!\n");
     STARS_BLRmatrix_error(matrix);
     //STARS_BLRmatrix_info(matrix);
-    STARS_BLRmatrix_free(matrix);
+    //STARS_BLRmatrix_free(matrix);
     //STARS_BLR_info(format);
-    STARS_BLR_free(format);
+    //STARS_BLR_free(format);
     return 0;
 }

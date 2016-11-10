@@ -1436,6 +1436,31 @@ Array *block_astronomy_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
+int block_astronomy_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result)
+{
+    struct tomo_struct *tomo = row_data;
+    int i, j;
+    int shape[2] = {nrows, ncols};
+    double *buffer = result;
+    double crmax = tomo->rmax;
+    double pasDPHI = 1./tomo->pasDPHI; //inverse du pas de rr
+    long Ndphi = floor(crmax*pasDPHI)+1;
+    double convert = (double)(Ndphi-1)/(crmax+tomo->pasDPHI);
+    int type_mat = 1;
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+            buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],
+                    convert, tomo->sspSizeL, tomo->Nssp, tomo->u, tomo->v,
+                    tomo->X, tomo->Y, pasDPHI, tomo->tabDPHI, tomo->L0diff,
+                    tomo->cn2, Ndphi, tomo->Nw, tomo->Nlayer,
+                    tomo->Nsubap, tomo->Nx, tomo->alphaX, tomo->alphaY,
+                    tomo->lgs_cst, tomo->noise_var, tomo->spot_width,
+                    tomo->lgs_depth, tomo->lgs_alt, type_mat, tomo->nlgs,
+                    tomo->DiamTel);
+    return 0;
+}
+
 STARS_tomo *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
         double alphaY)
@@ -1454,9 +1479,10 @@ STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
     problem->ncols = problem->nrows;
     problem->symm = 'S';
     problem->dtype = 'd';
+    problem->dtype_size = sizeof(double);
     problem->row_data = tomo;
     problem->col_data = tomo;
-    problem->kernel = block_astronomy_kernel;
+    problem->kernel = block_astronomy_kernel_noalloc;
     return problem;
 }
 

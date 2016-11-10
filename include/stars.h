@@ -5,9 +5,8 @@ typedef struct Array Array;
 typedef struct STARS_Problem STARS_Problem;
 typedef struct STARS_BLR STARS_BLR;
 typedef struct STARS_BLRmatrix STARS_BLRmatrix;
+typedef int (*block_kernel)(int, int, int *, int *, void *, void *, void *);
 
-typedef struct Array *(*block_kernel)(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data);
 
 struct Array
 // N-dimensional array
@@ -26,6 +25,8 @@ struct Array
     char dtype;
     // Data type of each element of array. Possile value is 's', 'd', 'c' or
     // 'z', much like in names of LAPACK routines.
+    size_t dtype_size;
+    // Size in bytes of each element of a matrix
     size_t nbytes;
     // Size of buffer in bytes.
     void *buffer;
@@ -99,7 +100,6 @@ struct STARS_Problem
     void *row_data, *col_data;
     // Pointers to data, corresponding to rows and columns.
     block_kernel kernel;
-    int (*kernel_noalloc)(int, int, int *, int *, void *, void *, void *); 
     // Pointer to a function, returning submatrix on intersection of
     // given rows and columns.
     char *type;
@@ -170,4 +170,7 @@ void STARS_BLR_getblock(STARS_BLR *format, int i, int j, int order, int *shape,
         void **A);
 void STARS_BLRmatrix_printKADIR(STARS_BLRmatrix *mat);
 void STARS_BLRmatrix_heatmap(STARS_BLRmatrix *mat, char *fname);
+int batched_lowrank_approximation(STARS_BLRmatrix *mat, int count, int *id,
+        int maxrank, double tol, void **UV, int *rank);
+int batched_get_block(STARS_BLRmatrix *mat, int count, int *id, void **A);
 #endif // _STARS_H_

@@ -35,12 +35,41 @@ Array *block_es_kernel(int nrows, int ncols, int *irow, int *icol,
     return result;
 }
 
+int block_es_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result)
+{
+    // Block kernel for electrostatics
+    // Returns r^-1, where r is a distance between particles in 2D
+    int i, j;
+    STARS_ssdata *rdata = (STARS_ssdata *)row_data;
+    STARS_ssdata *cdata = (STARS_ssdata *)col_data;
+    double tmp, dist;
+    double *x = rdata->point;
+    double *y = rdata->point+rdata->count;
+    double *buffer = result;
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            if(irow[i] != icol[j])
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = tmp*tmp;
+                tmp = y[irow[i]]-y[icol[j]];
+                dist += tmp*tmp;
+                buffer[j*nrows+i] = 1./sqrt(dist);
+            }
+            else
+                buffer[j*nrows+i] = 0.;
+        }
+    return 0;
+}
+
 STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
         int block_size)
 {
     STARS_Problem *problem = STARS_gen_ssproblem(row_blocks, col_blocks,
             block_size, 0);
-    problem->kernel = block_es_kernel;
+    problem->kernel = block_es_kernel_noalloc;
     return problem;
 }
 

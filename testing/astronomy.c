@@ -197,9 +197,11 @@ int main(int argc, char **argv){
             snapshot_idx, obs_idx, alphaX, alphaY);
     STARS_Problem *problem = STARS_gen_aoproblem(tomo);
     STARS_BLR *format = STARS_gen_ao_blrformat(problem, block_size);
-    STARS_BLRmatrix *mat = STARS_blr__compress_algebraic_svd(format, maxrank, tol, maxrank);
-    STARS_BLRmatrix_heatmap(mat, heatmap_fname);
-    STARS_BLRmatrix_free(mat);
+    STARS_BLRmatrix *mat = STARS_blr_batched_algebraic_compress(format, maxrank, tol);
+    STARS_BLRmatrix_error(mat);
+    //STARS_BLRmatrix_heatmap(mat, heatmap_fname);
+    //STARS_BLRmatrix_free(mat);
+    /*
     int nbrows = format->nbrows, shape[2], i;
     char order = 'C';
     double *buffer = NULL;
@@ -258,6 +260,7 @@ int main(int argc, char **argv){
     Array_free(S);
     Array_free(V);
     STARS_BLR_free(format);
+    */
     free(tomo);
     return 0;
 }
