@@ -163,8 +163,8 @@ STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
 {
     int n = row_blocks*col_blocks*block_size;
     STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
-    problem->nrows = n;
-    problem->ncols = n;
+    //!problem->nrows = n;
+    //!problem->ncols = n;
     problem->symm = 'S';
     problem->dtype = 'd';
     problem->dtype_size = sizeof(double);
@@ -183,13 +183,13 @@ STARS_BLR *STARS_gen_ss_blrformat(int row_blocks, int col_blocks,
     blr->problem = STARS_gen_ssproblem(row_blocks, col_blocks, block_size,
             beta);
     blr->symm = 'S';
-    blr->nrows = blr->problem->nrows;
-    blr->ncols = blr->nrows;
-    blr->row_order = (int *)malloc(blr->nrows*sizeof(int));
-    blr->col_order = blr->row_order;
+    //!blr->nrows = blr->problem->nrows;
+    //!blr->ncols = blr->nrows;
+    blr->row_pivot = (int *)malloc(blr->nrows*sizeof(int));
+    blr->col_pivot = blr->row_pivot;
     for(i = 0; i < blr->nrows; i++)
     {
-        blr->row_order[i] = i;
+        blr->row_pivot[i] = i;
     }
     blr->nbrows = block_count;
     blr->nbcols = block_count;

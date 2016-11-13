@@ -80,13 +80,13 @@ STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
     STARS_BLR *blr = (STARS_BLR *)malloc(sizeof(STARS_BLR));
     blr->problem = STARS_gen_esproblem(row_blocks, col_blocks, block_size);
     blr->symm = 'S';
-    blr->nrows = blr->problem->nrows;
-    blr->ncols = blr->nrows;
-    blr->row_order = (int *)malloc(blr->nrows*sizeof(int));
-    blr->col_order = blr->row_order;
+    //!blr->nrows = blr->problem->nrows;
+    //!blr->ncols = blr->nrows;
+    blr->row_pivot = (int *)malloc(blr->nrows*sizeof(int));
+    blr->col_pivot = blr->row_pivot;
     for(i = 0; i < blr->nrows; i++)
     {
-        blr->row_order[i] = i;
+        blr->row_pivot[i] = i;
     }
     blr->nbrows = block_count;
     blr->nbcols = block_count;
