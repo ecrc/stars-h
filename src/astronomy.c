@@ -1485,55 +1485,9 @@ STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
             tomo, block_astronomy_kernel_noalloc, "Astronomy");
     return problem;
 }
-
+/*
 STARS_BLR *STARS_gen_ao_blrformat(STARS_Problem *problem, int block_size)
 {
-    int nrows = problem->shape[0];
-    int i = 0, j, k = 0, block_count;
-    block_count = (nrows-1)/block_size+1;
-    /*
-    printf("Matrix %d x %d, divided into a %d x %d grid of blocks %d x %d\n",
-            blr->nrows, blr->nrows, block_count, block_count,
-            block_size, block_size);
-    */
-    int *ibrow_start = (int *)malloc(block_count*sizeof(int));
-    int *ibcol_start = ibrow_start;
-    int *ibrow_size = (int *)malloc(block_count*sizeof(int));
-    int *ibcol_size = ibrow_size;
-    while(i < nrows)
-    {
-        j = i+block_size;
-        if(j > nrows)
-            j = nrows;
-        ibrow_start[k] = i;
-        ibrow_size[k] = j-i;
-        i = j;
-        k++;
-    }
-    int admissible_nblocks = block_count*block_count;
-    int *admissible_block_start = (int *)malloc(block_count*sizeof(int));
-    int *admissible_block_size = (int *)malloc(block_count*sizeof(int));
-    int *admissible_block = (int *)malloc(admissible_nblocks*sizeof(int));
-    STARS_BlockStatus *admissible_block_status = (STARS_BlockStatus *)malloc(
-            admissible_nblocks*sizeof(STARS_BlockStatus));
-    for(i = 0; i < block_count; i++)
-    {
-        admissible_block_start[i] = i*block_count;
-        admissible_block_size[i] = block_count;
-        for(j = 0; j < block_count; j++)
-        {
-            admissible_block[i*block_count+j] = j;
-            admissible_block_status[i*block_count+j] = STARS_Undecided;
-        }
-    }
-    STARS_BLR *blr = STARS_BLR_init(problem, problem->symm, NULL, NULL,
-            block_count, block_count, ibrow_start, ibcol_start, ibrow_size,
-            ibcol_size, admissible_nblocks, admissible_block_start,
-            admissible_block_size, admissible_block, admissible_block_status);
-    free(ibrow_start);
-    free(ibrow_size);
-    free(admissible_block_start);
-    free(admissible_block_size);
-    free(admissible_block);
-    return blr;
+    return STARS_BLR_plain(problem, 'S', block_size);
 }
+*/

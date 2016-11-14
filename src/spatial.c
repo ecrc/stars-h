@@ -146,7 +146,7 @@ void gen_block_points(int m, int n, int block_size, double *points)
             }
 }
 
-void *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
+STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
         double beta)
 {
     int n = row_blocks*col_blocks*block_size;
@@ -155,26 +155,31 @@ void *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
     gen_block_points(row_blocks, col_blocks, block_size, data->point);
     data->count = n;
     data->beta = beta;
-    return (void *)data;
+    return data;
+}
+
+void STARS_ssdata_free(STARS_ssdata *data)
+{
+    if(data == NULL)
+    {
+        fprintf(stderr, "Data for spatial statistics problem was not "
+                "generated\n");
+        return;
+    }
+    free(data->point);
+    free(data);
 }
 
 STARS_Problem *STARS_gen_ssproblem(int row_blocks, int col_blocks,
         int block_size, double beta)
 {
-    int n = row_blocks*col_blocks*block_size;
-    STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
-    //!problem->nrows = n;
-    //!problem->ncols = n;
-    problem->symm = 'S';
-    problem->dtype = 'd';
-    problem->dtype_size = sizeof(double);
-    problem->row_data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
+    STARS_ssdata *data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
             beta);
-    problem->col_data = problem->row_data;
-    problem->kernel = block_exp_kernel_noalloc;
-    return problem;
+    int shape[2] = {data->count, data->count};
+    return STARS_Problem_init(2, shape, 'S', 'd', data, data,
+            block_exp_kernel_noalloc, "Spatial Statistics problem");
 }
-
+/*
 STARS_BLR *STARS_gen_ss_blrformat(int row_blocks, int col_blocks,
         int block_size, double beta)
 {
@@ -204,3 +209,4 @@ STARS_BLR *STARS_gen_ss_blrformat(int row_blocks, int col_blocks,
     }
     return blr;
 }
+*/

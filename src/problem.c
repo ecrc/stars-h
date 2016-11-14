@@ -77,7 +77,7 @@ void STARS_Problem_free(STARS_Problem *problem)
 void STARS_Problem_info(STARS_Problem *problem)
 // Print some info about Problem
 {
-    printf("<STARS_Problem object at %p, name \"%s\">\n",
+    printf("<STARS_Problem instance at %p, name \"%s\">\n",
             (char *)problem, problem->name);
 }
 

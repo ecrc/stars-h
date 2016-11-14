@@ -108,5 +108,5 @@ STARS_tomo *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
         double alphaY);
 STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo);
-STARS_BLR *STARS_gen_ao_blrformat(STARS_Problem *problem, int block_size);
+//STARS_BLR *STARS_gen_ao_blrformat(STARS_Problem *problem, int block_size);
 #endif

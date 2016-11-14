@@ -5,8 +5,8 @@
 #include "stars-spatial.h"
 
 int main(int argc, char **argv)
-    // Example of how to use STARS library for spatial statistics.
-    // For more information on STARS structures look inside of header files.
+// Example of how to use STARS library for spatial statistics.
+// For more information on STARS structures look inside of header files.
 {
     if(argc < 8)
     {
@@ -22,78 +22,15 @@ int main(int argc, char **argv)
     printf("rb=%d, cb=%d, bs=%d, mr=%d, tol=%e, beta=%f\n",
             row_blocks, col_blocks, block_size, maxrank, tol, beta);
     STARS_Problem *problem;
-    STARS_BLR *format;
-    STARS_BLRmatrix *matrix = NULL;
-    format = STARS_gen_ss_blrformat(row_blocks, col_blocks, block_size, beta);
-    // Problem is generated inside STARS_gen_ss_blrformat
-    matrix = STARS_blr_batched_algebraic_compress(format, maxrank, tol);
-    //matrix = STARS_blr__compress_algebraic_svd(format, maxrank, tol, 0);
-    //printf("Measuring error!\n");
-    STARS_BLRmatrix_error(matrix);
-    //STARS_BLRmatrix_info(matrix);
-    //STARS_BLRmatrix_printKADIR(matrix);
-    /*
-    STARS_BLRmatrix_heatmap(matrix, heatmap_fname);
-    STARS_BLRmatrix_free(matrix);
-    //STARS_BLR_info(format);
-    int nbrows = format->nbrows, shape[2], i;
-    char order = 'C';
-    double *buffer = NULL;
-    FILE *fd;
-    Array *U, *S, *V, *block;
-    STARS_BLR_getblock(format, nbrows/2, nbrows/2, order, shape, &buffer);
-    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
-    Array_SVD(block, &U, &S, &V);
-    fd = fopen(heatmap_fname, "a");
-    buffer = S->buffer;
-    for(i = 0; i < S->size; i++)
-        fprintf(fd, "%.12e ", buffer[i]);
-    fprintf(fd, "\n");
-    fclose(fd);
-    Array_free(block);
-    Array_free(U);
-    Array_free(S);
-    Array_free(V);
-    STARS_BLR_getblock(format, 5*nbrows/8, 3*nbrows/8, order, shape, &buffer);
-    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
-    Array_SVD(block, &U, &S, &V);
-    fd = fopen(heatmap_fname, "a");
-    buffer = S->buffer;
-    for(i = 0; i < S->size; i++)
-        fprintf(fd, "%.12e ", buffer[i]);
-    fprintf(fd, "\n");
-    fclose(fd);
-    Array_free(block);
-    Array_free(U);
-    Array_free(S);
-    Array_free(V);
-    STARS_BLR_getblock(format, 3*nbrows/4, nbrows/4, order, shape, &buffer);
-    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
-    Array_SVD(block, &U, &S, &V);
-    fd = fopen(heatmap_fname, "a");
-    buffer = S->buffer;
-    for(i = 0; i < S->size; i++)
-        fprintf(fd, "%.12e ", buffer[i]);
-    fprintf(fd, "\n");
-    fclose(fd);
-    Array_free(block);
-    Array_free(U);
-    Array_free(S);
-    Array_free(V);
-    STARS_BLR_getblock(format, nbrows-1, 0, order, shape, &buffer);
-    block = Array_from_buffer(2, shape, 'd', 'F', buffer);
-    Array_SVD(block, &U, &S, &V);
-    fd = fopen(heatmap_fname, "a");
-    buffer = S->buffer;
-    for(i = 0; i < S->size; i++)
-        fprintf(fd, "%.12e ", buffer[i]);
-    fprintf(fd, "\n");
-    fclose(fd);
-    Array_free(block);
-    Array_free(U);
-    Array_free(S);
-    Array_free(V);
-    STARS_BLR_free(format);
-    */
+    STARS_BLRF *blrf;
+    STARS_BLRM *blrm;
+    problem = STARS_gen_ssproblem(row_blocks, col_blocks, block_size, beta);
+    blrf = STARS_BLRF_tiled(problem, 'S', block_size);
+    blrm = STARS_blrf_tiled_compress_algebraic_svd(blrf, maxrank, tol);
+    STARS_BLRM_error(blrm);
+    STARS_BLRM_free(blrm);
+    STARS_BLRF_free(blrf);
+    STARS_ssdata_free(problem->row_data);
+    STARS_Problem_free(problem);
     return 0;
 }

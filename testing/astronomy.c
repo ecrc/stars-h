@@ -28,11 +28,11 @@ int main(int argc, char **argv){
             snapshot_idx, obs_idx, alphaX, alphaY);
     STARS_Problem *problem = STARS_gen_aoproblem(tomo);
     STARS_Problem_info(problem);
-    STARS_BLR *blr = STARS_gen_ao_blrformat(problem, block_size);
-    STARS_BLR_info(blr);
-    STARS_BLR_print(blr);
-    STARS_BLR_free(blr);
-    STARS_Problem_free(problem);
+    //STARS_BLR *blr = STARS_gen_ao_blrformat(problem, block_size);
+    //STARS_BLR_info(blr);
+    //STARS_BLR_print(blr);
+    //STARS_BLR_free(blr);
+    //STARS_Problem_free(problem);
     free(tomo);
     return 0;
 }

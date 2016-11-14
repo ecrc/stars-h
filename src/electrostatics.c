@@ -72,7 +72,7 @@ STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
     problem->kernel = block_es_kernel_noalloc;
     return problem;
 }
-
+/*
 STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
         int block_size)
 {
@@ -101,3 +101,4 @@ STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
     }
     return blr;
 }
+*/
