@@ -11,7 +11,7 @@ STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, int nblocks, int *brank,
         Array **U, Array **V, Array **D, void *U_alloc, void *V_alloc,
         void *D_alloc, char alloc_type)
 {
-    STARS_BLRM *blrm = (STARS_BLRM *)malloc(sizeof(STARS_BLRM));
+    STARS_BLRM *blrm = malloc(sizeof(*blrm));
     blrm->blrf = blrf;
     blrm->nblocks = nblocks;
     blrm->brank = brank;
@@ -73,7 +73,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
     STARS_Problem *problem = blrf->problem;
-    int bi, i = 0, j, k, l, ndim = problem->ndim, mn, info, rank;
+    int bi, i = 0, j, k, l, ndim = problem->ndim, mn, rank;
     if(ndim != 2)
     {
         fprintf(stderr, "Currently only scalar kernels are supported\n");
@@ -83,18 +83,18 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
     Array *block, *block2;
     Array *U, *S, *V;
     double *ptr, *ptrS, *ptrV;
-    double norm;
+    //double norm;
     int nblocks = blrf->admissible_nblocks;
     int nbrows = blrf->nbrows;
-    int nbcols = blrf->nbcols;
-    Array **blrmU = (Array **)malloc(nblocks*sizeof(Array *));
-    Array **blrmV = (Array **)malloc(nblocks*sizeof(Array *));
-    Array **blrmD = (Array **)malloc(nblocks*sizeof(Array *));
-    int *brank = (int *)malloc(nblocks*sizeof(int));
+    //int nbcols = blrf->nbcols;
+    Array **blrmU = malloc(nblocks*sizeof(Array *));
+    Array **blrmV = malloc(nblocks*sizeof(Array *));
+    Array **blrmD = malloc(nblocks*sizeof(Array *));
+    int *brank = malloc(nblocks*sizeof(int));
     STARS_Cluster *row_cluster = blrf->row_cluster;
     STARS_Cluster *col_cluster = blrf->col_cluster;
     int nrowsi, ncolsj;
-    int *shape = (int *)malloc(ndim*sizeof(int));
+    int *shape = malloc(ndim*sizeof(int));
     memcpy(shape, blrf->problem->shape, ndim*sizeof(int));
     for(bi = 0; bi < nblocks; bi++)
     // Cycle over every admissible block
@@ -117,7 +117,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
             continue;
         }
         block = Array_new(ndim, shape, blrf->problem->dtype, 'F');
-        info = (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
+        (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
                 row_cluster->start[i], col_cluster->pivot+
                 col_cluster->start[j], problem->row_data, problem->col_data,
                 block->buffer);
@@ -192,9 +192,9 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
     STARS_Cluster *col_cluster = blrf->col_cluster;
     int nblocks = blrm->nblocks;
     int nbrows = blrf->nbrows;
-    int nbcols = blrf->nbcols;
-    int nrowsi, ncolsj, mn;
-    double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0., info;
+    //int nbcols = blrf->nbcols;
+    int nrowsi, ncolsj;
+    double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0.;
     int *shape = (int *)malloc(ndim*sizeof(int));
     Array *block, *block2;
     char symm = blrf->symm;
@@ -210,9 +210,8 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
         ncolsj = col_cluster->size[j];
         shape[0] = nrowsi;
         shape[ndim-1] = ncolsj;
-        mn = nrowsi > ncolsj ? ncolsj : nrowsi;
         block = Array_new(ndim, shape, problem->dtype, 'F');
-        info = (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
+        (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
                 row_cluster->start[i], col_cluster->pivot+
                 col_cluster->start[j], problem->row_data, problem->col_data,
                 block->buffer);

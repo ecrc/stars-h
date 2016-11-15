@@ -1413,26 +1413,25 @@ void matcov_comp_tile(
 int STARS_aodata_block_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
 {
-    struct tomo_struct *tomo = row_data;
+    struct tomo_struct *data = row_data;
     int i, j;
-    int shape[2] = {nrows, ncols};
     double *buffer = result;
-    double crmax = tomo->rmax;
-    double pasDPHI = 1./tomo->pasDPHI; //inverse du pas de rr
+    double crmax = data->rmax;
+    double pasDPHI = 1./data->pasDPHI; //inverse du pas de rr
     long Ndphi = floor(crmax*pasDPHI)+1;
-    double convert = (double)(Ndphi-1)/(crmax+tomo->pasDPHI);
+    double convert = (double)(Ndphi-1)/(crmax+data->pasDPHI);
     int type_mat = 1;
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for private(i, j)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
             buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],
-                    convert, tomo->sspSizeL, tomo->Nssp, tomo->u, tomo->v,
-                    tomo->X, tomo->Y, pasDPHI, tomo->tabDPHI, tomo->L0diff,
-                    tomo->cn2, Ndphi, tomo->Nw, tomo->Nlayer,
-                    tomo->Nsubap, tomo->Nx, tomo->alphaX, tomo->alphaY,
-                    tomo->lgs_cst, tomo->noise_var, tomo->spot_width,
-                    tomo->lgs_depth, tomo->lgs_alt, type_mat, tomo->nlgs,
-                    tomo->DiamTel);
+                    convert, data->sspSizeL, data->Nssp, data->u, data->v,
+                    data->X, data->Y, pasDPHI, data->tabDPHI, data->L0diff,
+                    data->cn2, Ndphi, data->Nw, data->Nlayer,
+                    data->Nsubap, data->Nx, data->alphaX, data->alphaY,
+                    data->lgs_cst, data->noise_var, data->spot_width,
+                    data->lgs_depth, data->lgs_alt, type_mat, data->nlgs,
+                    data->DiamTel);
     return 0;
 }
 

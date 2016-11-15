@@ -52,7 +52,7 @@ Array *Array_from_buffer(int ndim, int *shape, char dtype, char order,
         dtype_size = sizeof(double complex);
     if(ndim == 0)
     {
-        Array *array = (Array *)malloc(sizeof(Array));
+        Array *array = malloc(sizeof(Array));
         array->ndim = ndim;
         array->shape = NULL;
         array->stride = NULL;
@@ -65,8 +65,8 @@ Array *Array_from_buffer(int ndim, int *shape, char dtype, char order,
         return array;
     }
     int size = 1;
-    int *stride = (int *)malloc(ndim*sizeof(int));
-    int *newshape = (int *)malloc(ndim*sizeof(int));
+    int *stride = malloc(ndim*sizeof(int));
+    int *newshape = malloc(ndim*sizeof(int));
     if(order == 'F')
     {
         stride[0] = 1;
@@ -89,7 +89,7 @@ Array *Array_from_buffer(int ndim, int *shape, char dtype, char order,
         }
         size = stride[0]*shape[0];
     }
-    Array *array = (Array *)malloc(sizeof(Array));
+    Array *array = malloc(sizeof(Array));
     array->ndim = ndim;
     array->shape = newshape;
     array->stride = stride;
@@ -114,11 +114,11 @@ Array *Array_new_like(Array *array)
 // Initialize new array with exactly the same shape, dtype and so on, but
 // with a different memory buffer
 {
-    Array *array2 = (Array *)malloc(sizeof(Array));
+    Array *array2 = malloc(sizeof(Array));
     array2->ndim = array->ndim;
-    array2->shape = (int *)malloc(array->ndim*sizeof(int));
+    array2->shape = malloc(array->ndim*sizeof(int));
     memcpy(array2->shape, array->shape, array->ndim*sizeof(int));
-    array2->stride = (int *)malloc(array->ndim*sizeof(int));
+    array2->stride = malloc(array->ndim*sizeof(int));
     memcpy(array2->stride, array->stride, array->ndim*sizeof(int));
     array2->order = array->order;
     array2->size = array->size;
@@ -220,10 +220,10 @@ void Array_print(Array *array)
 // rows of output
 {
     int i, j, offset, row, row_size = array->size/array->shape[0];
-    int *index = (int *)malloc(array->ndim*sizeof(int));
+    int *index = malloc(array->ndim*sizeof(int));
     if(array->dtype == 's')
     {
-        float *buffer = (float *)array->buffer;
+        float *buffer = array->buffer;
         for(row = 0; row < array->shape[0]; row++)
         {
             index[0] = row;
@@ -250,7 +250,7 @@ void Array_print(Array *array)
     }
     else if(array->dtype == 'd')
     {
-        double *buffer = (double *)array->buffer;
+        double *buffer = array->buffer;
         for(row = 0; row < array->shape[0]; row++)
         {
             index[0] = row;
@@ -277,7 +277,7 @@ void Array_print(Array *array)
     }
     else if(array->dtype == 'c')
     {
-        float complex *buffer = (float complex *)array->buffer;
+        float complex *buffer = array->buffer;
         for(row = 0; row < array->shape[0]; row++)
         {
             index[0] = row;
@@ -305,7 +305,7 @@ void Array_print(Array *array)
     }
     else// array->dtype == 'z'
     {
-        double complex *buffer = (double complex*)array->buffer;
+        double complex *buffer = array->buffer;
         for(row = 0; row < array->shape[0]; row++)
         {
             index[0] = row;
@@ -359,25 +359,25 @@ void Array_init_randn(Array *array)
     int i;
     if(array->dtype == 's')
     {
-        float *buffer = (float *)array->buffer;
+        float *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = randn();
     }
     else if(array->dtype == 'd')
     {
-        double *buffer = (double *)array->buffer;
+        double *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = randn();
     }
     else if(array->dtype == 'c')
     {
-        float complex *buffer = (float complex *)array->buffer;
+        float complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = randn()+I*randn();
     }
     else // array->dtype == 'z'
     {
-        double complex *buffer = (double complex *)array->buffer;
+        double complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = randn()+I*randn();
     }
@@ -389,26 +389,26 @@ void Array_init_rand(Array *array)
     int i;
     if(array->dtype == 's')
     {
-        float *buffer = (float *)array->buffer;
+        float *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = (double)rand()/(double)RAND_MAX;
     }
     else if(array->dtype == 'd')
     {
-        double *buffer = (double *)array->buffer;
+        double *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = (double)rand()/(double)RAND_MAX;
     }
     else if(array->dtype == 'c')
     {
-        float complex *buffer = (float complex *)array->buffer;
+        float complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = (double)rand()/(double)RAND_MAX+
                 I*(double)rand()/(double)RAND_MAX;
     }
     else // array->dtype == 'z'
     {
-        double complex *buffer = (double complex *)array->buffer;
+        double complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = (double)rand()/(double)RAND_MAX+
                 I*(double)rand()/(double)RAND_MAX;
@@ -421,25 +421,25 @@ void Array_init_zeros(Array *array)
     int i;
     if(array->dtype == 's')
     {
-        float *buffer = (float *)array->buffer;
+        float *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 0.;
     }
     else if(array->dtype == 'd')
     {
-        double *buffer = (double *)array->buffer;
+        double *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 0.;
     }
     else if(array->dtype == 'c')
     {
-        float complex *buffer = (float complex *)array->buffer;
+        float complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 0.;
     }
     else // array->dtype == 'z'
     {
-        double complex *buffer = (double complex *)array->buffer;
+        double complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 0.;
     }
@@ -451,25 +451,25 @@ void Array_init_ones(Array *array)
     int i;
     if(array->dtype == 's')
     {
-        float *buffer = (float *)array->buffer;
+        float *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 1.;
     }
     else if(array->dtype == 'd')
     {
-        double *buffer = (double *)array->buffer;
+        double *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 1.;
     }
     else if(array->dtype == 'c')
     {
-        float complex *buffer = (float complex *)array->buffer;
+        float complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 1.;
     }
     else // array->dtype == 'z'
     {
-        double complex *buffer = (double complex *)array->buffer;
+        double complex *buffer = array->buffer;
         for(i = 0; i < array->size; i++)
             buffer[i] = 1.;
     }
@@ -517,8 +517,8 @@ void Array_trans(Array *array)
 // shape, stride and order.
 {
     int i;
-    int *new_shape = (int *)malloc(array->ndim*sizeof(int));
-    int *new_stride = (int *)malloc(array->ndim*sizeof(int));
+    int *new_shape = malloc(array->ndim*sizeof(int));
+    int *new_stride = malloc(array->ndim*sizeof(int));
     for(i = 0; i < array->ndim; i++)
     {
         new_shape[i] = array->shape[array->ndim-i-1];
@@ -581,7 +581,7 @@ Array *Array_dot(Array* A, Array *B)
     int k = B->shape[0];
     int lda = A->stride[0]*A->stride[A->ndim-1];
     int ldb = B->stride[0]*B->stride[B->ndim-1];
-    int *new_shape = (int *)malloc(new_ndim*sizeof(int));
+    int *new_shape = malloc(new_ndim*sizeof(int));
     for(i = 0; i < A->ndim-1; i++)
         new_shape[i] = A->shape[i];
     for(i = 0; i < B->ndim-1; i++)
@@ -613,7 +613,7 @@ Array *Array_dot(Array* A, Array *B)
     return C;
 }
 
-void Array_SVD(Array *array, Array **U, Array **S, Array **V)
+int Array_SVD(Array *array, Array **U, Array **S, Array **V)
 // Compute SVD of a given 2-dimensional array.
 {
     int error = 0;
@@ -666,19 +666,19 @@ void Array_SVD(Array *array, Array **U, Array **S, Array **V)
     *V = Array_new(2, tmp_shape, uv_dtype, array->order);
     *S = Array_new(1, tmp_shape, s_dtype, array->order);
     if(uv_dtype == 's')
-        LAPACKE_sgesdd(order, 'S', array->shape[0], array->shape[1],
+        return LAPACKE_sgesdd(order, 'S', array->shape[0], array->shape[1],
                 array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
                 (*V)->buffer, ldv);
     else if(uv_dtype == 'd')
-        LAPACKE_dgesdd(order, 'S', array->shape[0], array->shape[1],
+        return LAPACKE_dgesdd(order, 'S', array->shape[0], array->shape[1],
                 array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
                 (*V)->buffer, ldv);
     else if(uv_dtype == 'c')
-        LAPACKE_cgesdd(order, 'S', array->shape[0], array->shape[1],
+        return LAPACKE_cgesdd(order, 'S', array->shape[0], array->shape[1],
                 array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
                 (*V)->buffer, ldv);
     else // uv_dtype == 'z'
-        LAPACKE_zgesdd(order, 'S', array->shape[0], array->shape[1],
+        return LAPACKE_zgesdd(order, 'S', array->shape[0], array->shape[1],
                 array->buffer, lda, (*S)->buffer, (*U)->buffer, ldu,
                 (*V)->buffer, ldv);
 }
@@ -808,6 +808,7 @@ double Array_diff(Array *array, Array *array2)
     free(tmp_buf);
     if(copied == 1)
         Array_free(array2);
+    return diff;
 }
 
 double Array_norm(Array *array)
@@ -854,7 +855,7 @@ Array *Array_convert(Array *array, char dtype)
     Array *array2;
     if(dtype == 's')
     {
-        float *buffer = (float *)malloc(array->size*sizeof(float));
+        float *buffer = malloc(array->size*sizeof(float));
         if(array->dtype == 's')
         {
             float *src = array->buffer;
@@ -892,7 +893,7 @@ Array *Array_convert(Array *array, char dtype)
     }
     if(dtype == 'd')
     {
-        double *buffer = (double *)malloc(array->size*sizeof(double));
+        double *buffer = malloc(array->size*sizeof(double));
         if(array->dtype == 's')
         {
             float *src = array->buffer;
@@ -930,8 +931,7 @@ Array *Array_convert(Array *array, char dtype)
     }
     if(dtype == 'c')
     {
-        float complex *buffer = (float complex *)malloc(array->size*sizeof(
-                    float complex));
+        float complex *buffer = malloc(array->size*sizeof(*buffer));
         if(array->dtype == 's')
         {
             float *src = array->buffer;
@@ -969,8 +969,7 @@ Array *Array_convert(Array *array, char dtype)
     }
     else// dtype == 'z'
     {
-        double complex *buffer = (double complex *)malloc(array->size*sizeof(
-                    double complex));
+        double complex *buffer = malloc(array->size*sizeof(*buffer));
         if(array->dtype == 's')
         {
             float *src = array->buffer;
@@ -1013,7 +1012,7 @@ int SVD_get_rank(Array *S, double tol, char type)
 // Returns rank by given array of singular values, tolerance and type of norm
 // ('2' for spectral norm, 'F' for Frobenius norm)
 {
-    int i, shape[2], size = S->size;
+    int i, size = S->size;
     if(type != 'F' && type != '2')
     {
         fprintf(stderr, "type must be '2' or 'F', not '%c'\n", type);
@@ -1021,10 +1020,10 @@ int SVD_get_rank(Array *S, double tol, char type)
     }
     if(S->dtype == 's')
     {
-        float stol, tmp, *S2, *Sbuf = (float *)S->buffer;
+        float stol, tmp, *S2, *Sbuf = S->buffer;
         if(type == 'F')
         {
-            S2 = (float *)malloc(size*sizeof(float));
+            S2 = malloc(size*sizeof(*S2));
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -1051,10 +1050,10 @@ int SVD_get_rank(Array *S, double tol, char type)
     }
     else// S->dtype == 'd'
     {
-        double stol, tmp, *S2, *Sbuf = (double *)S->buffer;
+        double stol, tmp, *S2, *Sbuf = S->buffer;
         if(type == 'F')
         {
-            S2 = (double *)malloc(size*sizeof(double));
+            S2 = malloc(size*sizeof(*S2));
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -1078,5 +1077,54 @@ int SVD_get_rank(Array *S, double tol, char type)
                 i++;
             return i;
         }
+    }
+}
+
+int Array_Cholesky(Array *array, char uplo)
+// Cholesky factoriation for an array
+{
+    if(array->ndim != 2)
+    {
+        fprintf(stderr, "Input array must be 2-dimensional.\n");
+        exit(1);
+    }
+    if(array->shape[0] != array->shape[1])
+    {
+        fprintf(stderr, "Input array must be square.\n");
+        exit(1);
+    }
+    if(uplo != 'U' && uplo != 'L')
+    {
+        fprintf(stderr, "Parameter 2 in ARRAY_Cholesky is wrong.\n");
+        exit(1);
+    }
+    int order;
+    if(array->order == 'C')
+    {
+        order = LAPACK_ROW_MAJOR;
+    }
+    else// array->order =='F'
+    {
+        order = LAPACK_COL_MAJOR;
+    }
+    if(array->dtype == 's')
+    {
+        return LAPACKE_spotrf(order, uplo, array->shape[0], array->buffer,
+                array->shape[0]);
+    }
+    else if(array->dtype == 'd')
+    {
+        return LAPACKE_dpotrf(order, uplo, array->shape[0], array->buffer,
+                array->shape[0]);
+    }
+    else if(array->dtype == 'c')
+    {
+        return LAPACKE_cpotrf(order, uplo, array->shape[0], array->buffer,
+                array->shape[0]);
+    }
+    else// array->dtype == 'z'
+    {
+        return LAPACKE_zpotrf(order, uplo, array->shape[0], array->buffer,
+                array->shape[0]);
     }
 }

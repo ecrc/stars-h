@@ -3,7 +3,7 @@
 #  	make [all]	-- make lib test
 #  	make lib	-- make lib/libstars-h.a
 #  	make shared	-- make lib/libstars-h.so (or libstars-h.dylib)
-#  	make test	-- make test/*.out standalone examples
+#  	make test	-- make testing/*.out standalone examples
 #  	make docs	-- make docs/html
 #  	make clean	-- remove objects, libraries and executables
 

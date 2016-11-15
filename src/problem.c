@@ -51,9 +51,9 @@ STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
     size_t entry_size = dtype_size;
     for(i = 1; i < ndim-1; i++)
         entry_size *= shape[i];
-    STARS_Problem *problem = (STARS_Problem *)malloc(sizeof(STARS_Problem));
+    STARS_Problem *problem = malloc(sizeof(*problem));
     problem->ndim = ndim;
-    problem->shape = (int *)malloc(ndim*sizeof(int));
+    problem->shape = malloc(ndim*sizeof(int));
     memcpy(problem->shape, shape, ndim*sizeof(int));
     problem->symm = symm;
     problem->dtype = dtype;
@@ -62,7 +62,7 @@ STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
     problem->row_data = row_data;
     problem->col_data = col_data;
     problem->kernel = kernel;
-    problem->name = (char *)malloc((strlen(name)+1));
+    problem->name = malloc(strlen(name)+1);
     strcpy(problem->name, name);
     return problem;
 }
@@ -97,7 +97,7 @@ Array *STARS_Problem_get_block(STARS_Problem *problem, int nrows, int ncols,
 {
     int i;
     int ndim = problem->ndim;
-    int *shape = (int *)malloc(ndim*sizeof(int));
+    int *shape = malloc(ndim*sizeof(int));
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     for(i = 1; i < ndim-1; i++)
@@ -120,7 +120,7 @@ int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
     if(data->order == 'C')
     {
         lda = data->shape[data->ndim-1];
-        #pragma omp parallel for collapse(2) private(dest, src)
+        #pragma omp parallel for private(dest, src, i, j)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
@@ -132,7 +132,7 @@ int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
     else
     {
         lda = data->shape[0];
-        #pragma omp parallel for collapse(2) private(dest, src)
+        #pragma omp parallel for private(dest, src, i, j)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {

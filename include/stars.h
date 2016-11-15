@@ -90,7 +90,7 @@ Array *Array_dot(Array* A, Array *B);
 // GEMM for two arrays. Multiplication is performed by last dimension of
 // array A and first dimension of array B. These dimensions, data types and
 // ordering of both arrays should be equal.
-void Array_SVD(Array *array, Array **U, Array **S, Array **V);
+int Array_SVD(Array *array, Array **U, Array **S, Array **V);
 // Compute short SVD of 2-dimensional array
 int SVD_get_rank(Array *S, double tol, char type);
 // Find rank by singular values and given accuracy tolerance
@@ -106,6 +106,8 @@ Array *Array_convert(Array *array, char dtype);
 int SVD_get_rank(Array *S, double tol, char type);
 // Returns rank by given array of singular values, tolerance and type of norm
 // ('2' for spectral norm, 'F' for Frobenius norm)
+int Array_Cholesky(Array *array, char uplo);
+// Cholesky factoriation for an array
 
 
 struct STARS_Problem

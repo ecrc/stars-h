@@ -44,13 +44,11 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
 //     and block row. STARS_Dense for guaranteed dense, STARS_LowRank for
 //     guaranteed low-rank or STARS_Unknown if not known a priori. Not copied.
 {
-    int i, nbrows, nbcols;
-    STARS_BLRF *blrf = (STARS_BLRF *)malloc(sizeof(STARS_BLRF));
+    STARS_BLRF *blrf = malloc(sizeof(*blrf));
     blrf->problem = problem;
     blrf->symm = symm;
     blrf->row_cluster = row_cluster;
-    nbrows = row_cluster->nblocks;
-    blrf->nbrows = nbrows;
+    blrf->nbrows = row_cluster->nblocks;
     blrf->admissible_nblocks = admissible_nblocks;
     blrf->ibrow_admissible_start = ibrow_admissible_start;
     blrf->ibrow_admissible_size = ibrow_admissible_size;
@@ -174,14 +172,14 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
     }
     int nbrows = row_cluster->nblocks, nbcols = col_cluster->nblocks;
     int admissible_nblocks = nbrows*nbcols;
-    int *ibrow_admissible_start = (int *)malloc(nbrows*sizeof(int));
+    int *ibrow_admissible_start = malloc(nbrows*sizeof(int));
     int *ibcol_admissible_start = ibrow_admissible_start;
-    int *ibrow_admissible_size = (int *)malloc(nbrows*sizeof(int));
+    int *ibrow_admissible_size = malloc(nbrows*sizeof(int));
     int *ibcol_admissible_size = ibrow_admissible_size;
-    int *ibrow_admissible = (int *)malloc(admissible_nblocks*sizeof(int));
+    int *ibrow_admissible = malloc(admissible_nblocks*sizeof(int));
     int *ibcol_admissible = ibrow_admissible;
-    STARS_BlockStatus *ibrow_admissible_status = (STARS_BlockStatus *)malloc(
-            admissible_nblocks*sizeof(STARS_BlockStatus));
+    STARS_BlockStatus *ibrow_admissible_status = malloc(admissible_nblocks*
+            sizeof(STARS_BlockStatus));
     STARS_BlockStatus *ibcol_admissible_status = ibrow_admissible_status;
     int i, j;
     for(i = 0; i < nbrows; i++)
@@ -196,11 +194,11 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
     }
     if(symm == 'N')
     {
-        ibcol_admissible_start = (int *)malloc(nbcols*sizeof(int));
-        ibcol_admissible_size = (int *)malloc(nbcols*sizeof(int));
-        ibcol_admissible = (int *)malloc(admissible_nblocks*sizeof(int));
-        ibcol_admissible_status = (STARS_BlockStatus *)malloc(
-                admissible_nblocks*sizeof(STARS_BlockStatus));
+        ibcol_admissible_start = malloc(nbcols*sizeof(int));
+        ibcol_admissible_size = malloc(nbcols*sizeof(int));
+        ibcol_admissible = malloc(admissible_nblocks*sizeof(int));
+        ibcol_admissible_status = malloc(admissible_nblocks*
+                sizeof(STARS_BlockStatus));
         for(i = 0; i < nbcols; i++)
         {
             ibcol_admissible_start[i] = i*nbrows;

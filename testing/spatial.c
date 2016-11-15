@@ -82,6 +82,8 @@ int main(int argc, char **argv)
     STARS_Cluster_free(cluster);
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(problem);
+    // Check if this problem is good for Cholesky factorization
+    printf("Info of potrf: %d\n", Array_Cholesky(array, 'L'));
     // Free memory, consumed by array
     Array_free(array);
     return 0;

@@ -15,25 +15,18 @@ int STARS_ssdata_block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     STARS_ssdata *data = row_data;
     double tmp, dist, beta = -data->beta;
     double *x = data->point, *y = x+data->count;
-    int shape[2] = {nrows, ncols};
     double *buffer = result;
-    //printf("submatrix for [%d:%d, %d:%d]\n", irow[0], irow[nrows-1],
-    //        icol[0], icol[ncols-1]);
-    #pragma omp parallel private(tmp, dist)
-    {
-        //printf("inside thread %d\n", omp_get_thread_num());
-        #pragma omp for collapse(2)
-        for(j = 0; j < ncols; j++)
-            for(i = 0; i < nrows; i++)
-            {
-                tmp = x[irow[i]]-x[icol[j]];
-                dist = tmp*tmp;
-                tmp = y[irow[i]]-y[icol[j]];
-                dist += tmp*tmp;
-                dist = sqrt(dist)/beta;
-                buffer[j*nrows+i] = exp(dist);
-            }
-    }
+    #pragma omp parallel for private(tmp, dist, i, j)
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            tmp = y[irow[i]]-y[icol[j]];
+            dist += tmp*tmp;
+            dist = sqrt(dist)/beta;
+            buffer[j*nrows+i] = exp(dist);
+        }
     return 0;
 }
 
@@ -122,8 +115,8 @@ STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
         double beta)
 {
     int n = row_blocks*col_blocks*block_size;
-    STARS_ssdata *data = (STARS_ssdata *)malloc(sizeof(STARS_ssdata));
-    data->point = (double *)malloc(2*n*sizeof(double));
+    STARS_ssdata *data = malloc(sizeof(*data));
+    data->point = malloc(2*n*sizeof(double));
     gen_ss_block_points(row_blocks, col_blocks, block_size, data->point);
     data->count = n;
     data->beta = beta;
