@@ -1,6 +1,10 @@
-Array *block_es_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data);
-STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
-        int block_size);
-//STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
-//        int block_size);
+typedef struct STARS_esdata
+{
+    int count;
+    double *point;
+} STARS_esdata;
+
+int STARS_esdata_block_kernel(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result);
+STARS_esdata *STARS_gen_esdata(int row_blocks, int col_blocks, int block_size);
+void STARS_esdata_free(STARS_esdata *data);

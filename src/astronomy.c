@@ -1410,33 +1410,7 @@ void matcov_comp_tile(
 
 }
 
-Array *block_astronomy_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data)
-{
-    struct tomo_struct *tomo = row_data;
-    int i, j;
-    int shape[2] = {nrows, ncols};
-    Array *result = Array_new(2, shape, 'd', 'F');
-    double *buffer = result->buffer;
-    double crmax = tomo->rmax;
-    double pasDPHI = 1./tomo->pasDPHI; //inverse du pas de rr
-    long Ndphi = floor(crmax*pasDPHI)+1;
-    double convert = (double)(Ndphi-1)/(crmax+tomo->pasDPHI);
-    int type_mat = 1;
-    for(j = 0; j < ncols; j++)
-        for(i = 0; i < nrows; i++)
-            buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],
-                    convert, tomo->sspSizeL, tomo->Nssp, tomo->u, tomo->v,
-                    tomo->X, tomo->Y, pasDPHI, tomo->tabDPHI, tomo->L0diff,
-                    tomo->cn2, Ndphi, tomo->Nw, tomo->Nlayer,
-                    tomo->Nsubap, tomo->Nx, tomo->alphaX, tomo->alphaY,
-                    tomo->lgs_cst, tomo->noise_var, tomo->spot_width,
-                    tomo->lgs_depth, tomo->lgs_alt, type_mat, tomo->nlgs,
-                    tomo->DiamTel);
-    return result;
-}
-
-int block_astronomy_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
+int STARS_aodata_block_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
 {
     struct tomo_struct *tomo = row_data;
@@ -1448,6 +1422,7 @@ int block_astronomy_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
     long Ndphi = floor(crmax*pasDPHI)+1;
     double convert = (double)(Ndphi-1)/(crmax+tomo->pasDPHI);
     int type_mat = 1;
+    #pragma omp parallel for collapse(2)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
             buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],
@@ -1461,16 +1436,24 @@ int block_astronomy_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
     return 0;
 }
 
-STARS_tomo *STARS_gen_aodata(char *files_path, int night_idx,
+STARS_aodata *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
         double alphaY)
 {
-    STARS_tomo *tomo = (STARS_tomo *)malloc(sizeof(STARS_tomo));
-    matcov_init_tomo_tiled(tomo, files_path, night_idx,
+    STARS_aodata *data = malloc(sizeof(*data));
+    matcov_init_tomo_tiled(data, files_path, night_idx,
             snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
-    return tomo;
+    data->count = matcov_getNumMeasurements(data)-
+            matcov_getNumMeasurementsTS(data);
+    return data;
 }
 
+void STARS_aodata_free(STARS_aodata *data)
+{
+    matcov_free_tomo_tiled(data);
+    free(data);
+}
+/*
 STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
 {
     int ndim = 2;
@@ -1485,7 +1468,7 @@ STARS_Problem *STARS_gen_aoproblem(STARS_tomo *tomo)
             tomo, block_astronomy_kernel_noalloc, "Astronomy");
     return problem;
 }
-/*
+
 STARS_BLR *STARS_gen_ao_blrformat(STARS_Problem *problem, int block_size)
 {
     return STARS_BLR_plain(problem, 'S', block_size);

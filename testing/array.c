@@ -33,10 +33,11 @@ void check_SVD(int m, int n)
     {
         for(iorder = 0; iorder < 2; iorder++)
         {
-            printf("idtype %i, iorder %i\n", idtype, iorder);
+            printf("\nidtype %i, iorder %i\n", idtype, iorder);
             printf("dtype '%c', order '%c'\n", dtype[idtype], order[iorder]);
             array = Array_new(2, shape, dtype[idtype], order[iorder]);
             Array_init_randn(array);
+            Array_info(array);
             array2 = Array_copy(array, 'N');
             Array_SVD(array2, &U, &S, &V);
             Array_free(array2);

@@ -54,6 +54,17 @@ void STARS_BLRM_free(STARS_BLRM *blrm)
     free(blrm);
 }
 
+void STARS_BLRM_info(STARS_BLRM *blrm)
+{
+    if(blrm == NULL)
+    {
+        fprintf(stderr, "STARS_BLRM instance is NOT initialized\n");
+        return;
+    }
+    printf("<STARS_BLRM at %p, %d admissible blocks, allocation type %d>\n",
+            blrm, blrm->nblocks, blrm->alloc_type);
+}
+
 STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
         int maxrank, double tol)
 // Private function of STARS-H

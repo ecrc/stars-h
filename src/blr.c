@@ -16,7 +16,7 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         int *ibcol_admissible_start, int *ibrow_admissible_size,
         int *ibcol_admissible_size, int *ibrow_admissible,
         int *ibcol_admissible, STARS_BlockStatus *ibrow_admissible_status,
-        STARS_BlockStatus *ibcol_admissible_status)
+        STARS_BlockStatus *ibcol_admissible_status, STARS_BLRF_Type type)
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
@@ -74,6 +74,7 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         blrf->ibcol_admissible = blrf->ibrow_admissible;
         blrf->ibcol_admissible_status = blrf->ibrow_admissible_status;
     }
+    blrf->type = type;
     return blrf;
 }
 
@@ -108,7 +109,7 @@ void STARS_BLRF_info(STARS_BLRF *blrf)
         fprintf(stderr, "STARS_BLRF instance is NOT initialized\n");
         return;
     }
-    printf("<STARS_BLRF instance at %p, '%c' symmetric, %d block rows, %d "
+    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
             "block columns, %d admissible blocks\n", blrf, blrf->symm,
             blrf->nbrows, blrf->nbcols, blrf->admissible_nblocks);
 }
@@ -154,7 +155,8 @@ void STARS_BLRF_print(STARS_BLRF *blrf)
         }
 }
 
-STARS_BLRF *STARS_BLRF_tiled(STARS_Problem *problem, char symm, int block_size)
+STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
+        *row_cluster, STARS_Cluster *col_cluster, char symm)
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
 {
@@ -164,12 +166,12 @@ STARS_BLRF *STARS_BLRF_tiled(STARS_Problem *problem, char symm, int block_size)
                 "symmetric flag on in STARS_BLRF_plain\n");
         exit(1);
     }
-    STARS_Cluster *row_cluster = STARS_Cluster_tiled(problem->row_data,
-            problem->shape[0], block_size);
-    STARS_Cluster *col_cluster = row_cluster;
-    if(symm == 'N')
-        col_cluster = STARS_Cluster_tiled(problem->col_data,
-                problem->shape[problem->ndim-1], block_size);
+    if(symm == 'S' && row_cluster != col_cluster)
+    {
+        fprintf(stderr, "Since problem is symmetric, clusters should be the "
+                "same (both pointers should be equal)\n");
+        exit(1);
+    }
     int nbrows = row_cluster->nblocks, nbcols = col_cluster->nblocks;
     int admissible_nblocks = nbrows*nbcols;
     int *ibrow_admissible_start = (int *)malloc(nbrows*sizeof(int));
@@ -214,7 +216,7 @@ STARS_BLRF *STARS_BLRF_tiled(STARS_Problem *problem, char symm, int block_size)
             admissible_nblocks, ibrow_admissible_start, ibcol_admissible_start,
             ibrow_admissible_size, ibcol_admissible_size, ibrow_admissible,
             ibcol_admissible, ibrow_admissible_status,
-            ibcol_admissible_status);
+            ibcol_admissible_status, STARS_BLRF_Tiled);
 }
 
 
@@ -533,62 +535,6 @@ void STARS_BLRFmatrix_free(STARS_BLRFmatrix *mat)
 
 
 
-void STARS_BLRFmatrix_error(STARS_BLRFmatrix *mat)
-{
-    int bi, i, j;
-    double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0.;
-    int rows, cols, info, shape[2];
-    STARS_BLRF *format = mat->format;
-    STARS_Problem *problem = format->problem;
-    //Array *(*kernel)(int, int, int *, int *, void *, void *) =
-    //    mat->format->problem->kernel;
-    Array *block, *block2;
-    char symm = format->symm;
-    for(bi = 0; bi < mat->bcount; bi++)
-    {
-        i = mat->bindex[2*bi];
-        j = mat->bindex[2*bi+1];
-        if(i < j && symm == 'S')
-            continue;
-        rows = format->ibrow_size[i];
-        cols = format->ibcol_size[j];
-        shape[0] = rows;
-        shape[1] = cols;
-        block = Array_new(2, shape, problem->dtype, 'F');
-        info = (problem->kernel)(rows, cols, format->row_pivot +
-                format->ibrow_start[i], format->col_pivot +
-                format->ibcol_start[j], problem->row_data,
-                problem->col_data, block->buffer);
-        tmpnorm = Array_norm(block);
-        norm += tmpnorm*tmpnorm;
-        if(i != j && symm == 'S')
-            norm += tmpnorm*tmpnorm;
-        if(mat->A[bi] == NULL)
-        {
-            block2 = Array_dot(mat->U[bi], mat->V[bi]);
-            tmpdiff = Array_diff(block, block2);
-            Array_free(block2);
-            diff += tmpdiff*tmpdiff;
-            if(i != j && symm == 'S')
-                diff += tmpdiff*tmpdiff;
-            tmperr = tmpdiff/tmpnorm;
-            if(tmperr > maxerr)
-                maxerr = tmperr;
-        }
-        
-        if(mat->A[bi] != NULL)
-        {
-            block2 = mat->A[bi];
-            tmpdiff = Array_diff(block, block2);
-            diff += tmpdiff*tmpdiff;
-        }
-        
-        Array_free(block);
-    }
-    printf("Relative error of approximation of full matrix: %e\n",
-            sqrt(diff/norm));
-    printf("Maximum relative error of per-block approximation: %e\n", maxerr);
-}
 */
 /*
 void STARS_BLRFmatrix_getblock(STARS_BLRFmatrix *mat, int i, int j, int pivot,

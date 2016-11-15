@@ -11,7 +11,13 @@ typedef int (*block_kernel)(int, int, int *, int *, void *, void *, void *);
 typedef enum {STARS_Dense, STARS_LowRank, STARS_Unknown} STARS_BlockStatus;
 // Enum type to show lowrankness of admissible blocks
 
-typedef enum {STARS_Tiled, STARS_H, STARS_HODLR} STARS_FType;
+typedef enum {STARS_BLRF_Tiled, STARS_BLRF_H, STARS_BLRF_HODLR}
+    STARS_BLRF_Type;
+// Enum type to show format type (tiled, hierarchical HOLDR or hierarchical H).
+
+typedef enum {STARS_ClusterTiled, STARS_ClusterHierarchical}
+    STARS_ClusterType;
+// Enum type to show type of clusterization.
 
 struct Array
 // N-dimensional array
@@ -169,6 +175,8 @@ Array *STARS_Problem_get_block(STARS_Problem *problem, int nrows, int ncols,
 // dimension)
 STARS_Problem *STARS_Problem_from_array(Array *array, char symm);
 // Generate STARS_Problem with a given array and flag if it is symmetric
+Array *STARS_Problem_to_array(STARS_Problem *problem);
+// Compute matrix/array, corresponding to the problem
 
 
 struct STARS_Cluster
@@ -189,10 +197,12 @@ struct STARS_Cluster
     // elements.
     int *size;
     // Size of each block/subcluster of discrete elements.
+    STARS_ClusterType type;
+    // Type of cluster (tiled or hierarchical).
 };
 
 STARS_Cluster *STARS_Cluster_init(void *data, int ndata, int *pivot,
-        int nblocks, int *start, int *size);
+        int nblocks, int *start, int *size, STARS_ClusterType type);
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data
@@ -206,7 +216,9 @@ STARS_Cluster *STARS_Cluster_init(void *data, int ndata, int *pivot,
 //   size: size of each block/subcluster/block row/block column
 void STARS_Cluster_free(STARS_Cluster *cluster);
 // Free data buffers, consumed by clusterization information.
-STARS_Cluster *STARS_Cluster_tiled(void *data, int ndata, int block_size);
+void STARS_Cluster_info(STARS_Cluster *cluster);
+// Print some info about clusterization
+STARS_Cluster *STARS_Cluster_init_tiled(void *data, int ndata, int block_size);
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 
 
@@ -240,7 +252,7 @@ struct STARS_BLRF
     // admissible pair of block row and block column: guanrateed dense
     // (STARS_Dense), guaranteed low-rank (STARS_LowRank) or not known a priori
     // (STARS_Unknown).
-    STARS_FType type;
+    STARS_BLRF_Type type;
     // Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 };
 
@@ -250,7 +262,7 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         int *ibcol_admissible_start, int *ibrow_admissible_size,
         int *ibcol_admissible_size, int *ibrow_admissible,
         int *ibcol_admissible, STARS_BlockStatus *ibrow_admissible_status,
-        STARS_BlockStatus *ibcol_admissible_status);
+        STARS_BlockStatus *ibcol_admissible_status, STARS_BLRF_Type type);
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
@@ -284,7 +296,8 @@ void STARS_BLRF_info(STARS_BLRF *blrf);
 // Print short info on block partitioning
 void STARS_BLRF_print(STARS_BLRF *blrf);
 // Print full info on block partitioning
-STARS_BLRF *STARS_BLRF_tiled(STARS_Problem *problem, char symm, int block_size);
+STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
+        *row_cluster, STARS_Cluster *col_cluster, char symm);
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
 
@@ -310,14 +323,18 @@ struct STARS_BLRM
 };
 
 
+STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, int nblocks, int *brank,
+        Array **U, Array **V, Array **D, void *U_alloc, void *V_alloc,
+        void *D_alloc, char alloc_type);
 STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
         int maxrank, double tol);
+void STARS_BLRM_free(STARS_BLRM *blrm);
+void STARS_BLRM_error(STARS_BLRM *blrm);
+void STARS_BLRM_info(STARS_BLRM *blrm);
 /*
 STARS_BLRFmatrix *STARS_blrf_batched_algebraic_compress(STARS_BLRF *format,
         int maxrank, double tol);
 void STARS_BLRFmatrix_info(STARS_BLRFmatrix *mat);
-void STARS_BLRFmatrix_free(STARS_BLRFmatrix *mat);
-void STARS_BLRFmatrix_error(STARS_BLRFmatrix *mat);
 void STARS_BLRFmatrix_getblock(STARS_BLRFmatrix *mat, int i, int j, int order,
         int *shape, int *rank, void **U, void **V, void **A);
 void STARS_BLRF_getblock(STARS_BLRF *format, int i, int j, int order, int *shape,

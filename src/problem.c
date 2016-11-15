@@ -27,6 +27,12 @@ STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
 //    STARS_Problem *: pointer to structure problem with proper filling of all
 //    the fields of structure.
 {
+    if(ndim < 2)
+    {
+        fprintf(stderr, "Parameter 1 in STARS_Problem_init is wrong (should be"
+                " at least 2\n");
+        return NULL;
+    }
     size_t dtype_size = 0;
     int i;
     if(dtype == 's')
@@ -77,8 +83,11 @@ void STARS_Problem_free(STARS_Problem *problem)
 void STARS_Problem_info(STARS_Problem *problem)
 // Print some info about Problem
 {
-    printf("<STARS_Problem instance at %p, name \"%s\">\n",
-            (char *)problem, problem->name);
+    printf("<STARS_Problem at %p, name \"%s\", shape (%d",
+            problem, problem->name, problem->shape[0]);
+    for(int i = 1; i < problem->ndim; i++)
+        printf(",%d", problem->shape[i]);
+    printf("), '%c' dtype, '%c' symmetric>\n", problem->dtype, problem->symm);
 }
 
 Array *STARS_Problem_get_block(STARS_Problem *problem, int nrows, int ncols,
@@ -111,6 +120,7 @@ int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
     if(data->order == 'C')
     {
         lda = data->shape[data->ndim-1];
+        #pragma omp parallel for collapse(2) private(dest, src)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
@@ -122,6 +132,7 @@ int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
     else
     {
         lda = data->shape[0];
+        #pragma omp parallel for collapse(2) private(dest, src)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
@@ -130,6 +141,7 @@ int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
                 memcpy(result+dest*esize, data->buffer+src*esize, esize);
             }
     }
+    return 0;
 }
 
 STARS_Problem *STARS_Problem_from_array(Array *array, char symm)
@@ -159,4 +171,22 @@ STARS_Problem *STARS_Problem_from_array(Array *array, char symm)
             symm, array->dtype, array2, array2, _matrix_kernel,
             "Problem from matrix");
     return problem;
+}
+
+Array *STARS_Problem_to_array(STARS_Problem *problem)
+// Compute matrix/array, corresponding to the problem
+{
+    int ndim = problem->ndim, i;
+    int nrows = problem->shape[0];
+    int ncols = problem->shape[ndim-1];
+    int *irow = malloc(nrows*sizeof(int));
+    int *icol = malloc(ncols*sizeof(int));
+    for(i = 0; i < nrows; i++)
+        irow[i] = i;
+    for(i = 0; i < ncols; i++)
+        icol[i] = i;
+    Array *array = STARS_Problem_get_block(problem, nrows, ncols, irow, icol);
+    free(irow);
+    free(icol);
+    return array;
 }

@@ -2,51 +2,20 @@
 #include <stdlib.h>
 #include <math.h>
 #include "stars.h"
-#include "stars-spatial.h"
+#include "stars-electrostatics.h"
 
-Array *block_es_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data)
-{
-    // Block kernel for electrostatics
-    // Returns r^-1, where r is a distance between particles in 2D
-    int i, j;
-    STARS_ssdata *rdata = (STARS_ssdata *)row_data;
-    STARS_ssdata *cdata = (STARS_ssdata *)col_data;
-    double tmp, dist;
-    double *x = rdata->point;
-    double *y = rdata->point+rdata->count;
-    int shape[2] = {nrows, ncols};
-    Array *result = Array_new(2, shape, 'd', 'F');
-    double *buffer = result->buffer;
-    for(j = 0; j < ncols; j++)
-        for(i = 0; i < nrows; i++)
-        {
-            if(irow[i] != icol[j])
-            {
-                tmp = x[irow[i]]-x[icol[j]];
-                dist = tmp*tmp;
-                tmp = y[irow[i]]-y[icol[j]];
-                dist += tmp*tmp;
-                buffer[j*nrows+i] = 1./sqrt(dist);
-            }
-            else
-                buffer[j*nrows+i] = 0.;
-        }
-    return result;
-}
 
-int block_es_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
+int STARS_esdata_block_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
 {
     // Block kernel for electrostatics
     // Returns r^-1, where r is a distance between particles in 2D
     int i, j;
-    STARS_ssdata *rdata = (STARS_ssdata *)row_data;
-    STARS_ssdata *cdata = (STARS_ssdata *)col_data;
+    STARS_esdata *data = row_data;
     double tmp, dist;
-    double *x = rdata->point;
-    double *y = rdata->point+rdata->count;
+    double *x = data->point, *y = x+data->count;
     double *buffer = result;
+    #pragma omp parallel for collapse(2) private(tmp, dist)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -64,6 +33,44 @@ int block_es_kernel_noalloc(int nrows, int ncols, int *irow, int *icol,
     return 0;
 }
 
+void gen_es_block_points(int m, int n, int block_size, double *points)
+{
+    int i, j, k, ind = 0;
+    int npoints = m*n*block_size;
+    double *x = points, *y = points+npoints;
+    double noise_var = 1., rand_max = RAND_MAX;;
+    for(i = 0; i < m; i++)
+        for(j = 0; j < n; j++)
+            for(k = 0; k < block_size; k++)
+            {
+                x[ind] = (j+noise_var*rand()/rand_max)/n;
+                y[ind] = (i+noise_var*rand()/rand_max)/m;
+                ind++;
+            }
+}
+
+STARS_esdata *STARS_gen_esdata(int row_blocks, int col_blocks, int block_size)
+{
+    int n = row_blocks*col_blocks*block_size;
+    STARS_esdata *data = malloc(sizeof(*data));
+    data->point = malloc(2*n*sizeof(double));
+    gen_es_block_points(row_blocks, col_blocks, block_size, data->point);
+    data->count = n;
+    return data;
+}
+
+void STARS_esdata_free(STARS_esdata *data)
+{
+    if(data == NULL)
+    {
+        fprintf(stderr, "Data for spatial statistics problem was not "
+                "generated\n");
+        return;
+    }
+    free(data->point);
+    free(data);
+}
+/*
 STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
         int block_size)
 {
@@ -72,7 +79,7 @@ STARS_Problem *STARS_gen_esproblem(int row_blocks, int col_blocks,
     problem->kernel = block_es_kernel_noalloc;
     return problem;
 }
-/*
+
 STARS_BLR *STARS_gen_es_blrformat(int row_blocks, int col_blocks,
         int block_size)
 {
