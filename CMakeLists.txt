@@ -14,12 +14,16 @@ endif()
 # --------------------
 # use, i.e. don't skip the full RPATH for the build tree
 set(CMAKE_SKIP_BUILD_RPATH  FALSE)
-# when building, don't use the install RPATH already
-# (but later on when installing)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+# when building, use the install RPATH already
+# (automated test will need this)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # the RPATH to be used when installing
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
+
+# This project eeds C99 standard to compile properly
+# (could have used CMAKE_C_FLAGS instead)
+ADD_DEFINITIONS( -std=c99 )
 
 # STARS-H code
 add_subdirectory(src)
@@ -31,10 +35,11 @@ if( STARSH_TESTING )
 	## CMAKE MODULES :: MORSE
 	## REQUIRED FOR TESTS TO LINK LIBRARIES
 	if(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/.svn/entries" )
-		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse )
+		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse OUTPUT_QUIET )
 	else()
 		execute_process( COMMAND mkdir -p ${CMAKE_BINARY_DIR}/cmake_modules/morse
-	                      COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse )
+		                 COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse
+		                 OUTPUT_QUIET )
 	endif()
 
 
@@ -145,5 +150,6 @@ if( STARSH_TESTING )
 	endif()
 
 	# BUILD TESTS
+	enable_testing() # enables ctest
 	add_subdirectory(testing)
 endif()
