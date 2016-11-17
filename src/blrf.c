@@ -12,65 +12,134 @@
 
 STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         STARS_Cluster *row_cluster, STARS_Cluster *col_cluster,
-        int admissible_nblocks, int *ibrow_admissible_start,
-        int *ibcol_admissible_start, int *ibrow_admissible_size,
-        int *ibcol_admissible_size, int *ibrow_admissible,
-        int *ibcol_admissible, STARS_BlockStatus *ibrow_admissible_status,
-        STARS_BlockStatus *ibcol_admissible_status, STARS_BLRF_Type type)
+        int nblocks_far, int *block_far, int nblocks_near, int *block_near,
+        STARS_BLRF_Type type)
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
 //   symm: 'S' if problem and division into blocks are both symmetric, 'N'
-//     otherwise
+//     otherwise.
 //   row_cluster: clusterization of rows into block rows.
-//   col_cluster: clusterization of columns into block columns
-//   admissible_nblocks: number of admissible blocks all in all
-//   ibrow_admissible_start: starting point of list of admissible blocks
-//     columns for a given block row in array ibrow_admissible. Not copied.
-//   ibcol_admissible_start: starting point of list of admissible blocks
-//     rows for a given block column in array ibcol_admissible. Not copied.
-//   ibrow_admissible_size: number of admissible block columns for a given
-//     block row. Not copied.
-//   ibcol_admissible_size: number of admissible block rows for a given block
-//     column. Not copied.
-//   ibrow_admissible: array to store indexes of admissible block columns for
-//     each block row. Not copied.
-//   ibcol_admissible: array to store indexes of admissible block rows for each
-//     block column. Not copied.
-//   ibrow_admissible_status: status of each admissible pair of block row and
-//     block column. STARS_Dense for guaranteed dense, STARS_LowRank for
-//     guaranteed low-rank or STARS_Unknown if not known a priori. Not copied.
-//   ibcol_admissible_status: status of each admissible pair of block column
-//     and block row. STARS_Dense for guaranteed dense, STARS_LowRank for
-//     guaranteed low-rank or STARS_Unknown if not known a priori. Not copied.
+//   col_cluster: clusterization of columns into block columns.
+//   nblocks_far: number of admissible far-field blocks.
+//   block_far: array of pairs of admissible far-filed block rows and block
+//     columns. block_far[2*i] is an index of block row and block_far[2*i+1]
+//     is an index of block column.
+//   nblocks_near: number of admissible far-field blocks.
+//   block_near: array of pairs of admissible near-filed block rows and block
+//     columns. block_near[2*i] is an index of block row and block_near[2*i+1]
+//     is an index of block column.
+//   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
+//     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
 {
+    int i, j, bi;
+    int *size;
     STARS_BLRF *blrf = malloc(sizeof(*blrf));
     blrf->problem = problem;
     blrf->symm = symm;
+    blrf->nblocks_far = nblocks_far;
+    blrf->block_far = block_far;
+    blrf->block_near = block_near;
+    blrf->nblocks_near = nblocks_near;
     blrf->row_cluster = row_cluster;
-    blrf->nbrows = row_cluster->nblocks;
-    blrf->admissible_nblocks = admissible_nblocks;
-    blrf->ibrow_admissible_start = ibrow_admissible_start;
-    blrf->ibrow_admissible_size = ibrow_admissible_size;
-    blrf->ibrow_admissible = ibrow_admissible;
-    blrf->ibrow_admissible_status = ibrow_admissible_status;
+    int nbrows = blrf->nbrows = row_cluster->nblocks;
+    // Set far-field block columns for each block row in compressed format
+    blrf->brow_far_start = malloc((nbrows+1)*sizeof(int));
+    blrf->brow_far = malloc(nblocks_far*sizeof(int));
+    size = malloc(nbrows*sizeof(int));
+    for(i = 0; i < nbrows; i++)
+        size[i] = 0;
+    for(bi = 0; bi < nblocks_far; bi++)
+        size[block_far[2*bi]]++;
+    blrf->brow_far_start[0] = 0;
+    for(i = 0; i < nbrows; i++)
+        blrf->brow_far_start[i+1] = blrf->brow_far_start[i]+size[i];
+    for(i = 0; i < nbrows; i++)
+        size[i] = 0;
+    for(bi = 0; bi < nblocks_far; bi++)
+    {
+        i = block_far[2*bi];
+        j = blrf->brow_far_start[i]+size[i];
+        blrf->brow_far[j] = bi;//block_far[2*bi+1];
+        size[i]++;
+    }
+    // Set near-field block columns for each block row in compressed format
+    blrf->brow_near_start = malloc((nbrows+1)*sizeof(int));
+    blrf->brow_near = malloc(nblocks_near*sizeof(int));
+    size = malloc(nbrows*sizeof(int));
+    for(i = 0; i < nbrows; i++)
+        size[i] = 0;
+    for(bi = 0; bi < nblocks_near; bi++)
+        size[block_near[2*bi]]++;
+    blrf->brow_near_start[0] = 0;
+    for(i = 0; i < nbrows; i++)
+        blrf->brow_near_start[i+1] = blrf->brow_near_start[i]+size[i];
+    for(i = 0; i < nbrows; i++)
+        size[i] = 0;
+    for(bi = 0; bi < nblocks_near; bi++)
+    {
+        i = block_near[2*bi];
+        j = blrf->brow_near_start[i]+size[i];
+        blrf->brow_near[j] = bi;//block_near[2*bi+1];
+        size[i]++;
+    }
+    free(size);
     if(symm == 'N')
     {
         blrf->col_cluster = col_cluster;
-        blrf->nbcols = col_cluster->nblocks;
-        blrf->ibcol_admissible_start = ibcol_admissible_start;
-        blrf->ibcol_admissible_size = ibcol_admissible_size;
-        blrf->ibcol_admissible = ibcol_admissible;
-        blrf->ibcol_admissible_status = ibcol_admissible_status;
+        int nbcols = blrf->nbcols = col_cluster->nblocks;
+        // Set far-field block rows for each block column in compressed format
+        blrf->bcol_far_start = malloc((nbcols+1)*sizeof(int));
+        blrf->bcol_far = malloc(nblocks_far*sizeof(int));
+        size = malloc(nbcols*sizeof(int));
+        for(i = 0; i < nbcols; i++)
+            size[i] = 0;
+        for(bi = 0; bi < nblocks_far; bi++)
+            size[block_far[2*bi]]++;
+        blrf->bcol_far_start[0] = 0;
+        for(i = 0; i < nbcols; i++)
+            blrf->bcol_far_start[i+1] = blrf->bcol_far_start[i]+size[i];
+        for(i = 0; i < nbcols; i++)
+            size[i] = 0;
+        for(bi = 0; bi < nblocks_far; bi++)
+        {
+            i = block_far[2*bi];
+            j = blrf->bcol_far_start[i]+size[i];
+            blrf->bcol_far[j] = bi;//block_far[2*bi+1];
+            size[i]++;
+        }
+        // Set near-field block rows for each block column in compressed format
+        blrf->bcol_near_start = malloc((nbcols+1)*sizeof(int));
+        blrf->bcol_near = malloc(nblocks_near*sizeof(int));
+        size = malloc(nbcols*sizeof(int));
+        for(i = 0; i < nbcols; i++)
+            size[i] = 0;
+        for(bi = 0; bi < nblocks_near; bi++)
+            size[block_near[2*bi]]++;
+        blrf->bcol_near_start[0] = 0;
+        for(i = 0; i < nbcols; i++)
+            blrf->bcol_near_start[i+1] = blrf->bcol_near_start[i]+size[i];
+        for(i = 0; i < nbcols; i++)
+            size[i] = 0;
+        for(bi = 0; bi < nblocks_near; bi++)
+        {
+            i = block_near[2*bi];
+            j = blrf->bcol_near_start[i]+size[i];
+            blrf->bcol_near[j] = bi;//block_near[2*bi+1];
+            size[i]++;
+        }
+        free(size);
     }
     else
     {
-        blrf->col_cluster = blrf->row_cluster;
-        blrf->nbcols = blrf->nbrows;
-        blrf->ibcol_admissible_start = blrf->ibrow_admissible_start;
-        blrf->ibcol_admissible_size = blrf->ibrow_admissible_size;
-        blrf->ibcol_admissible = blrf->ibrow_admissible;
-        blrf->ibcol_admissible_status = blrf->ibrow_admissible_status;
+        blrf->col_cluster = row_cluster;
+        blrf->nbcols = row_cluster->nblocks;
+        // Set far-field block rows for each block column in compressed format
+        blrf->bcol_far_start = blrf->brow_far_start;
+        blrf->bcol_far = blrf->brow_far;
+        // Set near-field block rows for each block column in compressed format
+        blrf->bcol_near_start = blrf->brow_near_start;
+        blrf->bcol_near = blrf->brow_near;
     }
     blrf->type = type;
     return blrf;
@@ -85,16 +154,16 @@ void STARS_BLRF_free(STARS_BLRF *blrf)
         fprintf(stderr, "STARS_BLRF instance is NOT initialized\n");
         return;
     }
-    free(blrf->ibrow_admissible_start);
-    free(blrf->ibrow_admissible_size);
-    free(blrf->ibrow_admissible);
-    free(blrf->ibrow_admissible_status);
+    free(blrf->brow_far_start);
+    free(blrf->brow_far);
+    free(blrf->brow_near_start);
+    free(blrf->brow_near);
     if(blrf->symm == 'N')
     {
-        free(blrf->ibcol_admissible_start);
-        free(blrf->ibcol_admissible_size);
-        free(blrf->ibcol_admissible);
-        free(blrf->ibcol_admissible_status);
+        free(blrf->bcol_far_start);
+        free(blrf->bcol_far);
+        free(blrf->bcol_near_start);
+        free(blrf->bcol_near);
     }
     free(blrf);
 }
@@ -108,49 +177,51 @@ void STARS_BLRF_info(STARS_BLRF *blrf)
         return;
     }
     printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
-            "block columns, %d admissible blocks\n", blrf, blrf->symm,
-            blrf->nbrows, blrf->nbcols, blrf->admissible_nblocks);
+            "block columns, %d far-field blocks, %d near-field blocks>\n",
+            blrf, blrf->symm, blrf->nbrows, blrf->nbcols, blrf->nblocks_far,
+            blrf->nblocks_near);
 }
 
 void STARS_BLRF_print(STARS_BLRF *blrf)
 // Print full info on block partitioning
 {
-    int i, j, k;
+    int i, j;
     if(blrf == NULL)
     {
         printf("STARS_BLRF instance is NOT initialized\n");
         return;
     }
-    printf("<STARS_BLRF instance at %p, '%c' symmetric, %d block rows, %d "
-            "block columns, %d admissible blocks\n", blrf, blrf->symm,
-            blrf->nbrows, blrf->nbcols, blrf->admissible_nblocks);
+    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
+            "block columns, %d far-field blocks, %d near-field blocks>\n",
+            blrf, blrf->symm, blrf->nbrows, blrf->nbcols, blrf->nblocks_far,
+            blrf->nblocks_near);
+    // Printing info about far-field blocks
     for(i = 0; i < blrf->nbrows; i++)
     {
-        j = blrf->ibrow_admissible_start[i];
-        if(blrf->ibrow_admissible_size[i] > 0)
-            printf("Admissible block columns for block row %d: %d", i,
-                    blrf->ibrow_admissible[j]);
-        for(k = 1; k < blrf->ibrow_admissible_size[i]; k++)
+        if(blrf->brow_far_start[i+1] > blrf->brow_far_start[i])
+            printf("Admissible far-field block columns for block row %d: %d",
+                    i, blrf->brow_far[blrf->brow_far_start[i]]);
+        for(j = blrf->brow_far_start[i]+1; j < blrf->brow_far_start[i+1]; j++)
         {
-            printf(" %d", blrf->ibrow_admissible[j+k]);
+            printf(" %d", blrf->brow_far[j]);
         }
-        if(blrf->ibrow_admissible_size[i] > 0)
+        if(blrf->brow_far_start[i+1] > blrf->brow_far_start[i])
             printf("\n");
     }
-    if(blrf->symm == 'N')
-        for(i = 0; i < blrf->nbcols; i++)
+    // Printing info about near-field blocks
+    for(i = 0; i < blrf->nbrows; i++)
+    {
+        if(blrf->brow_near_start[i+1] > blrf->brow_near_start[i])
+            printf("Admissible near-field block columns for block row %d: %d",
+                    i, blrf->brow_near[blrf->brow_near_start[i]]);
+        for(j = blrf->brow_near_start[i]+1; j < blrf->brow_near_start[i+1];
+                j++)
         {
-            j = blrf->ibcol_admissible_start[i];
-            if(blrf->ibcol_admissible_size[i] > 0)
-                printf("Admissible block rows for block column %d: %d", i,
-                        blrf->ibcol_admissible[j]);
-            for(k = 1; k < blrf->ibcol_admissible_size[i]; k++)
-            {
-                printf(" %d", blrf->ibcol_admissible[j+k]);
-            }
-            if(blrf->ibcol_admissible_size[i] > 0)
-                printf("\n");
+            printf(" %d", blrf->brow_near[j]);
         }
+        if(blrf->brow_near_start[i+1] > blrf->brow_near_start[i])
+            printf("\n");
+    }
 }
 
 STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
@@ -171,53 +242,41 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
         exit(1);
     }
     int nbrows = row_cluster->nblocks, nbcols = col_cluster->nblocks;
-    int admissible_nblocks = nbrows*nbcols;
-    int *ibrow_admissible_start = malloc(nbrows*sizeof(int));
-    int *ibcol_admissible_start = ibrow_admissible_start;
-    int *ibrow_admissible_size = malloc(nbrows*sizeof(int));
-    int *ibcol_admissible_size = ibrow_admissible_size;
-    int *ibrow_admissible = malloc(admissible_nblocks*sizeof(int));
-    int *ibcol_admissible = ibrow_admissible;
-    STARS_BlockStatus *ibrow_admissible_status = malloc(admissible_nblocks*
-            sizeof(STARS_BlockStatus));
-    STARS_BlockStatus *ibcol_admissible_status = ibrow_admissible_status;
-    int i, j;
+    int nblocks_far = nbrows*nbcols;
+    int *block_far = malloc(2*nblocks_far*sizeof(int));
+    int i, j, k = 0;
     for(i = 0; i < nbrows; i++)
-    {
-        ibrow_admissible_start[i] = i*nbcols;
-        ibrow_admissible_size[i] = nbcols;
         for(j = 0; j < nbcols; j++)
         {
-            ibrow_admissible[i*nbcols+j] = j;
-            ibrow_admissible_status[i*nbcols+j] = STARS_Unknown;
+            block_far[2*k] = i;
+            block_far[2*k+1] = j;
+            k++;
         }
-    }
-    if(symm == 'N')
-    {
-        ibcol_admissible_start = malloc(nbcols*sizeof(int));
-        ibcol_admissible_size = malloc(nbcols*sizeof(int));
-        ibcol_admissible = malloc(admissible_nblocks*sizeof(int));
-        ibcol_admissible_status = malloc(admissible_nblocks*
-                sizeof(STARS_BlockStatus));
-        for(i = 0; i < nbcols; i++)
-        {
-            ibcol_admissible_start[i] = i*nbrows;
-            ibcol_admissible_size[i] = nbrows;
-            for(j = 0; j < nbrows; j++)
-            {
-                ibcol_admissible[i*nbrows+j] = j;
-                ibcol_admissible_status[i*nbrows+j] = STARS_Unknown;
-            }
-        }
-    }
     return STARS_BLRF_init(problem, symm, row_cluster, col_cluster,
-            admissible_nblocks, ibrow_admissible_start, ibcol_admissible_start,
-            ibrow_admissible_size, ibcol_admissible_size, ibrow_admissible,
-            ibcol_admissible, ibrow_admissible_status,
-            ibcol_admissible_status, STARS_BLRF_Tiled);
+            nblocks_far, block_far, 0, NULL, STARS_BLRF_Tiled);
 }
 
-
+void STARS_BLRF_getblock(STARS_BLRF *blrf, int i, int j, int *shape, void **D)
+// PLEASE CLEAN MEMORY POINTER *D AFTER USE
+{
+    STARS_Problem *problem = blrf->problem;
+    if(problem->ndim != 2)
+    {
+        fprintf(stderr, "Non-scalar kernels are not supported in STARS_BLRF_"
+                "getblock\n");
+        exit(1);
+    }
+    STARS_Cluster *row_cluster = blrf->row_cluster;
+    STARS_Cluster *col_cluster = blrf->col_cluster;
+    int nrows = row_cluster->size[i];
+    int ncols = col_cluster->size[j];
+    shape[0] = nrows;
+    shape[1] = ncols;
+    *D = malloc(problem->entry_size*nrows*ncols);
+    (problem->kernel)(nrows, ncols, row_cluster->pivot+row_cluster->start[i],
+            col_cluster->pivot+col_cluster->start[j], problem->row_data,
+            problem->col_data, *D);
+}
 
 /*
 int batched_lowrank_approximation(STARS_BLRFmatrix *mat, int count, int *id,
@@ -474,181 +533,4 @@ STARS_BLRFmatrix *STARS_blrf_batched_algebraic_compress(STARS_BLRF *format,
     return mat;
 }
 
-
-void STARS_BLRFmatrix_info(STARS_BLRFmatrix *mat)
-    // Print information on each block of block low-rank matrix.
-{
-    int i, bi, bj, r;
-    if(mat == NULL)
-    {
-        printf("STARS_BLRFmatrix NOT initialized\n");
-        return;
-    }
-    for(i = 0; i < mat->bcount; i++)
-    {
-        bi = mat->bindex[2*i];
-        bj = mat->bindex[2*i+1];
-        r = mat->brank[i];
-        if(r != -1)
-        {
-            printf("block (%i, %i) U: ", bi, bj);
-            Array_info(mat->U[i]);
-            printf("block (%i, %i) V: ", bi, bj);
-            Array_info(mat->V[i]);
-        }
-        else
-        {
-            printf("block (%i, %i): ", bi, bj);
-            Array_info(mat->A[i]);
-        }
-    }
-}
-
-void STARS_BLRFmatrix_free(STARS_BLRFmatrix *mat)
-    // Free memory, used by matrix
-{
-    int bi;
-    char symm = mat->format->symm;
-    if(mat == NULL)
-    {
-        printf("STARS_BLRFmatrix NOT initialized\n");
-        return;
-    }
-    for(bi = 0; bi < mat->bcount; bi++)
-    {
-        if(mat->A[bi] != NULL)
-            Array_free(mat->A[bi]);
-        if(mat->U[bi] != NULL)
-            Array_free(mat->U[bi]);
-        if(mat->V[bi] != NULL)
-            Array_free(mat->V[bi]);
-    }
-    free(mat->A);
-    free(mat->U);
-    free(mat->V);
-    free(mat->bindex);
-    free(mat->brank);
-    free(mat);
-}
-
-
-
-*/
-/*
-void STARS_BLRFmatrix_getblock(STARS_BLRFmatrix *mat, int i, int j, int pivot,
-        int *shape, int *rank, void **U, void **V, void **A)
-// PLEASE CLEAN MEMORY AFTER USE
-{
-    if(pivot != 'C' && pivot != 'F')
-    {
-        fprintf(stderr, "Parameter pivot should be 'C' or 'F', not '%c'\n",
-                pivot);
-        exit(1);
-    }
-    int bi = i * mat->format->nbcols + j;
-    Array *tmp;
-    *rank = mat->brank[bi];
-    shape[0] = mat->format->ibrow_size[i];
-    shape[1] = mat->format->ibcol_size[j];
-    *U = NULL;
-    *V = NULL;
-    *A = NULL;
-    if(mat->U[bi] != NULL)
-    {
-        tmp = Array_copy(mat->U[bi], pivot);
-        *U = tmp->buffer;
-        free(tmp->shape);
-        free(tmp->stride);
-        free(tmp);
-    }
-    if(mat->V[bi] != NULL)
-    {
-        tmp = Array_copy(mat->V[bi], pivot);
-        *V = tmp->buffer;
-        free(tmp->shape);
-        free(tmp->stride);
-        free(tmp);
-    }
-    if(mat->A[bi] != NULL)
-    {
-        tmp = Array_copy(mat->A[bi], pivot);
-        *A = tmp->buffer;
-        free(tmp->shape);
-        free(tmp->stride);
-        free(tmp);
-    }
-}
-
-void STARS_BLRF_getblock(STARS_BLRF *format, int i, int j, int pivot, int *shape,
-        void **A)
-// PLEASE CLEAN MEMORY POINTER AFTER USE
-{
-    if(pivot != 'C' && pivot != 'F')
-    {
-        fprintf(stderr, "Parameter pivot should be 'C' or 'F', not '%c'\n",
-                pivot);
-        exit(1);
-    }
-    if(pivot == 'C')
-    {
-        fprintf(stderr, "pivot 'C' is not supported anymore\n");
-        exit(1);
-    }
-    int rows = format->ibrow_size[i];
-    int cols = format->ibcol_size[j];
-    int info;
-    shape[0] = rows;
-    shape[1] = cols;
-    *A = malloc(format->problem->dtype_size*rows*cols);
-    info = (format->problem->kernel)(rows, cols, format->row_pivot +
-            format->ibrow_start[i], format->col_pivot +
-            format->ibcol_start[j], format->problem->row_data,
-            format->problem->col_data, *A);
-}
-
-void STARS_BLRFmatrix_printKADIR(STARS_BLRFmatrix *mat)
-{
-    int i, j, bi;
-    for(bi = 0; bi < mat->bcount; bi++)
-    {
-        i = mat->bindex[2*bi];
-        j = mat->bindex[2*bi+1];
-        if(i < j)
-            continue;
-        printf("BLOCK %d %d:\n", i, j);
-        if(mat->A[bi] == NULL)
-        {
-            Array_info(mat->U[bi]);
-            Array_print(mat->U[bi]);
-            Array_info(mat->V[bi]);
-            Array_print(mat->V[bi]);
-        }
-        else
-        {
-            Array_info(mat->A[bi]);
-            Array_print(mat->A[bi]);
-        }
-        printf("\n");
-    }
-}
-
-void STARS_BLRFmatrix_heatmap(STARS_BLRFmatrix *mat, char *fname)
-{
-    int i, j, bi;
-    STARS_BLRF *format = mat->format;
-    FILE *fd = fopen(fname, "w");
-    fprintf(fd, "%d %d\n", format->nbrows, format->nbcols);
-    for(i = 0; i < format->nbrows; i++)
-    {
-        for(j = 0; j < format->nbrows; j++)
-        {
-            bi = i * format->nbcols + j;
-            if(format->symm == 'S' && i < j)
-                bi = j * format->nbcols + i;
-            fprintf(fd, " %d", mat->brank[bi]);
-        }
-        fprintf(fd, "\n");
-    }
-    fclose(fd);
-}
 */

@@ -2,6 +2,7 @@
 #define _STARS_H_
 
 typedef struct Array Array;
+typedef struct List List;
 typedef struct STARS_Problem STARS_Problem;
 typedef struct STARS_Cluster STARS_Cluster;
 typedef struct STARS_BLRF STARS_BLRF;
@@ -191,31 +192,56 @@ struct STARS_Cluster
     // grid nodes or mesh elements).
     int *pivot;
     // Pivoting for clusterization. After applying this pivoting, discrete
-    // elements, corresponding to a given cluster, have indexes in a row.
+    // elements, corresponding to a given cluster, have indexes in a row. pivot
+    // has ndata elements.
     int nblocks;
     // Total number of subclusters/blocks of discrete elements.
-    int *start;
-    // Start point in array pivot of each block/subcluster of discrete
-    // elements.
-    int *size;
-    // Size of each block/subcluster of discrete elements.
+    int nlevels;
+    // Number of levels of hierarchy. 0 in case of tiled cluster.
+    int *level;
+    // Compressed format to store start points of each level of hierarchy.
+    // indexes of subclusters from level[i] to level[i+1]-1 correspond to i-th
+    // level of hierarchy. level has nlevels+1 elements in hierarchical case
+    // and is NULL in tiled case.
+    int *start, *size;
+    // Start points in array pivot and corresponding sizes of each subcluster
+    // of discrete elements. Since subclusters overlap in hierarchical
+    // case, value start[i+1]-start[i] does not represent actual size of
+    // subcluster. start and size have nblocks elements.
+    int *parent;
+    // Array of parents, each node has only one parent. parent[0] = -1 since 0
+    // is assumed to be root node. In case of tiled cluster, parent is NULL.
+    int *child_start, *child;
+    // Arrays of children and start points in array of children of each
+    // subcluster. child_start has nblocks+1 elements, child has nblocks
+    // elements in case of hierarchical cluster. In case of tiled cluster
+    // child and child_start are NULL.
     STARS_ClusterType type;
     // Type of cluster (tiled or hierarchical).
 };
 
 STARS_Cluster *STARS_Cluster_init(void *data, int ndata, int *pivot,
-        int nblocks, int *start, int *size, STARS_ClusterType type);
+        int nblocks, int nlevels, int *level, int *start, int *size,
+        int *parent, int *child_start, int *child, STARS_ClusterType type);
 // Init for STARS_Cluster instance
 // Parameters:
-//   data: pointer structure, holding to physical data
+//   data: pointer structure, holding to physical data.
 //   ndata: number of discrete elements (particles or mesh elements),
-//     corresponding to physical data
+//     corresponding to physical data.
 //   pivot: pivoting of clusterization. After applying this pivoting, rows (or
-//     columns), corresponding to one block are placed in a row
-//   nblocks: number of blocks/block rows/block columns/subclusters
+//     columns), corresponding to one block are placed in a row.
+//   nblocks: number of blocks/block rows/block columns/subclusters.
+//   nlevels: number of levels of hierarchy.
+//   level: array of size nlevels+1, indexes of blocks from level[i] to
+//     level[i+1]-1 inclusively belong to i-th level of hierarchy.
 //   start: start point of of indexes of discrete elements of each
-//     block/subcluster in array pivot
-//   size: size of each block/subcluster/block row/block column
+//     block/subcluster in array pivot.
+//   size: size of each block/subcluster/block row/block column.
+//   parent: array of parents, size is nblocks.
+//   child_start: array of start points in array child of each subcluster.
+//   child: array of children of each subcluster.
+//   type: type of cluster. Tiled with STARS_ClusterTiled or hierarchical with
+//     STARS_ClusterHierarchical.
 void STARS_Cluster_free(STARS_Cluster *cluster);
 // Free data buffers, consumed by clusterization information.
 void STARS_Cluster_info(STARS_Cluster *cluster);
@@ -239,58 +265,50 @@ struct STARS_BLRF
     int nbrows, nbcols;
     // Number of block rows/row subclusters and block columns/column
     // subclusters.
-    int admissible_nblocks;
-    // Number of admissible pairs of block rows and block columns.
-    int *ibrow_admissible_start, *ibcol_admissible_start;
-    int *ibrow_admissible_size, *ibcol_admissible_size;
-    int *ibrow_admissible, *ibcol_admissible;
-    STARS_BlockStatus *ibrow_admissible_status, *ibcol_admissible_status;
-    // Store list of admissible blocks for each block row and block column as
-    // sparse CSR format. admissible_start[i] and admissible_size[i] correspond
-    // to start and size of list of admissible block columns/rows for block
-    // row/column i, stored in array admissible. admissible_start and
-    // admissible_size have nbrows/nbcols elements, admissible_block has
-    // admissible_nblocks elements. admissible_status show status of each
-    // admissible pair of block row and block column: guanrateed dense
-    // (STARS_Dense), guaranteed low-rank (STARS_LowRank) or not known a priori
-    // (STARS_Unknown).
+    int nblocks_far, nblocks_near;
+    // Number of admissible far-field blocks and admissible near-field blocks.
+    // Far-field blocks can be approximated with low rank, whereas near-field
+    // blocks can not.
+    int *block_far, *block_near;
+    // Indexes of far-field and near-field admissible blocks. block[2*i] and
+    // block[2*i+1] are indexes of block row and block column correspondingly.
+    int *brow_far_start, *brow_far;
+    // Compressed sparse format to store indexes of admissible far-field blocks
+    // for each block row.
+    int *bcol_far_start, *bcol_far;
+    // Compressed sparse format to store indexes of admissible far-field blocks
+    // for each block column.
+    int *brow_near_start, *brow_near;
+    // Compressed sparse format to store indexes of admissible near-field
+    // blocks for each block row.
+    int *bcol_near_start, *bcol_near;
+    // Compressed sparse format to store indexes of admissible near-field
+    // blocks for each block column.
     STARS_BLRF_Type type;
     // Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 };
 
 STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         STARS_Cluster *row_cluster, STARS_Cluster *col_cluster,
-        int admissible_nblocks, int *ibrow_admissible_start,
-        int *ibcol_admissible_start, int *ibrow_admissible_size,
-        int *ibcol_admissible_size, int *ibrow_admissible,
-        int *ibcol_admissible, STARS_BlockStatus *ibrow_admissible_status,
-        STARS_BlockStatus *ibcol_admissible_status, STARS_BLRF_Type type);
+        int nblocks_far, int *far_bindex, int nblocks_near, int *near_bindex,
+        STARS_BLRF_Type type);
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
 //   symm: 'S' if problem and division into blocks are both symmetric, 'N'
-//     otherwise
-//   row_cluster: clusterization of rows into block rows
-//   col_cluster: clusterization of columns into block columns
-//   admissible_nblocks: number of admissible blocks all in all
-//   ibrow_admissible_start: starting point of list of admissible blocks
-//     columns for a given block row in array ibrow_admissible
-//   ibcol_admissible_start: starting point of list of admissible blocks
-//     rows for a given block column in array ibcol_admissible
-//   ibrow_admissible_size: number of admissible block columns for a given
-//     block row
-//   ibcol_admissible_size: number of admissible block rows for a given block
-//     column
-//   ibrow_admissible: array to store indexes of admissible block columns for
-//     each block row.
-//   ibcol_admissible: array to store indexes of admissible block rows for each
-//     block column.
-//   ibrow_admissible_status: status of each admissible pair of block row and
-//     block column. STARS_Dense for guaranteed dense, STARS_LowRank for
-//     guaranteed low-rank or STARS_Unknown if not known a priori.
-//   ibcol_admissible_status: status of each admissible pair of block column
-//     and block row. STARS_Dense for guaranteed dense, STARS_LowRank for
-//     guaranteed low-rank or STARS_Unknown if not known a priori.
+//     otherwise.
+//   row_cluster: clusterization of rows into block rows.
+//   col_cluster: clusterization of columns into block columns.
+//   nblocks_far: number of admissible far-field blocks.
+//   bindex_far: array of pairs of admissible far-filed block rows and block
+//     columns. far_bindex[2*i] is an index of block row and far_bindex[2*i+1]
+//     is an index of block column.
+//   nblocks_near: number of admissible far-field blocks.
+//   bindex_near: array of pairs of admissible near-filed block rows and block
+//     columns. near_bindex[2*i] is an index of block row and near_bindex[2*i+1]
+//     is an index of block column.
+//   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
+//     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
 void STARS_BLRF_free(STARS_BLRF *blrf);
 // Free memory, used by block low rank format (partitioning of array into
 // blocks)
@@ -302,6 +320,8 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
         *row_cluster, STARS_Cluster *col_cluster, char symm);
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
+void STARS_BLRF_getblock(STARS_BLRF *blrf, int i, int j, int *shape, void **D);
+// PLEASE CLEAN MEMORY POINTER *D AFTER USE
 
 struct STARS_BLRM
 // STARS Block Low-Rank Matrix, which is used as an approximation in non-nested
@@ -309,13 +329,15 @@ struct STARS_BLRM
 {
     STARS_BLRF *blrf;
     // Pointer to block low-rank format.
-    int nblocks;
-    // Number of admissible blocks (that are required to be approximated).
-    int *brank;
-    // Rank of each block or -1 if block os not low-rank.
-    Array **U, **V, **D;
-    // Arrays of pointers to factors U and V of each low-rank block and dense
-    // array of each dense block.
+    int *far_rank;
+    // Rank of each far-field block.
+    Array **far_U, **far_V, **far_D;
+    // Arrays of pointers to factors U and V of each low-rank far-field block
+    // and dense array of each dense far-field block.
+    int onfly;
+    // 1 to store dense blocks, 0 not to store them and compute on demand.
+    Array **near_D;
+    // Array of pointers to dense array of each near-field block.
     void *U_alloc, *V_alloc, *D_alloc;
     // Pointer to memory buffer, holding buffers of low-rank factors of
     // low-rank blocks and dense buffers of dense blocks
@@ -325,26 +347,26 @@ struct STARS_BLRM
 };
 
 
-STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, int nblocks, int *brank,
-        Array **U, Array **V, Array **D, void *U_alloc, void *V_alloc,
-        void *D_alloc, char alloc_type);
-STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
-        int maxrank, double tol);
+STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, int *far_rank, Array **far_U,
+        Array **far_V, Array **far_D, int onfly, Array **near_D, void *U_alloc,
+        void *V_alloc, void *D_alloc, char alloc_type);
+// Init procedure for a non-nested block low-rank matrix
 void STARS_BLRM_free(STARS_BLRM *blrm);
-void STARS_BLRM_error(STARS_BLRM *blrm);
+// Free memory of a non-nested block low-rank matrix
 void STARS_BLRM_info(STARS_BLRM *blrm);
-/*
-STARS_BLRFmatrix *STARS_blrf_batched_algebraic_compress(STARS_BLRF *format,
-        int maxrank, double tol);
-void STARS_BLRFmatrix_info(STARS_BLRFmatrix *mat);
-void STARS_BLRFmatrix_getblock(STARS_BLRFmatrix *mat, int i, int j, int order,
-        int *shape, int *rank, void **U, void **V, void **A);
-void STARS_BLRF_getblock(STARS_BLRF *format, int i, int j, int order, int *shape,
-        void **A);
-void STARS_BLRFmatrix_printKADIR(STARS_BLRFmatrix *mat);
-void STARS_BLRFmatrix_heatmap(STARS_BLRFmatrix *mat, char *fname);
-int batched_lowrank_approximation(STARS_BLRFmatrix *mat, int count, int *id,
-        int maxrank, double tol, void **UV, int *rank);
-int batched_get_block(STARS_BLRFmatrix *mat, int count, int *id, void **A);
-*/
+// Print short info on non-nested block low-rank matrix
+void STARS_BLRM_error(STARS_BLRM *blrm);
+// Measure error of approximation by non-nested block low-rank matrix
+void STARS_BLRM_getblock(STARS_BLRM *mat, int i, int j, int *shape, int *rank,
+        void **U, void **V, void **D);
+// Returns shape of block, its rank and low-rank factors or dense
+// representation of a block
+STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
+        int maxrank, double tol, int onfly);
+// Private function of STARS-H
+// Uses SVD to acquire rank of each block, compresses given matrix (given
+// by block kernel, which returns submatrices) with relative accuracy tol
+// or with given maximum rank (if maxrank <= 0, then tolerance is used)
+
+
 #endif // _STARS_H_

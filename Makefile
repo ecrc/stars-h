@@ -24,7 +24,7 @@ RANLIB		?= ranlib
 
 INCLUDE		?= -I$(MKLROOT)/include
 LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
-		   -lmkl_rt -lgomp -lm
+		   -lmkl_rt -liomp5 -lm
 #LIBS		?=  -llapacke -llapack -lcblas -lrefblas -lpthread
 #LIBS		?= -llapacke -lcblas -llapack -lrefblas -lgfortran
 STARSH_INCLUDE	= -Iinclude/
