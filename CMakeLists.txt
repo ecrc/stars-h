@@ -10,6 +10,14 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 
+# Version
+# Number 0.1.1 is temptative, may differ from actual release.
+SET( STARSH_VERSION_MAJOR 0 )
+SET( STARSH_VERSION_MINOR 1 )
+SET( STARSH_VERSION_PATCH 1 )
+set( STARSH_VERSION "${STARSH_VERSION_MAJOR}.${STARSH_VERSION_MINOR}.${STARSH_VERSION_PATCH}" )
+execute_process(COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE STARSH_VERSION_RELEASE )
+
 
 # Set the RPATH config
 # --------------------
