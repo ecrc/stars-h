@@ -3,13 +3,14 @@ file(GLOB tests_files "*.c")
 
 include_directories( ${PROJECT_SOURCE_DIR}/include)
 
+
 # Uses RUNPATH instead of RPATH
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--enable-new-dtags")
 
 foreach( test_src ${tests_files} )
 	get_filename_component( test_exe ${test_src}  NAME_WE )
 	add_executable( ${test_exe} ${test_src} )
-	target_link_libraries( ${test_exe} starsh ${CBLAS_LIBRARIES} ${LAPACKE_LIBRARIES} gomp )
+	target_link_libraries( ${test_exe} starsh ${CBLAS_LIBRARIES} ${LAPACKE_LIBRARIES} )
 	install( TARGETS ${test_exe} DESTINATION lib/testing )
 endforeach()
 
