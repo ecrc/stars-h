@@ -10,6 +10,15 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 
+# Version
+# Number 0.1.1 is temptative, may differ from actual release.
+SET( STARSH_VERSION_MAJOR 0 )
+SET( STARSH_VERSION_MINOR 1 )
+SET( STARSH_VERSION_PATCH 1 )
+set( STARSH_VERSION "${STARSH_VERSION_MAJOR}.${STARSH_VERSION_MINOR}.${STARSH_VERSION_PATCH}" )
+execute_process(COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE STARSH_VERSION_RELEASE )
+
+
 # Set the RPATH config
 # --------------------
 # use, i.e. don't skip the full RPATH for the build tree
@@ -24,6 +33,13 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 # This project eeds C99 standard to compile properly
 # (could have used CMAKE_C_FLAGS instead)
 ADD_DEFINITIONS( -std=c99 )
+
+find_package(OpenMP REQUIRED)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 
 # STARS-H code
 add_subdirectory(src)
@@ -149,7 +165,9 @@ if( STARSH_TESTING )
 		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
 	endif()
 
+
 	# BUILD TESTS
 	enable_testing() # enables ctest
 	add_subdirectory(testing)
 endif()
+
