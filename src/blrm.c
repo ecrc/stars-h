@@ -397,6 +397,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
+    double total_time = omp_get_wtime();
     STARS_Problem *problem = blrf->problem;
     int bi, i, j, k, l, ndim = problem->ndim, mn, rank;
     if(ndim != 2)
@@ -412,17 +413,6 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
     int nblocks_near = blrf->nblocks_near;
     Array **far_U = malloc(nblocks_far*sizeof(Array *));
     Array **far_V = malloc(nblocks_far*sizeof(Array *));
-    Array **far_D = NULL, **near_D = NULL;
-    if(onfly == 0)
-    {
-        far_D = malloc(nblocks_far*sizeof(Array *));
-        near_D = malloc(nblocks_near*sizeof(Array *));
-    }
-    else
-    {
-        far_D = NULL;
-        near_D = NULL;
-    }
     int *far_rank = malloc(nblocks_far*sizeof(int));
     STARS_Cluster *row_cluster = blrf->row_cluster;
     STARS_Cluster *col_cluster = blrf->col_cluster;
@@ -445,10 +435,6 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
             mn = nrowsi > ncolsj ? ncolsj : nrowsi;
             far_U[bi] = NULL;
             far_V[bi] = NULL;
-            far_D[bi] = NULL;
-            far_rank[bi] = 0;
-            if(i < j && symm == 'S')
-                continue;
             block = Array_new(ndim, shape, problem->dtype, 'F');
             (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
                     row_cluster->start[i], col_cluster->pivot+
@@ -487,10 +473,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
             else
             // If block is NOT low-rank
             {
-                if(onfly == 0)
-                    far_D[bi] = block2;
-                else
-                    Array_free(block2);
+                Array_free(block2);
                 far_rank[bi] = mn;
             }
             Array_free(U);
@@ -499,6 +482,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
         }
         free(shape);
     }
+    /*
     if(onfly == 0)
     #pragma omp parallel private(bi, i, j, nrowsi, ncolsj, mn, block)
     {
@@ -523,7 +507,9 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
         }
         free(shape);
     }
-    return STARS_BLRM_init(blrf, far_rank, far_U, far_V, far_D, onfly, near_D,
+    */
+    printf("TOTAL TIME: %f\n", omp_get_wtime()-total_time);
+    return STARS_BLRM_init(blrf, far_rank, far_U, far_V, NULL, 1, NULL,
             NULL, NULL, NULL, '2');
 }
 
@@ -532,7 +518,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
 {
     double total_time = omp_get_wtime();
     STARS_Problem *problem = blrf->problem;
-    int bbi, bi, i, j, k, l, ndim = problem->ndim, mn, rank;
+    int bbi, bi, ndim = problem->ndim, mn, rank;
     if(ndim != 2)
     {
         fprintf(stderr, "Currently only scalar kernels are supported\n");
@@ -541,186 +527,205 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
     char symm = blrf->symm;
     int nblocks_far = blrf->nblocks_far;
     int nblocks_near = blrf->nblocks_near;
-    int *shape = malloc(ndim*sizeof(int));
-    memcpy(shape, blrf->problem->shape, ndim*sizeof(int));
     Array **far_U = malloc(nblocks_far*sizeof(Array *));
     Array **far_V = malloc(nblocks_far*sizeof(Array *));
+    int *shape = problem->shape;
     void *alloc_U = malloc(2*blrf->nbcols*shape[0]*maxrank*sizeof(double));
     void *alloc_V = malloc(2*blrf->nbrows*shape[1]*maxrank*sizeof(double));
+    void *current_U = alloc_U, *current_V = alloc_V;
     STARS_Cluster *row_cluster = blrf->row_cluster;
     STARS_Cluster *col_cluster = blrf->col_cluster;
-    int offset_U = 0, offset_V = 0;
     int nrowsi, ncolsj;
-    Array **near_D = NULL;
     int *far_rank = malloc(nblocks_far*sizeof(int));
     void *row_data = problem->row_data;
     void *col_data = problem->col_data;
-    size_t *workspace_size = malloc(nblocks_far*sizeof(size_t));
-    int *batch_block = malloc(nblocks_far*sizeof(int));
-    double *tmp_buffer = malloc(max_buffer_size);
-    int nbatched_blocks = 0;
-    #pragma omp parallel for private(i, j, nrowsi, ncolsj, mn)
+    size_t *ltotalwork = malloc(nblocks_far*sizeof(size_t));
+    int *lwork_arrays = malloc(5*nblocks_far*sizeof(int));
+    int *lbwork = lwork_arrays;
+    int *luvwork = lwork_arrays+nblocks_far;
+    int *lwork = lwork_arrays+2*nblocks_far;
+    int *lswork = lwork_arrays+3*nblocks_far;
+    int *liwork = lwork_arrays+4*nblocks_far;
+    void *tmp_buffer = malloc(max_buffer_size);
+    double tmp_time = omp_get_wtime(), tmp_time2;
+    #pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
-        i = blrf->block_far[2*bi];
-        j = blrf->block_far[2*bi+1];
-        nrowsi = row_cluster->size[i];
-        ncolsj = col_cluster->size[j];
-        far_U[bi] = NULL;
-        far_V[bi] = NULL;
-        if(i < j && symm == 'S')
-            continue;
-        #pragma omp critical
-        {
-            batch_block[nbatched_blocks] = bi;
-            nbatched_blocks++;
-        }
+        int i = blrf->block_far[2*bi];
+        int j = blrf->block_far[2*bi+1];
+        int nrowsi = row_cluster->size[i];
+        int ncolsj = col_cluster->size[j];
         if(nrowsi < ncolsj)
         {
-            mn = 3*nrowsi+ncolsj;
-            if(mn < 5*nrowsi)
-                mn = 5*nrowsi;
-            workspace_size[bi] = (nrowsi*ncolsj+nrowsi*nrowsi+nrowsi+mn)*
-                    sizeof(double);
         }
         else
         {
-            mn = 3*ncolsj+nrowsi;
-            if(mn < 5*ncolsj)
-                mn = 5*ncolsj;
-            workspace_size[bi] = (nrowsi*ncolsj+ncolsj*ncolsj+ncolsj+mn)*
-                    sizeof(double);
+            lbwork[bi] = nrowsi*ncolsj;
+            luvwork[bi] = ncolsj*ncolsj;
+            i = (5*ncolsj+7)*ncolsj;
+            j = 3*ncolsj+nrowsi;
+            lwork[bi] = i;
+            if(i < j)
+                lwork[bi] = j;
+            liwork[bi] = 8*ncolsj;
+            lswork[bi] = ncolsj;
+            ltotalwork[bi] = (lbwork[bi]+luvwork[bi]+lwork[bi]+lswork[bi])*
+                    sizeof(double)+liwork[bi]*sizeof(int);
         }
     }
+    //tmp_time2 = omp_get_wtime();
+    //printf("TIME1: %f\n", tmp_time2-tmp_time);
+    //tmp_time = tmp_time2;
     int nblocks_processed = 0;
-    size_t tmp_buffer_size;
-    while(nblocks_processed < nbatched_blocks)
+    while(nblocks_processed < nblocks_far)
     {
-        //printf("%d %d\n", nblocks_processed, nbatched_blocks);
-        tmp_buffer_size = 0;
-        bbi = nblocks_processed;
-        while(bbi < nbatched_blocks && tmp_buffer_size+
-                workspace_size[batch_block[bbi]] < max_buffer_size)
+        //printf("%d %d\n", nblocks_processed, nblocks_far);
+        size_t tmp_ltotalwork = 0;
+        int tmp_lbwork = 0, tmp_luvwork = 0, tmp_lwork = 0, tmp_lswork = 0;
+        bi = nblocks_processed;
+        while(bi < nblocks_far && tmp_ltotalwork+
+                ltotalwork[bi] < max_buffer_size)
         {
-            tmp_buffer_size += workspace_size[batch_block[bbi]];
-            bbi++;
+            tmp_ltotalwork += ltotalwork[bi];
+            tmp_lbwork += lbwork[bi];
+            tmp_luvwork += luvwork[bi];
+            tmp_lwork += lwork[bi];
+            tmp_lswork += lswork[bi];
+            bi++;
         }
-        int batch_size = bbi-nblocks_processed;
+        int batch_size = bi-nblocks_processed;
         int nrows[batch_size], ncols[batch_size];
         int *irow[batch_size], *icol[batch_size];
-        void *buffer[batch_size];
-        char jobu[batch_size], jobv[batch_size];
-        double *U[batch_size], *S[batch_size], *V[batch_size];
-        int ldv[batch_size];
-        int lwork[batch_size];
+        double *buffer[batch_size];
+        double *U[batch_size], *S[batch_size], *V[batch_size], *UV[batch_size];
+        int ldv[batch_size], *iwork[batch_size];
         double *work[batch_size];
-        //printf("batch size %d\n", batch_size);
+        //printf("batch size %d, size %u maxsize %u\n", batch_size,
+        //        tmp_buffer_size, max_buffer_size);
         buffer[0] = tmp_buffer;
+        UV[0] = buffer[0]+tmp_lbwork;
+        S[0] = UV[0]+tmp_luvwork;
+        work[0] = S[0]+tmp_lswork;
+        iwork[0] = (int *)(work[0]+tmp_lwork);
         for(bbi = 0; bbi < batch_size-1; bbi++)
         {
-            int abbi = bbi+nblocks_processed;
-            bi = batch_block[abbi];
-            buffer[bbi+1] = buffer[bbi]+workspace_size[bi];
+            buffer[bbi+1] = buffer[bbi]+lbwork[bbi+nblocks_processed];
+            UV[bbi+1] = UV[bbi]+luvwork[bbi+nblocks_processed];
+            S[bbi+1] = S[bbi]+lswork[bbi+nblocks_processed];
+            work[bbi+1] = work[bbi]+lwork[bbi+nblocks_processed];
+            iwork[bbi+1] = iwork[bbi]+liwork[bbi+nblocks_processed];
         }
-        #pragma omp parallel for private(bi, i, j)
+        //tmp_time2 = omp_get_wtime();
+        //printf("TIME2: %f\n", tmp_time2-tmp_time);
+        //tmp_time = tmp_time2;
+        #pragma omp parallel for
         for(bbi = 0; bbi < batch_size; bbi++)
         {
-            int abbi = bbi+nblocks_processed;
-            bi = batch_block[abbi];
-            i = blrf->block_far[2*bi];
-            j = blrf->block_far[2*bi+1];
+            int bi = bbi+nblocks_processed;
+            int i = blrf->block_far[2*bi];
+            int j = blrf->block_far[2*bi+1];
             nrows[bbi] = row_cluster->size[i];
             ncols[bbi] = col_cluster->size[j];
             irow[bbi] = row_cluster->pivot+row_cluster->start[i];
             icol[bbi] = col_cluster->pivot+col_cluster->start[j];
             if(nrows[bbi] < ncols[bbi])
             {
-                jobu[bbi] = 'A';
-                jobv[bbi] = 'O';
-                U[bbi] = buffer[bbi]+nrows[bbi]*ncols[bbi];
-                S[bbi] = U[bbi]+nrows[bbi]*nrows[bbi];
+                U[bbi] = UV[bbi];
                 V[bbi] = buffer[bbi];
                 ldv[bbi] = nrows[bbi];
-                lwork[bbi] = 3*nrows[bbi]+ncols[bbi];
-                if(lwork[bbi] < 5*nrows[bbi])
-                    lwork[bbi] = 5*nrows[bbi];
-                work[bbi] = S[bbi]+nrows[bbi];
             }
             else
             {
-                jobu[bbi] = 'O';
-                jobv[bbi] = 'A';
-                lwork[bbi] = 3*ncols[bbi]+nrows[bbi];
-                if(lwork[bbi] < 5*ncols[bbi])
-                    lwork[bbi] = 5*ncols[bbi];
-                V[bbi] = buffer[bbi]+nrows[bbi]*ncols[bbi]*sizeof(double);
-                S[bbi] = V[bbi]+ncols[bbi]*ncols[bbi];
                 U[bbi] = buffer[bbi];
+                V[bbi] = UV[bbi];
                 ldv[bbi] = ncols[bbi];
-                work[bbi] = S[bbi]+ncols[bbi];
             }
         }
+        //tmp_time2 = omp_get_wtime();
+        //printf("TIME3: %f\n", tmp_time2-tmp_time);
+        //tmp_time = tmp_time2;
         //printf("batch size %d\n", batch_size);
         #pragma omp parallel for
         for(bbi = 0; bbi < batch_size; bbi++)
             problem->kernel(nrows[bbi], ncols[bbi], irow[bbi], icol[bbi],
                     row_data, col_data, buffer[bbi]);
+        //tmp_time2 = omp_get_wtime();
+        //printf("TIME4: %f\n", tmp_time2-tmp_time);
+        //tmp_time = tmp_time2;
         //printf("DONE WITH KERNEL\n");
         #pragma omp parallel for
         for(bbi = 0; bbi < batch_size; bbi++)
-            LAPACKE_dgesvd_work(LAPACK_COL_MAJOR, jobu[bbi], jobv[bbi],
-                    nrows[bbi], ncols[bbi], buffer[bbi], nrows[bbi], S[bbi],
-                    U[bbi], nrows[bbi], V[bbi], ldv[bbi], work[bbi], lwork[bbi]);
+            //LAPACKE_dgesvd_work(LAPACK_COL_MAJOR, jobu[bbi], jobv[bbi],
+            //        nrows[bbi], ncols[bbi], buffer[bbi], nrows[bbi], S[bbi],
+            //        U[bbi], nrows[bbi], V[bbi], ldv[bbi], work[bbi],
+            //        lwork[bbi]);
+            LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'O', nrows[bbi], ncols[bbi],
+                    buffer[bbi], nrows[bbi], S[bbi], U[bbi], nrows[bbi],
+                    V[bbi], ldv[bbi], work[bbi], lwork[bbi+nblocks_processed],
+                    iwork[bbi]);
         //printf("DONE WITH SVD\n");
+        //tmp_time2 = omp_get_wtime();
+        //printf("TIME5: %f\n", tmp_time2-tmp_time);
+        //tmp_time = tmp_time2;
+        #pragma omp parallel for
         for(bbi = 0; bbi < batch_size; bbi++)
         {
-            int bi = batch_block[bbi];
+            int bi = bbi+nblocks_processed;
+            double *ptrS = S[bbi];
             double Stol = 0, Stmp = 0.;
-            int i, rank = ldv[bbi];
-            for(i = 0; i < ldv[bbi]; i++)
-                Stol += S[bbi][i]*S[bbi][i];
+            int i, j, mn = ldv[bbi], rank = mn;
+            int shapeU[2] = {nrows[bbi], 0}, shapeV[2] = {0, ncols[bbi]};
+            for(i = 0; i < mn; i++)
+                Stol += ptrS[i]*ptrS[i];
             Stol *= tol*tol;
             while(rank > 1 && Stol > Stmp)
             {
                 rank--;
-                Stmp += S[bbi][rank]*S[bbi][rank];
+                Stmp += ptrS[rank]*ptrS[rank];
             }
+            //printf("rank %d\n", rank);
             rank++;
-            if(rank < ldv[bbi]/2)
+            if(2*rank >= mn)
             {
-                if(rank > maxrank)
-                    rank = maxrank;
-                shape[0] = nrows[bbi];
-                shape[1] = rank;
-                far_U[bi+nblocks_processed] = Array_from_buffer(ndim, shape,
-                        'd', 'F', alloc_U+offset_U);
-                //far_U[bi] = Array_new(2, shape, 'd', 'F');
-                offset_U += (rank+maxrank)*shape[0]*sizeof(double);
-                shape[0] = rank;
-                shape[1] = ncols[bbi];
-                far_V[bi+nblocks_processed] = Array_from_buffer(ndim, shape,
-                        'd', 'F', alloc_V+offset_V);
-                //far_V[bi] = Array_new(2, shape, 'd', 'F');
-                offset_V += (rank+maxrank)*shape[1]*sizeof(double);
-                cblas_dcopy(rank*nrows[bbi], U[bbi], 1, far_U[bi]->buffer, 1);
-                double *ptr = far_V[bi]->buffer;
-                double *ptrS = S[bbi];
-                double *ptrV = V[bbi];
-                for(k = 0; k < ncols[bbi]; k++)
-                    for(l = 0; l < rank; l++)
-                        ptr[k*rank+l] = ptrS[l]*ptrV[k*ldv[bbi]+l];
-                far_rank[bi] = rank;
+                far_rank[bi] = mn;
+                far_U[bi] = NULL;
+                far_V[bi] = NULL;
             }
             else
             {
-                far_rank[bi] = ldv[bi];
+                if(rank > maxrank)
+                    rank = maxrank;
+                far_rank[bi] = rank;
+                shapeU[1] = rank;
+                shapeV[0] = rank;
+                #pragma omp critical
+                {
+                    far_U[bi] = Array_from_buffer(2, shapeU, 'd', 'F',
+                            current_U);
+                    current_U += 2*shapeU[0]*shapeU[1]*sizeof(double);
+                    far_V[bi] = Array_from_buffer(2, shapeV, 'd', 'F',
+                            current_V);
+                    current_V += 2*shapeV[0]*shapeV[1]*sizeof(double);
+                }
+                cblas_dcopy(shapeU[0]*shapeU[1], U[bbi], 1, far_U[bi]->buffer,
+                        1);
+                double *ptr = far_V[bi]->buffer, *ptrV = V[bbi];
+                for(i = 0; i < shapeV[1]; i++)
+                    for(j = 0; j < shapeV[0]; j++)
+                        ptr[i*rank+j] = ptrS[j]*ptrV[i*mn+j];
             }
         }
+        //tmp_time2 = omp_get_wtime();
+        //printf("TIME6: %f\n", tmp_time2-tmp_time);
+        //tmp_time = tmp_time2;
+        //printf("DONE WITH far_U far_V\n");
         nblocks_processed += batch_size;
     }
     free(tmp_buffer);
-    if(onfly == 0)
-        near_D = malloc(nblocks_near*sizeof(Array *));
+    free(ltotalwork);
+    free(lwork_arrays);
+    //if(onfly == 0)
+    //    near_D = malloc(nblocks_near*sizeof(Array *));
     printf("TOTAL TIME: %f\n", omp_get_wtime()-total_time);
     return STARS_BLRM_init(blrf, far_rank, far_U, far_V, NULL, 1, NULL,
             alloc_U, alloc_V, NULL, '1');

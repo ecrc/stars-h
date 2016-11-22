@@ -242,16 +242,31 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
         exit(1);
     }
     int nbrows = row_cluster->nblocks, nbcols = col_cluster->nblocks;
-    int nblocks_far = nbrows*nbcols;
-    int *block_far = malloc(2*nblocks_far*sizeof(int));
-    int i, j, k = 0;
-    for(i = 0; i < nbrows; i++)
-        for(j = 0; j < nbcols; j++)
-        {
-            block_far[2*k] = i;
-            block_far[2*k+1] = j;
-            k++;
-        }
+    int i, j, k = 0, nblocks_far, *block_far;
+    if(symm == 'N')
+    {
+        nblocks_far = nbrows*nbcols;
+        block_far = malloc(2*nblocks_far*sizeof(int));
+        for(i = 0; i < nbrows; i++)
+            for(j = 0; j < nbcols; j++)
+            {
+                block_far[2*k] = i;
+                block_far[2*k+1] = j;
+                k++;
+            }
+    }
+    else
+    {
+        nblocks_far = nbrows*(nbrows+1)/2;
+        block_far = malloc(2*nblocks_far*sizeof(int));
+        for(i = 0; i < nbrows; i++)
+            for(j = 0; j <= i; j++)
+            {
+                block_far[2*k] = i;
+                block_far[2*k+1] = j;
+                k++;
+            }
+    }
     return STARS_BLRF_init(problem, symm, row_cluster, col_cluster,
             nblocks_far, block_far, 0, NULL, STARS_BLRF_Tiled);
 }
