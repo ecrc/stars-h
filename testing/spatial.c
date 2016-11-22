@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     STARS_BLRF *blrf = STARS_BLRF_init_tiled(problem, cluster, cluster, 'S');
     STARS_BLRF_info(blrf);
     // Approximate each admissible block
-    STARS_BLRM *blrm = STARS_blrf_tiled_compress_algebraic_svd(blrf, maxrank,
-            tol, 0); // 0 for onfly=0
+    STARS_BLRM *blrm = STARS_blrf_tiled_compress_algebraic_svd(blrf,
+            maxrank, tol, 1); // 0 for onfly=0
     STARS_BLRM_info(blrm);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(blrm);
@@ -70,7 +70,8 @@ int main(int argc, char **argv)
     blrf = STARS_BLRF_init_tiled(problem, cluster, cluster, 'S');
     STARS_BLRF_info(blrf);
     // Approximate each admissible block
-    blrm = STARS_blrf_tiled_compress_algebraic_svd(blrf, maxrank, tol, 0);
+    blrm = STARS_blrf_tiled_compress_algebraic_svd_batched(blrf, maxrank, tol,
+            0, 1000000000);
     STARS_BLRM_info(blrm);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(blrm);

@@ -338,7 +338,7 @@ struct STARS_BLRM
     // 1 to store dense blocks, 0 not to store them and compute on demand.
     Array **near_D;
     // Array of pointers to dense array of each near-field block.
-    void *U_alloc, *V_alloc, *D_alloc;
+    void *alloc_U, *alloc_V, *alloc_D;
     // Pointer to memory buffer, holding buffers of low-rank factors of
     // low-rank blocks and dense buffers of dense blocks
     char alloc_type;
@@ -367,6 +367,10 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
+STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
+        int maxrank, double tol, int onfly);
 
+STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
+        int maxrank, double tol, int onfly, size_t max_buffer_size);
 
 #endif // _STARS_H_
