@@ -4,9 +4,9 @@
 
 int main(int argc, char **argv)
 {
-    int ndim = 2, nrows = 300, ncols = 300;
-    int shape[ndim];
-    int i, idtype, iorder;
+    size_t ndim = 2, nrows = 300, ncols = 300;
+    size_t shape[ndim];
+    size_t i, idtype, iorder;
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     for(i = 1; i < ndim-1; i++)
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     for(idtype = 0; idtype < 4; idtype++)
         for(iorder = 0; iorder < 2; iorder++)
         {
-            printf("\nidtype %i, iorder %i\n", idtype, iorder);
+            printf("\nidtype %zu, iorder %zu\n", idtype, iorder);
             printf("dtype '%c', order '%c'\n", dtype[idtype], order[iorder]);
             Array *array = Array_new(ndim, shape, dtype[idtype],
                     order[iorder]);

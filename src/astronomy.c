@@ -1410,11 +1410,11 @@ void matcov_comp_tile(
 
 }
 
-int STARS_aodata_block_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data, void *result)
+int STARS_aodata_block_kernel(size_t nrows, size_t ncols, size_t *irow,
+        size_t *icol, void *row_data, void *col_data, void *result)
 {
     struct tomo_struct *data = row_data;
-    int i, j;
+    size_t i, j;
     double *buffer = result;
     double crmax = data->rmax;
     double pasDPHI = 1./data->pasDPHI; //inverse du pas de rr

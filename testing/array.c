@@ -26,14 +26,14 @@ int main(int argc, char **argv)
 void check_SVD(int m, int n)
 {
     Array *array, *array2, *U, *S, *V;
-    int shape[2] = {m, n};
-    int idtype, iorder;
+    size_t shape[2] = {m, n};
+    size_t idtype, iorder;
     char *dtype = "sdcz", *order = "FC";
     for(idtype = 0; idtype < 4; idtype++)
     {
         for(iorder = 0; iorder < 2; iorder++)
         {
-            printf("\nidtype %i, iorder %i\n", idtype, iorder);
+            printf("\nidtype %zu, iorder %zu\n", idtype, iorder);
             printf("dtype '%c', order '%c'\n", dtype[idtype], order[iorder]);
             array = Array_new(2, shape, dtype[idtype], order[iorder]);
             Array_init_randn(array);

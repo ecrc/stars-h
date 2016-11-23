@@ -14,16 +14,16 @@ int main(int argc, char **argv)
                 "tol\n");
         exit(0);
     }
-    int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
-    int block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
+    size_t row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
+    size_t block_size = atoi(argv[3]), maxrank = atoi(argv[4]);
     double tol = atof(argv[5]);
-    printf("\nrb=%d, cb=%d, bs=%d, mr=%d, tol=%e\n", row_blocks, col_blocks,
+    printf("\nrb=%zu, cb=%zu, bs=%zu, mr=%zu, tol=%e\n", row_blocks, col_blocks,
             block_size, maxrank, tol);
     // Setting random seed
     srand(time(NULL));
     // Generate data for spatial statistics problem
     STARS_esdata *data = STARS_gen_esdata(row_blocks, col_blocks, block_size);
-    int ndim = 2, shape[2] = {data->count, data->count};
+    size_t ndim = 2, shape[2] = {data->count, data->count};
     char symm = 'S', dtype = 'd';
     // Init problem with given data and kernel
     STARS_Problem *problem = STARS_Problem_init(ndim, shape, symm, dtype,

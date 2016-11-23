@@ -4,9 +4,10 @@
 #include "stars.h"
 
 
-STARS_Cluster *STARS_Cluster_init(void *data, int ndata, int *pivot,
-        int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARS_ClusterType type)
+STARS_Cluster *STARS_Cluster_init(void *data, size_t ndata, size_t *pivot,
+        size_t nblocks, size_t nlevels, size_t *level, size_t *start,
+        size_t *size, ssize_t *parent, size_t *child_start, ssize_t *child,
+        STARS_ClusterType type)
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data.
@@ -73,16 +74,16 @@ void STARS_Cluster_info(STARS_Cluster *cluster)
         printf("tiled, ");
     else
         printf("hierarchical, ");
-    printf("%d blocks>\n", cluster->nblocks);
+    printf("%zu blocks>\n", cluster->nblocks);
 }
 
-STARS_Cluster *STARS_Cluster_init_tiled(void *data, int ndata, int block_size)
+STARS_Cluster *STARS_Cluster_init_tiled(void *data, size_t ndata,
+        size_t block_size)
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 {
-    int i = 0, j, k = 0;
-    int nblocks = (ndata-1)/block_size+1;
-    int *start = malloc(nblocks*sizeof(int));
-    int *size = malloc(nblocks*sizeof(int));
+    size_t i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
+    size_t *start = malloc(nblocks*sizeof(*start));
+    size_t *size = malloc(nblocks*sizeof(*size));
     while(i < ndata)
     {
         j = i+block_size;
@@ -93,7 +94,7 @@ STARS_Cluster *STARS_Cluster_init_tiled(void *data, int ndata, int block_size)
         i = j;
         k++;
     }
-    int *pivot = malloc(ndata*sizeof(int));
+    size_t *pivot = malloc(ndata*sizeof(*pivot));
     for(i = 0; i < ndata; i++)
         pivot[i] = i;
     return STARS_Cluster_init(data, ndata, pivot, nblocks, 0, NULL, start,

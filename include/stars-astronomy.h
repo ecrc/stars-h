@@ -10,7 +10,7 @@
 //code fom original matcov.h with additional fields for matcov_tiled
 
 typedef struct tomo_struct {
-    int count; // size of corresponding matrix Cmm
+    size_t count; // size of corresponding matrix Cmm
     long Nw;    // number of wavefront sensors
 
     // pointers on arrays containing corrdinates of sub-apertures
@@ -107,8 +107,8 @@ void matcov_comp_tile(double* data, int nrows, int ncols, int xoffset,
 int matcov_update_atm_params(struct tomo_struct *tomo, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx);
 
-int STARS_aodata_block_kernel(int nrows, int ncols, int *irow, int *icol,
-        void *row_data, void *col_data, void *result);
+int STARS_aodata_block_kernel(size_t nrows, size_t ncols, size_t *irow,
+        size_t *icol, void *row_data, void *col_data, void *result);
 STARS_aodata *STARS_gen_aodata(char *files_path, int night_idx,
         int snapshots_per_night, int snapshot_idx, int obs_idx, double alphaX,
         double alphaY);

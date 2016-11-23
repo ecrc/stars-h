@@ -18,14 +18,14 @@ int main(int argc, char **argv){
     int obs_idx=0;
     double alphaX=0.0;
     double alphaY=0.0;
-    int block_size = atoi(argv[2]);
-    int maxrank = atoi(argv[3]);
+    size_t block_size = atoi(argv[2]);
+    size_t maxrank = atoi(argv[3]);
     double tol = atof(argv[4]);
     STARS_aodata *data = STARS_gen_aodata(files_path, night_idx,
             snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
-    int ndim = 2, shape[2] = {data->count, data->count};
+    size_t ndim = 2, shape[2] = {data->count, data->count};
     char symm = 'S', dtype = 'd';
-    printf("\nfiles_path=%s bs=%d mr=%d tol=%e\n", files_path, block_size,
+    printf("\nfiles_path=%s bs=%zu mr=%zu tol=%e\n", files_path, block_size,
             maxrank, tol);
     // Init problem with given data and kernel
     STARS_Problem *problem = STARS_Problem_init(ndim, shape, symm, dtype,

@@ -7,7 +7,8 @@ typedef struct STARS_Problem STARS_Problem;
 typedef struct STARS_Cluster STARS_Cluster;
 typedef struct STARS_BLRF STARS_BLRF;
 typedef struct STARS_BLRM STARS_BLRM;
-typedef int (*block_kernel)(int, int, int *, int *, void *, void *, void *);
+typedef int (*block_kernel)(size_t, size_t, size_t *, size_t *, void *, void *,
+        void *);
 
 typedef enum {STARS_Dense, STARS_LowRank, STARS_Unknown} STARS_BlockStatus;
 // Enum type to show lowrankness of admissible blocks
@@ -23,16 +24,16 @@ typedef enum {STARS_ClusterTiled, STARS_ClusterHierarchical}
 struct Array
 // N-dimensional array
 {
-    int ndim;
+    size_t ndim;
     // Number of dimensions of array.
-    int *shape;
+    size_t *shape;
     // Shape of array.
-    int *stride;
+    ssize_t *stride;
     // Size of step to increase value of corresponding axis by 1
     char order;
     // C or Fortran order. C-order means stride is descending, Fortran-order
     // means stride is ascending.
-    int size;
+    size_t size;
     // Number of elements of an array.
     char dtype;
     // Data type of each element of array. Possile value is 's', 'd', 'c' or
@@ -46,11 +47,11 @@ struct Array
 };
 
 // Routines to work with N-dimensional arrays
-Array *Array_from_buffer(int ndim, int *shape, char dtype, char order,
+Array *Array_from_buffer(size_t ndim, size_t *shape, char dtype, char order,
         void *buffer);
 // Init array from given buffer. Check if all parameters are good and
 // proceed.
-Array *Array_new(int ndim, int *shape, char dtype, char order);
+Array *Array_new(size_t ndim, size_t *shape, char dtype, char order);
 // Allocation of memory for array
 Array *Array_new_like(Array *array);
 // Initialize new array with exactly the same shape, dtype and so on, but
@@ -93,9 +94,9 @@ Array *Array_dot(Array* A, Array *B);
 // ordering of both arrays should be equal.
 int Array_SVD(Array *array, Array **U, Array **S, Array **V);
 // Compute short SVD of 2-dimensional array
-int SVD_get_rank(Array *S, double tol, char type);
-// Find rank by singular values and given accuracy tolerance
-// (Frobenius or Spectral norm)
+size_t SVD_get_rank(Array *S, double tol, char type);
+// Returns rank by given array of singular values, tolerance and type of norm
+// ('2' for spectral norm, 'F' for Frobenius norm)
 void Array_scale(Array *array, char kind, Array *factor);
 // Apply row or column scaling to array
 double Array_diff(Array *array, Array *array2);
@@ -104,9 +105,6 @@ double Array_norm(Array *array);
 // Measure Frobenius norm of array
 Array *Array_convert(Array *array, char dtype);
 // Copy array and convert data type
-int SVD_get_rank(Array *S, double tol, char type);
-// Returns rank by given array of singular values, tolerance and type of norm
-// ('2' for spectral norm, 'F' for Frobenius norm)
 int Array_Cholesky(Array *array, char uplo);
 // Cholesky factoriation for an array
 
@@ -119,10 +117,10 @@ struct STARS_Problem
 // Rows correspond to first dimension of the array and columns correspond to
 // last dimension of the array.
 {
-    int ndim;
+    size_t ndim;
     // Real dimensionality of corresponding array. ndim=2 for problems with
     // scalar kernel. ndim=3 for Astrophysics problem. May be greater than 2.
-    int *shape;
+    size_t *shape;
     // Real shape of corresponding array.
     char symm;
     // 'S' if problem is symmetric, and 'N' otherwise.
@@ -147,8 +145,9 @@ struct STARS_Problem
     // to set it as desired.
 };
 
-STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
-        void *row_data, void *col_data, block_kernel kernel, char *name);
+STARS_Problem *STARS_Problem_init(size_t ndim, size_t *shape, char symm,
+        char dtype, void *row_data, void *col_data, block_kernel kernel,
+        char *name);
 // Init for STARS_Problem instance
 // Parameters:
 //   ndim: dimensionality of corresponding array. Equal 2+dimensionality of
@@ -172,8 +171,8 @@ void STARS_Problem_free(STARS_Problem *problem);
 // Free memory, consumed by data buffers of data
 void STARS_Problem_info(STARS_Problem *problem);
 // Print some info about Problem
-Array *STARS_Problem_get_block(STARS_Problem *problem, int nrows, int ncols,
-        int *irow, int *icol);
+Array *STARS_Problem_get_block(STARS_Problem *problem, size_t nrows,
+        size_t ncols, size_t *irow, size_t *icol);
 // Get submatrix on given rows and columns (rows=first dimension, columns=last
 // dimension)
 STARS_Problem *STARS_Problem_from_array(Array *array, char symm);
@@ -187,31 +186,32 @@ struct STARS_Cluster
 {
     void *data;
     // Pointer to structure, holding physical data.
-    int ndata;
+    size_t ndata;
     // Number of discrete elements, corresponding to physical data (particles,
     // grid nodes or mesh elements).
-    int *pivot;
+    size_t *pivot;
     // Pivoting for clusterization. After applying this pivoting, discrete
     // elements, corresponding to a given cluster, have indexes in a row. pivot
     // has ndata elements.
-    int nblocks;
+    size_t nblocks;
     // Total number of subclusters/blocks of discrete elements.
-    int nlevels;
+    size_t nlevels;
     // Number of levels of hierarchy. 0 in case of tiled cluster.
-    int *level;
+    size_t *level;
     // Compressed format to store start points of each level of hierarchy.
     // indexes of subclusters from level[i] to level[i+1]-1 correspond to i-th
     // level of hierarchy. level has nlevels+1 elements in hierarchical case
     // and is NULL in tiled case.
-    int *start, *size;
+    size_t *start, *size;
     // Start points in array pivot and corresponding sizes of each subcluster
     // of discrete elements. Since subclusters overlap in hierarchical
     // case, value start[i+1]-start[i] does not represent actual size of
     // subcluster. start and size have nblocks elements.
-    int *parent;
+    ssize_t *parent;
     // Array of parents, each node has only one parent. parent[0] = -1 since 0
     // is assumed to be root node. In case of tiled cluster, parent is NULL.
-    int *child_start, *child;
+    size_t *child_start;
+    ssize_t *child;
     // Arrays of children and start points in array of children of each
     // subcluster. child_start has nblocks+1 elements, child has nblocks
     // elements in case of hierarchical cluster. In case of tiled cluster
@@ -220,9 +220,10 @@ struct STARS_Cluster
     // Type of cluster (tiled or hierarchical).
 };
 
-STARS_Cluster *STARS_Cluster_init(void *data, int ndata, int *pivot,
-        int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARS_ClusterType type);
+STARS_Cluster *STARS_Cluster_init(void *data, size_t ndata, size_t *pivot,
+        size_t nblocks, size_t nlevels, size_t *level, size_t *start,
+        size_t *size, ssize_t *parent, size_t *child_start, ssize_t *child,
+        STARS_ClusterType type);
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data.
@@ -246,7 +247,8 @@ void STARS_Cluster_free(STARS_Cluster *cluster);
 // Free data buffers, consumed by clusterization information.
 void STARS_Cluster_info(STARS_Cluster *cluster);
 // Print some info about clusterization
-STARS_Cluster *STARS_Cluster_init_tiled(void *data, int ndata, int block_size);
+STARS_Cluster *STARS_Cluster_init_tiled(void *data, size_t ndata,
+        size_t block_size);
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 
 
@@ -262,26 +264,26 @@ struct STARS_BLRF
     STARS_Cluster *row_cluster, *col_cluster;
     // Clusterization of rows and columns into blocks/subclusters of discrete
     // elements.
-    int nbrows, nbcols;
+    size_t nbrows, nbcols;
     // Number of block rows/row subclusters and block columns/column
     // subclusters.
-    int nblocks_far, nblocks_near;
+    size_t nblocks_far, nblocks_near;
     // Number of admissible far-field blocks and admissible near-field blocks.
     // Far-field blocks can be approximated with low rank, whereas near-field
     // blocks can not.
-    int *block_far, *block_near;
+    size_t *block_far, *block_near;
     // Indexes of far-field and near-field admissible blocks. block[2*i] and
     // block[2*i+1] are indexes of block row and block column correspondingly.
-    int *brow_far_start, *brow_far;
+    size_t *brow_far_start, *brow_far;
     // Compressed sparse format to store indexes of admissible far-field blocks
     // for each block row.
-    int *bcol_far_start, *bcol_far;
+    size_t *bcol_far_start, *bcol_far;
     // Compressed sparse format to store indexes of admissible far-field blocks
     // for each block column.
-    int *brow_near_start, *brow_near;
+    size_t *brow_near_start, *brow_near;
     // Compressed sparse format to store indexes of admissible near-field
     // blocks for each block row.
-    int *bcol_near_start, *bcol_near;
+    size_t *bcol_near_start, *bcol_near;
     // Compressed sparse format to store indexes of admissible near-field
     // blocks for each block column.
     STARS_BLRF_Type type;
@@ -290,8 +292,8 @@ struct STARS_BLRF
 
 STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
         STARS_Cluster *row_cluster, STARS_Cluster *col_cluster,
-        int nblocks_far, int *far_bindex, int nblocks_near, int *near_bindex,
-        STARS_BLRF_Type type);
+        size_t nblocks_far, size_t *block_far, size_t nblocks_near,
+        size_t *block_near, STARS_BLRF_Type type);
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
@@ -300,12 +302,12 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
 //   row_cluster: clusterization of rows into block rows.
 //   col_cluster: clusterization of columns into block columns.
 //   nblocks_far: number of admissible far-field blocks.
-//   bindex_far: array of pairs of admissible far-filed block rows and block
-//     columns. far_bindex[2*i] is an index of block row and far_bindex[2*i+1]
+//   block_far: array of pairs of admissible far-filed block rows and block
+//     columns. block_far[2*i] is an index of block row and block_far[2*i+1]
 //     is an index of block column.
 //   nblocks_near: number of admissible far-field blocks.
-//   bindex_near: array of pairs of admissible near-filed block rows and block
-//     columns. near_bindex[2*i] is an index of block row and near_bindex[2*i+1]
+//   block_near: array of pairs of admissible near-filed block rows and block
+//     columns. block_near[2*i] is an index of block row and block_near[2*i+1]
 //     is an index of block column.
 //   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
 //     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
@@ -320,7 +322,8 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
         *row_cluster, STARS_Cluster *col_cluster, char symm);
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
-void STARS_BLRF_getblock(STARS_BLRF *blrf, int i, int j, int *shape, void **D);
+void STARS_BLRF_getblock(STARS_BLRF *blrf, size_t i, size_t j, size_t *shape,
+        void **D);
 // PLEASE CLEAN MEMORY POINTER *D AFTER USE
 
 struct STARS_BLRM
@@ -329,7 +332,7 @@ struct STARS_BLRM
 {
     STARS_BLRF *blrf;
     // Pointer to block low-rank format.
-    int *far_rank;
+    size_t *far_rank;
     // Rank of each far-field block.
     Array **far_U, **far_V, **far_D;
     // Arrays of pointers to factors U and V of each low-rank far-field block
@@ -347,7 +350,7 @@ struct STARS_BLRM
 };
 
 
-STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, int *far_rank, Array **far_U,
+STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, size_t *far_rank, Array **far_U,
         Array **far_V, Array **far_D, int onfly, Array **near_D, void *U_alloc,
         void *V_alloc, void *D_alloc, char alloc_type);
 // Init procedure for a non-nested block low-rank matrix
@@ -357,20 +360,20 @@ void STARS_BLRM_info(STARS_BLRM *blrm);
 // Print short info on non-nested block low-rank matrix
 void STARS_BLRM_error(STARS_BLRM *blrm);
 // Measure error of approximation by non-nested block low-rank matrix
-void STARS_BLRM_getblock(STARS_BLRM *mat, int i, int j, int *shape, int *rank,
-        void **U, void **V, void **D);
+void STARS_BLRM_getblock(STARS_BLRM *mat, size_t i, size_t j, size_t *shape,
+        size_t *rank, void **U, void **V, void **D);
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
 STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
-        int maxrank, double tol, int onfly);
+        size_t maxrank, double tol, int onfly);
 // Private function of STARS-H
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
-        int maxrank, double tol, int onfly);
+        size_t maxrank, double tol, int onfly);
 
 STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
-        int maxrank, double tol, int onfly, size_t max_buffer_size);
+        size_t maxrank, double tol, int onfly, size_t max_buffer_size);
 
 #endif // _STARS_H_

@@ -5,8 +5,9 @@
 #include <complex.h>
 #include "stars.h"
 
-STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
-        void *row_data, void *col_data, block_kernel kernel, char *name)
+STARS_Problem *STARS_Problem_init(size_t ndim, size_t *shape, char symm,
+        char dtype, void *row_data, void *col_data, block_kernel kernel,
+        char *name)
 // Init for STARS_Problem instance
 // Parameters:
 //   ndim: dimensionality of corresponding array. Equal 2+dimensionality of
@@ -33,8 +34,7 @@ STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
                 " at least 2\n");
         return NULL;
     }
-    size_t dtype_size = 0;
-    int i;
+    size_t i, dtype_size = 0, entry_size = dtype_size;
     if(dtype == 's')
         dtype_size = sizeof(float);
     else if(dtype == 'd')
@@ -48,13 +48,12 @@ STARS_Problem *STARS_Problem_init(int ndim, int *shape, char symm, char dtype,
         fprintf(stderr, "Wrong parameter 4 in STARS_Problem_init\n");
         return NULL;
     }
-    size_t entry_size = dtype_size;
     for(i = 1; i < ndim-1; i++)
         entry_size *= shape[i];
     STARS_Problem *problem = malloc(sizeof(*problem));
     problem->ndim = ndim;
-    problem->shape = malloc(ndim*sizeof(int));
-    memcpy(problem->shape, shape, ndim*sizeof(int));
+    problem->shape = malloc(ndim*sizeof(*problem->shape));
+    memcpy(problem->shape, shape, ndim*sizeof(*problem->shape));
     problem->symm = symm;
     problem->dtype = dtype;
     problem->dtype_size = dtype_size;
@@ -83,38 +82,35 @@ void STARS_Problem_free(STARS_Problem *problem)
 void STARS_Problem_info(STARS_Problem *problem)
 // Print some info about Problem
 {
-    printf("<STARS_Problem at %p, name \"%s\", shape (%d",
+    printf("<STARS_Problem at %p, name \"%s\", shape (%zu",
             problem, problem->name, problem->shape[0]);
-    for(int i = 1; i < problem->ndim; i++)
-        printf(",%d", problem->shape[i]);
+    for(size_t i = 1; i < problem->ndim; i++)
+        printf(",%zu", problem->shape[i]);
     printf("), '%c' dtype, '%c' symmetric>\n", problem->dtype, problem->symm);
 }
 
-Array *STARS_Problem_get_block(STARS_Problem *problem, int nrows, int ncols,
-        int *irow, int *icol)
+Array *STARS_Problem_get_block(STARS_Problem *problem, size_t nrows,
+        size_t ncols, size_t *irow, size_t *icol)
 // Get submatrix on given rows and columns (rows=first dimension, columns=last
 // dimension)
 {
-    int i;
-    int ndim = problem->ndim;
-    int *shape = malloc(ndim*sizeof(int));
+    size_t ndim = problem->ndim;
+    size_t *shape = malloc(ndim*sizeof(*shape));
     shape[0] = nrows;
     shape[ndim-1] = ncols;
-    for(i = 1; i < ndim-1; i++)
-        shape[i] = problem->shape[i];
-    //printf("problem ndim %d\n", ndim);
+    memcpy(shape+1, problem->shape+1, (ndim-2)*sizeof(*shape));
     Array *array = Array_new(ndim, shape, problem->dtype, 'F');
     problem->kernel(nrows, ncols, irow, icol, problem->row_data,
             problem->col_data, array->buffer);
     return array;
 }
 
-int _matrix_kernel(int nrows, int ncols, int *irow, int *icol, void *row_data,
-        void *col_data, void *result)
+static int _matrix_kernel(size_t nrows, size_t ncols, size_t *irow,
+        size_t *icol, void *row_data, void *col_data, void *result)
 {
     Array *data = row_data;
     size_t esize = data->dtype_size;
-    int i, j, dest, src, lda;
+    size_t i, j, dest, src, lda;
     for(i = 1; i < data->ndim-1; i++)
         esize *= data->shape[i];
     if(data->order == 'C')
@@ -176,11 +172,11 @@ STARS_Problem *STARS_Problem_from_array(Array *array, char symm)
 Array *STARS_Problem_to_array(STARS_Problem *problem)
 // Compute matrix/array, corresponding to the problem
 {
-    int ndim = problem->ndim, i;
-    int nrows = problem->shape[0];
-    int ncols = problem->shape[ndim-1];
-    int *irow = malloc(nrows*sizeof(int));
-    int *icol = malloc(ncols*sizeof(int));
+    size_t ndim = problem->ndim, i;
+    size_t nrows = problem->shape[0];
+    size_t ncols = problem->shape[ndim-1];
+    size_t *irow = malloc(nrows*sizeof(*irow));
+    size_t *icol = malloc(ncols*sizeof(*icol));
     for(i = 0; i < nrows; i++)
         irow[i] = i;
     for(i = 0; i < ncols; i++)
