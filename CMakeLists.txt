@@ -80,19 +80,17 @@ if( STARSH_TESTING )
 
 
 	## BLAS
-	# find_package(BLAS COMPONENTS BLASEXT)
-	# if(BLAS_FOUND)
-	# 	if (BLAS_LIBRARY_DIRS)
-	# 		# the RPATH to be used when installing
-	# 		list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
-	# 	endif()
-	# 	if(BLAS_LINKER_FLAGS)
-	# 		list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
-	# 	endif()
-	# else()
-	# 	message(FATAL_ERROR "BLAS library has not been found")
-	# endif()
-
+	find_package(BLASEXT)
+	if(BLAS_FOUND)
+	# Use parallel blas for cblas
+	option( USE_PARALLEL_BLAS "If possible, prefer parallel blas libraries" ON )
+	if( USE_PARALLEL_BLAS AND NOT "${BLAS_PAR_LIBRARIES}" STREQUAL "" )
+		message( STATUS "Using Parallel Blas" )
+		set( BLAS_LIBRARIES "${BLAS_PAR_LIBRARIES}" )
+	endif()
+	else()
+		message(FATAL_ERROR "BLAS library has not been found")
+	endif()
 
 	# CBLAS
 	find_package(CBLAS COMPONENTS BLASEXT)
