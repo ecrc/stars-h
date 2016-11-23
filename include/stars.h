@@ -1,6 +1,8 @@
 #ifndef _STARS_H_
 #define _STARS_H_
 
+#include <sys/types.h>
+
 typedef struct Array Array;
 typedef struct List List;
 typedef struct STARS_Problem STARS_Problem;
