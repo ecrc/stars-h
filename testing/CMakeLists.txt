@@ -33,5 +33,6 @@ add_test(NAME Astronomy:ok COMMAND astronomy ./ 512 64 1e-3 astronomy.outfile )
 add_test(NAME Astronomy:usage COMMAND astronomy )
 set_tests_properties( Astronomy:usage PROPERTIES WILL_FAIL ON )
 add_test(NAME Spatial:ok COMMAND spatial 8 8 64 32 1e-3 0.1 spatial.outfile )
+add_test(NAME SpatialPerformance:ok COMMAND spatial_performance 8 8 64 32 1e-3 0.1 spatial.outfile )
 add_test(NAME Electrostatics:ok COMMAND electrostatics 8 8 64 32 1e-3 )
 
