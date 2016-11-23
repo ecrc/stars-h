@@ -121,7 +121,7 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
 {
     STARS_BLRF *blrf = blrm->blrf;
     STARS_Problem *problem = blrf->problem;
-    int bi, i, j, ndim = problem->ndim;
+    int bi, ndim = problem->ndim;
     if(ndim != 2)
     {
         fprintf(stderr, "Currently only scalar kernels are supported\n");
@@ -131,49 +131,51 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
     STARS_Cluster *col_cluster = blrf->col_cluster;
     int nblocks_far = blrf->nblocks_far;
     int nblocks_near = blrf->nblocks_near;
-    int nrowsi, ncolsj;
     double diff = 0., norm = 0., tmpnorm, tmpdiff, tmperr, maxerr = 0.;
-    int *shape = (int *)malloc(ndim*sizeof(int));
     Array *block, *block2;
     char symm = blrf->symm;
+    #pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
-        i = blrf->block_far[2*bi];
-        j = blrf->block_far[2*bi+1];
-        if(i < j && symm == 'S')
-            continue;
-        nrowsi = row_cluster->size[i];
-        ncolsj = col_cluster->size[j];
-        shape[0] = nrowsi;
-        shape[ndim-1] = ncolsj;
-        block = Array_new(ndim, shape, problem->dtype, 'F');
+        int i = blrf->block_far[2*bi];
+        int j = blrf->block_far[2*bi+1];
+        int nrowsi = row_cluster->size[i];
+        int ncolsj = col_cluster->size[j];
+        int shape[2] = {nrowsi, ncolsj};
+        Array *block = Array_new(2, shape, problem->dtype, 'F');
         (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
                 row_cluster->start[i], col_cluster->pivot+
                 col_cluster->start[j], problem->row_data, problem->col_data,
                 block->buffer);
-        tmpnorm = Array_norm(block);
-        norm += tmpnorm*tmpnorm;
-        if(i != j && symm == 'S')
+        double tmpnorm = Array_norm(block);
+        #pragma omp critical
+        {
             norm += tmpnorm*tmpnorm;
+            if(i != j && symm == 'S')
+                norm += tmpnorm*tmpnorm;
+        }
         if(blrm->far_U[bi] != NULL && blrm->far_V[bi] != NULL)
         {
-            block2 = Array_dot(blrm->far_U[bi], blrm->far_V[bi]);
-            tmpdiff = Array_diff(block, block2);
+            Array *block2 = Array_dot(blrm->far_U[bi], blrm->far_V[bi]);
+            double tmpdiff = Array_diff(block, block2);
+            double tmperr = tmpdiff/tmpnorm;
             Array_free(block2);
-            diff += tmpdiff*tmpdiff;
-            if(i != j && symm == 'S')
+            #pragma omp critical
+            {
                 diff += tmpdiff*tmpdiff;
-            tmperr = tmpdiff/tmpnorm;
-            if(tmperr > maxerr)
-                maxerr = tmperr;
+                if(i != j && symm == 'S')
+                    diff += tmpdiff*tmpdiff;
+                if(tmperr > maxerr)
+                    maxerr = tmperr;
+            }
         }
         Array_free(block);
     }
     if(blrm->onfly == 0)
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            i = blrf->block_near[2*bi];
-            j = blrf->block_near[2*bi+1];
+            int i = blrf->block_near[2*bi];
+            int j = blrf->block_near[2*bi+1];
             tmpnorm = Array_norm(blrm->near_D[bi]);
             norm += tmpnorm*tmpnorm;
             if(i != j && symm == 'S')
@@ -182,13 +184,12 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
     else
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            i = blrf->block_near[2*bi];
-            j = blrf->block_near[2*bi+1];
-            nrowsi = row_cluster->size[i];
-            ncolsj = col_cluster->size[j];
-            shape[0] = nrowsi;
-            shape[ndim-1] = ncolsj;
-            block = Array_new(ndim, shape, problem->dtype, 'F');
+            int i = blrf->block_near[2*bi];
+            int j = blrf->block_near[2*bi+1];
+            int nrowsi = row_cluster->size[i];
+            int ncolsj = col_cluster->size[j];
+            int shape[2] = {nrowsi, ncolsj};
+            block = Array_new(2, shape, problem->dtype, 'F');
             (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
                     row_cluster->start[i], col_cluster->pivot+
                     col_cluster->start[j], problem->row_data, problem->col_data,
@@ -202,7 +203,6 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
     printf("Relative error of approximation of full matrix: %e\n",
             sqrt(diff/norm));
     printf("Maximum relative error of per-block approximation: %e\n", maxerr);
-    free(shape);
 }
 
 void STARS_BLRM_getblock(STARS_BLRM *blrm, int i, int j, int *shape, int *rank,
