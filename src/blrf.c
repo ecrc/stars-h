@@ -8,19 +8,19 @@
 #include "stars-misc.h"
 #include "cblas.h"
 #include "lapacke.h"
+#include "misc.h"
 
 
-STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
-        STARS_Cluster *row_cluster, STARS_Cluster *col_cluster,
-        size_t nblocks_far, size_t *block_far, size_t nblocks_near,
-        size_t *block_near, STARS_BLRF_Type type)
+int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
+        STARS_Cluster *R, STARS_Cluster *C, size_t nblocks_far, int *block_far,
+        size_t nblocks_near, int *block_near, STARS_BLRF_Type type)
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
 //   symm: 'S' if problem and division into blocks are both symmetric, 'N'
 //     otherwise.
-//   row_cluster: clusterization of rows into block rows.
-//   col_cluster: clusterization of columns into block columns.
+//   R: clusterization of rows into block rows.
+//   C: clusterization of columns into block columns.
 //   nblocks_far: number of admissible far-field blocks.
 //   block_far: array of pairs of admissible far-filed block rows and block
 //     columns. block_far[2*i] is an index of block row and block_far[2*i+1]
@@ -32,224 +32,229 @@ STARS_BLRF *STARS_BLRF_init(STARS_Problem *problem, char symm,
 //   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
 //     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
 {
-    size_t i, j, bi;
-    size_t *size;
-    STARS_BLRF *blrf = malloc(sizeof(*blrf));
-    blrf->problem = problem;
-    blrf->symm = symm;
-    blrf->nblocks_far = nblocks_far;
-    blrf->block_far = block_far;
-    blrf->block_near = block_near;
-    blrf->nblocks_near = nblocks_near;
-    blrf->row_cluster = row_cluster;
-    int nbrows = blrf->nbrows = row_cluster->nblocks;
+    int i, *size;
+    size_t bi, bj;
+    STARS_BLRF *F2 = malloc(sizeof(*F2));
+    *F = F2;
+    F2->problem = P;
+    F2->symm = symm;
+    F2->nblocks_far = nblocks_far;
+    F2->block_far = block_far;
+    F2->block_near = block_near;
+    F2->nblocks_near = nblocks_near;
+    F2->row_cluster = R;
+    int nbrows = F2->nbrows = R->nblocks;
     // Set far-field block columns for each block row in compressed format
-    blrf->brow_far_start = malloc((nbrows+1)*sizeof(*blrf->brow_far_start));
-    blrf->brow_far = malloc(nblocks_far*sizeof(*blrf->brow_far));
+    F2->brow_far_start = malloc((nbrows+1)*sizeof(*F2->brow_far_start));
+    F2->brow_far = malloc(nblocks_far*sizeof(*F2->brow_far));
     size = malloc(nbrows*sizeof(*size));
     for(i = 0; i < nbrows; i++)
         size[i] = 0;
     for(bi = 0; bi < nblocks_far; bi++)
         size[block_far[2*bi]]++;
-    blrf->brow_far_start[0] = 0;
+    F2->brow_far_start[0] = 0;
     for(i = 0; i < nbrows; i++)
-        blrf->brow_far_start[i+1] = blrf->brow_far_start[i]+size[i];
+        F2->brow_far_start[i+1] = F2->brow_far_start[i]+size[i];
     for(i = 0; i < nbrows; i++)
         size[i] = 0;
     for(bi = 0; bi < nblocks_far; bi++)
     {
         i = block_far[2*bi];
-        j = blrf->brow_far_start[i]+size[i];
-        blrf->brow_far[j] = bi;//block_far[2*bi+1];
+        bj = F2->brow_far_start[i]+size[i];
+        F2->brow_far[bj] = bi;//block_far[2*bi+1];
         size[i]++;
     }
     free(size);
     // Set near-field block columns for each block row in compressed format
-    blrf->brow_near_start = malloc((nbrows+1)*sizeof(*blrf->brow_near_start));
-    blrf->brow_near = malloc(nblocks_near*sizeof(*blrf->brow_near));
+    F2->brow_near_start = malloc((nbrows+1)*sizeof(*F2->brow_near_start));
+    F2->brow_near = malloc(nblocks_near*sizeof(*F2->brow_near));
     size = malloc(nbrows*sizeof(*size));
     for(i = 0; i < nbrows; i++)
         size[i] = 0;
     for(bi = 0; bi < nblocks_near; bi++)
         size[block_near[2*bi]]++;
-    blrf->brow_near_start[0] = 0;
+    F2->brow_near_start[0] = 0;
     for(i = 0; i < nbrows; i++)
-        blrf->brow_near_start[i+1] = blrf->brow_near_start[i]+size[i];
+        F2->brow_near_start[i+1] = F2->brow_near_start[i]+size[i];
     for(i = 0; i < nbrows; i++)
         size[i] = 0;
     for(bi = 0; bi < nblocks_near; bi++)
     {
         i = block_near[2*bi];
-        j = blrf->brow_near_start[i]+size[i];
-        blrf->brow_near[j] = bi;//block_near[2*bi+1];
+        bj = F2->brow_near_start[i]+size[i];
+        F2->brow_near[bj] = bi;//block_near[2*bi+1];
         size[i]++;
     }
     free(size);
     if(symm == 'N')
     {
-        blrf->col_cluster = col_cluster;
-        int nbcols = blrf->nbcols = col_cluster->nblocks;
+        F2->col_cluster = C;
+        int nbcols = F2->nbcols = C->nblocks;
         // Set far-field block rows for each block column in compressed format
-        blrf->bcol_far_start = malloc((nbcols+1)*
-                sizeof(*blrf->bcol_far_start));
-        blrf->bcol_far = malloc(nblocks_far*sizeof(*blrf->bcol_far));
+        F2->bcol_far_start = malloc((nbcols+1)*
+                sizeof(*F2->bcol_far_start));
+        F2->bcol_far = malloc(nblocks_far*sizeof(*F2->bcol_far));
         size = malloc(nbcols*sizeof(*size));
         for(i = 0; i < nbcols; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_far; bi++)
             size[block_far[2*bi]]++;
-        blrf->bcol_far_start[0] = 0;
+        F2->bcol_far_start[0] = 0;
         for(i = 0; i < nbcols; i++)
-            blrf->bcol_far_start[i+1] = blrf->bcol_far_start[i]+size[i];
+            F2->bcol_far_start[i+1] = F2->bcol_far_start[i]+size[i];
         for(i = 0; i < nbcols; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_far; bi++)
         {
             i = block_far[2*bi];
-            j = blrf->bcol_far_start[i]+size[i];
-            blrf->bcol_far[j] = bi;//block_far[2*bi+1];
+            bj = F2->bcol_far_start[i]+size[i];
+            F2->bcol_far[bj] = bi;//block_far[2*bi+1];
             size[i]++;
         }
         free(size);
         // Set near-field block rows for each block column in compressed format
-        blrf->bcol_near_start = malloc((nbcols+1)*
-                sizeof(*blrf->bcol_near_start));
-        blrf->bcol_near = malloc(nblocks_near*sizeof(*blrf->bcol_near));
+        F2->bcol_near_start = malloc((nbcols+1)*
+                sizeof(*F2->bcol_near_start));
+        F2->bcol_near = malloc(nblocks_near*sizeof(*F2->bcol_near));
         size = malloc(nbcols*sizeof(*size));
         for(i = 0; i < nbcols; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_near; bi++)
             size[block_near[2*bi]]++;
-        blrf->bcol_near_start[0] = 0;
+        F2->bcol_near_start[0] = 0;
         for(i = 0; i < nbcols; i++)
-            blrf->bcol_near_start[i+1] = blrf->bcol_near_start[i]+size[i];
+            F2->bcol_near_start[i+1] = F2->bcol_near_start[i]+size[i];
         for(i = 0; i < nbcols; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_near; bi++)
         {
             i = block_near[2*bi];
-            j = blrf->bcol_near_start[i]+size[i];
-            blrf->bcol_near[j] = bi;//block_near[2*bi+1];
+            bj = F2->bcol_near_start[i]+size[i];
+            F2->bcol_near[bj] = bi;//block_near[2*bi+1];
             size[i]++;
         }
         free(size);
     }
     else
     {
-        blrf->col_cluster = row_cluster;
-        blrf->nbcols = row_cluster->nblocks;
+        F2->col_cluster = R;
+        F2->nbcols = R->nblocks;
         // Set far-field block rows for each block column in compressed format
-        blrf->bcol_far_start = blrf->brow_far_start;
-        blrf->bcol_far = blrf->brow_far;
+        F2->bcol_far_start = F2->brow_far_start;
+        F2->bcol_far = F2->brow_far;
         // Set near-field block rows for each block column in compressed format
-        blrf->bcol_near_start = blrf->brow_near_start;
-        blrf->bcol_near = blrf->brow_near;
+        F2->bcol_near_start = F2->brow_near_start;
+        F2->bcol_near = F2->brow_near;
     }
-    blrf->type = type;
-    return blrf;
+    F2->type = type;
+    return 0;
 }
 
-void STARS_BLRF_free(STARS_BLRF *blrf)
+int STARS_BLRF_free(STARS_BLRF *F)
 // Free memory, used by block low rank format (partitioning of array into
 // blocks)
 {
-    if(blrf == NULL)
+    if(F == NULL)
     {
-        fprintf(stderr, "STARS_BLRF instance is NOT initialized\n");
-        return;
+        STARS_error("STARS_BLRF_free", "attempt to free NULL pointer");
+        return 1;
     }
-    free(blrf->brow_far_start);
-    free(blrf->brow_far);
-    free(blrf->brow_near_start);
-    free(blrf->brow_near);
-    if(blrf->symm == 'N')
+    if(F->nblocks_far > 0)
     {
-        free(blrf->bcol_far_start);
-        free(blrf->bcol_far);
-        free(blrf->bcol_near_start);
-        free(blrf->bcol_near);
+        free(F->block_far);
+        free(F->brow_far_start);
+        free(F->brow_far);
     }
-    free(blrf);
+    if(F->nblocks_near > 0)
+    {
+        free(F->block_near);
+        free(F->brow_near_start);
+        free(F->brow_near);
+    }
+    if(F->symm == 'N')
+    {
+        if(F->nblocks_far > 0)
+        {
+            free(F->bcol_far_start);
+            free(F->bcol_far);
+        }
+        if(F->nblocks_near > 0)
+        {
+            free(F->bcol_near_start);
+            free(F->bcol_near);
+        }
+    }
+    free(F);
+    return 0;
 }
 
-void STARS_BLRF_info(STARS_BLRF *blrf)
+void STARS_BLRF_info(STARS_BLRF *F)
 // Print short info on block partitioning
 {
-    if(blrf == NULL)
-    {
-        fprintf(stderr, "STARS_BLRF instance is NOT initialized\n");
-        return;
-    }
-    printf("<STARS_BLRF at %p, '%c' symmetric, %zu block rows, %zu "
+    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
-            blrf, blrf->symm, blrf->nbrows, blrf->nbcols, blrf->nblocks_far,
-            blrf->nblocks_near);
+            F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
 }
 
-void STARS_BLRF_print(STARS_BLRF *blrf)
+void STARS_BLRF_print(STARS_BLRF *F)
 // Print full info on block partitioning
 {
-    size_t i, j;
-    if(blrf == NULL)
-    {
-        printf("STARS_BLRF instance is NOT initialized\n");
-        return;
-    }
-    printf("<STARS_BLRF at %p, '%c' symmetric, %zu block rows, %zu "
+    int i;
+    size_t j;
+    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
-            blrf, blrf->symm, blrf->nbrows, blrf->nbcols, blrf->nblocks_far,
-            blrf->nblocks_near);
+            F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
     // Printing info about far-field blocks
-    for(i = 0; i < blrf->nbrows; i++)
+    for(i = 0; i < F->nbrows; i++)
     {
-        if(blrf->brow_far_start[i+1] > blrf->brow_far_start[i])
-            printf("Admissible far-field block columns for block row "
-                    "%zu: %zu", i, blrf->brow_far[blrf->brow_far_start[i]]);
-        for(j = blrf->brow_far_start[i]+1; j < blrf->brow_far_start[i+1]; j++)
+        if(F->brow_far_start[i+1] > F->brow_far_start[i])
+            printf("Admissible far-field blocks for block row "
+                    "%d: %zu", i, F->brow_far[F->brow_far_start[i]]);
+        for(j = F->brow_far_start[i]+1; j < F->brow_far_start[i+1]; j++)
         {
-            printf(" %zu", blrf->brow_far[j]);
+            printf(" %zu", F->brow_far[j]);
         }
-        if(blrf->brow_far_start[i+1] > blrf->brow_far_start[i])
+        if(F->brow_far_start[i+1] > F->brow_far_start[i])
             printf("\n");
     }
     // Printing info about near-field blocks
-    for(i = 0; i < blrf->nbrows; i++)
+    for(i = 0; i < F->nbrows; i++)
     {
-        if(blrf->brow_near_start[i+1] > blrf->brow_near_start[i])
-            printf("Admissible near-field block columns for block row "
-                    "%zu: %zu", i, blrf->brow_near[blrf->brow_near_start[i]]);
-        for(j = blrf->brow_near_start[i]+1; j < blrf->brow_near_start[i+1];
-                j++)
+        if(F->brow_near_start[i+1] > F->brow_near_start[i])
+            printf("Admissible near-field blocks for block row "
+                    "%d: %zu", i, F->brow_near[F->brow_near_start[i]]);
+        for(j = F->brow_near_start[i]+1; j < F->brow_near_start[i+1]; j++)
         {
-            printf(" %zu", blrf->brow_near[j]);
+            printf(" %zu", F->brow_near[j]);
         }
-        if(blrf->brow_near_start[i+1] > blrf->brow_near_start[i])
+        if(F->brow_near_start[i+1] > F->brow_near_start[i])
             printf("\n");
     }
 }
 
-STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
-        *row_cluster, STARS_Cluster *col_cluster, char symm)
+int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
+        STARS_Cluster *C, char symm)
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
 {
-    if(symm == 'S' && problem->symm == 'N')
+    if(symm == 'S' && P->symm == 'N')
     {
-        fprintf(stderr, "Since problem is NOT symmetric, can not proceed with "
-                "symmetric flag on in STARS_BLRF_plain\n");
-        exit(1);
+        STARS_error("STARS_BLRF_new_tiled", "problem is NOT symmetric, illegal"
+                " value of symm");
+        return 1;
     }
-    if(symm == 'S' && row_cluster != col_cluster)
+    if(symm == 'S' && R != C)
     {
-        fprintf(stderr, "Since problem is symmetric, clusters should be the "
-                "same (both pointers should be equal)\n");
-        exit(1);
+        STARS_error("STARS_BLRF_new_tiled", "problem is symmetric, clusters "
+                "should be the same (equal pointers)");
+        return 1;
     }
-    size_t nbrows = row_cluster->nblocks, nbcols = col_cluster->nblocks;
-    size_t i, j, k = 0, nblocks_far, *block_far;
+    int nbrows = R->nblocks, nbcols = C->nblocks;
+    int i, j, *block_far;
+    size_t k = 0, nblocks_far;
     if(symm == 'N')
     {
-        nblocks_far = nbrows*nbcols;
+        nblocks_far = (size_t)nbrows*(size_t)nbcols;
         block_far = malloc(2*nblocks_far*sizeof(*block_far));
         for(i = 0; i < nbrows; i++)
             for(j = 0; j < nbcols; j++)
@@ -261,7 +266,7 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
     }
     else
     {
-        nblocks_far = nbrows*(nbrows+1)/2;
+        nblocks_far = (size_t)nbrows*(size_t)(nbrows+1)/2;
         block_far = malloc(2*nblocks_far*sizeof(*block_far));
         for(i = 0; i < nbrows; i++)
             for(j = 0; j <= i; j++)
@@ -271,29 +276,27 @@ STARS_BLRF *STARS_BLRF_init_tiled(STARS_Problem *problem, STARS_Cluster
                 k++;
             }
     }
-    return STARS_BLRF_init(problem, symm, row_cluster, col_cluster,
-            nblocks_far, block_far, 0, NULL, STARS_BLRF_Tiled);
+    return STARS_BLRF_new(F, P, symm, R, C, nblocks_far, block_far, 0, NULL,
+            STARS_BLRF_Tiled);
 }
 
-void STARS_BLRF_getblock(STARS_BLRF *blrf, size_t i, size_t j, size_t *shape,
-        void **D)
+int STARS_BLRF_getblock(STARS_BLRF *F, int i, int j, int *shape, void **D)
 // PLEASE CLEAN MEMORY POINTER *D AFTER USE
 {
-    STARS_Problem *problem = blrf->problem;
-    if(problem->ndim != 2)
+    STARS_Problem *P = F->problem;
+    if(P->ndim != 2)
     {
-        fprintf(stderr, "Non-scalar kernels are not supported in STARS_BLRF_"
-                "getblock\n");
-        exit(1);
+        STARS_error("STARS_BLRF_getblock", "Non-scalar kernels are not yet "
+                "supported");
+        return 1;
     }
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t nrows = row_cluster->size[i], ncols = col_cluster->size[j];
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int nrows = R->size[i], ncols = C->size[j];
     shape[0] = nrows;
     shape[1] = ncols;
-    *D = malloc(problem->entry_size*nrows*ncols);
-    (problem->kernel)(nrows, ncols, row_cluster->pivot+row_cluster->start[i],
-            col_cluster->pivot+col_cluster->start[j], problem->row_data,
-            problem->col_data, *D);
+    *D = malloc(P->entry_size*(size_t)nrows*(size_t)ncols);
+    P->kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
+            P->row_data, P->col_data, *D);
+    return 0;
 }
 

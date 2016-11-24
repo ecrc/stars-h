@@ -6,12 +6,12 @@
 #include "stars-spatial.h"
 
 
-int STARS_ssdata_block_exp_kernel(size_t nrows, size_t ncols, size_t *irow,
-        size_t *icol, void *row_data, void *col_data, void *result)
+int STARS_ssdata_block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result)
 {
     // Block kernel for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 2D
-    size_t i, j;
+    int i, j;
     STARS_ssdata *data = row_data;
     double tmp, dist, beta = -data->beta;
     double *x = data->point, *y = x+data->count;
@@ -25,7 +25,7 @@ int STARS_ssdata_block_exp_kernel(size_t nrows, size_t ncols, size_t *irow,
             tmp = y[irow[i]]-y[icol[j]];
             dist += tmp*tmp;
             dist = sqrt(dist)/beta;
-            buffer[j*nrows+i] = exp(dist);
+            buffer[j*(size_t)nrows+i] = exp(dist);
         }
     return 0;
 }
@@ -95,10 +95,10 @@ void gen_points_old(int n, double *points)
 }
 */
 
-void gen_ss_block_points(size_t m, size_t n, size_t block_size, double *points)
+void gen_ss_block_points(int m, int n, int block_size, double *points)
 {
-    size_t i, j, k, ind = 0;
-    size_t npoints = m*n*block_size;
+    int i, j, k;
+    size_t npoints = (size_t)m*(size_t)n*(size_t)block_size, ind = 0;
     double *x = points, *y = points+npoints;
     double noise_var = 1., rand_max = RAND_MAX;;
     for(i = 0; i < m; i++)
@@ -111,10 +111,10 @@ void gen_ss_block_points(size_t m, size_t n, size_t block_size, double *points)
             }
 }
 
-STARS_ssdata *STARS_gen_ssdata(size_t row_blocks, size_t col_blocks,
-        size_t block_size, double beta)
+STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
+        double beta)
 {
-    size_t n = row_blocks*col_blocks*block_size;
+    size_t n = (size_t)row_blocks*(size_t)col_blocks*(size_t)block_size;
     STARS_ssdata *data = malloc(sizeof(*data));
     data->point = malloc(2*n*sizeof(*data->point));
     gen_ss_block_points(row_blocks, col_blocks, block_size, data->point);

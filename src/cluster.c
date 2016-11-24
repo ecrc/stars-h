@@ -2,88 +2,89 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stars.h"
+#include "misc.h"
 
-
-STARS_Cluster *STARS_Cluster_init(void *data, size_t ndata, size_t *pivot,
-        size_t nblocks, size_t nlevels, size_t *level, size_t *start,
-        size_t *size, ssize_t *parent, size_t *child_start, ssize_t *child,
-        STARS_ClusterType type)
+int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
+        int nblocks, int nlevels, int *level, int *start, int *size,
+        int *parent, int *child_start, int *child, STARS_ClusterType type)
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data.
 //   ndata: number of discrete elements (particles or mesh elements),
 //     corresponding to physical data.
-//   pivot: pivoting of clusterization. After applying this pivoting, rows (or
+//   pivot: pivoting of Cization. After applying this pivoting, rows (or
 //     columns), corresponding to one block are placed in a row.
-//   nblocks: number of blocks/block rows/block columns/subclusters.
+//   nblocks: number of blocks/block rows/block columns/subCs.
 //   nlevels: number of levels of hierarchy.
 //   level: array of size nlevels+1, indexes of blocks from level[i] to
 //     level[i+1]-1 inclusively belong to i-th level of hierarchy.
 //   start: start point of of indexes of discrete elements of each
-//     block/subcluster in array pivot.
-//   size: size of each block/subcluster/block row/block column.
+//     block/subC in array pivot.
+//   size: size of each block/subC/block row/block column.
 //   parent: array of parents, size is nblocks.
-//   child_start: array of start points in array child of each subcluster.
-//   child: array of children of each subcluster.
-//   type: type of cluster. Tiled with STARS_ClusterTiled or hierarchical with
+//   child_start: array of start points in array child of each subC.
+//   child: array of children of each subC.
+//   type: type of C. Tiled with STARS_ClusterTiled or hierarchical with
 //     STARS_ClusterHierarchical.
 {
-    STARS_Cluster *cluster = malloc(sizeof(*cluster));
-    cluster->data = data;
-    cluster->ndata = ndata;
-    cluster->pivot = pivot;
-    cluster->nblocks = nblocks;
-    cluster->nlevels = nlevels;
-    cluster->level = level;
-    cluster->start = start;
-    cluster->size = size;
-    cluster->parent = parent;
-    cluster->child_start = child_start;
-    cluster->child = child;
-    cluster->type = type;
-    return cluster;
+    *C = malloc(sizeof(**C));
+    STARS_Cluster *C2 = *C;
+    C2->data = data;
+    C2->ndata = ndata;
+    C2->pivot = pivot;
+    C2->nblocks = nblocks;
+    C2->nlevels = nlevels;
+    C2->level = level;
+    C2->start = start;
+    C2->size = size;
+    C2->parent = parent;
+    C2->child_start = child_start;
+    C2->child = child;
+    C2->type = type;
+    return 0;
 }
 
-void STARS_Cluster_free(STARS_Cluster *cluster)
-// Free data buffers, consumed by clusterization information.
+int STARS_Cluster_free(STARS_Cluster *C)
+// Free data buffers, consumed by Cization information.
 {
-    if(cluster == NULL)
+    if(C == NULL)
     {
-        fprintf(stderr, "STARS_Cluster instance is NOT initialized\n");
-        return;
+        STARS_error("STARS_Cluster_free", "attempt to free NULL pointer");
+        return 1;
     }
-    free(cluster->pivot);
-    if(cluster->level != NULL)
-        free(cluster->level);
-    free(cluster->start);
-    free(cluster->size);
-    if(cluster->parent != NULL)
-        free(cluster->parent);
-    if(cluster->child_start != NULL)
-        free(cluster->child_start);
-    if(cluster->child != NULL)
-        free(cluster->child);
-    free(cluster);
+    free(C->pivot);
+    if(C->level != NULL)
+        free(C->level);
+    free(C->start);
+    free(C->size);
+    if(C->parent != NULL)
+        free(C->parent);
+    if(C->child_start != NULL)
+        free(C->child_start);
+    if(C->child != NULL)
+        free(C->child);
+    free(C);
+    return 0;
 }
 
-void STARS_Cluster_info(STARS_Cluster *cluster)
-// Print some info about clusterization
+void STARS_Cluster_info(STARS_Cluster *C)
+// Print some info about Cization
 {
-    printf("<STARS_Cluster at %p, ", cluster);
-    if(cluster->type == STARS_ClusterTiled)
+    printf("<STARS_Cluster at %p, ", C);
+    if(C->type == STARS_ClusterTiled)
         printf("tiled, ");
     else
         printf("hierarchical, ");
-    printf("%zu blocks>\n", cluster->nblocks);
+    printf("%d blocks>\n", C->nblocks);
 }
 
-STARS_Cluster *STARS_Cluster_init_tiled(void *data, size_t ndata,
-        size_t block_size)
+int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
+        int block_size)
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 {
-    size_t i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
-    size_t *start = malloc(nblocks*sizeof(*start));
-    size_t *size = malloc(nblocks*sizeof(*size));
+    int i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
+    int *start = malloc(nblocks*sizeof(*start));
+    int *size = malloc(nblocks*sizeof(*size));
     while(i < ndata)
     {
         j = i+block_size;
@@ -94,10 +95,10 @@ STARS_Cluster *STARS_Cluster_init_tiled(void *data, size_t ndata,
         i = j;
         k++;
     }
-    size_t *pivot = malloc(ndata*sizeof(*pivot));
+    int *pivot = malloc(ndata*sizeof(*pivot));
     for(i = 0; i < ndata; i++)
         pivot[i] = i;
-    return STARS_Cluster_init(data, ndata, pivot, nblocks, 0, NULL, start,
+    return STARS_Cluster_new(C, data, ndata, pivot, nblocks, 0, NULL, start,
             size, NULL, NULL, NULL, STARS_ClusterTiled);
 }
 

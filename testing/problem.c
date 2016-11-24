@@ -4,9 +4,9 @@
 
 int main(int argc, char **argv)
 {
-    size_t ndim = 2, nrows = 300, ncols = 300;
-    size_t shape[ndim];
-    size_t i, idtype, iorder;
+    int ndim = 2, nrows = 300, ncols = 300;
+    int shape[ndim];
+    int i, idtype, iorder, info;
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     for(i = 1; i < ndim-1; i++)
@@ -15,19 +15,22 @@ int main(int argc, char **argv)
     for(idtype = 0; idtype < 4; idtype++)
         for(iorder = 0; iorder < 2; iorder++)
         {
-            printf("\nidtype %zu, iorder %zu\n", idtype, iorder);
+            printf("\nidtype %d, iorder %d\n", idtype, iorder);
             printf("dtype '%c', order '%c'\n", dtype[idtype], order[iorder]);
-            Array *array = Array_new(ndim, shape, dtype[idtype],
-                    order[iorder]);
-            Array_init_rand(array);
-            STARS_Problem *problem = STARS_Problem_from_array(array, 'N');
-            Array *array2 = STARS_Problem_to_array(problem);
-            Array_info(array);
-            Array_info(array2);
-            double diff = Array_diff(array, array2);
-            double norm = Array_norm(array);
-            Array_free(array);
-            Array_free(array2);
+            Array *A;
+            info = Array_new(&A, ndim, shape, dtype[idtype], order[iorder]);
+            Array_init_rand(A);
+            STARS_Problem *P;
+            info = STARS_Problem_from_array(&P, A, 'N');
+            Array *A2;
+            info = STARS_Problem_to_array(P, &A2);
+            Array_info(A);
+            Array_info(A2);
+            double diff, norm;
+            Array_diff(A, A2, &diff);
+            Array_norm(A, &norm);
+            Array_free(A);
+            Array_free(A2);
             printf("Relative error in Frobenius norm is %f\n", diff/norm);
         }
     return 0;

@@ -6,158 +6,157 @@
 #include "stars.h"
 #include "cblas.h"
 #include "lapacke.h"
+#include "misc.h"
 
 
-STARS_BLRM *STARS_BLRM_init(STARS_BLRF *blrf, size_t *far_rank, Array **far_U,
+int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank, Array **far_U,
         Array **far_V, Array **far_D, int onfly, Array **near_D, void *alloc_U,
         void *alloc_V, void *alloc_D, char alloc_type)
 // Init procedure for a non-nested block low-rank matrix
 {
-    STARS_BLRM *blrm = malloc(sizeof(*blrm));
-    blrm->blrf = blrf;
-    blrm->far_rank = far_rank;
-    blrm->far_U = far_U;
-    blrm->far_V = far_V;
-    blrm->far_D = far_D;
-    blrm->onfly = onfly;
-    blrm->near_D = near_D;
-    blrm->alloc_U = alloc_U;
-    blrm->alloc_V = alloc_V;
-    blrm->alloc_D = alloc_D;
-    blrm->alloc_type = alloc_type;
-    return blrm;
+    STARS_BLRM *M2 = malloc(sizeof(*M2));
+    *M = M2;
+    M2->blrf = F;
+    M2->far_rank = far_rank;
+    M2->far_U = far_U;
+    M2->far_V = far_V;
+    M2->far_D = far_D;
+    M2->onfly = onfly;
+    M2->near_D = near_D;
+    M2->alloc_U = alloc_U;
+    M2->alloc_V = alloc_V;
+    M2->alloc_D = alloc_D;
+    M2->alloc_type = alloc_type;
+    return 0;
 }
 
-void STARS_BLRM_free(STARS_BLRM *blrm)
+int STARS_BLRM_free(STARS_BLRM *M)
 // Free memory of a non-nested block low-rank matrix
 {
-    if(blrm == NULL)
+    if(M == NULL)
     {
-        fprintf(stderr, "STARS_BLRM instance was NOT initialized\n");
-        return;
+        STARS_error("STARS_BLRM_free", "attempt to free NULL pointer");
+        return 1;
     }
-    STARS_BLRF *blrf = blrm->blrf;
+    STARS_BLRF *F = M->blrf;
     size_t bi;
-    free(blrm->far_rank);
-    if(blrm->alloc_type == '1')
+    free(M->far_rank);
+    if(M->alloc_type == '1')
     {
-        free(blrm->alloc_U);
-        free(blrm->alloc_V);
-        if(blrm->alloc_D != NULL)
-            free(blrm->alloc_D);
-        for(bi = 0; bi < blrf->nblocks_far; bi++)
+        free(M->alloc_U);
+        free(M->alloc_V);
+        if(M->alloc_D != NULL)
+            free(M->alloc_D);
+        for(bi = 0; bi < F->nblocks_far; bi++)
         {
-            if(blrm->far_U[bi] != NULL)
+            if(M->far_U[bi] != NULL)
             {
-                blrm->far_U[bi]->buffer = NULL;
-                Array_free(blrm->far_U[bi]);
+                M->far_U[bi]->data = NULL;
+                Array_free(M->far_U[bi]);
             }
-            if(blrm->far_V[bi] != NULL)
+            if(M->far_V[bi] != NULL)
             {
-                blrm->far_V[bi]->buffer = NULL;
-                Array_free(blrm->far_V[bi]);
+                M->far_V[bi]->data = NULL;
+                Array_free(M->far_V[bi]);
             }
-            if(blrm->onfly == 0 && blrm->far_D[bi] != NULL)
+            if(M->onfly == 0 && M->far_D[bi] != NULL)
             {
-                blrm->far_D[bi]->buffer = NULL;
-                Array_free(blrm->far_D[bi]);
+                M->far_D[bi]->data = NULL;
+                Array_free(M->far_D[bi]);
             }
         }
-        free(blrm->far_U);
-        free(blrm->far_V);
-        if(blrm->onfly == 0)
+        free(M->far_U);
+        free(M->far_V);
+        if(M->onfly == 0)
         {
-            for(bi = 0; bi < blrf->nblocks_near; bi++)
-                if(blrm->near_D[bi] != NULL)
-                    Array_free(blrm->near_D[bi]);
-            free(blrm->far_D);
-            free(blrm->near_D);
+            for(bi = 0; bi < F->nblocks_near; bi++)
+                if(M->near_D[bi] != NULL)
+                    Array_free(M->near_D[bi]);
+            free(M->far_D);
+            free(M->near_D);
         }
     }
-    else if(blrm->alloc_type == '2')
+    else if(M->alloc_type == '2')
     {
-        for(bi = 0; bi < blrf->nblocks_far; bi++)
+        for(bi = 0; bi < F->nblocks_far; bi++)
         {
-            if(blrm->far_U[bi] != NULL)
-                Array_free(blrm->far_U[bi]);
-            if(blrm->far_V[bi] != NULL)
-                Array_free(blrm->far_V[bi]);
-            if(blrm->onfly == 0 && blrm->far_D[bi] != NULL)
-                Array_free(blrm->far_D[bi]);
+            if(M->far_U[bi] != NULL)
+                Array_free(M->far_U[bi]);
+            if(M->far_V[bi] != NULL)
+                Array_free(M->far_V[bi]);
+            if(M->onfly == 0 && M->far_D[bi] != NULL)
+                Array_free(M->far_D[bi]);
         }
-        free(blrm->far_U);
-        free(blrm->far_V);
-        if(blrm->onfly == 0)
+        free(M->far_U);
+        free(M->far_V);
+        if(M->onfly == 0)
         {
-            for(bi = 0; bi < blrf->nblocks_near; bi++)
-                if(blrm->near_D[bi] != NULL)
-                    Array_free(blrm->near_D[bi]);
-            free(blrm->far_D);
-            free(blrm->near_D);
+            for(bi = 0; bi < F->nblocks_near; bi++)
+                if(M->near_D[bi] != NULL)
+                    Array_free(M->near_D[bi]);
+            free(M->far_D);
+            free(M->near_D);
         }
     }
     else
     {
-        fprintf(stderr, "Not supported allocation type\n");
-        return;
+        STARS_error("STARS_BLRM_free", "not supported allocation type");
+        return 1;
     }
-    free(blrm);
+    free(M);
+    return 0;
 }
 
-void STARS_BLRM_info(STARS_BLRM *blrm)
+void STARS_BLRM_info(STARS_BLRM *M)
 // Print short info on non-nested block low-rank matrix
 {
-    if(blrm == NULL)
-    {
-        fprintf(stderr, "STARS_BLRM instance is NOT initialized\n");
-        return;
-    }
     printf("<STARS_BLRM at %p, %d onfly, allocation type '%c'>\n",
-            blrm, blrm->onfly, blrm->alloc_type);
+            M, M->onfly, M->alloc_type);
 }
 
-void STARS_BLRM_error(STARS_BLRM *blrm)
+int STARS_BLRM_error(STARS_BLRM *M)
 // Measure error of approximation by non-nested block low-rank matrix
 {
-    STARS_BLRF *blrf = blrm->blrf;
-    STARS_Problem *problem = blrf->problem;
-    size_t bi, ndim = problem->ndim;
+    STARS_BLRF *F = M->blrf;
+    STARS_Problem *P = F->problem;
+    int ndim = P->ndim;
     if(ndim != 2)
     {
-        fprintf(stderr, "Currently only scalar kernels are supported\n");
-        return;
+        STARS_error("STARS_BLRM_error", "only scalar kernels are supported");
+        return 1;
     }
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t nblocks_far = blrf->nblocks_far, nblocks_near = blrf->nblocks_near;
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near, bi;
     double diff = 0., norm = 0., maxerr = 0.;
-    char symm = blrf->symm;
+    char symm = F->symm;
     #pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
-        size_t i = blrf->block_far[2*bi];
-        size_t j = blrf->block_far[2*bi+1];
-        size_t nrowsi = row_cluster->size[i];
-        size_t ncolsj = col_cluster->size[j];
-        size_t shape[2] = {nrowsi, ncolsj};
-        Array *block = Array_new(2, shape, problem->dtype, 'F');
-        (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                row_cluster->start[i], col_cluster->pivot+
-                col_cluster->start[j], problem->row_data, problem->col_data,
-                block->buffer);
-        double tmpnorm = Array_norm(block);
+        int i = F->block_far[2*bi];
+        int j = F->block_far[2*bi+1];
+        int nrowsi = R->size[i];
+        int ncolsj = C->size[j];
+        int shape[2] = {nrowsi, ncolsj};
+        Array *A;
+        int info = Array_new(&A, 2, shape, P->dtype, 'F');
+        P->kernel(nrowsi, ncolsj, R->pivot+R->start[i], C->pivot+C->start[j],
+                P->row_data, P->col_data, A->data);
+        double tmpnorm;
+        info = Array_norm(A, &tmpnorm);
         #pragma omp critical
         {
             norm += tmpnorm*tmpnorm;
             if(i != j && symm == 'S')
                 norm += tmpnorm*tmpnorm;
         }
-        if(blrm->far_U[bi] != NULL && blrm->far_V[bi] != NULL)
+        if(M->far_U[bi] != NULL && M->far_V[bi] != NULL)
         {
-            Array *block2 = Array_dot(blrm->far_U[bi], blrm->far_V[bi]);
-            double tmpdiff = Array_diff(block, block2);
+            Array *A2;
+            info = Array_dot(M->far_U[bi], M->far_V[bi], &A2);
+            double tmpdiff;
+            info = Array_diff(A, A2, &tmpdiff);
             double tmperr = tmpdiff/tmpnorm;
-            Array_free(block2);
+            Array_free(A2);
             #pragma omp critical
             {
                 diff += tmpdiff*tmpdiff;
@@ -167,14 +166,15 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
                     maxerr = tmperr;
             }
         }
-        Array_free(block);
+        Array_free(A);
     }
-    if(blrm->onfly == 0)
+    if(M->onfly == 0)
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            size_t i = blrf->block_near[2*bi];
-            size_t j = blrf->block_near[2*bi+1];
-            double tmpnorm = Array_norm(blrm->near_D[bi]);
+            int i = F->block_near[2*bi];
+            int j = F->block_near[2*bi+1];
+            double tmpnorm;
+            int info = Array_norm(M->near_D[bi], &tmpnorm);
             norm += tmpnorm*tmpnorm;
             if(i != j && symm == 'S')
                 norm += tmpnorm*tmpnorm;
@@ -182,54 +182,53 @@ void STARS_BLRM_error(STARS_BLRM *blrm)
     else
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            size_t i = blrf->block_near[2*bi];
-            size_t j = blrf->block_near[2*bi+1];
-            size_t nrowsi = row_cluster->size[i];
-            size_t ncolsj = col_cluster->size[j];
-            size_t shape[2] = {nrowsi, ncolsj};
-            Array *block = Array_new(2, shape, problem->dtype, 'F');
-            (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                    row_cluster->start[i], col_cluster->pivot+
-                    col_cluster->start[j], problem->row_data, problem->col_data,
-                    block->buffer);
-            double tmpnorm = Array_norm(block);
+            int i = F->block_near[2*bi];
+            int j = F->block_near[2*bi+1];
+            int nrowsi = R->size[i];
+            int ncolsj = C->size[j];
+            int shape[2] = {nrowsi, ncolsj};
+            Array *A;
+            int info = Array_new(&A, 2, shape, P->dtype, 'F');
+            P->kernel(nrowsi, ncolsj, R->pivot+R->start[i],
+                    C->pivot+C->start[j], P->row_data, P->col_data, A->data);
+            double tmpnorm;
+            info = Array_norm(A, &tmpnorm);
             norm += tmpnorm*tmpnorm;
             if(i != j && symm == 'S')
                 norm += tmpnorm*tmpnorm;
-            free(block);
+            free(A);
         }
     printf("Relative error of approximation of full matrix: %e\n",
             sqrt(diff/norm));
     printf("Maximum relative error of per-block approximation: %e\n", maxerr);
+    return 0;
 }
 
-void STARS_BLRM_getblock(STARS_BLRM *blrm, size_t i, size_t j, size_t *shape,
-        size_t *rank, void **U, void **V, void **D)
+int STARS_BLRM_getblock(STARS_BLRM *M, int i, int j, int *shape, int *rank,
+        void **U, void **V, void **D)
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
 {
-    STARS_BLRF *blrf = blrm->blrf;
-    STARS_Problem *problem = blrf->problem;
-    if(problem->ndim != 2)
+    STARS_BLRF *F = M->blrf;
+    STARS_Problem *P = F->problem;
+    if(P->ndim != 2)
     {
-        fprintf(stderr, "Non-scalar kernels are not supported in STARS_BLRF_"
-                "getblock\n");
-        exit(1);
+        STARS_error("STARS_BLRM_getblock", "only scalar kernels are "
+                "supported");
+        return 1;
     }
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t nrows = row_cluster->size[i];
-    size_t ncols = col_cluster->size[j];
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int nrows = R->size[i], ncols = C->size[j], info = 0;
     shape[0] = nrows;
     shape[1] = ncols;
     *rank = nrows < ncols ? nrows : ncols;
     *U = NULL;
     *V = NULL;
     *D = NULL;
-    size_t bi = -1, k = blrf->brow_far_start[i];
-    while(k < blrf->brow_far_start[i+1])
+    size_t bi = -1, k = F->brow_far_start[i];
+    while(k < F->brow_far_start[i+1])
     {
-        if(blrf->block_far[2*blrf->brow_far[k]+1] == j)
+        if(F->block_far[2*F->brow_far[k]+1] == j)
         {
             bi = k;
             break;
@@ -238,18 +237,18 @@ void STARS_BLRM_getblock(STARS_BLRM *blrm, size_t i, size_t j, size_t *shape,
     }
     if(bi != -1)
     {
-        *rank = blrm->far_rank[bi];
-        *U = blrm->far_U[bi];
-        *V = blrm->far_V[bi];
-        *D = blrm->far_D[bi];
+        *rank = M->far_rank[bi];
+        *U = M->far_U[bi];
+        *V = M->far_V[bi];
+        *D = M->far_D[bi];
         if(*U == NULL && *V == NULL && *D == NULL)
-            STARS_BLRF_getblock(blrf, i, j, shape, D);
-        return;
+            info = STARS_BLRF_getblock(F, i, j, shape, D);
+        return info;
     }
-    k = blrf->brow_near_start[i];
-    while(k < blrf->brow_near_start[i+1])
+    k = F->brow_near_start[i];
+    while(k < F->brow_near_start[i+1])
     {
-        if(blrf->block_near[2*blrf->brow_near[k]+1] == j)
+        if(F->block_near[2*F->brow_near[k]+1] == j)
         {
             bi = k;
             break;
@@ -258,33 +257,35 @@ void STARS_BLRM_getblock(STARS_BLRM *blrm, size_t i, size_t j, size_t *shape,
     }
     if(bi != -1)
     {
-        *D = blrm->near_D[bi];
+        *D = M->near_D[bi];
         if(*D == NULL)
-            STARS_BLRF_getblock(blrf, i, j, shape, D);
-        return;
+            info = STARS_BLRF_getblock(F, i, j, shape, D);
+        return info;
     }
-    printf("Required block (%zu, %zu) is not admissible!\n", i, j);
-    STARS_BLRF_getblock(blrf, i, j, shape, D);
+    printf("Required block (%d, %d) is not admissible!\n", i, j);
+    info = STARS_BLRF_getblock(F, i, j, shape, D);
+    return info;
 }
 
-STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
-        size_t maxrank, double tol, int onfly)
+int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
+        int maxrank, double tol, int onfly)
 // Private function of STARS-H
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
-    STARS_Problem *problem = blrf->problem;
-    size_t bi, i, j, k, l, ndim = problem->ndim, mn, rank;
+    STARS_Problem *P = F->problem;
+    int ndim = P->ndim;
     if(ndim != 2)
     {
-        fprintf(stderr, "Currently only scalar kernels are supported\n");
-        return NULL;
+        STARS_error("STARS_BLRM_compress_algebraic_svd", "only scalar kernels "
+                "are supported");
+        return 1;
     }
-    Array *block, *block2;
+    Array *A, *A2;
     Array *U, *S, *V;
     double *ptr, *ptrS, *ptrV;
-    size_t nblocks_far = blrf->nblocks_far, nblocks_near = blrf->nblocks_near;
+    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
     Array **far_U = malloc(nblocks_far*sizeof(*far_U));
     Array **far_V = malloc(nblocks_far*sizeof(*far_V));
     Array **far_D = NULL, **near_D = NULL;
@@ -298,19 +299,20 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
         far_D = NULL;
         near_D = NULL;
     }
-    size_t *far_rank = malloc(nblocks_far*sizeof(*far_rank));
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t nrowsi, ncolsj;
-    size_t *shape = malloc(ndim*sizeof(*shape));
-    memcpy(shape, blrf->problem->shape, ndim*sizeof(*shape));
+    int *far_rank = malloc(nblocks_far*sizeof(*far_rank));
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int nrowsi, ncolsj;
+    int *shape = malloc(ndim*sizeof(*shape));
+    memcpy(shape, P->shape, ndim*sizeof(*shape));
+    size_t bi, k, l;
+    int i, j, mn, rank, info;
     for(bi = 0; bi < nblocks_far; bi++)
     // Cycle over every admissible block
     {
-        i = blrf->block_far[2*bi];
-        j = blrf->block_far[2*bi+1];
-        nrowsi = row_cluster->size[i];
-        ncolsj = col_cluster->size[j];
+        i = F->block_far[2*bi];
+        j = F->block_far[2*bi+1];
+        nrowsi = R->size[i];
+        ncolsj = C->size[j];
         shape[0] = nrowsi;
         shape[ndim-1] = ncolsj;
         mn = nrowsi > ncolsj ? ncolsj : nrowsi;
@@ -319,15 +321,13 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
         if(onfly == 0)
             far_D[bi] = NULL;
         far_rank[bi] = 0;
-        block = Array_new(ndim, shape, problem->dtype, 'F');
-        (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                row_cluster->start[i], col_cluster->pivot+
-                col_cluster->start[j], problem->row_data, problem->col_data,
-                block->buffer);
-        block2 = Array_copy(block, 'N');
-        Array_SVD(block, &U, &S, &V);
-        rank = SVD_get_rank(S, tol, 'F');
-        Array_free(block);
+        info = Array_new(&A, ndim, shape, P->dtype, 'F');
+        P->kernel(nrowsi, ncolsj, R->pivot+R->start[i], C->pivot+C->start[j],
+                P->row_data, P->col_data, A->data);
+        info = Array_new_copy(&A2, A, 'N');
+        info = Array_SVD(A, &U, &S, &V);
+        info = SVD_get_rank(S, tol, 'F', &rank);
+        Array_free(A);
         if(rank < mn/2)
         // If block is low-rank
         {
@@ -335,29 +335,29 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
                 rank = maxrank;
             shape[0] = nrowsi;
             shape[1] = rank;
-            far_U[bi] = Array_new(2, shape, 'd', 'F');
+            info = Array_new(far_U+bi, 2, shape, 'd', 'F');
             shape[0] = rank;
             shape[1] = ncolsj;
-            far_V[bi] = Array_new(2, shape, 'd', 'F');
-            cblas_dcopy(rank*nrowsi, U->buffer, 1, far_U[bi]->buffer, 1);
-            ptr = far_V[bi]->buffer;
-            ptrS = S->buffer;
-            ptrV = V->buffer;
+            info = Array_new(far_V+bi, 2, shape, 'd', 'F');
+            cblas_dcopy(rank*nrowsi, U->data, 1, far_U[bi]->data, 1);
+            ptr = far_V[bi]->data;
+            ptrS = S->data;
+            ptrV = V->data;
             for(k = 0; k < ncolsj; k++)
                 for(l = 0; l < rank; l++)
                 {
                     ptr[k*rank+l] = ptrS[l]*ptrV[k*mn+l];
                 }
             far_rank[bi] = rank;
-            Array_free(block2);
+            Array_free(A2);
         }
         else
         // If block is NOT low-rank
         {
             if(onfly == 0)
-                far_D[bi] = block2;
+                far_D[bi] = A2;
             else
-                Array_free(block2);
+                info = Array_free(A2);
             far_rank[bi] = mn;
         }
         Array_free(U);
@@ -367,78 +367,74 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd(STARS_BLRF *blrf,
     if(onfly == 0)
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            i = blrf->block_near[2*bi];
-            j = blrf->block_near[2*bi+1];
-            nrowsi = row_cluster->size[i];
-            ncolsj = col_cluster->size[j];
+            i = F->block_near[2*bi];
+            j = F->block_near[2*bi+1];
+            nrowsi = R->size[i];
+            ncolsj = C->size[j];
             shape[0] = nrowsi;
             shape[ndim-1] = ncolsj;
             mn = nrowsi > ncolsj ? ncolsj : nrowsi;
-            block = Array_new(ndim, shape, problem->dtype, 'F');
-            (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                    row_cluster->start[i], col_cluster->pivot+
-                    col_cluster->start[j], problem->row_data,
-                    problem->col_data, block->buffer);
-            near_D[bi] = block;
+            info = Array_new(&A, ndim, shape, P->dtype, 'F');
+            P->kernel(nrowsi, ncolsj, R->pivot+R->start[i],
+                    C->pivot+C->start[j], P->row_data, P->col_data, A->data);
+            near_D[bi] = A;
         }
     free(shape);
-    return STARS_BLRM_init(blrf, far_rank, far_U, far_V, far_D, onfly, near_D,
+    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, far_D, onfly, near_D,
             NULL, NULL, NULL, '2');
 }
 
-STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
-        size_t maxrank, double tol, int onfly)
+int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
+        STARS_BLRF *F, int maxrank, double tol, int onfly)
 // Private function of STARS-H
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 {
     double total_time = omp_get_wtime();
-    STARS_Problem *problem = blrf->problem;
-    size_t bi, i, j, k, l, ndim = problem->ndim, mn, rank;
+    STARS_Problem *P = F->problem;
+    int ndim = P->ndim;
     if(ndim != 2)
     {
-        fprintf(stderr, "Currently only scalar kernels are supported\n");
-        return NULL;
+        STARS_error("STARS_BLRM_tiled_compress_algebraic_svd_ompfor",
+                "only scalar kernels are supported");
+        return 1;
     }
-    Array *block, *block2;
-    Array *U, *S, *V;
-    double *ptr, *ptrS, *ptrV;
-    size_t nblocks_far = blrf->nblocks_far, nblocks_near = blrf->nblocks_near;
+    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
     Array **far_U = malloc(nblocks_far*sizeof(*far_U));
     Array **far_V = malloc(nblocks_far*sizeof(*far_V));
-    size_t *far_rank = malloc(nblocks_far*sizeof(*far_rank));
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t nrowsi, ncolsj;
-    #pragma omp parallel private(bi, i, j, nrowsi, ncolsj, mn, block, block2,\
-            rank, ptr, ptrS, ptrV, k, l, U, S, V)
+    int *far_rank = malloc(nblocks_far*sizeof(*far_rank));
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    #pragma omp parallel
     {
-        size_t *shape = malloc(ndim*sizeof(*shape));
-        memcpy(shape, blrf->problem->shape, ndim*sizeof(*shape));
+        size_t bi, k, l;
+        Array *A, *A2;
+        double *ptr, *ptrS, *ptrV;
+        Array *U, *S, *V;
+        int nrowsi, ncolsj, i, j, ndim = P->ndim, mn, rank, info;
+        int *shape = malloc(ndim*sizeof(*shape));
+        memcpy(shape, P->shape, ndim*sizeof(*shape));
         #pragma omp for
         for(bi = 0; bi < nblocks_far; bi++)
         // Cycle over every admissible block
         {
-            i = blrf->block_far[2*bi];
-            j = blrf->block_far[2*bi+1];
-            nrowsi = row_cluster->size[i];
-            ncolsj = col_cluster->size[j];
+            i = F->block_far[2*bi];
+            j = F->block_far[2*bi+1];
+            nrowsi = R->size[i];
+            ncolsj = C->size[j];
             shape[0] = nrowsi;
             shape[ndim-1] = ncolsj;
             mn = nrowsi > ncolsj ? ncolsj : nrowsi;
             far_U[bi] = NULL;
             far_V[bi] = NULL;
-            block = Array_new(ndim, shape, problem->dtype, 'F');
-            (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                    row_cluster->start[i], col_cluster->pivot+
-                    col_cluster->start[j], problem->row_data,
-                    problem->col_data, block->buffer);
-            block2 = Array_copy(block, 'N');
+            info = Array_new(&A, ndim, shape, P->dtype, 'F');
+            P->kernel(nrowsi, ncolsj, R->pivot+R->start[i],
+                    C->pivot+C->start[j], P->row_data, P->col_data, A->data);
+            info = Array_new_copy(&A2, A, 'N');
             //dmatrix_lr(rows, cols, block->buffer, tol, &rank, &U, &S, &V);
-            Array_SVD(block, &U, &S, &V);
-            rank = SVD_get_rank(S, tol, 'F');
-            Array_free(block);
+            info = Array_SVD(A, &U, &S, &V);
+            info = SVD_get_rank(S, tol, 'F', &rank);
+            Array_free(A);
             if(rank < mn/2)
             // If block is low-rank
             {
@@ -446,26 +442,26 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
                     rank = maxrank;
                 shape[0] = nrowsi;
                 shape[1] = rank;
-                far_U[bi] = Array_new(2, shape, 'd', 'F');
+                info = Array_new(far_U+bi, 2, shape, 'd', 'F');
                 shape[0] = rank;
                 shape[1] = ncolsj;
-                far_V[bi] = Array_new(2, shape, 'd', 'F');
-                cblas_dcopy(rank*nrowsi, U->buffer, 1, far_U[bi]->buffer, 1);
-                ptr = far_V[bi]->buffer;
-                ptrS = S->buffer;
-                ptrV = V->buffer;
+                info = Array_new(far_V+bi, 2, shape, 'd', 'F');
+                cblas_dcopy(rank*nrowsi, U->data, 1, far_U[bi]->data, 1);
+                ptr = far_V[bi]->data;
+                ptrS = S->data;
+                ptrV = V->data;
                 for(k = 0; k < ncolsj; k++)
                     for(l = 0; l < rank; l++)
                     {
                         ptr[k*rank+l] = ptrS[l]*ptrV[k*mn+l];
                     }
                 far_rank[bi] = rank;
-                Array_free(block2);
+                Array_free(A2);
             }
             else
             // If block is NOT low-rank
             {
-                Array_free(block2);
+                Array_free(A2);
                 far_rank[bi] = mn;
             }
             Array_free(U);
@@ -479,55 +475,58 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_ompfor(STARS_BLRF *blrf,
     #pragma omp parallel private(bi, i, j, nrowsi, ncolsj, mn, block)
     {
         int *shape = malloc(ndim*sizeof(int));
-        memcpy(shape, blrf->problem->shape, ndim*sizeof(int));
+        memcpy(shape, B->P->shape, ndim*sizeof(int));
         #pragma omp for
         for(bi = 0; bi < nblocks_near; bi++)
         {
-            i = blrf->block_near[2*bi];
-            j = blrf->block_near[2*bi+1];
-            nrowsi = row_cluster->size[i];
-            ncolsj = col_cluster->size[j];
+            i = B->block_near[2*bi];
+            j = B->block_near[2*bi+1];
+            nrowsi = R->size[i];
+            ncolsj = C->size[j];
             shape[0] = nrowsi;
             shape[ndim-1] = ncolsj;
             mn = nrowsi > ncolsj ? ncolsj : nrowsi;
-            block = Array_new(ndim, shape, problem->dtype, 'F');
-            (problem->kernel)(nrowsi, ncolsj, row_cluster->pivot+
-                    row_cluster->start[i], col_cluster->pivot+
-                    col_cluster->start[j], problem->row_data,
-                    problem->col_data, block->buffer);
+            block = Array_new(ndim, shape, P->dtype, 'F');
+            (P->kernel)(nrowsi, ncolsj, R->pivot+
+                    R->start[i], C->pivot+
+                    C->start[j], P->row_data,
+                    P->col_data, block->buffer);
             near_D[bi] = block;
         }
         free(shape);
     }
     */
     printf("TOTAL TIME: %f\n", omp_get_wtime()-total_time);
-    return STARS_BLRM_init(blrf, far_rank, far_U, far_V, NULL, 1, NULL,
+    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, NULL, 1, NULL,
             NULL, NULL, NULL, '2');
 }
 
-STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
-        size_t maxrank, double tol, int onfly, size_t max_buffer_size)
+int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
+        STARS_BLRF *F, int maxrank, double tol, int onfly,
+        size_t max_buffer_size)
 {
     double total_time = omp_get_wtime();
-    STARS_Problem *problem = blrf->problem;
-    size_t bbi, bi, ndim = problem->ndim;
+    STARS_Problem *P = F->problem;
+    size_t bbi, bi;
+    int ndim = P->ndim;
     if(ndim != 2)
     {
-        fprintf(stderr, "Currently only scalar kernels are supported\n");
-        return NULL;
+        STARS_error("STARS_BLRM_tiled_compress_algebraic_svd_batched",
+                "only scalar kernels are supported");
+        return 1;
     }
-    size_t nblocks_far = blrf->nblocks_far, nblocks_near = blrf->nblocks_near;
+    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
     Array **far_U = malloc(nblocks_far*sizeof(*far_U));
     Array **far_V = malloc(nblocks_far*sizeof(*far_V));
-    size_t *shape = problem->shape;
-    void *alloc_U = malloc(2*blrf->nbcols*shape[0]*maxrank*sizeof(double));
-    void *alloc_V = malloc(2*blrf->nbrows*shape[1]*maxrank*sizeof(double));
+    int *shape = P->shape;
+    void *alloc_U = malloc(2*(size_t)F->nbcols*(size_t)shape[0]*
+            (size_t)maxrank*sizeof(double));
+    void *alloc_V = malloc(2*(size_t)F->nbrows*(size_t)shape[1]*
+            (size_t)maxrank*sizeof(double));
     void *current_U = alloc_U, *current_V = alloc_V;
-    STARS_Cluster *row_cluster = blrf->row_cluster;
-    STARS_Cluster *col_cluster = blrf->col_cluster;
-    size_t *far_rank = malloc(nblocks_far*sizeof(*far_rank));
-    void *row_data = problem->row_data;
-    void *col_data = problem->col_data;
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int *far_rank = malloc(nblocks_far*sizeof(*far_rank));
+    void *row_data = P->row_data, *col_data = P->col_data;
     size_t *ltotalwork = malloc(nblocks_far*sizeof(*ltotalwork));
     size_t *lwork_arrays = malloc(5*nblocks_far*sizeof(*lwork_arrays));
     size_t *lbwork = lwork_arrays;
@@ -540,9 +539,9 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
     #pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
-        size_t i = blrf->block_far[2*bi];
-        size_t j = blrf->block_far[2*bi+1];
-        size_t nrowsi = row_cluster->size[i], ncolsj = col_cluster->size[j];
+        int i = F->block_far[2*bi];
+        int j = F->block_far[2*bi+1];
+        size_t nrowsi = R->size[i], ncolsj = C->size[j];
         if(nrowsi < ncolsj)
         {
             lbwork[bi] = nrowsi*ncolsj;
@@ -593,8 +592,8 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
             bi++;
         }
         size_t batch_size = bi-nblocks_processed;
-        size_t nrows[batch_size], ncols[batch_size];
-        size_t *irow[batch_size], *icol[batch_size];
+        int nrows[batch_size], ncols[batch_size];
+        int *irow[batch_size], *icol[batch_size];
         double *buffer[batch_size];
         double *U[batch_size], *S[batch_size], *V[batch_size], *UV[batch_size];
         // following is int and int * for compatibility with LAPACKE
@@ -622,12 +621,12 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
         for(bbi = 0; bbi < batch_size; bbi++)
         {
             size_t bi = bbi+nblocks_processed;
-            size_t i = blrf->block_far[2*bi];
-            size_t j = blrf->block_far[2*bi+1];
-            nrows[bbi] = row_cluster->size[i];
-            ncols[bbi] = col_cluster->size[j];
-            irow[bbi] = row_cluster->pivot+row_cluster->start[i];
-            icol[bbi] = col_cluster->pivot+col_cluster->start[j];
+            int i = F->block_far[2*bi];
+            int j = F->block_far[2*bi+1];
+            nrows[bbi] = R->size[i];
+            ncols[bbi] = C->size[j];
+            irow[bbi] = R->pivot+R->start[i];
+            icol[bbi] = C->pivot+C->start[j];
             if(nrows[bbi] < ncols[bbi])
             {
                 U[bbi] = UV[bbi];
@@ -647,7 +646,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
         //printf("batch size %d\n", batch_size);
         #pragma omp parallel for
         for(bbi = 0; bbi < batch_size; bbi++)
-            problem->kernel(nrows[bbi], ncols[bbi], irow[bbi], icol[bbi],
+            P->kernel(nrows[bbi], ncols[bbi], irow[bbi], icol[bbi],
                     row_data, col_data, buffer[bbi]);
         //tmp_time2 = omp_get_wtime();
         //printf("TIME4: %f\n", tmp_time2-tmp_time);
@@ -674,7 +673,7 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
             double *ptrS = S[bbi];
             double Stol = 0, Stmp = 0.;
             size_t i, j, mn = ldv[bbi], rank = mn;
-            size_t shapeU[2] = {nrows[bbi], 0}, shapeV[2] = {0, ncols[bbi]};
+            int shapeU[2] = {nrows[bbi], 0}, shapeV[2] = {0, ncols[bbi]}, info;
             for(i = 0; i < mn; i++)
                 Stol += ptrS[i]*ptrS[i];
             Stol *= tol*tol;
@@ -700,16 +699,19 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
                 shapeV[0] = rank;
                 #pragma omp critical
                 {
-                    far_U[bi] = Array_from_buffer(2, shapeU, 'd', 'F',
+                    info = Array_from_buffer(far_U+bi, 2, shapeU, 'd', 'F',
                             current_U);
-                    current_U += 2*shapeU[0]*shapeU[1]*sizeof(double);
-                    far_V[bi] = Array_from_buffer(2, shapeV, 'd', 'F',
+                    current_U += 2*(size_t)shapeU[0]*(size_t)shapeU[1]*
+                            sizeof(double);
+                    info = Array_from_buffer(far_V+bi, 2, shapeV, 'd', 'F',
                             current_V);
-                    current_V += 2*shapeV[0]*shapeV[1]*sizeof(double);
+                    current_V += 2*(size_t)shapeV[0]*(size_t)shapeV[1]*
+                            sizeof(double);
                 }
-                cblas_dcopy(shapeU[0]*shapeU[1], U[bbi], 1, far_U[bi]->buffer,
-                        1);
-                double *ptr = far_V[bi]->buffer, *ptrV = V[bbi];
+                // THIS MAY LEAD TO PROBLEM !! BETTER TO DO CYCLE OF COPIES
+                cblas_dcopy((size_t)shapeU[0]*(size_t)shapeU[1], U[bbi], 1,
+                        far_U[bi]->data, 1);
+                double *ptr = far_V[bi]->data, *ptrV = V[bbi];
                 for(i = 0; i < shapeV[1]; i++)
                     for(j = 0; j < shapeV[0]; j++)
                         ptr[i*rank+j] = ptrS[j]*ptrV[i*mn+j];
@@ -727,6 +729,6 @@ STARS_BLRM *STARS_blrf_tiled_compress_algebraic_svd_batched(STARS_BLRF *blrf,
     //if(onfly == 0)
     //    near_D = malloc(nblocks_near*sizeof(Array *));
     printf("TOTAL TIME: %f\n", omp_get_wtime()-total_time);
-    return STARS_BLRM_init(blrf, far_rank, far_U, far_V, NULL, 1, NULL,
+    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, NULL, 1, NULL,
             alloc_U, alloc_V, NULL, '1');
 }

@@ -1410,11 +1410,11 @@ void matcov_comp_tile(
 
 }
 
-int STARS_aodata_block_kernel(size_t nrows, size_t ncols, size_t *irow,
-        size_t *icol, void *row_data, void *col_data, void *result)
+int STARS_aodata_block_kernel(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result)
 {
     struct tomo_struct *data = row_data;
-    size_t i, j;
+    int i, j;
     double *buffer = result;
     double crmax = data->rmax;
     double pasDPHI = 1./data->pasDPHI; //inverse du pas de rr
@@ -1424,10 +1424,10 @@ int STARS_aodata_block_kernel(size_t nrows, size_t ncols, size_t *irow,
     #pragma omp parallel for private(i, j)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
-            buffer[j*nrows+i] = compute_element_tiled_4(irow[i], icol[j],
-                    convert, data->sspSizeL, data->Nssp, data->u, data->v,
-                    data->X, data->Y, pasDPHI, data->tabDPHI, data->L0diff,
-                    data->cn2, Ndphi, data->Nw, data->Nlayer,
+            buffer[j*(size_t)nrows+i] = compute_element_tiled_4(irow[i],
+                    icol[j], convert, data->sspSizeL, data->Nssp, data->u,
+                    data->v, data->X, data->Y, pasDPHI, data->tabDPHI,
+                    data->L0diff, data->cn2, Ndphi, data->Nw, data->Nlayer,
                     data->Nsubap, data->Nx, data->alphaX, data->alphaY,
                     data->lgs_cst, data->noise_var, data->spot_width,
                     data->lgs_depth, data->lgs_alt, type_mat, data->nlgs,
