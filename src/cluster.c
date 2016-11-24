@@ -29,6 +29,11 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
 {
     *C = malloc(sizeof(**C));
     STARS_Cluster *C2 = *C;
+    if(C2 == NULL)
+    {
+        STARS_error("STARS_Cluster_new", "malloc() failed");
+        return 1;
+    }
     C2->data = data;
     C2->ndata = ndata;
     C2->pivot = pivot;
@@ -49,7 +54,7 @@ int STARS_Cluster_free(STARS_Cluster *C)
 {
     if(C == NULL)
     {
-        STARS_error("STARS_Cluster_free", "attempt to free NULL pointer");
+        STARS_error("STARS_Cluster_free", "invalid value of `C`");
         return 1;
     }
     free(C->pivot);
@@ -67,24 +72,56 @@ int STARS_Cluster_free(STARS_Cluster *C)
     return 0;
 }
 
-void STARS_Cluster_info(STARS_Cluster *C)
+int STARS_Cluster_info(STARS_Cluster *C)
 // Print some info about Cization
 {
+    if(C == NULL)
+    {
+        STARS_error("STARS_Cluster_free", "invalid value of `C`");
+        return 1;
+    }
     printf("<STARS_Cluster at %p, ", C);
     if(C->type == STARS_ClusterTiled)
         printf("tiled, ");
     else
         printf("hierarchical, ");
     printf("%d blocks>\n", C->nblocks);
+    return 0;
 }
 
 int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
         int block_size)
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 {
+    if(C == NULL)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "invalid value of `C`");
+        return 1;
+    }
+    if(ndata < 0)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "invalid value of `ndata`");
+        return 1;
+    }
+    if(block_size < 0)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "invalid value of "
+                "`block_sizez");
+        return 1;
+    }
     int i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
     int *start = malloc(nblocks*sizeof(*start));
+    if(start == NULL)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
+        return 1;
+    }
     int *size = malloc(nblocks*sizeof(*size));
+    if(size == NULL)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
+        return 1;
+    }
     while(i < ndata)
     {
         j = i+block_size;
@@ -96,6 +133,10 @@ int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
         k++;
     }
     int *pivot = malloc(ndata*sizeof(*pivot));
+    if(pivot == NULL)
+    {
+        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
+    }
     for(i = 0; i < ndata; i++)
         pivot[i] = i;
     return STARS_Cluster_new(C, data, ndata, pivot, nblocks, 0, NULL, start,

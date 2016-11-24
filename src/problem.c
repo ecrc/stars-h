@@ -29,9 +29,19 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
 //    STARS_Problem *: pointer to structure P with proper filling of all
 //    the fields of structure.
 {
+    if(P == NULL)
+    {
+        STARS_error("STARS_Problem_new", "invalid value of `P`");
+        return 1;
+    }
     if(ndim < 2)
     {
-        STARS_error("STARS_Problem_new", "illegal value of ndim");
+        STARS_error("STARS_Problem_new", "invalid value of `ndim`");
+        return 1;
+    }
+    if(shape == NULL)
+    {
+        STARS_error("STARS_Problem_new", "invalid value of `shape`");
         return 1;
     }
     int i;
@@ -46,26 +56,45 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
         dtype_size = sizeof(double complex);
     else
     {
-        STARS_error("STARS_Problem_new", "illegal value of dtype");
+        STARS_error("STARS_Problem_new", "invalid value of `dtype`");
         return 1;
     }
     size_t entry_size = dtype_size;
     for(i = 1; i < ndim-1; i++)
         entry_size *= shape[i];
     *P = malloc(sizeof(**P));
-    STARS_Problem *C = *P;
-    C->ndim = ndim;
-    C->shape = malloc(ndim*sizeof(*C->shape));
-    memcpy(C->shape, shape, ndim*sizeof(*C->shape));
-    C->symm = symm;
-    C->dtype = dtype;
-    C->dtype_size = dtype_size;
-    C->entry_size = entry_size;
-    C->row_data = row_data;
-    C->col_data = col_data;
-    C->kernel = kernel;
-    C->name = malloc(strlen(name)+1);
-    strcpy(C->name, name);
+    STARS_Problem *P2 = *P;
+    if(P2 == NULL)
+    {
+        STARS_error("STARS_Problem_new", "malloc() failed");
+        return 1;
+    }
+    P2->ndim = ndim;
+    P2->shape = malloc(ndim*sizeof(*P2->shape));
+    if(P2->shape == NULL)
+    {
+        STARS_error("STARS_Problem_new", "malloc() failed");
+        return 1;
+    }
+    memcpy(P2->shape, shape, ndim*sizeof(*P2->shape));
+    P2->symm = symm;
+    P2->dtype = dtype;
+    P2->dtype_size = dtype_size;
+    P2->entry_size = entry_size;
+    P2->row_data = row_data;
+    P2->col_data = col_data;
+    P2->kernel = kernel;
+    P2->name = NULL;
+    if(name != NULL)
+    {
+        P2->name = malloc(strlen(name)+1);
+        if(P2->name == NULL)
+        {
+            STARS_error("STARS_Problem_new", "malloc() failed");
+            return 1;
+        }
+        strcpy(P2->name, name);
+    }
     return 0;
 }
 
@@ -74,23 +103,30 @@ int STARS_Problem_free(STARS_Problem *P)
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_free", "attempt to free NULL pointer");
+        STARS_error("STARS_Problem_free", "invalid value of `P`");
         return 1;
     }
     free(P->shape);
-    free(P->name);
+    if(P->name != NULL)
+        free(P->name);
     free(P);
     return 0;
 }
 
-void STARS_Problem_info(STARS_Problem *P)
+int STARS_Problem_info(STARS_Problem *P)
 // Print some info about Problem
 {
+    if(P == NULL)
+    {
+        STARS_error("STARS_Problem_info", "invalid value of `P`");
+        return 1;
+    }
     printf("<STARS_Problem at %p, name \"%s\", shape (%d", P, P->name,
             P->shape[0]);
-    for(size_t i = 1; i < P->ndim; i++)
+    for(int i = 1; i < P->ndim; i++)
         printf(",%d", P->shape[i]);
     printf("), '%c' dtype, '%c' symmetric>\n", P->dtype, P->symm);
+    return 0;
 }
 
 int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
@@ -98,8 +134,38 @@ int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
 // Get submatrix on given rows and columns (rows=first dimension, columns=last
 // dimension)
 {
+    if(P == NULL)
+    {
+        STARS_error("STARS_Problem_get_block", "invalid value of `P`");
+        return 1;
+    }
+    if(irow == NULL)
+    {
+        STARS_error("STARS_Problem_get_block", "invalid value of `irow`");
+        return 1;
+    }
+    if(icol == NULL)
+    {
+        STARS_error("STARS_Problem_get_block", "invalid value of `icol`");
+        return 1;
+    }
     int ndim = P->ndim, info;
+    if(nrows < 0)
+    {
+        STARS_error("STARS_Problem_get_block", "invalid value of `nrows`");
+        return 1;
+    }
+    if(ncols < 0)
+    {
+        STARS_error("STARS_Problem_get_block", "invalid value of `ncols`");
+        return 1;
+    }
     int *shape = malloc(ndim*sizeof(*shape));
+    if(shape == NULL)
+    {
+        STARS_error("STARS_Problem_get_block", "malloc() failed");
+        return 1;
+    }
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     memcpy(shape+1, P->shape+1, (ndim-2)*sizeof(*shape));
@@ -149,29 +215,39 @@ static int _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
 int STARS_Problem_from_array(STARS_Problem **P, Array *A, char symm)
 // Generate STARS_Problem with a given array and flag if it is symmetric
 {
+    if(P == NULL)
+    {
+        STARS_error("STARS_Problem_from_array", "invalid value of `P`");
+        return 1;
+    }
+    if(A == NULL)
+    {
+        STARS_error("STARS_Problem_from_array", "invalid value of `A`");
+        return 1;
+    }
     if(A->ndim < 2)
     {
-        STARS_error("STARS_Problem_from_array", "input A should be least "
+        STARS_error("STARS_Problem_from_array", "`A` should be at least "
                 "2-dimensional");
         return 1;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARS_error("STARS_Problem_from_array", "illegal value of symm");
+        STARS_error("STARS_Problem_from_array", "invalid value of `symm`");
         return 1;
     }
-    Array *B = A;
+    Array *A2 = A;
     int info;
     if(A->order == 'C')
     {
         STARS_warning("STARS_Problem_from_array", "A->order is 'C', creating "
                 "copy of array with layout in Fortran style ('F'-order). It "
                 "makes corresponding matrix non-freeable");
-        info = Array_new_copy(&B, A, 'F');
+        info = Array_new_copy(&A2, A, 'F');
         if(info != 0)
             return info;
     }
-    info = STARS_Problem_new(P, A->ndim, A->shape, symm, A->dtype, B, B,
+    info = STARS_Problem_new(P, A->ndim, A->shape, symm, A->dtype, A2, A2,
             _matrix_kernel, "Problem from matrix");
     return info;
 }
@@ -179,9 +255,29 @@ int STARS_Problem_from_array(STARS_Problem **P, Array *A, char symm)
 int STARS_Problem_to_array(STARS_Problem *P, Array **A)
 // Compute matrix/array, corresponding to the P
 {
+    if(P == NULL)
+    {
+        STARS_error("STARS_Problem_to_array", "invalid value of `P`");
+        return 1;
+    }
+    if(A == NULL)
+    {
+        STARS_error("STARS_Problem_to_array", "invalid value of `A`");
+        return 1;
+    }
     int ndim = P->ndim, i, nrows = P->shape[0], ncols = P->shape[ndim-1], info;
     int *irow = malloc(nrows*sizeof(*irow));
+    if(irow == NULL)
+    {
+        STARS_error("STARS_Problem_to_array", "malloc() failed");
+        return 1;
+    }
     int *icol = malloc(ncols*sizeof(*icol));
+    if(icol == NULL)
+    {
+        STARS_error("STARS_PRoblem_to_array", "malloc() failed");
+        return 1;
+    }
     for(i = 0; i < nrows; i++)
         irow[i] = i;
     for(i = 0; i < ncols; i++)

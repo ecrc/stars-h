@@ -63,20 +63,20 @@ int Array_new_copy(Array **A, Array *B, char order);
 // 'N'
 int Array_free(Array *A);
 // Free memory, consumed by A structure and buffer
-void Array_info(Array *A);
+int Array_info(Array *A);
 // Print all the data from Array structure
-void Array_print(Array *A);
+int Array_print(Array *A);
 // Print elements of A, different rows of A are printed on different
 // rows of output
 int Array_init(Array *A, char *kind);
 // Init buffer in a special manner: randn, rand, ones or zeros
-void Array_init_randn(Array *A);
+int Array_init_randn(Array *A);
 // Init buffer of A with random numbers of normal (0,1) distribution
-void Array_init_rand(Array *A);
+int Array_init_rand(Array *A);
 // Init buffer with random numbers of uniform [0,1] distribution
-void Array_init_zeros(Array *A);
+int Array_init_zeros(Array *A);
 // Set all elements to 0.0
-void Array_init_ones(Array *A);
+int Array_init_ones(Array *A);
 // Set all elements to 1.0
 int Array_tomatrix(Array *A, char kind);
 // Convert N-dimensional A to 2-dimensional A (matrix) by
@@ -87,7 +87,7 @@ int Array_tomatrix(Array *A, char kind);
 // minus one are collapsed into rows. Example: A of shape (2,3,4,5)
 // will be collapsed to A of shape (2,60) if kind is 'R' or to A of
 // shape (24,5) if kind is 'C'.
-void Array_trans_inplace(Array *A);
+int Array_trans_inplace(Array *A);
 // Transposition of A. No real transposition is performed, only changes
 // shape, stride and order.
 int Array_dot(Array* A, Array *B, Array **C);
@@ -171,7 +171,7 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
 //    the fields of structure.
 int STARS_Problem_free(STARS_Problem *P);
 // Free memory, consumed by data buffers of data
-void STARS_Problem_info(STARS_Problem *P);
+int STARS_Problem_info(STARS_Problem *P);
 // Print some info about Problem
 int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
         int *icol, Array **A);
@@ -246,7 +246,7 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
 //     STARS_ClusterHierarchical.
 int STARS_Cluster_free(STARS_Cluster *cluster);
 // Free data buffers, consumed by clusterization information.
-void STARS_Cluster_info(STARS_Cluster *cluster);
+int STARS_Cluster_info(STARS_Cluster *cluster);
 // Print some info about clusterization
 int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
         int block_size);
