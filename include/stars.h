@@ -314,15 +314,15 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
 int STARS_BLRF_free(STARS_BLRF *F);
 // Free memory, used by block low rank format (partitioning of A into
 // blocks)
-void STARS_BLRF_info(STARS_BLRF *F);
+int STARS_BLRF_info(STARS_BLRF *F);
 // Print short info on block partitioning
-void STARS_BLRF_print(STARS_BLRF *F);
+int STARS_BLRF_print(STARS_BLRF *F);
 // Print full info on block partitioning
 int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
         STARS_Cluster *C, char symm);
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
-int STARS_BLRF_getblock(STARS_BLRF *F, int i, int j, int *shape, void **D);
+int STARS_BLRF_get_block(STARS_BLRF *F, int i, int j, int *shape, void **D);
 // PLEASE CLEAN MEMORY POINTER *D AFTER USE
 
 struct STARS_BLRM
@@ -350,16 +350,16 @@ struct STARS_BLRM
 
 
 int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank, Array **far_U,
-        Array **far_V, Array **far_D, int onfly, Array **near_D, void *alloc_U,
+        Array **far_V, int onfly, Array **near_D, void *alloc_U,
         void *alloc_V, void *alloc_D, char alloc_type);
 // Init procedure for a non-nested block low-rank matrix
 int STARS_BLRM_free(STARS_BLRM *M);
 // Free memory of a non-nested block low-rank matrix
-void STARS_BLRM_info(STARS_BLRM *M);
+int STARS_BLRM_info(STARS_BLRM *M);
 // Print short info on non-nested block low-rank matrix
 int STARS_BLRM_error(STARS_BLRM *M);
 // Measure error of approximation by non-nested block low-rank matrix
-int STARS_BLRM_getblock(STARS_BLRM *M, int i, int j, int *shape, int *rank,
+int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block

@@ -4,17 +4,6 @@
 #include <time.h>
 #include "lapacke.h"
 
-void STARS_error(char *func_name, char *msg_text)
-// Indicate error, which may cause problems
-{
-    fprintf(stderr, "STARS-H ERROR: %s(): %s\n",func_name, msg_text);
-}
-
-void STARS_warning(char *func_name, char *msg_text)
-// Indicate warning, which can NOT cause any problems
-{
-    fprintf(stderr, "STARS-H WARNING: %s(): %s\n",func_name, msg_text);
-}
 
 double randn()
 {

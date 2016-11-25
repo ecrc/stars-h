@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stars.h"
+#include <limits.h>
 
 int main(int argc, char **argv)
 {
@@ -19,18 +20,38 @@ int main(int argc, char **argv)
             printf("dtype '%c', order '%c'\n", dtype[idtype], order[iorder]);
             Array *A;
             info = Array_new(&A, ndim, shape, dtype[idtype], order[iorder]);
-            Array_init_rand(A);
+            if(info != 0)
+                return info;
+            info = Array_init_rand(A);
+            if(info != 0)
+                return info;
             STARS_Problem *P;
             info = STARS_Problem_from_array(&P, A, 'N');
+            if(info != 0)
+                return info;
             Array *A2;
             info = STARS_Problem_to_array(P, &A2);
-            Array_info(A);
-            Array_info(A2);
+            if(info != 0)
+                return info;
+            info = Array_info(A);
+            if(info != 0)
+                return info;
+            info = Array_info(A2);
+            if(info != 0)
+                return info;
             double diff, norm;
-            Array_diff(A, A2, &diff);
-            Array_norm(A, &norm);
-            Array_free(A);
-            Array_free(A2);
+            info = Array_diff(A, A2, &diff);
+            if(info != 0)
+                return info;
+            info = Array_norm(A, &norm);
+            if(info != 0)
+                return info;
+            info = Array_free(A);
+            if(info != 0)
+                return info;
+            info = Array_free(A2);
+            if(info != 0)
+                return info;
             printf("Relative error in Frobenius norm is %f\n", diff/norm);
         }
     return 0;

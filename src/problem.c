@@ -31,17 +31,22 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_new", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     if(ndim < 2)
     {
-        STARS_error("STARS_Problem_new", "invalid value of `ndim`");
+        STARS_ERROR("invalid value of `ndim`");
         return 1;
     }
     if(shape == NULL)
     {
-        STARS_error("STARS_Problem_new", "invalid value of `shape`");
+        STARS_ERROR("invalid value of `shape`");
+        return 1;
+    }
+    if(kernel == NULL)
+    {
+        STARS_ERROR("invalud value of `kernel`");
         return 1;
     }
     int i;
@@ -56,26 +61,16 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
         dtype_size = sizeof(double complex);
     else
     {
-        STARS_error("STARS_Problem_new", "invalid value of `dtype`");
+        STARS_ERROR("invalid value of `dtype`");
         return 1;
     }
     size_t entry_size = dtype_size;
     for(i = 1; i < ndim-1; i++)
         entry_size *= shape[i];
-    *P = malloc(sizeof(**P));
+    STARS_MALLOC(*P, 1);
     STARS_Problem *P2 = *P;
-    if(P2 == NULL)
-    {
-        STARS_error("STARS_Problem_new", "malloc() failed");
-        return 1;
-    }
     P2->ndim = ndim;
-    P2->shape = malloc(ndim*sizeof(*P2->shape));
-    if(P2->shape == NULL)
-    {
-        STARS_error("STARS_Problem_new", "malloc() failed");
-        return 1;
-    }
+    STARS_MALLOC(P2->shape, ndim);
     memcpy(P2->shape, shape, ndim*sizeof(*P2->shape));
     P2->symm = symm;
     P2->dtype = dtype;
@@ -87,12 +82,7 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
     P2->name = NULL;
     if(name != NULL)
     {
-        P2->name = malloc(strlen(name)+1);
-        if(P2->name == NULL)
-        {
-            STARS_error("STARS_Problem_new", "malloc() failed");
-            return 1;
-        }
+        STARS_MALLOC(P2->name, strlen(name)+1);
         strcpy(P2->name, name);
     }
     return 0;
@@ -103,7 +93,7 @@ int STARS_Problem_free(STARS_Problem *P)
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_free", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     free(P->shape);
@@ -118,7 +108,7 @@ int STARS_Problem_info(STARS_Problem *P)
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_info", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     printf("<STARS_Problem at %p, name \"%s\", shape (%d", P, P->name,
@@ -136,36 +126,32 @@ int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_get_block", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     if(irow == NULL)
     {
-        STARS_error("STARS_Problem_get_block", "invalid value of `irow`");
+        STARS_ERROR("invalid value of `irow`");
         return 1;
     }
     if(icol == NULL)
     {
-        STARS_error("STARS_Problem_get_block", "invalid value of `icol`");
+        STARS_ERROR("invalid value of `icol`");
         return 1;
     }
     int ndim = P->ndim, info;
     if(nrows < 0)
     {
-        STARS_error("STARS_Problem_get_block", "invalid value of `nrows`");
+        STARS_ERROR("invalid value of `nrows`");
         return 1;
     }
     if(ncols < 0)
     {
-        STARS_error("STARS_Problem_get_block", "invalid value of `ncols`");
+        STARS_ERROR("invalid value of `ncols`");
         return 1;
     }
-    int *shape = malloc(ndim*sizeof(*shape));
-    if(shape == NULL)
-    {
-        STARS_error("STARS_Problem_get_block", "malloc() failed");
-        return 1;
-    }
+    int *shape;
+    STARS_MALLOC(shape, ndim);
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     memcpy(shape+1, P->shape+1, (ndim-2)*sizeof(*shape));
@@ -217,30 +203,29 @@ int STARS_Problem_from_array(STARS_Problem **P, Array *A, char symm)
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_from_array", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     if(A == NULL)
     {
-        STARS_error("STARS_Problem_from_array", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->ndim < 2)
     {
-        STARS_error("STARS_Problem_from_array", "`A` should be at least "
-                "2-dimensional");
+        STARS_ERROR("`A` should be at least 2-dimensional");
         return 1;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARS_error("STARS_Problem_from_array", "invalid value of `symm`");
+        STARS_ERROR("invalid value of `symm`");
         return 1;
     }
     Array *A2 = A;
     int info;
     if(A->order == 'C')
     {
-        STARS_warning("STARS_Problem_from_array", "A->order is 'C', creating "
+        STARS_WARNING("A->order is 'C', creating "
                 "copy of array with layout in Fortran style ('F'-order). It "
                 "makes corresponding matrix non-freeable");
         info = Array_new_copy(&A2, A, 'F');
@@ -257,27 +242,18 @@ int STARS_Problem_to_array(STARS_Problem *P, Array **A)
 {
     if(P == NULL)
     {
-        STARS_error("STARS_Problem_to_array", "invalid value of `P`");
+        STARS_ERROR("invalid value of `P`");
         return 1;
     }
     if(A == NULL)
     {
-        STARS_error("STARS_Problem_to_array", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     int ndim = P->ndim, i, nrows = P->shape[0], ncols = P->shape[ndim-1], info;
-    int *irow = malloc(nrows*sizeof(*irow));
-    if(irow == NULL)
-    {
-        STARS_error("STARS_Problem_to_array", "malloc() failed");
-        return 1;
-    }
-    int *icol = malloc(ncols*sizeof(*icol));
-    if(icol == NULL)
-    {
-        STARS_error("STARS_PRoblem_to_array", "malloc() failed");
-        return 1;
-    }
+    int *irow, *icol;
+    STARS_MALLOC(irow, nrows);
+    STARS_MALLOC(icol, ncols);
     for(i = 0; i < nrows; i++)
         irow[i] = i;
     for(i = 0; i < ncols; i++)

@@ -14,31 +14,26 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
 {
     if(A == NULL)
     {
-        STARS_error("Array_from_buffer", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(ndim < 0)
     {
-        STARS_error("Array_from_buffer", "invalid value of `ndim`");
+        STARS_ERROR("invalid value of `ndim`");
         return 1;
     }
     if(order != 'F' && order != 'C')
     {
-        STARS_error("Array_from_buffer", "invalid value of `order`");
+        STARS_ERROR("invalid value of `order`");
         return 1;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARS_error("Array_from_buffer", "invalid value of `dtype`");
+        STARS_ERROR("invalid value of `dtype`");
         return 1;
     }
-    *A = malloc(sizeof(**A));
+    STARS_MALLOC(*A, 1);
     Array *A2 = *A;
-    if(A2 == NULL)
-    {
-        STARS_error("Array_from_buffer", "malloc() failed");
-        return 1;
-    }
     size_t dtype_size = 0, size = 1;
     if(dtype == 's')
         dtype_size = sizeof(float);
@@ -62,8 +57,10 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         return 0;
     }
     int i;
-    ssize_t *stride = malloc(ndim*sizeof(*stride));
-    int *newshape = malloc(ndim*sizeof(*newshape));
+    ssize_t *stride;
+    STARS_MALLOC(stride, ndim);
+    int *newshape;
+    STARS_MALLOC(newshape, ndim);
     if(order == 'F')
     {
         stride[0] = 1;
@@ -103,18 +100,13 @@ int Array_new(Array **A, int ndim, int *shape, char dtype, char order)
 {
     if(A == NULL)
     {
-        STARS_error("Array_new", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     int info = Array_from_buffer(A, ndim, shape, dtype, order, NULL);
     if(info != 0)
         return info;
-    (*A)->data = malloc((*A)->nbytes);
-    if((*A)->data == NULL)
-    {
-        STARS_error("Array_new", "malloc() failed");
-        return 1;
-    }
+    STARS_MALLOC((*A)->data, (*A)->nbytes);
     return 0;
 }
 
@@ -124,37 +116,27 @@ int Array_new_like(Array **A, Array *B)
 {
     if(A == NULL)
     {
-        STARS_error("Array_new_like", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_error("Array_new_like", "invalid value of `B`");
+        STARS_ERROR("invalid value of `B`");
         return 1;
     }
-    *A = malloc(sizeof(**A));
+    STARS_MALLOC(*A, 1);
     Array *A2 = *A;
-    if(A2 == NULL)
-    {
-        STARS_error("Array_new_like", "malloc() failed");
-        return 1;
-    }
     A2->ndim = B->ndim;
-    A2->shape = malloc(B->ndim*sizeof(*B->shape));
+    STARS_MALLOC(A2->shape, B->ndim);
     memcpy(A2->shape, B->shape, B->ndim*sizeof(*B->shape));
-    A2->stride = malloc(B->ndim*sizeof(*B->stride));
+    STARS_MALLOC(A2->stride, B->ndim);
     memcpy(A2->stride, B->stride, B->ndim*sizeof(*B->stride));
     A2->order = B->order;
     A2->size = B->size;
     A2->dtype = B->dtype;
     A2->dtype_size = B->dtype_size;
     A2->nbytes = B->nbytes;
-    A2->data = malloc(B->nbytes);
-    if(A2->data == NULL)
-    {
-        STARS_error("Array_new_like", "malloc() failed");
-        return 1;
-    }
+    STARS_MALLOC(A2->data, B->nbytes);
     return 0;
 }
 
@@ -164,17 +146,17 @@ int Array_new_copy(Array **A, Array *B, char order)
 {
     if(A == NULL)
     {
-        STARS_error("Array_new_copy", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_error("Array_new_copy", "invalid value of `B`");
+        STARS_ERROR("invalid value of `B`");
         return 1;
     }
     if(order != 'F' && order != 'C' && order != 'N')
     {
-        STARS_error("Array_new_copy", "invalid value of `order`");
+        STARS_ERROR("invalid value of `order`");
         return 1;
     }
     int info;
@@ -188,12 +170,8 @@ int Array_new_copy(Array **A, Array *B, char order)
     }
     int j;
     size_t i, ind1 = 0, ind2 = 0;
-    ssize_t *coord = malloc(B->ndim*sizeof(*coord));
-    if(coord == NULL)
-    {
-        STARS_error("Array_new_like", "malloc() failed");
-        return 1;
-    }
+    ssize_t *coord;
+    STARS_MALLOC(coord, B->ndim);
     for(i = 0; i < B->ndim; i++)
         coord[i] = 0;
     info = Array_new(A, B->ndim, B->shape, B->dtype, order);
@@ -228,7 +206,7 @@ int Array_free(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_free", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->data != NULL)
@@ -246,7 +224,7 @@ int Array_info(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_info", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     int i;
@@ -276,18 +254,14 @@ int Array_print(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_print", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     int j;
     size_t i, row, row_size = A->size/A->shape[0];
     ssize_t offset;
-    ssize_t *index = malloc(A->ndim*sizeof(*index));
-    if(index == NULL)
-    {
-        STARS_error("Array_print", "malloc() failed");
-        return 1;
-    }
+    ssize_t *index;
+    STARS_MALLOC(index, A->ndim);
     if(A->dtype == 's')
     {
         float *data = A->data;
@@ -403,7 +377,7 @@ int Array_init(Array *A, char *kind)
 {
     if(A == NULL)
     {
-        STARS_error("Array_init", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(strcmp(kind, "randn"))
@@ -416,7 +390,7 @@ int Array_init(Array *A, char *kind)
         Array_init_ones(A);
     else
     {
-        STARS_error("Array_init", "invalid value of `kind`");
+        STARS_ERROR("invalid value of `kind`");
         return 1;
     }
     return 0;
@@ -427,7 +401,7 @@ int Array_init_randn(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_randn", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -463,7 +437,7 @@ int Array_init_rand(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_init_rand", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -501,7 +475,7 @@ int Array_init_zeros(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_init_zeros", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -537,7 +511,7 @@ int Array_init_ones(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_init_ones", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -580,12 +554,12 @@ int Array_tomatrix(Array *A, char kind)
 {
     if(A == NULL)
     {
-        STARS_error("Array_tomatrix", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARS_error("Array_tomatrix", "invalid value of `kind`");
+        STARS_ERROR("invalid value of `kind`");
         return 1;
     }
     if(kind == 'R')
@@ -616,22 +590,14 @@ int Array_trans_inplace(Array *A)
 {
     if(A == NULL)
     {
-        STARS_error("Array_trans_inplace", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     int i;
-    int *new_shape = malloc(A->ndim*sizeof(*new_shape));
-    if(new_shape == NULL)
-    {
-        STARS_error("Array_trans_inplace", "malloc() failed");
-        return 1;
-    }
-    ssize_t *new_stride = malloc(A->ndim*sizeof(*new_stride));
-    if(new_stride == NULL)
-    {
-        STARS_error("Array_trans_inplace", "malloc() failed");
-        return 1;
-    }
+    int *new_shape;
+    STARS_MALLOC(new_shape, A->ndim);
+    ssize_t *new_stride;
+    STARS_MALLOC(new_stride, A->ndim);
     for(i = 0; i < A->ndim; i++)
     {
         new_shape[i] = A->shape[A->ndim-i-1];
@@ -652,33 +618,33 @@ int Array_dot(Array* A, Array *B, Array **C)
 {
     if(A == NULL)
     {
-        STARS_error("Array_dot", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_error("Array_dot", "invalid value of `B`");
+        STARS_ERROR("invalid value of `B`");
         return 1;
     }
     if(C == NULL)
     {
-        STARS_error("Array_dot", "invalid value of `C`");
+        STARS_ERROR("invalid value of `C`");
         return 1;
     }
     int i;
     if(A->dtype != B->dtype)
     {
-        STARS_error("Array_dot", "`dtype` of `A` and `B` should be equal");
+        STARS_ERROR("`dtype` of `A` and `B` should be equal");
         return 1;
     }
     if(A->order != B->order)
     {
-        STARS_error("Array_dot", "`order` of `A` and `B` should be equal");
+        STARS_ERROR("`order` of `A` and `B` should be equal");
         return 1;
     }
     if(A->shape[A->ndim-1] != B->shape[0])
     {
-        STARS_error("Array_dot", "non-multiplicative shapes of `A` and `B`");
+        STARS_ERROR("non-multiplicative shapes of `A` and `B`");
         return 1;
     }
     int order, new_ndim = A->ndim+B->ndim-2, info;
@@ -691,12 +657,8 @@ int Array_dot(Array* A, Array *B, Array **C)
     int k = B->shape[0];
     ssize_t lda = A->stride[0]*A->stride[A->ndim-1];
     ssize_t ldb = B->stride[0]*B->stride[B->ndim-1];
-    int *new_shape = malloc(new_ndim*sizeof(*new_shape));
-    if(new_shape == NULL)
-    {
-        STARS_error("Array_dot", "malloc() failed");
-        return 1;
-    }
+    int *new_shape;
+    STARS_MALLOC(new_shape, new_ndim);
     for(i = 0; i < A->ndim-1; i++)
         new_shape[i] = A->shape[i];
     for(i = 0; i < B->ndim-1; i++)
@@ -704,6 +666,7 @@ int Array_dot(Array* A, Array *B, Array **C)
     info = Array_new(C, new_ndim, new_shape, A->dtype, A->order);
     if(info != 0)
         return info;
+    free(new_shape);
     Array *C2 = *C;
     ssize_t ldc = C2->stride[0]*C2->stride[C2->ndim-1];
     if(C2->dtype == 's')
@@ -736,27 +699,27 @@ int Array_SVD(Array *A, Array **U, Array **S, Array **V)
 {
     if(A == NULL)
     {
-        STARS_error("Array_SVD", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(U == NULL)
     {
-        STARS_error("Array_SVD", "invalid value of `U`");
+        STARS_ERROR("invalid value of `U`");
         return 1;
     }
     if(S == NULL)
     {
-        STARS_error("Array_SVD", "invalid value of `S`");
+        STARS_ERROR("invalid value of `S`");
         return 1;
     }
     if(V == NULL)
     {
-        STARS_error("Array_SVD", "invalid value of `V`");
+        STARS_ERROR("invalid value of `V`");
         return 1;
     }
     if(A->ndim != 2)
     {
-        STARS_error("Array_SVD", "`A` must be 2-dimensional");
+        STARS_ERROR("`A` must be 2-dimensional");
         return 1;
     }
     char uv_dtype = A->dtype;
@@ -817,17 +780,17 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
 {
     if(S == NULL)
     {
-        STARS_error("SVD_get_rank", "invalid value of `S`");
+        STARS_ERROR("invalid value of `S`");
         return 1;
     }
     if(rank == NULL)
     {
-        STARS_error("SVD_get_rank", "invalid value of `rank`");
+        STARS_ERROR("invalid value of `rank`");
         return 1;
     }
     if(type != 'F' && type != '2')
     {
-        STARS_error("SVD_get_rank", "invalid value of `type`");
+        STARS_ERROR("invalid value of `type`");
         return 1;
     }
     size_t i, size = S->size;
@@ -836,12 +799,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         float stol, tmp, *S2, *Sbuf = S->data;
         if(type == 'F')
         {
-            S2 = malloc(size*sizeof(*S2));
-            if(S2 == NULL)
-            {
-                STARS_error("SVD_get_rank", "malloc() failed");
-                return 1;
-            }
+            STARS_MALLOC(S2, size);
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -869,12 +827,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         double stol, tmp, *S2, *Sbuf = S->data;
         if(type == 'F')
         {
-            S2 = malloc(size*sizeof(*S2));
-            if(S2 == NULL)
-            {
-                STARS_error("SVD_get_rank", "malloc() failed");
-                return 1;
-            }
+            STARS_MALLOC(S2, size);
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -906,38 +859,37 @@ int Array_scale(Array *A, char kind, Array *S)
 {
     if(A == NULL)
     {
-        STARS_error("Array_scale", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(S == NULL)
     {
-        STARS_error("Array_scale", "invalid value of `S`");
+        STARS_ERROR("invalid value of `S`");
         return 1;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARS_error("Array_scale", "invalid value of `kind`");
+        STARS_ERROR("invalid value of `kind`");
         return 1;
     }
     if(A->dtype != S->dtype)
     {
-        STARS_error("Array_scale", "`dtype` of `A` and `S` should be equal");
+        STARS_ERROR("`dtype` of `A` and `S` should be equal");
         return 1;
     }
     if(S->ndim != 1)
     {
-        STARS_error("Array_scale", "`S` should be 1-dimensional");
+        STARS_ERROR("`S` should be 1-dimensional");
         return 1;
     }
     if(kind == 'R' && S->shape[0] != A->shape[0])
     {
-        STARS_error("Array_scale", "`A` and `S` should have equal number of "
-                "rows");
+        STARS_ERROR("`A` and `S` should have equal number of rows");
         return 1;
     }
     if(kind == 'C' && S->shape[0] != A->shape[A->ndim-1])
     {
-        STARS_error("Array_scale", "`A` and `S` should have equal number of "
+        STARS_ERROR("`A` and `S` should have equal number of "
                 "columns");
         return 1;
     }
@@ -967,27 +919,27 @@ int Array_diff(Array *A, Array *B, double *result)
 {
     if(A == NULL)
     {
-        STARS_error("Array_diff", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_error("Array_diff", "invalid value of `B`");
+        STARS_ERROR("invalid value of `B`");
         return 1;
     }
     if(result == NULL)
     {
-        STARS_error("Array_diff", "invalid value of `result`");
+        STARS_ERROR("invalid value of `result`");
         return 1;
     }
     if(A->dtype != B->dtype)
     {
-        STARS_error("Array_diff", "`dtype` of `A` and `B` should be equal");
+        STARS_ERROR("`dtype` of `A` and `B` should be equal");
         return 1;
     }
     if(A->ndim != B->ndim)
     {
-        STARS_error("Array_diff", "`ndim` of `A` and `B` should be equal");
+        STARS_ERROR("`ndim` of `A` and `B` should be equal");
         return 1;
     }
     else
@@ -995,22 +947,17 @@ int Array_diff(Array *A, Array *B, double *result)
         for(int i = 0; i < A->ndim; i++)
             if(A->shape[i] != B->shape[i])
             {
-                STARS_error("Array_diff", "Shapes of `A` and `B`  must be the "
-                        "equal");
+                STARS_ERROR("Shapes of `A` and `B` should be equal");
                 return 1;
             }
     }
     double diff = 0;
-    void *tmp_buf = malloc(A->nbytes);
-    if(tmp_buf == NULL)
-    {
-        STARS_error("Array_diff", "malloc() failed");
-        return 1;
-    }
+    void *tmp_buf;
+    STARS_MALLOC(tmp_buf, A->nbytes);
     int copied = 0, info;
     if(A->order != B->order)
     {
-        STARS_warning("Array_diff", "`A` and `B` have different data layout "
+        STARS_WARNING("`A` and `B` have different data layout "
                 "(one is 'C'-order, another is 'F'-order). Creating copy of "
                 "`B` with data layout of `A`");
         info = Array_new_copy(&B, B, A->order);
@@ -1055,12 +1002,12 @@ int Array_norm(Array *A, double *result)
 {
     if(A == NULL)
     {
-        STARS_error("Array_norm", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(result == NULL)
     {
-        STARS_error("Array_scale", "invalid value of `result`");
+        STARS_ERROR("invalid value of `result`");
         return 1;
     }
     if(A->dtype == 's')
@@ -1087,17 +1034,17 @@ int Array_convert(Array **A, Array *B, char dtype)
 {
     if(A == NULL)
     {
-        STARS_error("Array_convert", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_error("Array_convert", "invalid value of `B`");
+        STARS_ERROR("invalid value of `B`");
         return 1;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARS_error("Array_convert", "invalid value of `dtype`");
+        STARS_ERROR("invalid value of `dtype`");
         return 1;
     }
     if(B->dtype == dtype)
@@ -1107,12 +1054,8 @@ int Array_convert(Array **A, Array *B, char dtype)
     size_t i;
     if(dtype == 's')
     {
-        float *dest = malloc(B->size*sizeof(*dest));
-        if(dest == NULL)
-        {
-            STARS_error("Array_convert", "malloc() failed");
-            return 1;
-        }
+        float *dest;
+        STARS_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1149,12 +1092,8 @@ int Array_convert(Array **A, Array *B, char dtype)
     }
     if(dtype == 'd')
     {
-        double *dest = malloc(B->size*sizeof(*dest));
-        if(dest == NULL)
-        {
-            STARS_error("Array_convert", "malloc() failed");
-            return 1;
-        }
+        double *dest;
+        STARS_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1191,12 +1130,8 @@ int Array_convert(Array **A, Array *B, char dtype)
     }
     if(dtype == 'c')
     {
-        float complex *dest = malloc(B->size*sizeof(*dest));
-        if(dest == NULL)
-        {
-            STARS_error("Array_convert", "malloc() failed");
-            return 1;
-        }
+        float complex *dest;
+        STARS_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1233,12 +1168,8 @@ int Array_convert(Array **A, Array *B, char dtype)
     }
     else// dtype == 'z'
     {
-        double complex *dest = malloc(B->size*sizeof(*dest));
-        if(dest == NULL)
-        {
-            STARS_error("Array_convert", "malloc() failed");
-            return 1;
-        }
+        double complex *dest;
+        STARS_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1280,22 +1211,22 @@ int Array_Cholesky(Array *A, char uplo)
 {
     if(A == NULL)
     {
-        STARS_error("Array_Cholesky", "invalid value of `A`");
+        STARS_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->ndim != 2)
     {
-        STARS_error("Array_Cholesky", "`A` should be 2-dimensional");
+        STARS_ERROR("`A` should be 2-dimensional");
         return 1;
     }
     if(A->shape[0] != A->shape[1])
     {
-        STARS_error("Array_Cholesky", "`A` must be square");
+        STARS_ERROR("`A` must be square");
         return 1;
     }
     if(uplo != 'U' && uplo != 'L')
     {
-        STARS_error("Array_Cholesky", "invalid value of `uplo`");
+        STARS_ERROR("invalid value of `uplo`");
         return 1;
     }
     int order;

@@ -42,8 +42,16 @@ int main(int argc, char **argv)
     STARS_BLRF_info(F);
     // Approximate each admissible block
     STARS_BLRM *M;
-    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, maxrank, tol,
-            1); // 0 for onfly=0
+    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol,
+            0); // 0 for onfly=0
+    // Free F if it is not equal to M->blrf and print info about new BLRF format
+    if(M->blrf != F)
+    {
+        STARS_BLRF_free(F);
+        F = M->blrf;
+        STARS_BLRF_info(F);
+    }
+    // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
@@ -73,8 +81,15 @@ int main(int argc, char **argv)
     info = STARS_BLRF_new_tiled(&F, P, C, C, 'S');
     STARS_BLRF_info(F);
     // Approximate each admissible block
-    info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, maxrank, tol,
-            0, 1000000000);
+    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol,
+            0);//, 1000000000);
+    // Free F if it is not equal to M->blrf and print info about new BLRF format
+    if(M->blrf != F)
+    {
+        STARS_BLRF_free(F);
+        F = M->blrf;
+        STARS_BLRF_info(F);
+    }
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
@@ -87,7 +102,7 @@ int main(int argc, char **argv)
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(P);
     // Check if this problem is good for Cholesky factorization
-    printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
+    //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
     // Free memory, consumed by array
     Array_free(A);
     return 0;

@@ -27,13 +27,8 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
 //   type: type of C. Tiled with STARS_ClusterTiled or hierarchical with
 //     STARS_ClusterHierarchical.
 {
-    *C = malloc(sizeof(**C));
+    STARS_MALLOC(*C, 1);
     STARS_Cluster *C2 = *C;
-    if(C2 == NULL)
-    {
-        STARS_error("STARS_Cluster_new", "malloc() failed");
-        return 1;
-    }
     C2->data = data;
     C2->ndata = ndata;
     C2->pivot = pivot;
@@ -54,7 +49,7 @@ int STARS_Cluster_free(STARS_Cluster *C)
 {
     if(C == NULL)
     {
-        STARS_error("STARS_Cluster_free", "invalid value of `C`");
+        STARS_ERROR("invalid value of `C`");
         return 1;
     }
     free(C->pivot);
@@ -77,7 +72,7 @@ int STARS_Cluster_info(STARS_Cluster *C)
 {
     if(C == NULL)
     {
-        STARS_error("STARS_Cluster_free", "invalid value of `C`");
+        STARS_ERROR("invalid value of `C`");
         return 1;
     }
     printf("<STARS_Cluster at %p, ", C);
@@ -95,33 +90,23 @@ int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
 {
     if(C == NULL)
     {
-        STARS_error("STARS_Cluster_new_tiled", "invalid value of `C`");
+        STARS_ERROR("invalid value of `C`");
         return 1;
     }
     if(ndata < 0)
     {
-        STARS_error("STARS_Cluster_new_tiled", "invalid value of `ndata`");
+        STARS_ERROR("invalid value of `ndata`");
         return 1;
     }
     if(block_size < 0)
     {
-        STARS_error("STARS_Cluster_new_tiled", "invalid value of "
-                "`block_sizez");
+        STARS_ERROR("invalid value of `block_sizez");
         return 1;
     }
     int i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
-    int *start = malloc(nblocks*sizeof(*start));
-    if(start == NULL)
-    {
-        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
-        return 1;
-    }
-    int *size = malloc(nblocks*sizeof(*size));
-    if(size == NULL)
-    {
-        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
-        return 1;
-    }
+    int *start, *size, *pivot;
+    STARS_MALLOC(start, nblocks);
+    STARS_MALLOC(size, nblocks);
     while(i < ndata)
     {
         j = i+block_size;
@@ -132,11 +117,7 @@ int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
         i = j;
         k++;
     }
-    int *pivot = malloc(ndata*sizeof(*pivot));
-    if(pivot == NULL)
-    {
-        STARS_error("STARS_Cluster_new_tiled", "malloc() failed");
-    }
+    STARS_MALLOC(pivot, ndata);
     for(i = 0; i < ndata; i++)
         pivot[i] = i;
     return STARS_Cluster_new(C, data, ndata, pivot, nblocks, 0, NULL, start,
