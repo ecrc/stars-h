@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include "lapacke.h"
-
+#include "misc.h"
 
 double randn()
 {
@@ -29,4 +29,16 @@ double randn()
     }
     phase = 1-phase;
     return X;
+}
+
+void STARS_check_info(int info)
+{
+    switch(info)
+    {
+        case 1:
+            fprintf(stderr, "malloc() failed");
+            return;
+        default:
+            return;
+    }
 }

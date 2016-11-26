@@ -15,7 +15,7 @@ int STARS_esdata_block_kernel(int nrows, int ncols, int *irow, int *icol,
     double tmp, dist;
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
-    #pragma omp parallel for private(tmp, dist, i, j)
+    //#pragma omp parallel for private(tmp, dist, i, j)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {

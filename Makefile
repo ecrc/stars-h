@@ -15,7 +15,7 @@ all: 		lib test
 -include make.inc
 
 CC		= gcc
-CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
+CFLAGS		?= -O2 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
 #LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications/HPC/lib/
 
 ARCH		?= ar
@@ -23,13 +23,13 @@ ARCHFLAGS	?= rc
 RANLIB		?= ranlib
 
 INCLUDE		?= -I$(MKLROOT)/include
-LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
+#LIBS		?= -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib\
 		   -lmkl_rt -liomp5 -lm
 #LIBS		?= -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a\
 		   ${MKLROOT}/lib/intel64/libmkl_sequential.a\
 		   ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group\
 		   -lpthread -lm -ldl
-#LIBS		?=  ${MKLROOT}/lib/libmkl_intel_lp64.a ${MKLROOT}/lib/libmkl_sequential.a ${MKLROOT}/lib/libmkl_core.a -lpthread -lm -ldl
+LIBS		?=  ${MKLROOT}/lib/libmkl_intel_lp64.a ${MKLROOT}/lib/libmkl_sequential.a ${MKLROOT}/lib/libmkl_core.a -lpthread -lm -ldl
 #LIBS		?=  -llapacke -llapack -lcblas -lrefblas -lpthread
 #LIBS		?= -llapacke -lcblas -llapack -lrefblas -lgfortran
 STARSH_INCLUDE	= -Iinclude/

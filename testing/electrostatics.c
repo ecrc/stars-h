@@ -41,14 +41,17 @@ int main(int argc, char **argv)
     STARS_BLRF_info(F);
     // Approximate each admissible block
     STARS_BLRM *M;
-    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol, 0);
-    // Free F if it is not equal to M->blrf and print info about new BLRF format
-    if(M->blrf != F)
-    {
-        STARS_BLRF_free(F);
-        F = M->blrf;
-        STARS_BLRF_info(F);
-    }
+    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, maxrank, tol,
+            0);
+    // 0 for onfly=0
+    STARS_BLRM_info(M);
+    // Measure approximation error in Frobenius norm
+    info = STARS_BLRM_error(M);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
+    // Approximate each admissible block
+    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, maxrank, tol,
+            0);
     // 0 for onfly=0
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -79,14 +82,9 @@ int main(int argc, char **argv)
     info = STARS_BLRF_new_tiled(&F, P, C, C, 'S');
     STARS_BLRF_info(F);
     // Approximate each admissible block
-    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol, 0);
+    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, maxrank, tol,
+            0);
     // Free F if it is not equal to M->blrf and print info about new BLRF format
-    if(M->blrf != F)
-    {
-        STARS_BLRF_free(F);
-        F = M->blrf;
-        STARS_BLRF_info(F);
-    }
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);

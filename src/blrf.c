@@ -245,6 +245,64 @@ int STARS_BLRF_free(STARS_BLRF *F)
     return 0;
 }
 
+void STARS_BLRF_swap(STARS_BLRF *F, STARS_BLRF *F2)
+// Swap content about admissible blocks of two BLR formats (fields `problem`,
+// `symm`, `row_cluster` and `col_cluster` should be equal for input `F` and
+// `F2`). Useful when inplace modification of one of them is required due to
+// new information (more accurate lists of far-field and near-filed blocks).
+{
+    void *tmp_ptr;
+    size_t tmp_size;
+
+    tmp_size = F->nblocks_far;
+    F->nblocks_far = F2->nblocks_far;
+    F2->nblocks_far = tmp_size;
+
+    tmp_size = F->nblocks_near;
+    F->nblocks_near = F2->nblocks_near;
+    F2->nblocks_near = tmp_size;
+
+    tmp_ptr = F->block_far;
+    F->block_far = F2->block_far;
+    F2->block_far = tmp_ptr;
+
+    tmp_ptr = F->block_near;
+    F->block_near = F2->block_near;
+    F2->block_near = tmp_ptr;
+
+    tmp_ptr = F->brow_far_start;
+    F->brow_far_start = F2->brow_far_start;
+    F2->brow_far_start = tmp_ptr;
+
+    tmp_ptr = F->brow_far;
+    F->brow_far = F2->brow_far;
+    F2->brow_far = tmp_ptr;
+
+    tmp_ptr = F->brow_near_start;
+    F->brow_near_start = F2->brow_near_start;
+    F2->brow_near_start = tmp_ptr;
+
+    tmp_ptr = F->brow_near;
+    F->brow_near = F2->brow_near;
+    F2->brow_near = tmp_ptr;
+
+    tmp_ptr = F->bcol_far_start;
+    F->bcol_far_start = F2->bcol_far_start;
+    F2->bcol_far_start = tmp_ptr;
+
+    tmp_ptr = F->bcol_far;
+    F->bcol_far = F2->bcol_far;
+    F2->bcol_far = tmp_ptr;
+
+    tmp_ptr = F->bcol_near_start;
+    F->bcol_near_start = F2->bcol_near_start;
+    F2->bcol_near_start = tmp_ptr;
+
+    tmp_ptr = F->bcol_near;
+    F->bcol_near = F2->bcol_near;
+    F2->bcol_near = tmp_ptr;
+}
+
 int STARS_BLRF_info(STARS_BLRF *F)
 // Print short info on block partitioning
 {

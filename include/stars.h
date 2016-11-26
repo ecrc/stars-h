@@ -314,6 +314,10 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
 int STARS_BLRF_free(STARS_BLRF *F);
 // Free memory, used by block low rank format (partitioning of A into
 // blocks)
+void STARS_BLRF_swap(STARS_BLRF *F, STARS_BLRF *F2);
+// Swaps content of two BLR formats. Useful when inplace modification of one of
+// them is required due to new information (more accurate lists of far-field
+// and near-filed blocks)
 int STARS_BLRF_info(STARS_BLRF *F);
 // Print short info on block partitioning
 int STARS_BLRF_print(STARS_BLRF *F);
