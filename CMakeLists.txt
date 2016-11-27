@@ -30,6 +30,12 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 
+# Packaging (make package)
+SET(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
+SET(CPACK_GENERATOR "TGZ")
+INCLUDE(CPack)
+
+
 # This project eeds C99 standard to compile properly
 # (could have used CMAKE_C_FLAGS instead)
 ADD_DEFINITIONS( -std=c99 )

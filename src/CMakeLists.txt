@@ -13,6 +13,11 @@ include_directories( ${PROJECT_SOURCE_DIR}/include)
 # Defines the STARS-H library to build
 add_library(starsh STATIC ${STARSH_SRC})
 
+# Add public headers files to installation
+set( STARSH_PUB_HDR ${PROJECT_SOURCE_DIR}/include/stars.h ${PROJECT_SOURCE_DIR}/include/stars-spatial.h )
+set_target_properties( starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}" )
+
+
 option( BUILD_SHARED_LIBS "Generates shared library" OFF)
 if( BUILD_SHARED_LIBS )
 	add_library ( starsh-so SHARED ${STARSH_SRC} )
@@ -25,5 +30,5 @@ endif( BUILD_SHARED_LIBS )
 
 install( TARGETS starsh
          DESTINATION lib
-         )
+         PUBLIC_HEADER DESTINATION include         )
 
