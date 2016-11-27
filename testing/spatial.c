@@ -57,6 +57,7 @@ int main(int argc, char **argv)
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
+    STARS_BLRF_info(F);
     // Free memory, used by block low-rank format
     STARS_BLRF_free(F);
     // Free memory, used by clusterization info

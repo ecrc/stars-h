@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     // 0 for onfly=0
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
-    info = STARS_BLRM_error(M);
+    STARS_BLRM_error(M);
     // Free memory, used by matrix in block low-rank format
     STARS_BLRM_free(M);
     // Approximate each admissible block
