@@ -367,6 +367,8 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
+int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A);
+// Creates copy of Block Low-rank Matrix in dense format
 int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         int maxrank, double tol, int onfly);
 // Private function of STARS-H

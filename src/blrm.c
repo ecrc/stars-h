@@ -427,8 +427,8 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
     if(bi != -1)
     {
         *rank = M->far_rank[bi];
-        *U = M->far_U[bi];
-        *V = M->far_V[bi];
+        *U = M->far_U[bi]->data;
+        *V = M->far_V[bi]->data;
         return info;
     }
     k = F->brow_near_start[i];
@@ -443,7 +443,7 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
     }
     if(bi != -1)
     {
-        *D = M->near_D[bi];
+        *D = M->near_D[bi]->data;
         if(*D == NULL)
             info = STARS_BLRF_get_block(F, i, j, shape, D);
         return info;
@@ -451,6 +451,111 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
     STARS_WARNING("Required block (%d, %d) is not admissible!\n", i, j);
     info = STARS_BLRF_get_block(F, i, j, shape, D);
     return info;
+}
+
+int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
+// Creates copy of Block Low-rank Matrix in dense format
+{
+    // Check parameters
+    if(M == NULL)
+    {
+        STARS_ERROR("invalid value of `M`");
+        return 1;
+    }
+    if(A == NULL)
+    {
+        STARS_ERROR("invalid value of `A`");
+        return 1;
+    }
+    STARS_BLRF *F = M->blrf;
+    STARS_Problem *P = F->problem;
+    STARS_Cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    int info = Array_new(A, P->ndim, P->shape, P->dtype, 'F');
+    Array *A2 = *A;
+    double *ptrA = A2->data;
+    int lda = A2->shape[0];
+    size_t bi;
+    volatile int abort = 0;
+    // At first restore far-field blocks
+    #pragma omp parallel for
+    for(bi = 0; bi < F->nblocks_far; bi++)
+    {
+        if(abort != 0)
+            continue;
+        int i = F->block_far[2*bi];
+        int j = F->block_far[2*bi+1];
+        Array *B;
+        int info = Array_dot(M->far_U[bi], M->far_V[bi], &B);
+        int shape[2], rank;
+        void *U, *V, *D;
+        info = STARS_BLRM_get_block(M, i, j, shape, &rank, &U, &V, &D);
+        if(U != M->far_U[bi]->data || V != M->far_V[bi]->data || D != NULL)
+        {
+            STARS_ERROR("bad BLRN_get_block()");
+            info = 2;
+        }
+        if(info != 0)
+        {
+            #pragma omp atomic write
+            abort = info;
+            continue;
+        }
+        double *ptrB = B->data, *localA = ptrA;
+        localA += CC->start[j]*lda+RC->start[i];
+        int ldb = B->shape[0];
+        for(size_t k = 0; k < B->shape[0]; k++)
+            for(size_t l = 0; l < B->shape[1]; l++)
+                localA[l*lda+k] = ptrB[l*ldb+k];
+        if(F->symm == 'S')
+        {
+            localA = ptrA;
+            localA += CC->start[j]+RC->start[i]*lda;
+            for(size_t k = 0; k < B->shape[0]; k++)
+                for(size_t l = 0; l < B->shape[1]; l++)
+                    localA[l+k*lda] = ptrB[l*ldb+k];
+        }
+    }
+    if(abort != 0)
+        return abort;
+    // Restore near-field blocks
+    #pragma omp parallel for
+    for(bi = 0; bi < F->nblocks_near; bi++)
+    {
+        if(abort != 0)
+            continue;
+        int i = F->block_near[2*bi];
+        int j = F->block_near[2*bi+1];
+        Array *B = M->near_D[bi];
+        int shape[2], rank;
+        void *U, *V, *D;
+        int info = STARS_BLRM_get_block(M, i, j, shape, &rank, &U, &V, &D);
+        if(U != NULL || V != NULL || (F->symm == 0 && D != B->data))
+        {
+            STARS_ERROR("bad BLRN_get_block()");
+            info = 2;
+        }
+        if(info != 0)
+        {
+            #pragma omp atomic write
+            abort = info;
+            continue;
+        }
+        double *ptrB = B->data, *localA = ptrA;
+        localA += CC->start[j]*lda+RC->start[i];
+        int ldb = B->shape[0];
+        for(size_t k = 0; k < B->shape[0]; k++)
+            for(size_t l = 0; l < B->shape[1]; l++)
+                localA[l*lda+k] = ptrB[l*ldb+k];
+        if(F->symm == 'S')
+        {
+            localA = ptrA;
+            localA += CC->start[j]+RC->start[i]*lda;
+            for(size_t k = 0; k < B->shape[0]; k++)
+                for(size_t l = 0; l < B->shape[1]; l++)
+                    localA[l+k*lda] = ptrB[l*ldb+k];
+        }
+    }
+    return abort;
 }
 
 int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
