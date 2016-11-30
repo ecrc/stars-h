@@ -8,19 +8,19 @@ int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
 // For more information on STARS structures look inside of header files.
 {
-    if(argc < 7)
+    if(argc < 8)
     {
         printf("%d\n", argc);
-        printf("spatial.out n block_size fixrank maxrank tol beta\n");
+        printf("spatial.out n block_size fixrank maxrank tol beta rseed\n");
         exit(0);
     }
     int n = atoi(argv[1]), block_size = atoi(argv[2]), fixrank = atoi(argv[3]);
-    int maxrank = atoi(argv[4]), info;
+    int maxrank = atoi(argv[4]), rseed = atoi(argv[7]), info;
     double tol = atof(argv[5]), beta = atof(argv[6]);
     printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f\n",
             n, block_size, fixrank, maxrank, tol, beta);
     // Setting random seed
-    srand(time(NULL));
+    srand(rseed);
     // Generate data for spatial statistics problem
     //STARS_ssdata *data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
     //        beta);

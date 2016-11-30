@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "stars.h"
 
 typedef struct STARS_ssdata
