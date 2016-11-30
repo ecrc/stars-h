@@ -8,24 +8,23 @@ int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
 // For more information on STARS structures look inside of header files.
 {
-    if(argc < 8)
+    if(argc < 7)
     {
         printf("%d\n", argc);
-        printf("spatial.out row_blocks col_blocks block_size fixrank "
-                "tol beta maxrank\n");
+        printf("spatial.out n block_size fixrank maxrank tol beta\n");
         exit(0);
     }
-    int row_blocks = atoi(argv[1]), col_blocks = atoi(argv[2]);
-    int block_size = atoi(argv[3]), fixrank = atoi(argv[4]), info;
-    int maxrank = atoi(argv[5]);
-    double tol = atof(argv[6]), beta = atof(argv[7]);
-    printf("\nrb=%d, cb=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f\n",
-            row_blocks, col_blocks, block_size, fixrank, maxrank, tol, beta);
+    int n = atoi(argv[1]), block_size = atoi(argv[2]), fixrank = atoi(argv[3]);
+    int maxrank = atoi(argv[4]), info;
+    double tol = atof(argv[5]), beta = atof(argv[6]);
+    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f\n",
+            n, block_size, fixrank, maxrank, tol, beta);
     // Setting random seed
     srand(time(NULL));
     // Generate data for spatial statistics problem
-    STARS_ssdata *data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
-            beta);
+    //STARS_ssdata *data = STARS_gen_ssdata(row_blocks, col_blocks, block_size,
+    //        beta);
+    STARS_ssdata *data = STARS_gen_ssdata2(n, beta);
     int ndim = 2, shape[2] = {data->count, data->count};
     char symm = 'S', dtype = 'd';
     // Init problem with given data and kernel

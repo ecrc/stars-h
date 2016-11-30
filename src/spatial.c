@@ -30,7 +30,6 @@ int STARS_ssdata_block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     return 0;
 }
 
-/*
 uint32_t Part1By1(uint32_t x)
 {
   x &= 0x0000ffff;                  // x = ---- ---- ---- ---- fedc ba98 7654 3210
@@ -88,12 +87,11 @@ void gen_points_old(int n, double *points)
     {
         for(j = 0; j < n; j++)
         {
-            points[i*n+j] = (j+0.5+0.4*randn())/n;
-            A[i*n+j] = (i+0.5+0.4*randn())/n;
+            points[i*n+j] = (j+0.5+0.4*rand()/RAND_MAX)/n;
+            A[i*n+j] = (i+0.5+0.4*rand()/RAND_MAX)/n;
         }
     }
 }
-*/
 
 void gen_ss_block_points(int m, int n, int block_size, double *points)
 {
@@ -111,14 +109,25 @@ void gen_ss_block_points(int m, int n, int block_size, double *points)
             }
 }
 
-STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks, int block_size,
-        double beta)
+STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks,
+        int block_size, double beta)
 {
     size_t n = (size_t)row_blocks*(size_t)col_blocks*(size_t)block_size;
     STARS_ssdata *data = malloc(sizeof(*data));
     data->point = malloc(2*n*sizeof(*data->point));
     gen_ss_block_points(row_blocks, col_blocks, block_size, data->point);
-    data->count = n;
+    data->count = n*n;
+    data->beta = beta;
+    return data;
+}
+
+STARS_ssdata *STARS_gen_ssdata2(int n, double beta)
+{
+    STARS_ssdata *data = malloc(sizeof(*data));
+    data->point = malloc(2*n*n*sizeof(*data->point));
+    gen_points_old(n, data->point);
+    zsort(n*n, data->point);
+    data->count = n*n;
     data->beta = beta;
     return data;
 }
