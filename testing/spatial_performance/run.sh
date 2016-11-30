@@ -6,15 +6,15 @@ echo $PARAMS_FILE
 cat /dev/null > $RESULT_FILE
 while IFS= read -r opt
 do
-	for i in {3..36..3}
+    for((i=36;i>0;i=i-3))
 	do
 		export OMP_NUM_THREADS=$i
 		#echo $OMP_NUM_THREADS
 		for j in `seq 10`
 		do
-			echo ./spatial_performance $opt $OMP_NUM_THREADS >>\
+			echo ./spatial_performance $opt $j $OMP_NUM_THREADS >>\
 				 $RESULT_FILE
-			./spatial_performance.out $opt >> ${RESULT_FILE}
+			./spatial_performance.out $opt $j >> ${RESULT_FILE}
 		done
 		echo $DELIMITER >> $RESULT_FILE
 		echo $DELIMITER >> $RESULT_FILE

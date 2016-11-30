@@ -17,8 +17,8 @@ int main(int argc, char **argv)
     int n = atoi(argv[1]), block_size = atoi(argv[2]), fixrank = atoi(argv[3]);
     int maxrank = atoi(argv[4]), rseed = atoi(argv[7]), info;
     double tol = atof(argv[5]), beta = atof(argv[6]);
-    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f\n",
-            n, block_size, fixrank, maxrank, tol, beta);
+    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f rseed=%d\n",
+            n*n, block_size, fixrank, maxrank, tol, beta, rseed);
     // Setting random seed
     srand(rseed);
     // Generate data for spatial statistics problem
