@@ -8,7 +8,7 @@ int main(int argc, char **argv){
 
     if(argc < 5)
     {
-        printf("./astronomy.out files_path block_size maxrank tol\n");
+        printf("./astronomy.out files_path block_size fixrank maxrank tol\n");
         exit(1);
     }
     char *files_path = argv[1];
@@ -19,14 +19,14 @@ int main(int argc, char **argv){
     double alphaX=0.0;
     double alphaY=0.0;
     int block_size = atoi(argv[2]);
-    int maxrank = atoi(argv[3]);
-    double tol = atof(argv[4]);
+    int fixrank = atoi(argv[3]), maxrank = atoi(argv[4]);
+    double tol = atof(argv[5]);
     STARS_aodata *data = STARS_gen_aodata(files_path, night_idx,
             snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
     int ndim = 2, shape[2] = {data->count, data->count}, info;
     char symm = 'S', dtype = 'd';
-    printf("\nfiles_path=%s bs=%d mr=%d tol=%e\n", files_path, block_size,
-            maxrank, tol);
+    printf("\nfiles_path=\"%s\", bs=%d, fr=%d, mr=%d, tol=%e\n", files_path,
+            block_size, fixrank, maxrank, tol);
     // Init problem with given data and kernel
     STARS_Problem *P;
     info = STARS_Problem_new(&P, ndim, shape, symm, dtype, data, data,
@@ -42,35 +42,54 @@ int main(int argc, char **argv){
     STARS_BLRF_info(F);
     // Approximate each admissible block
     STARS_BLRM *M;
-    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol,
-            0);
-    // Free F if it is not equal to M->blrf and print info about new BLRF format
-    if(M->blrf != F)
-    {
-        STARS_BLRF_free(F);
-        F = M->blrf;
-        STARS_BLRF_info(F);
-    }
+    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 0);
     // 0 for onfly=0
+    // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
     // Free memory, used by matrix in block low-rank format
     STARS_BLRM_free(M);
+    // Other approximation procedure
+    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
+            0); // 0 for onfly=0
+    // Print info about approximation
+    STARS_BLRM_info(M);
+    // Measure approximation error in Frobenius norm
+    STARS_BLRM_error(M);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
+    // Other approximation procedure
+    info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
+            0, maxrank, 1000000000); // 0 for onfly=0
+    // Print info about approximation
+    STARS_BLRM_info(M);
+    // Measure approximation error in Frobenius norm
+    STARS_BLRM_error(M);
+    // Get corresponding matrix
+    Array *A;
+    info = STARS_Problem_to_array(P, &A);
+    Array *B;
+    info = STARS_BLRM_to_matrix(M, &B);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
+    // Measure accuracy by dense matrices
+    double diff, norm;
+    info = Array_diff(A, B, &diff);
+    info = Array_norm(A, &norm);
+    Array_free(B);
+    printf("STARS_BLRM_to_matrix diff with Array: %e\n", diff/norm);
     // Free memory, used by block low-rank format
     STARS_BLRF_free(F);
     // Free memory, used by clusterization info
     STARS_Cluster_free(C);
-    // Print info about starting new problem
-    printf("\nThe same, but with pregenerated matrix\n");
-    // Get corresponding matrix
-    Array *A;
-    info = STARS_Problem_to_array(P, &A);
-    Array_info(A);
     // Free memory, used by spatial statistics data
     STARS_aodata_free(data);
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(P);
+    // Print info about starting new problem
+    printf("\nThe same, but with pregenerated matrix\n");
+    Array_info(A);
     // Set new problem from corresponding matrix
     info = STARS_Problem_from_array(&P, A, 'S');
     STARS_Problem_info(P);
@@ -81,18 +100,35 @@ int main(int argc, char **argv){
     info = STARS_BLRF_new_tiled(&F, P, C, C, 'S');
     STARS_BLRF_info(F);
     // Approximate each admissible block
-    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, maxrank, tol,
-            0);
-    // Free F if it is not equal to M->blrf and print info about new BLRF format
-    if(M->blrf != F)
-    {
-        STARS_BLRF_free(F);
-        F = M->blrf;
-        STARS_BLRF_info(F);
-    }
+    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 0);
+    // 0 for onfly=0
+    // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
+    // Other approximation procedure
+    info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
+            0); // 0 for onfly=0
+    // Print info about approximation
+    STARS_BLRM_info(M);
+    // Measure approximation error in Frobenius norm
+    STARS_BLRM_error(M);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
+    // Other approximation procedure
+    info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
+            0, maxrank, 1000000000);
+    STARS_BLRM_info(M);
+    // Measure approximation error in Frobenius norm
+    STARS_BLRM_error(M);
+    // Get corresponding matrix
+    info = STARS_BLRM_to_matrix(M, &B);
+    info = Array_diff(A, B, &diff);
+    info = Array_norm(A, &norm);
+    Array_free(B);
+    printf("STARS_BLRM_to_matrix diff with Array: %e\n", diff/norm);
     // Free memory, used by matrix in block low-rank format
     STARS_BLRM_free(M);
     // Free memory, used by block low-rank format
@@ -101,6 +137,8 @@ int main(int argc, char **argv){
     STARS_Cluster_free(C);
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(P);
+    // Check if this problem is good for Cholesky factorization
+    //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
     // Free memory, consumed by array
     Array_free(A);
     return 0;

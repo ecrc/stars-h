@@ -9,7 +9,7 @@ typedef struct STARS_Problem STARS_Problem;
 typedef struct STARS_Cluster STARS_Cluster;
 typedef struct STARS_BLRF STARS_BLRF;
 typedef struct STARS_BLRM STARS_BLRM;
-typedef int (*block_kernel)(int, int, int *, int *, void *, void *,
+typedef int (*block_kernel)( int,  int,  int *,  int *, void  *, void  *,
         void *);
 
 typedef enum {STARS_Dense, STARS_LowRank, STARS_Unknown} STARS_BlockStatus;
@@ -337,7 +337,7 @@ struct STARS_BLRM
     // Pointer to block low-rank format.
     int *far_rank;
     // Rank of each far-field block.
-    Array **far_U, **far_V, **far_D;
+    Array **far_U, **far_V;
     // Arrays of pointers to factors U and V of each low-rank far-field block
     // and dense A of each dense far-field block.
     int onfly;
@@ -353,9 +353,10 @@ struct STARS_BLRM
 };
 
 
-int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank, Array **far_U,
-        Array **far_V, int onfly, Array **near_D, void *alloc_U,
-        void *alloc_V, void *alloc_D, char alloc_type);
+int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
+        Array **far_U, Array **far_V, int onfly,
+        Array **near_D, void *alloc_U, void *alloc_V,
+        void *alloc_D, char alloc_type);
 // Init procedure for a non-nested block low-rank matrix
 int STARS_BLRM_free(STARS_BLRM *M);
 // Free memory of a non-nested block low-rank matrix
@@ -370,17 +371,17 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
 int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A);
 // Creates copy of Block Low-rank Matrix in dense format
 int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
-        int maxrank, double tol, int onfly);
+        int fixrank, double tol, int onfly);
 // Private function of STARS-H
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 //int STARS_BRLM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
 int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-        STARS_BLRF *F, int maxrank, double tol, int onfly);
+        STARS_BLRF *F, int fixrank, double tol, int onfly);
 
 int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
-        STARS_BLRF *F, int maxrank, double tol, int onfly,
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
         size_t max_buffer_size);
 
 #endif // _STARS_H_

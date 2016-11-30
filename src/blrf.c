@@ -246,6 +246,13 @@ int STARS_BLRF_free(STARS_BLRF *F)
 }
 
 void STARS_BLRF_swap(STARS_BLRF *F, STARS_BLRF *F2)
+{
+    STARS_BLRF tmp = *F;
+    *F = *F2;
+    *F2 = tmp;
+}
+
+void STARS_BLRF_swap2(STARS_BLRF *F, STARS_BLRF *F2)
 // Swap content about admissible blocks of two BLR formats (fields `problem`,
 // `symm`, `row_cluster` and `col_cluster` should be equal for input `F` and
 // `F2`). Useful when inplace modification of one of them is required due to

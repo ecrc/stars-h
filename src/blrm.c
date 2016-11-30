@@ -9,8 +9,9 @@
 #include "misc.h"
 
 
-int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank, Array **far_U,
-        Array **far_V, int onfly, Array **near_D, void *alloc_U, void *alloc_V,
+int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
+        Array **far_U, Array **far_V, int onfly,
+        Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type)
 // Init procedure for a non-nested block low-rank matrix
 {
@@ -414,39 +415,46 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
     *U = NULL;
     *V = NULL;
     *D = NULL;
-    size_t bi = -1, k = F->brow_far_start[i];
-    while(k < F->brow_far_start[i+1])
+    size_t bi = -1, k;
+    if(F->nblocks_far > 0)
     {
-        if(F->block_far[2*F->brow_far[k]+1] == j)
+        k = F->brow_far_start[i];
+        while(k < F->brow_far_start[i+1])
         {
-            bi = k;
-            break;
+            if(F->block_far[2*F->brow_far[k]+1] == j)
+            {
+                bi = k;
+                break;
+            }
+            k++;
         }
-        k++;
-    }
-    if(bi != -1)
-    {
-        *rank = M->far_rank[bi];
-        *U = M->far_U[bi]->data;
-        *V = M->far_V[bi]->data;
-        return info;
-    }
-    k = F->brow_near_start[i];
-    while(k < F->brow_near_start[i+1])
-    {
-        if(F->block_near[2*F->brow_near[k]+1] == j)
+        if(bi != -1)
         {
-            bi = k;
-            break;
+            *rank = M->far_rank[bi];
+            *U = M->far_U[bi]->data;
+            *V = M->far_V[bi]->data;
+            return info;
         }
-        k++;
     }
-    if(bi != -1)
+    if(F->nblocks_near > 0)
     {
-        *D = M->near_D[bi]->data;
-        if(*D == NULL)
-            info = STARS_BLRF_get_block(F, i, j, shape, D);
-        return info;
+        k = F->brow_near_start[i];
+        while(k < F->brow_near_start[i+1])
+        {
+            if(F->block_near[2*F->brow_near[k]+1] == j)
+            {
+                bi = k;
+                break;
+            }
+            k++;
+        }
+        if(bi != -1)
+        {
+            *D = M->near_D[bi]->data;
+            if(*D == NULL)
+                info = STARS_BLRF_get_block(F, i, j, shape, D);
+            return info;
+        }
     }
     STARS_WARNING("Required block (%d, %d) is not admissible!\n", i, j);
     info = STARS_BLRF_get_block(F, i, j, shape, D);
@@ -491,7 +499,7 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
         info = STARS_BLRM_get_block(M, i, j, shape, &rank, &U, &V, &D);
         if(U != M->far_U[bi]->data || V != M->far_V[bi]->data || D != NULL)
         {
-            STARS_ERROR("bad BLRN_get_block()");
+            STARS_ERROR("bad BLRM_get_block()");
             info = 2;
         }
         if(info != 0)
@@ -531,7 +539,7 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
         int info = STARS_BLRM_get_block(M, i, j, shape, &rank, &U, &V, &D);
         if(U != NULL || V != NULL || (F->symm == 0 && D != B->data))
         {
-            STARS_ERROR("bad BLRN_get_block()");
+            STARS_ERROR("bad BLRM_get_block()");
             info = 2;
         }
         if(info != 0)
@@ -559,7 +567,7 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
 }
 
 int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
-        int maxrank, double tol, int onfly)
+        int fixrank, double tol, int onfly)
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 {
@@ -576,9 +584,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         STARS_ERROR("invalid value of `F`");
         return 1;
     }
-    if(maxrank < 0)
+    if(fixrank < 0)
     {
-        STARS_ERROR("invalid value of `maxrank`");
+        STARS_ERROR("invalid value of `fixrank`");
         return 1;
     }
     if(tol < 0 || tol >= 1)
@@ -659,8 +667,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         if(rank < mn/2)
         // If block is low-rank
         {
-            if(rank > maxrank)
-                rank = maxrank;
+            if(fixrank != 0)
+                rank = fixrank;
             far_rank[bi] = rank;
             shape[0] = nrowsi;
             shape[1] = rank;
@@ -760,17 +768,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
                 }
             }
         }
-        else
-        // If all far-field blocks are false, then dealloc buffers
-        {
-            block_far = NULL;
-            free(far_rank);
-            far_rank = NULL;
-            free(far_U);
-            far_U = NULL;
-            free(far_V);
-            far_V = NULL;
-        }
         // Update parameter `F` by creating new format and swapping it with
         // given `F`
         info = STARS_BLRF_new(&F2, P, F->symm, R, C, new_nblocks_far,
@@ -813,7 +810,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         }
     }
     // Update far_rank, far_U and far_V and change their sizes
-    if(nblocks_false_far > 0)
+    if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
         bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)
@@ -832,6 +829,17 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         STARS_REALLOC(far_U, new_nblocks_far);
         STARS_REALLOC(far_V, new_nblocks_far);
     }
+    if(new_nblocks_far == 0 && nblocks_far > 0)
+    // If all far-field blocks are false, then dealloc buffers
+    {
+        block_far = NULL;
+        free(far_rank);
+        far_rank = NULL;
+        free(far_U);
+        far_U = NULL;
+        free(far_V);
+        far_V = NULL;
+    }
     // Free temporary list if false far-field blocks
     if(nblocks_false_far > 0)
         free(false_far);
@@ -843,7 +851,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
 }
 
 int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-        STARS_BLRF *F, int maxrank, double tol, int onfly)
+        STARS_BLRF *F, int fixrank, double tol, int onfly)
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 {
@@ -860,9 +868,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         STARS_ERROR("invalid value of `F`");
         return 1;
     }
-    if(maxrank < 0)
+    if(fixrank < 0)
     {
-        STARS_ERROR("invalid value of `maxrank`");
+        STARS_ERROR("invalid value of `fixrank`");
         return 1;
     }
     if(tol < 0 || tol >= 1)
@@ -917,7 +925,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         shape[0] = nrowsi;
         shape[ndim-1] = ncolsj;
         int mn = nrowsi > ncolsj ? ncolsj : nrowsi;
-        int rank;
+        int rank = fixrank;
         Array *A, *A2, *U, *S, *V;
         // Get array, holding necessary data
         int info = Array_new(&A, ndim, shape, P->dtype, 'F');
@@ -968,8 +976,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         if(rank < mn/2)
         // If block is low-rank
         {
-            if(rank > maxrank)
-                rank = maxrank;
+            if(fixrank != 0)
+                rank = fixrank;
             far_rank[bi] = rank;
             shape[0] = nrowsi;
             shape[1] = rank;
@@ -1105,17 +1113,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
                 }
             }
         }
-        else
-        // Free buffers, if they are of zero sizes
-        {
-            block_far = NULL;
-            free(far_rank);
-            far_rank = NULL;
-            free(far_U);
-            far_U = NULL;
-            free(far_V);
-            far_V = NULL;
-        }
         // Update format be creating new format and swapping buffers with it
         STARS_BLRF *F2;
         info = STARS_BLRF_new(&F2, P, F->symm, R, C, new_nblocks_far,
@@ -1168,7 +1165,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         }
     }
     // Changing size of far_rank, far_U and far_V
-    if(nblocks_false_far > 0)
+    if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
         bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)
@@ -1186,6 +1183,17 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         STARS_REALLOC(far_U, new_nblocks_far);
         STARS_REALLOC(far_V, new_nblocks_far);
     }
+    if(new_nblocks_far == 0 && nblocks_far > 0)
+    // If all far-field blocks are false, then dealloc buffers
+    {
+        block_far = NULL;
+        free(far_rank);
+        far_rank = NULL;
+        free(far_U);
+        far_U = NULL;
+        free(far_V);
+        far_V = NULL;
+    }
     // Dealloc list of false far-field blocks if it is not empty
     if(nblocks_false_far > 0)
         free(false_far);
@@ -1199,7 +1207,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
 
 
 int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
-        STARS_BLRF *F, int maxrank, double tol, int onfly,
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
         size_t max_buffer_size)
 // The same approximation but with preparations for batched kernels
 {
@@ -1216,9 +1224,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         STARS_ERROR("invalid value of `F`");
         return 1;
     }
-    if(maxrank < 0)
+    if(fixrank < 0)
     {
-        STARS_ERROR("invalid value of `maxrank`");
+        STARS_ERROR("invalid value of `fixrank`");
         return 1;
     }
     if(tol < 0 && tol >= 1)
@@ -1229,6 +1237,11 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     if(onfly != 0 && onfly != 1)
     {
         STARS_ERROR("invalid value of `onfly`");
+        return 1;
+    }
+    if(maxrank < 0)
+    {
+        STARS_ERROR("invalid value of `maxrank`");
         return 1;
     }
     if(max_buffer_size == 0)
@@ -1243,6 +1256,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         STARS_ERROR("only scalar kernels are supported");
         return 1;
     }
+    // If rank is set by fixrank, then make maxrank equal to fixrank
+    if(fixrank != 0)
+        maxrank = fixrank;
     // bi for block index, bbi for batched block index
     size_t bbi, bi;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
@@ -1264,7 +1280,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     size_t alloc_D_step = (size_t)shape[0]/F->nbrows*(size_t)shape[1]*
             sizeof(double);
     size_t alloc_D_size = 2*alloc_D_step;
-    void *alloc_U, *alloc_V, *alloc_D;
+    void *alloc_U, *alloc_V;
+    void *alloc_D;
     STARS_MALLOC(alloc_U, alloc_U_size);
     STARS_MALLOC(alloc_V, alloc_V_size);
     STARS_MALLOC(alloc_D, alloc_D_size);
@@ -1445,22 +1462,27 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 continue;
             size_t bi = bbi+nblocks_processed;
             double *ptrS = S[bbi];
-            double Stol = 0, Stmp = 0.;
-            size_t i, j, mn = ldv[bbi], rank = mn;
+            size_t i, j, mn = ldv[bbi], rank = fixrank;
             int shapeU[2] = {nrows[bbi], 0}, shapeV[2] = {0, ncols[bbi]}, info;
+            double Stol = 0, Stmp = ptrS[mn-1]*ptrS[mn-1];
+            rank = mn;
             for(i = 0; i < mn; i++)
                 Stol += ptrS[i]*ptrS[i];
+            // If total norm is 0, then rank is 0, otherwise rank is > 0
+            if(Stol == 0)
+                rank = 0;
             Stol *= tol*tol;
-            while(rank > 1 && Stol > Stmp)
+            while(rank > 1 && Stol >= Stmp)
             {
                 rank--;
-                Stmp += ptrS[rank]*ptrS[rank];
+                Stmp += ptrS[rank-1]*ptrS[rank-1];
             }
-            rank++;
-            if(2*rank < mn)
+            if(rank < mn/2)
             // If block is low-rank
             {
-                if(rank > maxrank)
+                if(fixrank != 0)
+                    rank = fixrank;
+                else if(rank > maxrank)
                     rank = maxrank;
                 far_rank[bi] = rank;
                 shapeU[1] = rank;
@@ -1498,6 +1520,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
             }
             else
             // If block is dense
+            #pragma omp critical
             {
                 far_rank[bi] = -1;
                 shapeU[1] = shapeV[1];
@@ -1508,15 +1531,14 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 {
                     #pragma omp atomic write
                     abort = info;
-                    continue;
                 }
                 // Store real offset in far_V[bi], since only offset matters
                 // with possibly changing base alloc_D
                 far_V[bi] = alloc_D;
                 cblas_dcopy(shapeU[0]*shapeU[1], buffer_copy[bbi], 1,
                         far_U[bi]->data, 1);
-                current_D += (size_t)shapeU[0]*(size_t)shapeU[1];
-                #pragma omp critical
+                current_D += (size_t)shapeU[0]*(size_t)shapeU[1]*
+                    sizeof(double);
                 while(current_D > alloc_D_size)
                 {
                     alloc_D_size += alloc_D_step;
@@ -1524,6 +1546,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 }
             }
         }
+        if(abort != 0)
+            return abort;
         // Update number of processed far-field blocks
         nblocks_processed += batch_size;
     }
@@ -1579,17 +1603,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                     block_far[2*(bi-bj)+1] = F->block_far[2*bi+1];
                 }
             }
-        }
-        else
-        // Free buffers, if they are of zero sizes
-        {
-            block_far = NULL;
-            free(far_rank);
-            far_rank = NULL;
-            free(far_U);
-            far_U = NULL;
-            free(far_V);
-            far_V = NULL;
         }
         // Update format be creating new format and swapping buffers with it
         STARS_BLRF *F2;
@@ -1662,6 +1675,17 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         STARS_REALLOC(far_U, new_nblocks_far);
         STARS_REALLOC(far_V, new_nblocks_far);
     }
+    if(new_nblocks_far == 0 && nblocks_far > 0)
+    // If all far-field blocks are false, then dealloc buffers
+    {
+        block_far = NULL;
+        free(far_rank);
+        far_rank = NULL;
+        free(far_U);
+        far_U = NULL;
+        free(far_V);
+        far_V = NULL;
+    }
     // Dealloc list of false far-field blocks if it is not empty
     if(nblocks_false_far > 0)
         free(false_far);
@@ -1671,6 +1695,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     free(lwork_arrays);
     tmp_time2 = omp_get_wtime()-tmp_time;
     STARS_WARNING("total time: %f", tmp_time2);
-    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D,
-            alloc_U, alloc_V, alloc_D, '1');
+    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D, alloc_U,
+            alloc_V, alloc_D, '1');
 }

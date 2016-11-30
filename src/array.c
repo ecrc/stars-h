@@ -809,7 +809,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
                 S2[i-1] = tmp*tmp+S2[i];
             }
             stol = S2[0]*tol*tol;
-            i = 1;
+            i = 0;
             while(i < size && S2[i] > stol)
                 i++;
             free(S2);
@@ -817,7 +817,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         else// type == '2'
         {
             stol = Sbuf[0]*tol;
-            i = 1;
+            i = 0;
             while(i < size && Sbuf[i] > stol)
                 i++;
         }
@@ -837,7 +837,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
                 S2[i-1] = tmp*tmp+S2[i];
             }
             stol = S2[0]*tol*tol;
-            i = 1;
+            i = 0;
             while(i < size && S2[i] > stol)
                 i++;
             free(S2);
@@ -845,7 +845,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         else// type == '2'
         {
             stol = Sbuf[0]*tol;
-            i = 1;
+            i = 0;
             while(i < size && Sbuf[i] > stol)
                 i++;
         }
