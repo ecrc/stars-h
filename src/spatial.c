@@ -116,7 +116,7 @@ STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks,
     STARS_ssdata *data = malloc(sizeof(*data));
     data->point = malloc(2*n*sizeof(*data->point));
     gen_ss_block_points(row_blocks, col_blocks, block_size, data->point);
-    data->count = n*n;
+    data->count = n;
     data->beta = beta;
     return data;
 }
