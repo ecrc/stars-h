@@ -1273,13 +1273,13 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     STARS_MALLOC(far_rank, nblocks_far);
     int *shape = P->shape;
     // Compute maximum memory requirement for all low-rank factors
-    size_t alloc_U_size = 2*(size_t)F->nbcols*(size_t)shape[0]*
+    size_t alloc_U_size = (size_t)F->nbcols*(size_t)shape[0]*
             (size_t)maxrank*sizeof(double);
-    size_t alloc_V_size = 2*(size_t)F->nbrows*(size_t)shape[1]*
+    size_t alloc_V_size = (size_t)F->nbrows*(size_t)shape[1]*
             (size_t)maxrank*sizeof(double);
     size_t alloc_D_step = (size_t)shape[0]/F->nbrows*(size_t)shape[1]*
             sizeof(double);
-    size_t alloc_D_size = 2*alloc_D_step;
+    size_t alloc_D_size = alloc_D_step;
     void *alloc_U, *alloc_V;
     void *alloc_D;
     STARS_MALLOC(alloc_U, alloc_U_size);
@@ -1496,7 +1496,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                         #pragma omp atomic write
                         abort = info;
                     }
-                    current_U += 2*(size_t)shapeU[0]*(size_t)shapeU[1]*
+                    current_U += (size_t)shapeU[0]*(size_t)shapeU[1]*
                             sizeof(double);
                     info = Array_from_buffer(far_V+bi, 2, shapeV, 'd', 'F',
                             current_V);
@@ -1505,7 +1505,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                         #pragma omp atomic write
                         abort = info;
                     }
-                    current_V += 2*(size_t)shapeV[0]*(size_t)shapeV[1]*
+                    current_V += (size_t)shapeV[0]*(size_t)shapeV[1]*
                             sizeof(double);
                 }
                 if(abort != 0)
@@ -1525,6 +1525,13 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 far_rank[bi] = -1;
                 shapeU[1] = shapeV[1];
                 // Use far_U[bi] to move data
+                size_t sizeU = (size_t)shapeU[0]*(size_t)shapeU[1]*
+                        sizeof(double);
+                while(current_D+sizeU > alloc_D_size)
+                {
+                    alloc_D_size += alloc_D_step;
+                    STARS_PREALLOC(alloc_D, alloc_D_size, abort);
+                }
                 info = Array_from_buffer(far_U+bi, 2, shapeU, 'd', 'F',
                         alloc_D+current_D);
                 if(info != 0)
@@ -1535,15 +1542,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 // Store real offset in far_V[bi], since only offset matters
                 // with possibly changing base alloc_D
                 far_V[bi] = alloc_D;
+                current_D += sizeU;
                 cblas_dcopy(shapeU[0]*shapeU[1], buffer_copy[bbi], 1,
                         far_U[bi]->data, 1);
-                current_D += (size_t)shapeU[0]*(size_t)shapeU[1]*
-                    sizeof(double);
-                while(current_D > alloc_D_size)
-                {
-                    alloc_D_size += alloc_D_step;
-                    STARS_PREALLOC(alloc_D, alloc_D_size, abort);
-                }
             }
         }
         if(abort != 0)
@@ -1657,7 +1658,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         }
     }
     // Changing size of far_rank, far_U and far_V
-    if(nblocks_false_far > 0)
+    if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
         size_t bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)

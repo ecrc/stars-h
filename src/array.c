@@ -9,8 +9,7 @@
 
 int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         char order, void *data)
-// Init Array from given buffer. Check if all parameters are good and
-// proceed.
+// Init `A` from given buffer. Check if all parameters are good and proceed.
 {
     if(A == NULL)
     {
@@ -61,6 +60,7 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
     STARS_MALLOC(stride, ndim);
     int *newshape;
     STARS_MALLOC(newshape, ndim);
+    // Compute strides
     if(order == 'F')
     {
         stride[0] = 1;
@@ -96,7 +96,7 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
 }
 
 int Array_new(Array **A, int ndim, int *shape, char dtype, char order)
-// Init with NULL buffer and then allocate it
+// Init `A` with NULL buffer and then allocate it
 {
     if(A == NULL)
     {
@@ -111,7 +111,7 @@ int Array_new(Array **A, int ndim, int *shape, char dtype, char order)
 }
 
 int Array_new_like(Array **A, Array *B)
-// Initialize new A with exactly the same shape, dtype and so on, but
+// Initialize new `A` with exactly the same shape, dtype and so on, but
 // with a different memory buffer
 {
     if(A == NULL)
@@ -141,8 +141,8 @@ int Array_new_like(Array **A, Array *B)
 }
 
 int Array_new_copy(Array **A, Array *B, char order)
-// Create copy of A with given data layout or keeping layout if order ==
-// 'N'
+// Create `A` as a copy of `B` with given data layout or keeping layout if
+// order == 'N'
 {
     if(A == NULL)
     {
@@ -160,6 +160,7 @@ int Array_new_copy(Array **A, Array *B, char order)
         return 1;
     }
     int info;
+    // If only simple copy isrequired
     if(order == B->order || order == 'N')
     {
         info = Array_new_like(A, B);
@@ -179,6 +180,7 @@ int Array_new_copy(Array **A, Array *B, char order)
         return info;
     Array *A2 = *A;
     size_t dtype_size = B->dtype_size;
+    // Compute offset of each element in `A` and `B` and then copy data
     for(i = 0; i < B->size; i++)
     {
         memcpy(A2->data+ind2*dtype_size, B->data+ind1*dtype_size, dtype_size);
@@ -202,7 +204,7 @@ int Array_new_copy(Array **A, Array *B, char order)
 }
 
 int Array_free(Array *A)
-// Free memory, consumed by A structure and buffer
+// Free memory, consumed by structure and buffer of `A`
 {
     if(A == NULL)
     {
@@ -220,7 +222,7 @@ int Array_free(Array *A)
 }
 
 int Array_info(Array *A)
-// Print all the data from Array structure
+// Print all the data from Array structure `A`
 {
     if(A == NULL)
     {
@@ -249,7 +251,7 @@ int Array_info(Array *A)
 }
 
 int Array_print(Array *A)
-// Print elements of A, different rows of A are printed on different
+// Print elements of `A`, different rows of `A` are printed on different
 // rows of output
 {
     if(A == NULL)
@@ -543,14 +545,14 @@ int Array_init_ones(Array *A)
 }
 
 int Array_tomatrix(Array *A, char kind)
-// Convert N-dimensional A to 2-dimensional A (matrix) by
+// Convert N-dimensional `A` to 2-dimensional `A` (matrix) by
 // collapsing dimensions. This collapse can be assumed as attempt to look
-// at A as at a matrix with long rows (kind == 'R') or long columns
-// (kind == 'C'). If kind is 'R', dimensions from 1 to the last are
-// collapsed into columns. If kind is 'C', dimensions from 0 to the last
-// minus one are collapsed into rows. Example: A of shape (2,3,4,5)
-// will be collapsed to A of shape (2,60) if kind is 'R' or to A of
-// shape (24,5) if kind is 'C'.
+// at `A` as at a matrix with long rows (`kind` == 'R') or long columns
+// (`kind` == 'C'). If `kind` is 'R', dimensions from 1 to the last are
+// collapsed into columns. If `kind` is 'C', dimensions from 0 to the last
+// minus one are collapsed into rows. Example: `A` of shape (2,3,4,5)
+// will be collapsed to `A` of shape (2,60) if `kind` is 'R' or to `A` of
+// shape (24,5) if `kind` is 'C'.
 {
     if(A == NULL)
     {
@@ -585,7 +587,7 @@ int Array_tomatrix(Array *A, char kind)
 }
 
 int Array_trans_inplace(Array *A)
-// Transposition of A. No real transposition is performed, only changes
+// Transposition of `A`. No real transposition is performed, only changes
 // shape, stride and order.
 {
     if(A == NULL)
@@ -612,9 +614,9 @@ int Array_trans_inplace(Array *A)
 }
 
 int Array_dot(Array* A, Array *B, Array **C)
-// GEMM for two As. Multiplication is performed by last dimension of
-// A A and first dimension of A B. These dimensions, data types and
-// ordering of both As should be equal.
+// GEMM for `A` and `B`. Multiplication is performed by last dimension of
+// `A` and first dimension of `B`. These dimensions, data types and
+// ordering of `A` and `B` should be equal.
 {
     if(A == NULL)
     {
@@ -695,7 +697,7 @@ int Array_dot(Array* A, Array *B, Array **C)
 }
 
 int Array_SVD(Array *A, Array **U, Array **S, Array **V)
-// Compute SVD of a given 2-dimensional A.
+// Compute SVD of a given 2-dimensional `A`.
 {
     if(A == NULL)
     {
@@ -775,7 +777,7 @@ int Array_SVD(Array *A, Array **U, Array **S, Array **V)
 }
 
 int SVD_get_rank(Array *S, double tol, char type, int *rank)
-// Returns rank by given A of singular values, tolerance and type of norm
+// Returns rank by given singular values `S`, tolerance and type of norm
 // ('2' for spectral norm, 'F' for Frobenius norm)
 {
     if(S == NULL)
@@ -915,7 +917,7 @@ int Array_scale(Array *A, char kind, Array *S)
 }
 
 int Array_diff(Array *A, Array *B, double *result)
-// Measure Frobenius error of approximation of A by B
+// Measure Frobenius error of approximation of `A` by `B`
 {
     if(A == NULL)
     {
@@ -1030,7 +1032,7 @@ int Array_norm(Array *A, double *result)
 }
 
 int Array_convert(Array **A, Array *B, char dtype)
-// Copy B and convert data type
+// Create `A` as a copy of `B` with different data type
 {
     if(A == NULL)
     {
@@ -1207,7 +1209,7 @@ int Array_convert(Array **A, Array *B, char dtype)
 }
 
 int Array_Cholesky(Array *A, char uplo)
-// Cholesky factoriation for an A
+// Cholesky factoriation for `A`
 {
     if(A == NULL)
     {

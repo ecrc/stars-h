@@ -54,9 +54,9 @@ uint32_t EncodeMorton2(uint32_t x, uint32_t y) { return (Part1By1(y) << 1) + Par
 uint32_t DecodeMorton2X(uint32_t code) { return Compact1By1(code >> 0); }
 uint32_t DecodeMorton2Y(uint32_t code) { return Compact1By1(code >> 1); }
 
-int compare_int(const void *a, const void *b)
+int compare_uint32(const void *a, const void *b)
 {
-    return *(int *)a-*(int *)b;
+    return *(uint32_t *)a-*(uint32_t *)b;
 }
 
 void zsort(int n, double *points)
@@ -71,7 +71,7 @@ void zsort(int n, double *points)
         y = (uint16_t)(points[i+n]*(double)UINT16_MAX + .5);
         z[i] = EncodeMorton2(x, y);
     }
-    qsort(z, n, sizeof(uint32_t), compare_int);
+    qsort(z, n, sizeof(uint32_t), compare_uint32);
     for(i = 0; i < n; i++)
     {
         points[i] = (double)DecodeMorton2X(z[i])/(double)UINT16_MAX;
@@ -87,8 +87,8 @@ void gen_points_old(int n, double *points)
     {
         for(j = 0; j < n; j++)
         {
-            points[i*n+j] = (j+0.5+0.4*rand()/RAND_MAX)/n;
-            A[i*n+j] = (i+0.5+0.4*rand()/RAND_MAX)/n;
+            points[i*n+j] = (j+0.5-rand()/(double)RAND_MAX)/n;
+            A[i*n+j] = (i+0.5-rand()/(double)RAND_MAX)/n;
         }
     }
 }

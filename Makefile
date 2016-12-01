@@ -15,7 +15,7 @@ all: 		lib test
 -include make.inc
 
 CC		= gcc
-CFLAGS		?= -O2 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
+CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
 #LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications/HPC/lib/
 
 ARCH		?= ar
