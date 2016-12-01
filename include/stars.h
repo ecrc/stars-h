@@ -42,8 +42,8 @@ struct Array
     // 'z', much like in names of LAPACK routines.
     size_t dtype_size;
     // Size in bytes of each element of a matrix
-    size_t nbytes;
-    // Size of buffer in bytes.
+    size_t nbytes, data_nbytes;
+    // Size of entire Array and only data buffer in bytes.
     void *data;
     // Buffer, containing A. Stored in Fortran style.
 };
@@ -350,6 +350,9 @@ struct STARS_BLRM
     char alloc_type;
     // Type of memory allocation: '1' for allocating 3 big buffers U_alloc,
     // V_alloc and D_alloc, '2' for allocating many small buffers U, V and D.
+    size_t nbytes, data_nbytes;
+    // Total number of bytes, consumed by Block Low-Rank Matrix, and total size
+    // of only data buffers of corresponding arrays.
 };
 
 

@@ -52,6 +52,7 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         A2->dtype = dtype;
         A2->dtype_size = dtype_size;
         A2->nbytes = 0;
+        A2->data_nbytes = sizeof(*A2);
         A2->data = data;
         return 0;
     }
@@ -90,7 +91,9 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
     A2->size = size;
     A2->dtype = dtype;
     A2->dtype_size = dtype_size;
-    A2->nbytes = size*dtype_size;
+    A2->data_nbytes = size*dtype_size;
+    A2->nbytes = A2->data_nbytes+ndim*(sizeof(*newshape)+sizeof(*stride))+
+            sizeof(*A2);
     A2->data = data;
     return 0;
 }
@@ -106,7 +109,7 @@ int Array_new(Array **A, int ndim, int *shape, char dtype, char order)
     int info = Array_from_buffer(A, ndim, shape, dtype, order, NULL);
     if(info != 0)
         return info;
-    STARS_MALLOC((*A)->data, (*A)->nbytes);
+    STARS_MALLOC((*A)->data, (*A)->data_nbytes);
     return 0;
 }
 
@@ -136,7 +139,8 @@ int Array_new_like(Array **A, Array *B)
     A2->dtype = B->dtype;
     A2->dtype_size = B->dtype_size;
     A2->nbytes = B->nbytes;
-    STARS_MALLOC(A2->data, B->nbytes);
+    A2->data_nbytes = B->data_nbytes;
+    STARS_MALLOC(A2->data, B->data_nbytes);
     return 0;
 }
 
@@ -166,7 +170,7 @@ int Array_new_copy(Array **A, Array *B, char order)
         info = Array_new_like(A, B);
         if(info != 0)
             return info;
-        memcpy((*A)->data, B->data, B->nbytes);
+        memcpy((*A)->data, B->data, B->data_nbytes);
         return 0;
     }
     int j;
@@ -245,8 +249,8 @@ int Array_info(Array *A)
         printf("\b");
     }
     printf("), '%c' order, %zu elements, '%c' dtype, %zu bytes per element, "
-            "%zu total bytes per buffer at %p>\n", A->order, A->size,
-            A->dtype, A->dtype_size, A->nbytes, A->data);
+            "%zu bytes of data at %p, %zu total bytes>\n", A->order, A->size,
+            A->dtype, A->dtype_size, A->data_nbytes, A->data, A->nbytes);
     return 0;
 }
 
@@ -955,7 +959,7 @@ int Array_diff(Array *A, Array *B, double *result)
     }
     double diff = 0;
     void *tmp_buf;
-    STARS_MALLOC(tmp_buf, A->nbytes);
+    STARS_MALLOC(tmp_buf, A->data_nbytes);
     int copied = 0, info;
     if(A->order != B->order)
     {

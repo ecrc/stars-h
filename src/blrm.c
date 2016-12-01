@@ -82,6 +82,22 @@ int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
     M2->alloc_V = alloc_V;
     M2->alloc_D = alloc_D;
     M2->alloc_type = alloc_type;
+    size_t bi, data_size = 0, size = 0;
+    size += sizeof(*M2);
+    size += F->nblocks_far*(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
+    size += F->nblocks_near*sizeof(*near_D);
+    for(bi = 0; bi < F->nblocks_far; bi++)
+    {
+        size += far_U[bi]->nbytes+far_V[bi]->nbytes;
+        data_size += far_U[bi]->data_nbytes+far_V[bi]->data_nbytes;
+    }
+    for(bi = 0; bi < F->nblocks_near; bi++)
+    {
+        size += near_D[bi]->nbytes;
+        data_size += near_D[bi]->data_nbytes;
+    }
+    M2->nbytes = size;
+    M2->data_nbytes = data_size;
     return 0;
 }
 
@@ -166,8 +182,8 @@ int STARS_BLRM_info(STARS_BLRM *M)
         STARS_ERROR("invalid value of `M`");
         return 1;
     }
-    printf("<STARS_BLRM at %p, %d onfly, allocation type '%c'>\n",
-            M, M->onfly, M->alloc_type);
+    printf("<STARS_BLRM at %p, %d onfly, allocation type '%c', %f MB memory "
+            "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
     return 0;
 }
 
