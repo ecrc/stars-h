@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <omp.h>
 #include "stars.h"
 #include "stars-electrostatics.h"
 
@@ -18,6 +19,7 @@ int main(int argc, char **argv)
     int block_size = atoi(argv[3]), fixrank = atoi(argv[4]), info;
     int maxrank = atoi(argv[5]);
     double tol = atof(argv[6]);
+    int nthreads = omp_get_num_threads();
     printf("\nrb=%d, cb=%d, bs=%d, fr=%d, mr=%d, tol=%e\n", row_blocks,
             col_blocks, block_size, fixrank, maxrank, tol);
     // Setting random seed
@@ -51,7 +53,7 @@ int main(int argc, char **argv)
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
-            0); // 0 for onfly=0
+            0, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
-            0, maxrank, 1000000000); // 0 for onfly=0
+            0, maxrank, 1000000000, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -109,7 +111,7 @@ int main(int argc, char **argv)
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
-            0); // 0 for onfly=0
+            0, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -118,7 +120,7 @@ int main(int argc, char **argv)
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
-            0, maxrank, 1000000000);
+            0, maxrank, 1000000000, nthreads, 1);
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);

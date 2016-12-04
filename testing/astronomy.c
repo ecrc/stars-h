@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <omp.h>
 #include "astronomy.h"
 #include "stars.h"
 #include "stars-astronomy.h"
@@ -25,6 +26,7 @@ int main(int argc, char **argv){
             snapshots_per_night, snapshot_idx, obs_idx, alphaX, alphaY);
     int ndim = 2, shape[2] = {data->count, data->count}, info;
     char symm = 'S', dtype = 'd';
+    int nthreads = omp_get_num_threads();
     printf("\nfiles_path=\"%s\", bs=%d, fr=%d, mr=%d, tol=%e\n", files_path,
             block_size, fixrank, maxrank, tol);
     // Init problem with given data and kernel
@@ -52,7 +54,7 @@ int main(int argc, char **argv){
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
-            0); // 0 for onfly=0
+            0, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -61,7 +63,7 @@ int main(int argc, char **argv){
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
-            0, maxrank, 1000000000); // 0 for onfly=0
+            0, maxrank, 1000000000, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -110,7 +112,7 @@ int main(int argc, char **argv){
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
-            0); // 0 for onfly=0
+            0, nthreads, 1); // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
@@ -119,7 +121,7 @@ int main(int argc, char **argv){
     STARS_BLRM_free(M);
     // Other approximation procedure
     info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
-            0, maxrank, 1000000000);
+            0, maxrank, 1000000000, nthreads, 1);
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);

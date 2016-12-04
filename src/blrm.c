@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <mkl.h>
 #include <omp.h>
 #include "stars.h"
-#include "cblas.h"
-#include "lapacke.h"
+//#include "cblas.h"
+//#include "lapacke.h"
 #include "misc.h"
 
 
@@ -867,7 +868,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
 }
 
 int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly)
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int nthreads_outer,
+        int nthreads_inner)
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol
 {
@@ -927,7 +929,13 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
     int info;
     size_t bi, bj = 0;
     volatile int abort = 0;
-    #pragma omp parallel for
+    omp_set_nested(1);
+    omp_set_max_active_levels(2);
+    omp_set_dynamic(0);
+    mkl_set_dynamic(0);
+    omp_set_num_threads(nthreads_inner);
+    mkl_set_num_threads(nthreads_inner);
+    #pragma omp parallel for num_threads(nthreads_outer)
     for(bi = 0; bi < nblocks_far; bi++)
     // Cycle over every admissible block
     {
@@ -1074,6 +1082,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
             continue;
         }
     }
+    omp_set_num_threads(nthreads_outer);
     if(abort != 0)
         return abort;
     // Get number of false far-field blocks
@@ -1224,7 +1233,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
 
 int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
-        size_t max_buffer_size)
+        size_t max_buffer_size, int nthreads_outer, int nthreads_inner)
 // The same approximation but with preparations for batched kernels
 {
     // Set timer
@@ -1322,7 +1331,13 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     void *tmp_buffer;
     STARS_MALLOC(tmp_buffer, max_buffer_size);
     volatile int abort = 0;
-    #pragma omp parallel for
+    omp_set_nested(1);
+    omp_set_max_active_levels(2);
+    omp_set_dynamic(0);
+    mkl_set_dynamic(0);
+    omp_set_num_threads(nthreads_inner);
+    mkl_set_num_threads(nthreads_inner);
+    #pragma omp parallel for num_threads(nthreads_outer)
     for(bi = 0; bi < nblocks_far; bi++)
     // Cycle over each far-field block
     {
@@ -1424,7 +1439,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
             }
         }
         // Kernel-centric call for matrix kernel
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bbi = 0; bbi < batch_size; bbi++)
         {
             if(abort != 0)
@@ -1444,14 +1459,14 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         // blocks are actually near-field (so-called false far-field blocks)
         // If number of elements in some block does not fit into int type,
         // there will be problems
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bbi = 0; bbi < batch_size; bbi++)
         {
             cblas_dcopy(nrows[bbi]*ncols[bbi], buffer[bbi], 1,
                     buffer_copy[bbi], 1);
         }
         // Kernel-centric call for SVD (GESDD)
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bbi = 0; bbi < batch_size; bbi++)
         {
             if(abort != 0)
@@ -1471,7 +1486,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
             return abort;
         // Compute ranks. Rank is set to -1 for false far-field blocks (which
         // appear to be dense instead of low-rank)
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bbi = 0; bbi < batch_size; bbi++)
         {
             if(abort != 0)
@@ -1568,6 +1583,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         // Update number of processed far-field blocks
         nblocks_processed += batch_size;
     }
+    omp_set_num_threads(nthreads_outer);
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;
     size_t *false_far = NULL;
