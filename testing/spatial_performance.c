@@ -19,10 +19,10 @@ int main(int argc, char **argv)
     int n = atoi(argv[1]), block_size = atoi(argv[2]), fixrank = atoi(argv[3]);
     int maxrank = atoi(argv[4]), rseed = atoi(argv[7]), info;
     double tol = atof(argv[5]), beta = atof(argv[6]);
-    int nthreads_inner = atoi(argv[8]), nthreads_outer = atoi(argv[9]);
-    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f rseed=%d\n "
-            "nthr=(%d,%d)", n*n, block_size, fixrank, maxrank, tol, beta,
-            rseed, nthreads_inner, nthreads_outer);
+    int nthreads_outer = atoi(argv[8]), nthreads_inner = atoi(argv[9]);
+    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f rseed=%d "
+            "nthr_out=%d, nthr_inn=%d\n", n*n, block_size, fixrank, maxrank,
+            tol, beta, rseed, nthreads_outer, nthreads_inner);
     // Setting random seed
     srand(rseed);
     // Generate data for spatial statistics problem

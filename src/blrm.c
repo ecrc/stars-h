@@ -1189,6 +1189,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
             near_D[bi] = far_U[bj];
         }
     }
+    omp_set_nested(0);
     // Changing size of far_rank, far_U and far_V
     if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
@@ -1689,6 +1690,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
             near_D[bi]->data = (far_U[bj]->data-(void *)far_V[bj])+alloc_D;
         }
     }
+    omp_set_nested(0);
     // Changing size of far_rank, far_U and far_V
     if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
