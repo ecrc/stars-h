@@ -9,20 +9,17 @@ int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
 // For more information on STARS structures look inside of header files.
 {
-    if(argc < 10)
+    if(argc < 8)
     {
         printf("%d\n", argc);
-        printf("spatial.out n block_size fixrank maxrank tol beta rseed "
-                "nthreads_outer nthreads_inner\n");
+        printf("spatial.out n block_size fixrank maxrank tol beta rseed\n");
         exit(0);
     }
     int n = atoi(argv[1]), block_size = atoi(argv[2]), fixrank = atoi(argv[3]);
     int maxrank = atoi(argv[4]), rseed = atoi(argv[7]), info;
     double tol = atof(argv[5]), beta = atof(argv[6]);
-    int nthreads_outer = atoi(argv[8]), nthreads_inner = atoi(argv[9]);
-    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f rseed=%d "
-            "nthr_out=%d, nthr_inn=%d\n", n*n, block_size, fixrank, maxrank,
-            tol, beta, rseed, nthreads_outer, nthreads_inner);
+    printf("\nn=%d, bs=%d, fr=%d, mr=%d, tol=%e, beta=%f rseed=%d\n",
+            n*n, block_size, fixrank, maxrank, tol, beta, rseed);
     // Setting random seed
     srand(rseed);
     // Generate data for spatial statistics problem
@@ -47,7 +44,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARS_BLRM *M;
     info = STARS_BLRM_tiled_compress_algebraic_svd_ompfor(&M, F, fixrank, tol,
-            0, nthreads_outer, nthreads_inner); // 0 for onfly=0
+            0); // 0 for onfly=0
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
@@ -59,7 +56,7 @@ int main(int argc, char **argv)
     STARS_BLRF_new_tiled(&F, P, C, C, 'S');
     // Approximate each admissible block
     info = STARS_BLRM_tiled_compress_algebraic_svd_batched(&M, F, fixrank, tol,
-            0, maxrank, 1000000000, nthreads_outer, nthreads_inner);
+            0, maxrank, 1000000000);
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);

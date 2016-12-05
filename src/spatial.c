@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 #include "stars.h"
 #include "stars-misc.h"
 #include "stars-spatial.h"
@@ -16,6 +17,8 @@ int STARS_ssdata_block_exp_kernel(int nrows, int ncols, int *irow, int *icol,
     double tmp, dist, beta = -data->beta;
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
+    //#pragma omp parallel
+    //printf("myid %d\n", omp_get_thread_num());
     #pragma omp parallel for private(tmp, dist, i, j)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)

@@ -381,10 +381,15 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
 // or with given maximum rank (if maxrank <= 0, then tolerance is used)
 //int STARS_BRLM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
 int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly, int nthreads_inner,
-        int nthreads_outer);
+        STARS_BLRF *F, int fixrank, double tol, int onfly);
+int STARS_BLRM_tiled_compress_algebraic_svd_ompfor_nested(STARS_BLRM **M,
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int nthreads_outer,
+        int nthreads_inner);
 
 int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
+        size_t max_buffer_size);
+int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
         STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
         size_t max_buffer_size, int nthreads_outer, int nthreads_inner);
 

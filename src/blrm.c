@@ -210,6 +210,8 @@ int STARS_BLRM_error(STARS_BLRM *M)
     double diff = 0., norm = 0., maxerr = 0.;
     char symm = F->symm;
     volatile int abort = 0;
+    // Do not use inner parallelism not to increase number of threads
+    omp_set_nested(0);
     #pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
@@ -868,6 +870,17 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
 }
 
 int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
+        STARS_BLRF *F, int fixrank, double tol, int onfly)
+{
+    int nthreads = 0;
+    #pragma omp parallel
+    #pragma omp master
+    nthreads = omp_get_num_threads();
+    return STARS_BLRM_tiled_compress_algebraic_svd_ompfor_nested(M, F,
+            fixrank, tol, onfly, nthreads, 1);
+}
+
+int STARS_BLRM_tiled_compress_algebraic_svd_ompfor_nested(STARS_BLRM **M,
         STARS_BLRF *F, int fixrank, double tol, int onfly, int nthreads_outer,
         int nthreads_inner)
 // Uses SVD to acquire rank of each block, compresses given matrix (given
@@ -929,12 +942,12 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
     int info;
     size_t bi, bj = 0;
     volatile int abort = 0;
-    omp_set_nested(1);
-    omp_set_max_active_levels(2);
-    omp_set_dynamic(0);
-    mkl_set_dynamic(0);
-    omp_set_num_threads(nthreads_inner);
     mkl_set_num_threads(nthreads_inner);
+    int nthreads_default = 0;
+    #pragma omp parallel
+    #pragma omp master
+    nthreads_default = omp_get_num_threads();
+    omp_set_num_threads(nthreads_inner);
     #pragma omp parallel for num_threads(nthreads_outer)
     for(bi = 0; bi < nblocks_far; bi++)
     // Cycle over every admissible block
@@ -1027,6 +1040,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
             double *ptrS = S->data;
             double *ptrV = V->data;
             // Copy part of `S`*`V` into low-rank factor `far_V`
+            #pragma omp parallel for num_threads(nthreads_inner)
             for(size_t k = 0; k < ncolsj; k++)
                 for(size_t l = 0; l < rank; l++)
                 {
@@ -1082,7 +1096,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
             continue;
         }
     }
-    omp_set_num_threads(nthreads_outer);
     if(abort != 0)
         return abort;
     // Get number of false far-field blocks
@@ -1108,10 +1121,10 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         // Update list of near-field blocks
         new_nblocks_near = nblocks_near+nblocks_false_far;
         STARS_MALLOC(block_near, 2*new_nblocks_near);
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
             size_t bj = false_far[bi];
@@ -1154,7 +1167,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
     {
         STARS_MALLOC(near_D, new_nblocks_near);
         // At first work with old near-field blocks
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < nblocks_near; bi++)
         {
             if(abort != 0)
@@ -1182,14 +1195,13 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         if(abort != 0)
             return abort;
         // And then with false far-field blockso
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = nblocks_near; bi < new_nblocks_near; bi++)
         {
             size_t bj = false_far[bi-nblocks_near];
             near_D[bi] = far_U[bj];
         }
     }
-    omp_set_nested(0);
     // Changing size of far_rank, far_U and far_V
     if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
@@ -1225,6 +1237,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
         free(false_far);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
+    omp_set_num_threads(nthreads_default);
     tmp_time2 = omp_get_wtime();
     STARS_WARNING("total time: %f sec", tmp_time2-tmp_time);
     return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D,
@@ -1233,6 +1246,18 @@ int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
 
 
 int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
+        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
+        size_t max_buffer_size)
+{
+    int nthreads = 0;
+    #pragma omp parallel
+    #pragma omp master
+    nthreads = omp_get_num_threads();
+    return STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(M, F,
+            fixrank, tol, onfly, maxrank, max_buffer_size, nthreads, 1);
+}
+
+int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
         STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
         size_t max_buffer_size, int nthreads_outer, int nthreads_inner)
 // The same approximation but with preparations for batched kernels
@@ -1332,12 +1357,12 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     void *tmp_buffer;
     STARS_MALLOC(tmp_buffer, max_buffer_size);
     volatile int abort = 0;
-    omp_set_nested(1);
-    omp_set_max_active_levels(2);
-    omp_set_dynamic(0);
-    mkl_set_dynamic(0);
-    omp_set_num_threads(nthreads_inner);
     mkl_set_num_threads(nthreads_inner);
+    int nthreads_default = 0;
+    #pragma omp parallel
+    #pragma omp master
+    nthreads_default = omp_get_num_threads();
+    omp_set_num_threads(nthreads_inner);
     #pragma omp parallel for num_threads(nthreads_outer)
     for(bi = 0; bi < nblocks_far; bi++)
     // Cycle over each far-field block
@@ -1350,8 +1375,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         {
             lbwork[bi] = nrowsi*ncolsj;
             luvwork[bi] = nrowsi*nrowsi;
-            i = (5*nrowsi+7)*nrowsi;
-            j = 3*nrowsi+ncolsj;
+            size_t i = (5*nrowsi+7)*nrowsi;
+            size_t j = 3*nrowsi+ncolsj;
             lwork[bi] = i;
             if(i < j)
                 lwork[bi] = j;
@@ -1364,8 +1389,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         {
             lbwork[bi] = nrowsi*ncolsj;
             luvwork[bi] = ncolsj*ncolsj;
-            i = (5*ncolsj+7)*ncolsj;
-            j = 3*ncolsj+nrowsi;
+            size_t i = (5*ncolsj+7)*ncolsj;
+            size_t j = 3*ncolsj+nrowsi;
             lwork[bi] = i;
             if(i < j)
                 lwork[bi] = j;
@@ -1494,7 +1519,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 continue;
             size_t bi = bbi+nblocks_processed;
             double *ptrS = S[bbi];
-            size_t i, j, mn = ldv[bbi], rank = fixrank;
+            size_t i, mn = ldv[bbi], rank = fixrank;
             int shapeU[2] = {nrows[bbi], 0}, shapeV[2] = {0, ncols[bbi]}, info;
             double Stol = 0, Stmp = ptrS[mn-1]*ptrS[mn-1];
             rank = mn;
@@ -1546,8 +1571,9 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
                 cblas_dcopy((size_t)shapeU[0]*(size_t)shapeU[1], U[bbi], 1,
                         far_U[bi]->data, 1);
                 double *ptr = far_V[bi]->data, *ptrV = V[bbi];
+                #pragma omp parallel for num_threads(nthreads_inner)
                 for(i = 0; i < shapeV[1]; i++)
-                    for(j = 0; j < shapeV[0]; j++)
+                    for(size_t j = 0; j < shapeV[0]; j++)
                         ptr[i*rank+j] = ptrS[j]*ptrV[i*mn+j];
             }
             else
@@ -1584,7 +1610,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         // Update number of processed far-field blocks
         nblocks_processed += batch_size;
     }
-    omp_set_num_threads(nthreads_outer);
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;
     size_t *false_far = NULL;
@@ -1608,10 +1633,10 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         // Update list of near-field blocks
         new_nblocks_near = nblocks_near+nblocks_false_far;
         STARS_MALLOC(block_near, 2*new_nblocks_near);
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
             size_t bj = false_far[bi];
@@ -1654,7 +1679,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     {
         STARS_MALLOC(near_D, new_nblocks_near);
         // At first work with old near-field blocks
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = 0; bi < nblocks_near; bi++)
         {
             if(abort != 0)
@@ -1682,7 +1707,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
         if(abort != 0)
             return abort;
         // And then with false far-field blockso
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nthreads_outer)
         for(bi = nblocks_near; bi < new_nblocks_near; bi++)
         {
             size_t bj = false_far[bi-nblocks_near];
@@ -1690,7 +1715,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
             near_D[bi]->data = (far_U[bj]->data-(void *)far_V[bj])+alloc_D;
         }
     }
-    omp_set_nested(0);
     // Changing size of far_rank, far_U and far_V
     if(nblocks_false_far > 0 && new_nblocks_far > 0)
     {
@@ -1728,6 +1752,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
     free(tmp_buffer);
     free(ltotalwork);
     free(lwork_arrays);
+    omp_set_num_threads(nthreads_default);
     tmp_time2 = omp_get_wtime()-tmp_time;
     STARS_WARNING("total time: %f", tmp_time2);
     return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D, alloc_U,
