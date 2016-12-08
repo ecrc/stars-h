@@ -90,8 +90,8 @@ void gen_points_old(int n, double *points)
     {
         for(j = 0; j < n; j++)
         {
-            points[i*n+j] = (j+0.5-rand()/(double)RAND_MAX)/n;
-            A[i*n+j] = (i+0.5-rand()/(double)RAND_MAX)/n;
+            points[i*n+j] = (j+0.5-0.4*rand()/(double)RAND_MAX)/n;
+            A[i*n+j] = (i+0.5-0.4*rand()/(double)RAND_MAX)/n;
         }
     }
 }

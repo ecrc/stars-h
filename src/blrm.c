@@ -1758,3 +1758,63 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
     return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D, alloc_U,
             alloc_V, alloc_D, '1');
 }
+
+int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename)
+{
+    STARS_BLRF *F = M->blrf;
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int *rank_map = malloc((size_t)F->nbrows*(size_t)F->nbcols*
+    sizeof(*rank_map));
+    size_t bi;
+    for(bi = 0; bi < F->nblocks_far; bi++)
+    {
+        size_t i = F->block_far[2*bi];
+        size_t j = F->block_far[2*bi+1];
+        rank_map[i*F->nbcols+j] = M->far_rank[bi];
+        if(i != j && F->symm == 'S')
+            rank_map[j*F->nbcols+i] = M->far_rank[bi];
+    }
+    for(bi = 0; bi < F->nblocks_near; bi++)
+    {
+        size_t i = F->block_near[2*bi];
+        size_t j = F->block_near[2*bi+1];
+        int nrowsi = R->size[i];
+        int ncolsj = C->size[j];
+        int rank = nrowsi < ncolsj ? nrowsi : ncolsj;
+        rank_map[i*F->nbcols+j] = rank;
+        if(i != j && F->symm == 'S')
+            rank_map[j*F->nbcols+i] = rank;
+    }
+    FILE *fd = fopen(filename, "w");
+    fprintf(fd, "%d %d\n", F->nbrows, F->nbcols);
+    for(size_t i = 0; i < F->nbrows; i++)
+    {
+        for(size_t j = 0; j < F->nbcols; j++)
+            fprintf(fd, " %d", rank_map[i*F->nbcols+j]);
+        fprintf(fd, "\n");
+    }
+    int check_tile[4][2] = {{F->nbrows/2, F->nbcols/2},
+            {5*F->nbrows/8, 3*F->nbcols/8}, {3*F->nbrows/4, F->nbrows/4},
+            {F->nbrows-1, 0}};
+    for(bi = 0; bi < 4; bi++)
+    {
+        int i = check_tile[bi][0];
+        int j = check_tile[bi][1];
+        double *data;
+        int shape[2];
+        STARS_BLRF_get_block(F, i, j, shape, &data);
+        Array *A, *U, *S, *V;
+        Array_from_buffer(&A, 2, shape, 'd', 'F', data);
+        Array_SVD(A, &U, &S, &V);
+        data = S->data;
+        for(int k = 0; k < S->size; k++)
+            fprintf(fd, " %e", data[k]);
+        fprintf(fd, "\n");
+        Array_free(A);
+        Array_free(U);
+        Array_free(S);
+        Array_free(V);
+    }
+    fclose(fd);
+    return 0;
+}

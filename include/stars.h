@@ -393,4 +393,7 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
         STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
         size_t max_buffer_size, int nthreads_outer, int nthreads_inner);
 
+int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename);
+// Put all the ranks to a specified file
+
 #endif // _STARS_H_
