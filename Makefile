@@ -14,9 +14,11 @@ all: 		lib test
 
 -include make.inc
 
-CC		= gcc
+CC		?= gcc
 CFLAGS		?= -O3 -Wall -m64 -I${MKLROOT}/include -std=c11 -fopenmp
 #LDFLAGS		?=-L/Users/mikhala/Downloads/lapack-3.6.1 -L/Users/mikhala/Applications/HPC/lib/
+CFLAGS		+= $(shell pkg-config --cflags starpu-1.2)
+LDFLAGS		+= $(shell pkg-config --libs starpu-1.2)
 
 ARCH		?= ar
 ARCHFLAGS	?= rc
@@ -36,11 +38,17 @@ STARSH_LIB	= lib/libstarsh.a
 # Actual Makefile content, building everything
 
 STARSH_DIR	= src
-STARSH_SRC	= $(wildcard $(STARSH_DIR)/*.c)
+#STARSH_SRC	= $(wildcard $(STARSH_DIR)/*.c)
+CONTROL_SRC	= $(wildcard $(STARSH_DIR)/control/*.c)
+BACKEND_SRC	= $(wildcard $(STARSH_DIR)/backends/sequential/*.c)
+MISC_SRC	= $(STARSH_DIR)/misc.c
+APPS_SRC	= $(STARSH_DIR)/applications/spatial.c
+STARSH_SRC	= $(CONTROL_SRC) $(BACKEND_SRC) $(MISC_SRC) $(APPS_SRC)
 STARSH_OBJ	= $(STARSH_SRC:%.c=%.o)
 STARSH_H	= $(wildcard include/stars*.h)
 TEST_DIR	= testing
-TEST_SRC	= $(wildcard $(TEST_DIR)/*.c)
+#TEST_SRC	= $(wildcard $(TEST_DIR)/*.c)
+TEST_SRC	= $(TEST_DIR)/sequential.c
 TEST_OBJ	= $(TEST_SRC:%.c=%.o)
 TEST_EXE	= $(TEST_SRC:%.c=%.out)
 

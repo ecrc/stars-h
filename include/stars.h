@@ -2,6 +2,7 @@
 #define _STARS_H_
 
 #include <sys/types.h>
+//#include <mpi.h>
 
 typedef struct Array Array;
 typedef struct List List;
@@ -9,8 +10,8 @@ typedef struct STARS_Problem STARS_Problem;
 typedef struct STARS_Cluster STARS_Cluster;
 typedef struct STARS_BLRF STARS_BLRF;
 typedef struct STARS_BLRM STARS_BLRM;
-typedef int (*block_kernel)( int,  int,  int *,  int *, void  *, void  *,
-        void *);
+typedef int (*block_kernel)(int nrows, int ncols, int *irow, int *icol,
+        void *row_data, void *col_data, void *result);
 
 typedef enum {STARS_Dense, STARS_LowRank, STARS_Unknown} STARS_BlockStatus;
 // Enum type to show lowrankness of admissible blocks
@@ -287,6 +288,11 @@ struct STARS_BLRF
     size_t *bcol_near_start, *bcol_near;
     // Compressed sparse format to store indexes of admissible near-field
     // blocks for each block column.
+//    MPI_comm comm;
+    // MPI communicator. Equal to MPI_COMM_NULL if not using MPI.
+//    size_t *block_start, *block;
+    // Blocks, corresponding to i-th MPI node, located in array block from
+    // index block_start[i] to index block_start[i+1]-1 inclusively.
     STARS_BLRF_Type type;
     // Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 };
