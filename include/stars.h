@@ -4,6 +4,9 @@
 #include <sys/types.h>
 //#include <mpi.h>
 
+struct timespec stars_gettime();
+double stars_timer_delay(struct timespec t1, struct timespec t2);
+
 typedef struct Array Array;
 typedef struct List List;
 typedef struct STARS_Problem STARS_Problem;
@@ -372,15 +375,19 @@ int STARS_BLRM_free(STARS_BLRM *M);
 int STARS_BLRM_info(STARS_BLRM *M);
 // Print short info on non-nested block low-rank matrix
 int STARS_BLRM_error(STARS_BLRM *M);
+int STARS_BLRM_error_ompfor(STARS_BLRM *M);
 // Measure error of approximation by non-nested block low-rank matrix
 int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
 int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A);
+int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A);
 // Creates copy of Block Low-rank Matrix in dense format
 int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
         int fixrank, double tol, int onfly);
+int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M, STARS_BLRF *F,
+        int fixrank, double tol, int onfly, int maxrank);
 // Private function of STARS-H
 // Uses SVD to acquire rank of each block, compresses given matrix (given
 // by block kernel, which returns submatrices) with relative accuracy tol

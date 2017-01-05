@@ -5,6 +5,8 @@
 #include <mkl.h>
 #include "stars.h"
 #include <time.h>
+#include <sys/time.h>
+#include <stdint.h>
 //#include "cblas.h"
 //#include "lapacke.h"
 #include "misc.h"
@@ -12,7 +14,8 @@
 int STARS_BLRM_error(STARS_BLRM *M)
 // Measure error of approximation by non-nested block low-rank matrix
 {
-    clock_t tmp_time = clock();
+    struct timeval tmp_time, tmp_time2;
+    gettimeofday(&tmp_time, NULL);
     if(M == NULL)
     {
         STARS_ERROR("invalid value of `M`");
@@ -112,8 +115,10 @@ int STARS_BLRM_error(STARS_BLRM *M)
             if(info != 0)
                 return info;
         }
-    tmp_time = clock()-tmp_time;
-    STARS_WARNING("total time: %f sec", tmp_time/(double)CLOCKS_PER_SEC);
+    gettimeofday(&tmp_time2, NULL);
+    double time = tmp_time2.tv_sec-tmp_time.tv_sec+
+            (tmp_time2.tv_usec-tmp_time.tv_usec)*1e-6;
+    STARS_WARNING("total time: %f sec", time);
     printf("Relative error of approximation of full matrix: %e\n",
             sqrt(diff/norm));
     printf("Maximum relative error of per-block approximation: %e\n", maxerr);
@@ -126,7 +131,8 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
 // by block kernel, which returns submatrices) with relative accuracy tol
 {
     //Set timer
-    clock_t tmp_time = clock();
+    struct timeval tmp_time, tmp_time2;
+    gettimeofday(&tmp_time, NULL);
     // Check parameters
     if(M == NULL)
     {
@@ -397,8 +403,10 @@ int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
     // Free temporary list if false far-field blocks
     if(nblocks_false_far > 0)
         free(false_far);
-    tmp_time = clock()-tmp_time;
-    STARS_WARNING("total time: %f sec", tmp_time/(double)CLOCKS_PER_SEC);
+    gettimeofday(&tmp_time2, NULL);
+    double time = tmp_time2.tv_sec-tmp_time.tv_sec+
+            (tmp_time2.tv_usec-tmp_time.tv_usec)*1e-6;
+    STARS_WARNING("total time: %f sec", time);
     // Init Block Low-Rank Matrix with given buffers
     return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D,
             NULL, NULL, NULL, '2');
@@ -496,3 +504,40 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
     return 0;
 }
 
+int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename)
+{
+    STARS_BLRF *F = M->blrf;
+    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    int *rank_map = malloc((size_t)F->nbrows*(size_t)F->nbcols*
+            sizeof(*rank_map));
+    size_t bi;
+    for(bi = 0; bi < F->nblocks_far; bi++)
+    {
+        size_t i = F->block_far[2*bi];
+        size_t j = F->block_far[2*bi+1];
+        rank_map[i*F->nbcols+j] = M->far_rank[bi];
+        if(i != j && F->symm == 'S')
+            rank_map[j*F->nbcols+i] = M->far_rank[bi];
+    }
+    for(bi = 0; bi < F->nblocks_near; bi++)
+    {
+        size_t i = F->block_near[2*bi];
+        size_t j = F->block_near[2*bi+1];
+        int nrowsi = R->size[i];
+        int ncolsj = C->size[j];
+        int rank = nrowsi < ncolsj ? nrowsi : ncolsj;
+        rank_map[i*F->nbcols+j] = rank;
+        if(i != j && F->symm == 'S')
+            rank_map[j*F->nbcols+i] = rank;
+    }
+    FILE *fd = fopen(filename, "w");
+    fprintf(fd, "%d %d\n", F->nbrows, F->nbcols);
+    for(size_t i = 0; i < F->nbrows; i++)
+    {
+        for(size_t j = 0; j < F->nbcols; j++)
+            fprintf(fd, " %d", rank_map[i*F->nbcols+j]);
+        fprintf(fd, "\n");
+    }
+    fclose(fd);
+    return 0;
+}

@@ -86,16 +86,19 @@ int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
     size_t bi, data_size = 0, size = 0;
     size += sizeof(*M2);
     size += F->nblocks_far*(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
-    size += F->nblocks_near*sizeof(*near_D);
     for(bi = 0; bi < F->nblocks_far; bi++)
     {
         size += far_U[bi]->nbytes+far_V[bi]->nbytes;
         data_size += far_U[bi]->data_nbytes+far_V[bi]->data_nbytes;
     }
-    for(bi = 0; bi < F->nblocks_near; bi++)
+    if(onfly == 0)
     {
-        size += near_D[bi]->nbytes;
-        data_size += near_D[bi]->data_nbytes;
+        size += F->nblocks_near*sizeof(*near_D);
+        for(bi = 0; bi < F->nblocks_near; bi++)
+        {
+            size += near_D[bi]->nbytes;
+            data_size += near_D[bi]->data_nbytes;
+        }
     }
     M2->nbytes = size;
     M2->data_nbytes = data_size;
