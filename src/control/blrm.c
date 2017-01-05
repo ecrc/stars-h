@@ -243,6 +243,7 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
         STARS_ERROR("only scalar kernels are supported");
         return 1;
     }
+    int onfly = M->onfly;
     STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
     int nrows = R->size[i], ncols = C->size[j], info = 0;
     shape[0] = nrows;
@@ -286,8 +287,9 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
         }
         if(bi != -1)
         {
-            *D = M->near_D[bi]->data;
-            if(*D == NULL)
+            if(onfly == 0)
+                *D = M->near_D[bi]->data;
+            else
                 info = STARS_BLRF_get_block(F, i, j, shape, D);
             return info;
         }

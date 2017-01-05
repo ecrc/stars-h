@@ -44,7 +44,6 @@ int main(int argc, char **argv)
     info = STARS_BLRM_tiled_compress_algebraic_svd_starpu(&M, F, fixrank, tol, 1, maxrank);
     // 0 for onfly=0
     // Print info about approximation
-    STARS_BLRF_info(F);
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error_ompfor(M);

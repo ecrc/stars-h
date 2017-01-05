@@ -212,6 +212,7 @@ int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A)
     STARS_BLRF *F = M->blrf;
     STARS_Problem *P = F->problem;
     STARS_Cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    int onfly = M->onfly;
     int info = Array_new(A, P->ndim, P->shape, P->dtype, 'F');
     Array *A2 = *A;
     double *ptrA = A2->data;
@@ -267,11 +268,13 @@ int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A)
             continue;
         int i = F->block_near[2*bi];
         int j = F->block_near[2*bi+1];
-        Array *B = M->near_D[bi];
+        Array *B = NULL;
+        if(onfly == 0)
+            B = M->near_D[bi];
         int shape[2], rank;
         void *U, *V, *D;
         int info = STARS_BLRM_get_block(M, i, j, shape, &rank, &U, &V, &D);
-        if(U != NULL || V != NULL || (F->symm == 0 && D != B->data))
+        if(U != NULL || V != NULL || (onfly == 0 && D != B->data))
         {
             STARS_ERROR("bad BLRM_get_block()");
             info = 2;
@@ -282,20 +285,22 @@ int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A)
             abort = info;
             continue;
         }
-        double *ptrB = B->data, *localA = ptrA;
+        double *ptrB = D, *localA = ptrA;
         localA += CC->start[j]*lda+RC->start[i];
-        int ldb = B->shape[0];
-        for(size_t k = 0; k < B->shape[0]; k++)
-            for(size_t l = 0; l < B->shape[1]; l++)
+        int ldb = shape[0];
+        for(size_t k = 0; k < shape[0]; k++)
+            for(size_t l = 0; l < shape[1]; l++)
                 localA[l*lda+k] = ptrB[l*ldb+k];
         if(F->symm == 'S')
         {
             localA = ptrA;
             localA += CC->start[j]+RC->start[i]*lda;
-            for(size_t k = 0; k < B->shape[0]; k++)
-                for(size_t l = 0; l < B->shape[1]; l++)
+            for(size_t k = 0; k < shape[0]; k++)
+                for(size_t l = 0; l < shape[1]; l++)
                     localA[l+k*lda] = ptrB[l*ldb+k];
         }
+        if(onfly == 1)
+            free(D);
     }
     return abort;
 }

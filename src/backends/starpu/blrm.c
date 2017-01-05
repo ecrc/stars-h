@@ -51,7 +51,6 @@ static void tiled_compress_algebraic_svd_kernel(void *buffer[], void *cl_arg)
     int *far_rank = STARPU_VARIABLE_GET_PTR(buffer[2]);
     double *far_U = STARPU_VARIABLE_GET_PTR(buffer[3]);
     double *far_V = STARPU_VARIABLE_GET_PTR(buffer[4]);
-    //printf("HELLO WORLD bi=%zu fr=%d tol=%e onfly=%d!\n", bi, fixrank, tol, onfly);
     // Get array, holding necessary data
     P->kernel(nrowsi, ncolsj, R->pivot+R->start[i],
             C->pivot+C->start[j], P->row_data, P->col_data, A);
@@ -225,9 +224,15 @@ int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M,
             //far_U[bi]->shape[1] = far_rank[bi];
             //far_V[bi]->shape[0] = far_rank[bi];
             int shape[2] = {far_U[bi]->shape[0], far_rank[bi]};
-            Array_from_buffer(far_U+bi, 2, shape, 'd', 'F', far_U[bi]->data);
+            Array *tmp = far_U[bi];
+            Array_new(far_U+bi, 2, shape, 'd', 'F');
+            cblas_dcopy(shape[0]*shape[1], tmp->data, 1, far_U[bi]->data, 1);
+            Array_free(tmp);
             shape[0] = far_rank[bi], shape[1] = far_V[bi]->shape[1];
-            Array_from_buffer(far_V+bi, 2, shape, 'd', 'F', far_V[bi]->data);
+            tmp = far_V[bi];
+            Array_new(far_V+bi, 2, shape, 'd', 'F');
+            cblas_dcopy(shape[0]*shape[1], tmp->data, 1, far_V[bi]->data, 1);
+            Array_free(tmp);
         }
         //printf("rank %d\n", far_rank[bi]);
     }
@@ -237,7 +242,6 @@ int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M,
     for(bi = 0; bi < nblocks_far; bi++)
         if(far_rank[bi] == -1)
             nblocks_false_far++;
-    printf("nblocks_false_far=%d\n", nblocks_false_far);
     if(nblocks_false_far > 0)
     {
         // IMPORTANT: `false_far` must to be in ascending order for later code
@@ -326,6 +330,10 @@ int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M,
     if(nblocks_false_far > 0)
         free(false_far);
     void *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
+    gettimeofday(&tmp_time2, NULL);
+    double time = tmp_time2.tv_sec-tmp_time.tv_sec+
+            (tmp_time2.tv_usec-tmp_time.tv_usec)*1e-6;
+    STARS_WARNING("total time: %f sec", time);
     return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D, alloc_U,
             alloc_V, alloc_D, '2');
 }
