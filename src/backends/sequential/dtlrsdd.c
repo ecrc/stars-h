@@ -30,7 +30,7 @@ int dtlrsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
     // Work variables
     int info;
     size_t bi, bj = 0;
-    // Simple cycle over all admissible blocks
+    // Simple cycle over all far-field admissible blocks
     for(bi = 0; bi < nblocks_far; bi++)
     {
         // Get indexes of corresponding block row and block column

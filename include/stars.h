@@ -410,6 +410,7 @@ int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename);
 // Put all the ranks to a specified file
 
 int dtlrsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
+int dsvfr(int size, double *S, double tol);
 int dtlrmm_l(STARS_BLRM *M, Array *A, Array *B);
 
 
