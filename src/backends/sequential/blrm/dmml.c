@@ -32,17 +32,17 @@ int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
         // Allocate temporary buffer
         STARS_MALLOC(D, nrhs*(size_t)rank);
         // Multiply low-rank matrix in U*V^T format by a dense matrix
-        cblas_dgemm(LAPACK_COL_MAJOR, CblasTrans, CblasNoTrans, rank, nrhs,
+        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
                 ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
-        cblas_dgemm(LAPACK_COL_MAJOR, CblasNoTrans, CblasNoTrans, nrows, nrhs,
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, nrhs,
                 rank, 1.0, U, nrows, D, rank, 1.0, B+R->start[i], ldb);
         if(i != j && symm == 'S')
         {
             // Multiply low-rank matrix in V*U^T format by a dense matrix
             // U and V are simply swapped in case of symmetric block
-            cblas_dgemm(LAPACK_COL_MAJOR, CblasTrans, CblasNoTrans, rank, nrhs,
+            cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
                     nrows, 1.0, U, nrows, A+R->start[i], lda, 0.0, D, rank);
-            cblas_dgemm(LAPACK_COL_MAJOR, CblasNoTrans, CblasNoTrans, ncols,
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, ncols,
                     nrhs, rank, 1.0, V, ncols, D, rank, 1.0,
                     B+C->start[j], ldb);
         }
@@ -65,13 +65,13 @@ int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, D);
             // Multiply 2 dense matrices
-            cblas_dgemm(LAPACK_COL_MAJOR, CblasNoTrans, CblasNoTrans, nrows,
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, 1.0, D, nrows, A+C->start[j], lda, 1.0,
                     B+R->start[i], ldb);
             if(i != j && symm == 'S')
             {
                 // Repeat in case of symmetric matrix
-                cblas_dgemm(LAPACK_COL_MAJOR, CblasTrans, CblasNoTrans,
+                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
                         ncols, nrhs, nrows, 1.0, D, nrows, A+R->start[i], lda,
                         1.0, B+C->start[j], ldb);
             }
@@ -89,13 +89,13 @@ int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
             // Get pointers to data buffers
             double *D = M->near_D[bi]->data;
             // Multiply 2 dense matrices
-            cblas_dgemm(LAPACK_COL_MAJOR, CblasNoTrans, CblasNoTrans, nrows,
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, 1.0, D, nrows, A+C->start[j], lda, 1.0,
                     B+R->start[i], ldb);
             if(i != j && symm == 'S')
             {
                 // Repeat in case of symmetric matrix
-                cblas_dgemm(LAPACK_COL_MAJOR, CblasTrans, CblasNoTrans,
+                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
                         ncols, nrhs, nrows, 1.0, D, nrows, A+R->start[i], lda,
                         1.0, B+C->start[j], ldb);
             }

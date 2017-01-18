@@ -40,7 +40,7 @@ STARSH_LIB	= lib/libstarsh.a
 STARSH_DIR	= src
 #STARSH_SRC	= $(wildcard $(STARSH_DIR)/*.c)
 CONTROL_SRC	= $(wildcard $(STARSH_DIR)/control/*.c)
-BACKENDS	= sequential omp starpu
+BACKENDS	= sequential
 BACKEND_DIRS	= $(addprefix $(STARSH_DIR)/backends/,$(BACKENDS)) src/backends/sequential/blrm/
 BACKEND_SRC	= $(wildcard $(addsuffix /*.c,$(BACKEND_DIRS)))
 MISC_SRC	= $(STARSH_DIR)/misc.c
@@ -50,7 +50,7 @@ STARSH_OBJ	= $(STARSH_SRC:%.c=%.o)
 STARSH_H	= $(wildcard include/stars*.h)
 TEST_DIR	= testing
 #TEST_SRC	= $(wildcard $(TEST_DIR)/*.c)
-TESTS		= sequential ompfor ompbatch starpu
+TESTS		= sequential
 TEST_SRC	= $(addsuffix .c,$(addprefix $(TEST_DIR)/,$(TESTS)))
 TEST_OBJ	= $(TEST_SRC:%.c=%.o)
 TEST_EXE	= $(TEST_SRC:%.c=%.out)

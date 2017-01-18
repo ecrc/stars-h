@@ -443,13 +443,12 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
     // At first restore far-field blocks
     for(bi = 0; bi < F->nblocks_far; bi++)
     {
+        //printf("FAR %zu\n", bi);
         int i = F->block_far[2*bi];
         int j = F->block_far[2*bi+1];
         Array *B, *B2;
         Array_new_copy(&B2, M->far_V[bi], 'C');
         Array_trans_inplace(B2);
-        //Array_info(M->far_U[bi]);
-        //Array_info(B2);
         int info = Array_dot(M->far_U[bi], B2, &B);
         Array_free(B2);
         if(info != 0)
@@ -482,6 +481,7 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
     // Restore near-field blocks
     for(bi = 0; bi < F->nblocks_near; bi++)
     {
+        //printf("NEAR %zu\n", bi);
         int i = F->block_near[2*bi];
         int j = F->block_near[2*bi+1];
         Array *B = NULL;

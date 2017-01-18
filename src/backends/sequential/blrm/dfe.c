@@ -51,7 +51,7 @@ double starsh_blrm__dfe(STARS_BLRM *M)
         double tmpnorm = cblas_dnrm2(ncols, D_norm, 1);
         far_block_norm[bi] = tmpnorm;
         // Get difference of initial and approximated block
-        cblas_dgemm(LAPACK_COL_MAJOR, CblasNoTrans, CblasTrans, nrows, ncols,
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nrows, ncols,
                 rank, -1., U[bi]->data, nrows, V[bi]->data, ncols, 1.,
                 D, nrows);
         // Compute Frobenius norm of the latter

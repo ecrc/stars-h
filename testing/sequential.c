@@ -42,7 +42,9 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARS_BLRM *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
-    info = starsh_blrm__dsdd(&M, F, tol, 1);
+    //info = starsh_blrm__dsdd(&M, F, tol, 1);
+    starsh_blrm__dqp3(&M, F, maxrank, tol, 0);
+    STARS_BLRF_info(F);
     // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
@@ -53,6 +55,8 @@ int main(int argc, char **argv)
     info = STARS_Problem_to_array(P, &A);
     Array *B;
     info = STARS_BLRM_to_matrix(M, &B);
+    printf("info of to matrix %d\n", info);
+    // /*
     // Measure accuracy by dense matrices
     double diff, norm;
     info = Array_diff(A, B, &diff);
@@ -86,5 +90,6 @@ int main(int argc, char **argv)
     STARS_Cluster_free(C);
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(P);
+    // */
     return 0;
 }
