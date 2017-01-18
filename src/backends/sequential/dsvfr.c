@@ -3,7 +3,7 @@
 #include "stars.h"
 #include "misc.h"
 
-int dsvfr(int size, double *S, double tol)
+int starsh__dsvfr(int size, double *S, double tol)
 // Double precision Singular Values Frobenius norm Rank
 //
 // Tries ranks `size`, `size`-1, `size`-2 and so on. May be accelerated by

@@ -409,9 +409,11 @@ int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
 int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename);
 // Put all the ranks to a specified file
 
-int dtlrsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
-int dsvfr(int size, double *S, double tol);
-int dtlrmm_l(STARS_BLRM *M, Array *A, Array *B);
+int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
+int starsh__dsvfr(int size, double *S, double tol);
+int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
+        double *B, int ldb);
+double starsh_blrm__dfe(STARS_BLRM *M);
 
 
 #endif // _STARS_H_

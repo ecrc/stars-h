@@ -4,7 +4,7 @@
 #include "stars.h"
 #include "misc.h"
 
-int dtlrsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
+int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
     STARS_Problem *P = F->problem;
@@ -59,7 +59,7 @@ int dtlrsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', nrows, ncols, D, nrows, S,
                 U, nrows, V, mn, work, lwork, iwork);
         // Get rank, corresponding to given error tolerance
-        int rank = dsvfr(mn, S, tol);
+        int rank = starsh__dsvfr(mn, S, tol);
         if(rank < mn/2)
         // If far-field block is low-rank
         {

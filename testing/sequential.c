@@ -42,12 +42,13 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARS_BLRM *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
-    info = dtlrsdd(&M, F, tol, 0);
+    info = starsh_blrm__dsdd(&M, F, tol, 1);
     // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
     STARS_BLRM_error(M);
+    printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
     Array *A;
     info = STARS_Problem_to_array(P, &A);
     Array *B;
@@ -61,18 +62,18 @@ int main(int argc, char **argv)
     //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
     // Free memory, consumed by array
     Array_free(A);
-    int m = shape[0], k = 2;
+    int m = shape[0], k = 100;
     shape[1] = k;
     Array_new(&A, 2, shape, 'd', 'F');
     Array *resM, *resB;
     Array_new(&resM, 2, shape, 'd', 'F');
     Array_init_randn(A);
     Array_init_zeros(resM);
-    dtlrmm_l(M, A, resM);
+    starsh_blrm__dmml(M, k, A->data, m, resM->data, m);
     Array_dot(B, A, &resB);
     Array_diff(resM, resB, &diff);
     Array_norm(resB, &norm);
-    printf("DTLRMM check: %e\n", diff/norm);
+    printf("starsh_blrm__dmml check: %e\n", diff/norm);
     //Array_free(resM);
     //Array_free(resB);
     //Array_free(A);
