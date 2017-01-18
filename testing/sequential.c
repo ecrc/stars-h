@@ -41,7 +41,8 @@ int main(int argc, char **argv)
     STARS_BLRF_info(F);
     // Approximate each admissible block
     STARS_BLRM *M;
-    info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
+    //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
+    info = dtlrsdd(&M, F, tol, 1);
     // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);

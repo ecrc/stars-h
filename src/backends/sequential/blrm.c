@@ -41,7 +41,7 @@ int STARS_BLRM_error(STARS_BLRM *M)
         int nrowsi = R->size[i];
         int ncolsj = C->size[j];
         int shape[2] = {nrowsi, ncolsj};
-        Array *A, *A2;
+        Array *A, *A2, *A3;
         int info = Array_new(&A, 2, shape, P->dtype, 'F');
         if(info != 0)
             return info;
@@ -56,7 +56,10 @@ int STARS_BLRM_error(STARS_BLRM *M)
         norm += tmpnorm*tmpnorm;
         if(i != j && symm == 'S')
             norm += tmpnorm*tmpnorm;
-        info = Array_dot(M->far_U[bi], M->far_V[bi], &A2);
+        Array_new_copy(&A3, M->far_V[bi], 'C');
+        Array_trans_inplace(A3);
+        info = Array_dot(M->far_U[bi], A3, &A2);
+        Array_free(A3);
         if(info != 0)
             return info;
         info = Array_diff(A, A2, &tmpdiff);
@@ -442,8 +445,13 @@ int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A)
     {
         int i = F->block_far[2*bi];
         int j = F->block_far[2*bi+1];
-        Array *B;
-        int info = Array_dot(M->far_U[bi], M->far_V[bi], &B);
+        Array *B, *B2;
+        Array_new_copy(&B2, M->far_V[bi], 'C');
+        Array_trans_inplace(B2);
+        //Array_info(M->far_U[bi]);
+        //Array_info(B2);
+        int info = Array_dot(M->far_U[bi], B2, &B);
+        Array_free(B2);
         if(info != 0)
             return info;
         int shape[2], rank;
