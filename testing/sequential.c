@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARS_BLRM *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
-    info = dtlrsdd(&M, F, tol, 1);
+    info = dtlrsdd(&M, F, tol, 0);
     // 0 for onfly=0
     // Print info about approximation
     STARS_BLRM_info(M);
@@ -52,23 +52,38 @@ int main(int argc, char **argv)
     info = STARS_Problem_to_array(P, &A);
     Array *B;
     info = STARS_BLRM_to_matrix(M, &B);
-    // Free memory, used by matrix in block low-rank format
-    STARS_BLRM_free(M);
     // Measure accuracy by dense matrices
     double diff, norm;
     info = Array_diff(A, B, &diff);
     info = Array_norm(A, &norm);
-    Array_free(B);
     printf("STARS_BLRM_to_matrix diff with Array: %e\n", diff/norm);
+    // Check if this problem is good for Cholesky factorization
+    //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
+    // Free memory, consumed by array
+    Array_free(A);
+    int m = shape[0], k = 2;
+    shape[1] = k;
+    Array_new(&A, 2, shape, 'd', 'F');
+    Array *resM, *resB;
+    Array_new(&resM, 2, shape, 'd', 'F');
+    Array_init_randn(A);
+    Array_init_zeros(resM);
+    dtlrmm_l(M, A, resM);
+    Array_dot(B, A, &resB);
+    Array_diff(resM, resB, &diff);
+    Array_norm(resB, &norm);
+    printf("DTLRMM check: %e\n", diff/norm);
+    //Array_free(resM);
+    //Array_free(resB);
+    //Array_free(A);
+    //Array_free(B);
+    // Free memory, used by matrix in block low-rank format
+    STARS_BLRM_free(M);
     // Free memory, used by block low-rank format
     STARS_BLRF_free(F);
     // Free memory, used by clusterization info
     STARS_Cluster_free(C);
     // Free memory, used by STARS_Problem instance
     STARS_Problem_free(P);
-    // Check if this problem is good for Cholesky factorization
-    //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
-    // Free memory, consumed by array
-    Array_free(A);
     return 0;
 }
