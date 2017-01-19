@@ -4,7 +4,8 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__drsdd2(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
+int starsh_blrm__drsdd2(STARS_BLRM **M, STARS_BLRF *F, int maxrank,
+        int oversample, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
     STARS_Problem *P = F->problem;
@@ -41,7 +42,7 @@ int starsh_blrm__drsdd2(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
         //int mn2 = mn < maxrank ? mn : maxrank;
-        int mn2 = mn/2+10;
+        int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
@@ -108,7 +109,7 @@ int starsh_blrm__drsdd2(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         free(iwork);
         // Get rank, corresponding to given error tolerance
         int rank = starsh__dsvfr(mn2, svd_S, tol);
-        if(rank < mn/2)
+        if(rank < mn/2 && rank <= maxrank)
         // If far-field block is low-rank
         {
             far_rank[bi] = rank;

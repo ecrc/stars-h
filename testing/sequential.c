@@ -10,17 +10,19 @@ int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
 // For more information on STARS structures look inside of header files.
 {
-    if(argc < 6)
+    if(argc < 8)
     {
         printf("%d\n", argc);
-        printf("spatial.out n block_size tol beta scheme\n");
+        printf("spatial.out n block_size maxrank oversample tol beta "
+                "scheme\n");
         exit(0);
     }
     int n = atoi(argv[1]), block_size = atoi(argv[2]);
-    double tol = atof(argv[3]), beta = atof(argv[4]);
-    char *scheme = argv[5];
-    printf("\nn=%d, bs=%d, tol=%e, beta=%f, scheme=%s\n",
-            n, block_size, tol, beta, scheme);
+    int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
+    double tol = atof(argv[5]), beta = atof(argv[6]);
+    char *scheme = argv[7];
+    printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
+            n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
     srand(time(NULL));
     // Generate data for spatial statistics problem
@@ -47,11 +49,11 @@ int main(int argc, char **argv)
     if(strcmp(scheme, "sdd") == 0)
         starsh_blrm__dsdd(&M, F, tol, 0);
     else if(strcmp(scheme, "rsdd") == 0)
-        starsh_blrm__drsdd(&M, F, tol, 0);
+        starsh_blrm__drsdd(&M, F, maxrank, oversample, tol, 0);
     else if(strcmp(scheme, "rsdd2") == 0)
-        starsh_blrm__drsdd2(&M, F, tol, 0);
+        starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, 0);
     else if(strcmp(scheme, "qp3") == 0)
-        starsh_blrm__dqp3(&M, F, tol, 0);
+        starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, 0);
     else
     {
         printf("wrong scheme (possible: sdd, rsdd, qp3)\n");

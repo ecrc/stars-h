@@ -4,7 +4,8 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
+int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank,
+        int oversample, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
     STARS_Problem *P = F->problem;
@@ -41,7 +42,7 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
         //int mn2 = mn < maxrank ? mn : maxrank;
-        int mn2 = mn/2+10;
+        int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
@@ -78,8 +79,6 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             size_t kk = ipiv[k]-1;
             size_t l = k < mn2 ? k+1 : mn2;
             cblas_dcopy(l, D+k*nrows, 1, R+kk*mn2, 1);
-            //for(size_t ll = 0; ll < l; ll++)
-            //    R[kk*mn2+ll] = D[k*nrows+ll];
             for(size_t ll = l; ll < mn2; ll++)
                 R[kk*mn2+ll] = 0.;
         }
@@ -94,10 +93,7 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         free(iwork);
         // Get rank, corresponding to given error tolerance
         int rank = starsh__dsvfr(mn2, svd_S, tol);
-        //int rank = mn;
-        //if(i == j)
-        //    rank = mn;
-        if(rank < mn/2)
+        if(rank < mn/2 && rank <= maxrank)
         // If far-field block is low-rank
         {
             far_rank[bi] = rank;
