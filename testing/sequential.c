@@ -48,6 +48,8 @@ int main(int argc, char **argv)
         starsh_blrm__dsdd(&M, F, tol, 0);
     else if(strcmp(scheme, "rsdd") == 0)
         starsh_blrm__drsdd(&M, F, tol, 0);
+    else if(strcmp(scheme, "rsdd2") == 0)
+        starsh_blrm__drsdd2(&M, F, tol, 0);
     else if(strcmp(scheme, "qp3") == 0)
         starsh_blrm__dqp3(&M, F, tol, 0);
     else
