@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     STARS_BLRM *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
     //info = starsh_blrm__dsdd(&M, F, tol, 1);
-    starsh_blrm__dqp3(&M, F, maxrank, tol, 0);
+    starsh_blrm__dqp3(&M, F, tol, 0);
     STARS_BLRF_info(F);
     // 0 for onfly=0
     // Print info about approximation

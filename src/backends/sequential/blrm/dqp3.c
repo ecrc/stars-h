@@ -4,8 +4,7 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank, double tol,
-        int onfly)
+int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
     STARS_Problem *P = F->problem;
@@ -41,24 +40,34 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank, double tol,
         int nrows = R->size[i];
         int ncols = C->size[j];
         int mn = nrows < ncols ? nrows : ncols;
-        int mn2 = mn < maxrank ? mn : maxrank;
+        //int mn2 = mn < maxrank ? mn : maxrank;
+        int mn2 = mn/2+10;
+        if(mn2 > mn)
+            mn2 = mn;
         // Get size of temporary arrays
-        size_t lmn = mn, lwork = 3*ncols+1;
-        double *U, *S, *V, *work, *U2, *V2, *tau, *D;
-        int *ipiv;
+        size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn+7)*mn;
+        if(lwork_sdd > lwork)
+            lwork = lwork_sdd;
+        size_t liwork = ncols, liwork_sdd = 8*mn;
+        if(liwork_sdd > liwork)
+            liwork = liwork_sdd;
+        double *U, *V, *work, *U2, *V2, *tau, *svd_U, *svd_S, *svd_V;
+        int *iwork, *ipiv;
         size_t D_size = (size_t)nrows*(size_t)ncols;
         // Allocate temporary arrays
         STARS_MALLOC(U, D_size);
-        STARS_MALLOC(D, D_size);
-        STARS_MALLOC(S, mn2);
-        STARS_MALLOC(V, lmn*ncols);
-        STARS_MALLOC(ipiv, ncols);
+        STARS_MALLOC(V, (size_t)mn2*(size_t)ncols);
+        STARS_MALLOC(iwork, liwork);
+        ipiv = iwork;
         STARS_MALLOC(work, lwork);
         STARS_MALLOC(tau, mn);
+        STARS_MALLOC(svd_U, (size_t)nrows*(size_t)mn2);
+        STARS_MALLOC(svd_S, mn2);
+        STARS_MALLOC(svd_V, (size_t)mn2*(size_t)ncols);
         // Compute elements of a block
         kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                 RD, CD, U);
-        // Set ipiv to zeros
+        // Set pivots for GEQP3 to zeros
         for(int k = 0; k < ncols; k++)
             ipiv[k] = 0;
         // Call GEQP3
@@ -68,24 +77,25 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank, double tol,
         for(size_t k = 0; k < ncols; k++)
         {
             size_t kk = ipiv[k]-1;
-            size_t l = k < mn ? k+1 : mn; 
-            cblas_dcopy(l, U+k*nrows, 1, V+kk*mn, 1);
+            size_t l = k < mn2 ? k+1 : mn2;
+            cblas_dcopy(l, U+k*nrows, 1, V+kk*mn2, 1);
             //for(size_t ll = 0; ll < l; ll++)
-            //    V[kk*mn+ll] = U[k*nrows+ll];
-            for(size_t ll = l; ll < mn; ll++)
-                V[kk*mn+ll] = 0.;
+            //    V[kk*mn2+ll] = U[k*nrows+ll];
+            for(size_t ll = l; ll < mn2; ll++)
+                V[kk*mn2+ll] = 0.;
         }
-        free(ipiv);
-        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, ncols, mn2, U, nrows, tau,
+        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, U, nrows, tau,
                 work, lwork);
         free(tau);
-        //LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'S', );
+        LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, V, mn2, svd_S,
+                svd_U, mn2, svd_V, mn2, work, lwork, iwork);
         free(work);
+        free(iwork);
         // Get rank, corresponding to given error tolerance
-        //int rank = starsh__dsvfr(mn2, S, tol);
-        int rank = mn;
-        if(i != j)
-            rank = mn2;
+        int rank = starsh__dsvfr(mn2, svd_S, tol);
+        //int rank = mn;
+        //if(i == j)
+        //    rank = mn;
         if(rank < mn/2)
         // If far-field block is low-rank
         {
@@ -95,10 +105,13 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank, double tol,
             Array_new(far_V+bi, 2, shapeV, 'd', 'F');
             U2 = far_U[bi]->data;
             V2 = far_V[bi]->data;
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, rank,
+                    mn2, 1.0, U, nrows, svd_U, mn2, 0.0, U2, nrows);
             for(size_t k = 0; k < rank; k++)
             {
-                cblas_dcopy(nrows, U+k*nrows, 1, U2+k*nrows, 1);
-                cblas_dcopy(ncols, V+k, mn, V2+k*ncols, 1);
+                //cblas_dcopy(nrows, U+k*nrows, 1, U2+k*nrows, 1);
+                cblas_dcopy(ncols, svd_V+k, mn2, V2+k*ncols, 1);
+                cblas_dscal(ncols, svd_S[k], V2+k*ncols, 1);
             }
         }
         else
@@ -111,8 +124,10 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank, double tol,
         }
         // Free temporary arrays
         free(U);
-        //free(S);
         free(V);
+        free(svd_U);
+        free(svd_S);
+        free(svd_V);
     }
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;
