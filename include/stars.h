@@ -411,6 +411,7 @@ int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename);
 
 int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
 int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
+int starsh_blrm__drsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
 int starsh__dsvfr(int size, double *S, double tol);
 int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
         double *B, int ldb);

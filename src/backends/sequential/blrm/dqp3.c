@@ -25,8 +25,8 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         STARS_MALLOC(far_rank, nblocks_far);
     }
     // Shortcuts to information about clusters
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
-    void *RD = R->data, *CD = C->data;
+    STARS_Cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    void *RD = RC->data, *CD = CC->data;
     // Work variables
     int info;
     size_t bi, bj = 0;
@@ -37,57 +37,58 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         int i = block_far[2*bi];
         int j = block_far[2*bi+1];
         // Get corresponding sizes and minimum of them
-        int nrows = R->size[i];
-        int ncols = C->size[j];
+        int nrows = RC->size[i];
+        int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
         //int mn2 = mn < maxrank ? mn : maxrank;
         int mn2 = mn/2+10;
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
-        size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn+7)*mn;
+        size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
         if(lwork_sdd > lwork)
             lwork = lwork_sdd;
-        size_t liwork = ncols, liwork_sdd = 8*mn;
+        size_t liwork = ncols, liwork_sdd = 8*mn2;
         if(liwork_sdd > liwork)
             liwork = liwork_sdd;
-        double *U, *V, *work, *U2, *V2, *tau, *svd_U, *svd_S, *svd_V;
+        double *D, *R, *work, *U, *V, *tau, *svd_U, *svd_S, *svd_V;
         int *iwork, *ipiv;
-        size_t D_size = (size_t)nrows*(size_t)ncols;
         // Allocate temporary arrays
-        STARS_MALLOC(U, D_size);
-        STARS_MALLOC(V, (size_t)mn2*(size_t)ncols);
+        STARS_MALLOC(D, (size_t)nrows*(size_t)ncols);
+        STARS_MALLOC(R, (size_t)mn2*(size_t)ncols);
         STARS_MALLOC(iwork, liwork);
         ipiv = iwork;
         STARS_MALLOC(work, lwork);
         STARS_MALLOC(tau, mn);
-        STARS_MALLOC(svd_U, (size_t)nrows*(size_t)mn2);
+        STARS_MALLOC(svd_U, (size_t)mn2*(size_t)mn2);
         STARS_MALLOC(svd_S, mn2);
         STARS_MALLOC(svd_V, (size_t)mn2*(size_t)ncols);
         // Compute elements of a block
-        kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-                RD, CD, U);
+        kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
+                RD, CD, D);
         // Set pivots for GEQP3 to zeros
         for(int k = 0; k < ncols; k++)
             ipiv[k] = 0;
         // Call GEQP3
-        LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, nrows, ncols, U, nrows, ipiv,
+        LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, nrows, ncols, D, nrows, ipiv,
                 tau, work, lwork);
         // Copy R factor to V
         for(size_t k = 0; k < ncols; k++)
         {
             size_t kk = ipiv[k]-1;
             size_t l = k < mn2 ? k+1 : mn2;
-            cblas_dcopy(l, U+k*nrows, 1, V+kk*mn2, 1);
+            cblas_dcopy(l, D+k*nrows, 1, R+kk*mn2, 1);
             //for(size_t ll = 0; ll < l; ll++)
-            //    V[kk*mn2+ll] = U[k*nrows+ll];
+            //    R[kk*mn2+ll] = D[k*nrows+ll];
             for(size_t ll = l; ll < mn2; ll++)
-                V[kk*mn2+ll] = 0.;
+                R[kk*mn2+ll] = 0.;
         }
-        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, U, nrows, tau,
+        // Get factor Q
+        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, D, nrows, tau,
                 work, lwork);
         free(tau);
-        LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, V, mn2, svd_S,
+        // Get SVD of corresponding matrix to reduce rank
+        LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, R, mn2, svd_S,
                 svd_U, mn2, svd_V, mn2, work, lwork, iwork);
         free(work);
         free(iwork);
@@ -103,15 +104,15 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             int shapeU[2] = {nrows, rank}, shapeV[2] = {ncols, rank};
             Array_new(far_U+bi, 2, shapeU, 'd', 'F');
             Array_new(far_V+bi, 2, shapeV, 'd', 'F');
-            U2 = far_U[bi]->data;
-            V2 = far_V[bi]->data;
+            U = far_U[bi]->data;
+            V = far_V[bi]->data;
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, rank,
-                    mn2, 1.0, U, nrows, svd_U, mn2, 0.0, U2, nrows);
+                    mn2, 1.0, D, nrows, svd_U, mn2, 0.0, U, nrows);
             for(size_t k = 0; k < rank; k++)
             {
                 //cblas_dcopy(nrows, U+k*nrows, 1, U2+k*nrows, 1);
-                cblas_dcopy(ncols, svd_V+k, mn2, V2+k*ncols, 1);
-                cblas_dscal(ncols, svd_S[k], V2+k*ncols, 1);
+                cblas_dcopy(ncols, svd_V+k, mn2, V+k*ncols, 1);
+                cblas_dscal(ncols, svd_S[k], V+k*ncols, 1);
             }
         }
         else
@@ -123,8 +124,8 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             far_V[bi] = NULL;
         }
         // Free temporary arrays
-        free(U);
-        free(V);
+        free(D);
+        free(R);
         free(svd_U);
         free(svd_S);
         free(svd_V);
@@ -184,7 +185,7 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         }
         // Update format by creating new format
         STARS_BLRF *F2;
-        info = STARS_BLRF_new(&F2, P, F->symm, R, C, new_nblocks_far,
+        info = STARS_BLRF_new(&F2, P, F->symm, RC, CC, new_nblocks_far,
                 block_far, new_nblocks_near, block_near, F->type);
         // Swap internal data of formats and free unnecessary data
         STARS_BLRF tmp_blrf = *F;
@@ -206,12 +207,12 @@ int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             int i = block_near[2*bi];
             int j = block_near[2*bi+1];
             // Get corresponding sizes and minimum of them
-            int nrows = R->size[i];
-            int ncols = C->size[j];
+            int nrows = RC->size[i];
+            int ncols = CC->size[j];
             int shape[2] = {nrows, ncols};
             Array_new(near_D+bi, 2, shape, 'd', 'F');
-            kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-                    RD, CD, near_D[bi]->data);
+            kernel(nrows, ncols, RC->pivot+RC->start[i],
+                    CC->pivot+CC->start[j], RD, CD, near_D[bi]->data);
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false
