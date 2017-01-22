@@ -384,8 +384,6 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
 int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A);
 int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A);
 // Creates copy of Block Low-rank Matrix in dense format
-int STARS_BLRM_tiled_compress_algebraic_svd(STARS_BLRM **M, STARS_BLRF *F,
-        int fixrank, double tol, int onfly);
 int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M, STARS_BLRF *F,
         int fixrank, double tol, int onfly, int maxrank);
 // Private function of STARS-H
@@ -420,6 +418,7 @@ int starsh__dsvfr(int size, double *S, double tol);
 int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
         double *B, int ldb);
 double starsh_blrm__dfe(STARS_BLRM *M);
+int starsh_blrm__dca(STARS_BLRM *M, Array *A);
 
 
 #endif // _STARS_H_

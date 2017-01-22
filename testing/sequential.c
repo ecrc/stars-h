@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
     char *scheme = argv[7];
+    int onfly = 1;
     printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
             n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
@@ -47,13 +48,13 @@ int main(int argc, char **argv)
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
     double time0 = omp_get_wtime();
     if(strcmp(scheme, "sdd") == 0)
-        starsh_blrm__dsdd(&M, F, tol, 0);
+        starsh_blrm__dsdd(&M, F, tol, onfly);
     else if(strcmp(scheme, "rsdd") == 0)
-        starsh_blrm__drsdd(&M, F, maxrank, oversample, tol, 0);
+        starsh_blrm__drsdd(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "rsdd2") == 0)
-        starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, 0);
+        starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "qp3") == 0)
-        starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, 0);
+        starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, onfly);
     else
     {
         printf("wrong scheme (possible: sdd, rsdd, qp3)\n");
@@ -65,19 +66,19 @@ int main(int argc, char **argv)
     // Print info about approximation
     STARS_BLRM_info(M);
     // Measure approximation error in Frobenius norm
-    STARS_BLRM_error(M);
     printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
     Array *A;
     info = STARS_Problem_to_array(P, &A);
     Array *B;
-    info = STARS_BLRM_to_matrix(M, &B);
+    Array_new(&B, 2, P->shape, 'd', 'F');
+    starsh_blrm__dca(M, B);
     printf("info of to matrix %d\n", info);
     // /*
     // Measure accuracy by dense matrices
     double diff, norm;
     info = Array_diff(A, B, &diff);
     info = Array_norm(A, &norm);
-    printf("STARS_BLRM_to_matrix diff with Array: %e\n", diff/norm);
+    printf("starsh_blrm__dca diff with Array: %e\n", diff/norm);
     // Check if this problem is good for Cholesky factorization
     //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
     // Free memory, consumed by array
