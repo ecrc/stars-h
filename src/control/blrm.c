@@ -10,7 +10,7 @@
 #include "misc.h"
 
 
-int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
+int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type)
@@ -18,62 +18,62 @@ int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
 {
     if(M == NULL)
     {
-        STARS_ERROR("invalid value of `M`");
+        STARSH_ERROR("invalid value of `M`");
         return 1;
     }
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     if(far_rank == NULL && F->nblocks_far > 0)
     {
-        STARS_ERROR("invalid value of `far_rank`");
+        STARSH_ERROR("invalid value of `far_rank`");
         return 1;
     }
     if(far_U == NULL && F->nblocks_far > 0)
     {
-        STARS_ERROR("invalid value of `far_U`");
+        STARSH_ERROR("invalid value of `far_U`");
         return 1;
     }
     if(far_V == NULL && F->nblocks_far > 0)
     {
-        STARS_ERROR("invalid value of `far_V`");
+        STARSH_ERROR("invalid value of `far_V`");
         return 1;
     }
     if(onfly != 0 && onfly != 1)
     {
-        STARS_ERROR("invalid value of `onfly`");
+        STARSH_ERROR("invalid value of `onfly`");
         return 1;
     }
     if(near_D == NULL && F->nblocks_near > 0 && onfly == 0)
     {
-        STARS_ERROR("invalid value of `near_D`");
+        STARSH_ERROR("invalid value of `near_D`");
         return 1;
     }
     if(alloc_type != '1' && alloc_type != '2')
     {
-        STARS_ERROR("invalid value of `alloc_type`");
+        STARSH_ERROR("invalid value of `alloc_type`");
         return 1;
     }
     if(alloc_U == NULL && alloc_type == '1')
     {
-        STARS_ERROR("invalid value of `alloc_U`");
+        STARSH_ERROR("invalid value of `alloc_U`");
         return 1;
     }
     if(alloc_V == NULL && alloc_type == '1')
     {
-        STARS_ERROR("invalid value of `alloc_V`");
+        STARSH_ERROR("invalid value of `alloc_V`");
         return 1;
     }
     if(alloc_D == NULL && alloc_type == '1' && onfly == 0)
     {
-        STARS_ERROR("invalid value of `alloc_D`");
+        STARSH_ERROR("invalid value of `alloc_D`");
         return 1;
     }
-    STARS_MALLOC(*M, 1);
-    STARS_BLRM *M2 = *M;
-    M2->blrf = F;
+    STARSH_MALLOC(*M, 1);
+    STARSH_blrm *M2 = *M;
+    M2->format = F;
     M2->far_rank = far_rank;
     M2->far_U = far_U;
     M2->far_V = far_V;
@@ -105,15 +105,15 @@ int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
     return 0;
 }
 
-int STARS_BLRM_free(STARS_BLRM *M)
+int starsh_blrm_free(STARSH_blrm *M)
 // Free memory of a non-nested block low-rank matrix
 {
     if(M == NULL)
     {
-        STARS_ERROR("invalid value of `M`");
+        STARSH_ERROR("invalid value of `M`");
         return 1;
     }
-    STARS_BLRF *F = M->blrf;
+    STARSH_blrf *F = M->format;
     size_t bi;
     int info;
     if(F->nblocks_far > 0)
@@ -125,11 +125,11 @@ int STARS_BLRM_free(STARS_BLRM *M)
             for(bi = 0; bi < F->nblocks_far; bi++)
             {
                 M->far_U[bi]->data = NULL;
-                info = Array_free(M->far_U[bi]);
+                info = array_free(M->far_U[bi]);
                 if(info != 0)
                     return info;
                 M->far_V[bi]->data = NULL;
-                info = Array_free(M->far_V[bi]);
+                info = array_free(M->far_V[bi]);
                 if(info != 0)
                     return info;
             }
@@ -138,10 +138,10 @@ int STARS_BLRM_free(STARS_BLRM *M)
         {
             for(bi = 0; bi < F->nblocks_far; bi++)
             {
-                info = Array_free(M->far_U[bi]);
+                info = array_free(M->far_U[bi]);
                 if(info != 0)
                     return info;
-                info = Array_free(M->far_V[bi]);
+                info = array_free(M->far_V[bi]);
                 if(info != 0)
                     return info;
             }
@@ -158,7 +158,7 @@ int STARS_BLRM_free(STARS_BLRM *M)
             for(bi = 0; bi < F->nblocks_near; bi++)
             {
                 M->near_D[bi]->data = NULL;
-                info = Array_free(M->near_D[bi]);
+                info = array_free(M->near_D[bi]);
                 if(info != 0)
                     return info;
             }
@@ -167,7 +167,7 @@ int STARS_BLRM_free(STARS_BLRM *M)
         {
             for(bi = 0; bi < F->nblocks_near; bi++)
             {
-                info = Array_free(M->near_D[bi]);
+                info = array_free(M->near_D[bi]);
                 if(info != 0)
                     return info;
             }
@@ -178,73 +178,73 @@ int STARS_BLRM_free(STARS_BLRM *M)
     return 0;
 }
 
-int STARS_BLRM_info(STARS_BLRM *M)
+int starsh_blrm_info(STARSH_blrm *M)
 // Print short info on non-nested block low-rank matrix
 {
     if(M == NULL)
     {
-        STARS_ERROR("invalid value of `M`");
+        STARSH_ERROR("invalid value of `M`");
         return 1;
     }
-    printf("<STARS_BLRM at %p, %d onfly, allocation type '%c', %f MB memory "
+    printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
             "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
     return 0;
 }
 
-int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
+int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D)
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
 {
     if(M == NULL)
     {
-        STARS_ERROR("invalid value of `M`");
+        STARSH_ERROR("invalid value of `M`");
         return 1;
     }
     if(shape == NULL)
     {
-        STARS_ERROR("invalid value of `shape`");
+        STARSH_ERROR("invalid value of `shape`");
         return 1;
     }
     if(rank == NULL)
     {
-        STARS_ERROR("invalid value of `rank`");
+        STARSH_ERROR("invalid value of `rank`");
         return 1;
     }
     if(U == NULL)
     {
-        STARS_ERROR("invalid value of `U`");
+        STARSH_ERROR("invalid value of `U`");
         return 1;
     }
     if(V == NULL)
     {
-        STARS_ERROR("invalid value of `V`");
+        STARSH_ERROR("invalid value of `V`");
         return 1;
     }
     if(D == NULL)
     {
-        STARS_ERROR("invalid value of `D`");
+        STARSH_ERROR("invalid value of `D`");
         return 1;
     }
-    STARS_BLRF *F = M->blrf;
+    STARSH_blrf *F = M->format;
     if(i < 0 || i >= F->nbrows)
     {
-        STARS_ERROR("invalid value of `i`");
+        STARSH_ERROR("invalid value of `i`");
         return 1;
     }
     if(j < 0 || j >= F->nbcols)
     {
-        STARS_ERROR("invalid value of `j`");
+        STARSH_ERROR("invalid value of `j`");
         return 1;
     }
-    STARS_Problem *P = F->problem;
+    STARSH_problem *P = F->problem;
     if(P->ndim != 2)
     {
-        STARS_ERROR("only scalar kernels are supported");
+        STARSH_ERROR("only scalar kernels are supported");
         return 1;
     }
     int onfly = M->onfly;
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     int nrows = R->size[i], ncols = C->size[j], info = 0;
     shape[0] = nrows;
     shape[1] = ncols;
@@ -290,12 +290,12 @@ int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
             if(onfly == 0)
                 *D = M->near_D[bi]->data;
             else
-                info = STARS_BLRF_get_block(F, i, j, shape, D);
+                info = starsh_blrf_get_block(F, i, j, shape, D);
             return info;
         }
     }
-    STARS_WARNING("Required block (%d, %d) is not admissible!\n", i, j);
-    info = STARS_BLRF_get_block(F, i, j, shape, D);
+    STARSH_WARNING("Required block (%d, %d) is not admissible!\n", i, j);
+    info = starsh_blrf_get_block(F, i, j, shape, D);
     return info;
 }
 

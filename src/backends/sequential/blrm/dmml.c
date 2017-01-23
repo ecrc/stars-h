@@ -4,15 +4,15 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
+int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
         double *B, int ldb)
 // Double precision Multiply by dense Matrix, blr-matrix is on Left side
 {
-    STARS_BLRF *F = M->blrf;
-    STARS_Problem *P = F->problem;
+    STARSH_blrf *F = M->format;
+    STARSH_problem *P = F->problem;
     block_kernel kernel = P->kernel;
     // Shorcuts to information about clusters
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;
     // Number of far-field and near-field blocks
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near, bi;
@@ -30,7 +30,7 @@ int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
         // Get pointers to data buffers
         double *D, *U = M->far_U[bi]->data, *V = M->far_V[bi]->data;
         // Allocate temporary buffer
-        STARS_MALLOC(D, nrhs*(size_t)rank);
+        STARSH_MALLOC(D, nrhs*(size_t)rank);
         // Multiply low-rank matrix in U*V^T format by a dense matrix
         cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
                 ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
@@ -60,7 +60,7 @@ int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
             // Get pointers to data buffers
             double *D;
             // Allocate temporary buffer
-            STARS_MALLOC(D, (size_t)nrows*(size_t)ncols);
+            STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, D);

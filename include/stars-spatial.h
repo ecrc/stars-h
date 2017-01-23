@@ -1,16 +1,16 @@
 #include <stdint.h>
 #include "stars.h"
 
-typedef struct STARS_ssdata
+typedef struct starsh_ssdata
 {
     size_t count;
     double *point;
     double beta;
-} STARS_ssdata;
+} STARSH_ssdata;
 
-int STARS_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
+int starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result);
-STARS_ssdata *STARS_gen_ssdata2(int n, double beta);
-STARS_ssdata *STARS_gen_ssdata(int row_blocks, int col_blocks,
+STARSH_ssdata *starsh_gen_ssdata2(int n, double beta);
+STARSH_ssdata *starsh_gen_ssdata(int row_blocks, int col_blocks,
         int block_size, double beta);
-void STARS_ssdata_free(STARS_ssdata *data);
+void starsh_ssdata_free(STARSH_ssdata *data);

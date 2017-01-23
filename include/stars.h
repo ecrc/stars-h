@@ -2,32 +2,24 @@
 #define _STARS_H_
 
 #include <sys/types.h>
-//#include <mpi.h>
 
-struct timespec stars_gettime();
-double stars_timer_delay(struct timespec t1, struct timespec t2);
-
-typedef struct Array Array;
-typedef struct List List;
-typedef struct STARS_Problem STARS_Problem;
-typedef struct STARS_Cluster STARS_Cluster;
-typedef struct STARS_BLRF STARS_BLRF;
-typedef struct STARS_BLRM STARS_BLRM;
+typedef struct array Array;
+typedef struct starsh_problem STARSH_problem;
+typedef struct starsh_cluster STARSH_cluster;
+typedef struct starsh_blrf STARSH_blrf;
+typedef struct starsh_blrm STARSH_blrm;
 typedef int (*block_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
-typedef enum {STARS_Dense, STARS_LowRank, STARS_Unknown} STARS_BlockStatus;
-// Enum type to show lowrankness of admissible blocks
-
-typedef enum {STARS_BLRF_Tiled, STARS_BLRF_H, STARS_BLRF_HODLR}
-    STARS_BLRF_Type;
+typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
+    STARSH_blrf_type;
 // Enum type to show format type (tiled, hierarchical HOLDR or hierarchical H).
 
-typedef enum {STARS_ClusterTiled, STARS_ClusterHierarchical}
-    STARS_ClusterType;
+typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
+    STARSH_cluster_type;
 // Enum type to show type of clusterization.
 
-struct Array
+struct array
 // N-dimensional A
 {
     int ndim;
@@ -53,36 +45,36 @@ struct Array
 };
 
 // Routines to work with N-dimensional As
-int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
+int array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         char order, void *buffer);
 // Init A from given buffer. Check if all parameters are good and
 // proceed.
-int Array_new(Array **A, int ndim, int *shape, char dtype, char order);
+int array_new(Array **A, int ndim, int *shape, char dtype, char order);
 // Allocation of memory for A
-int Array_new_like(Array **A, Array *B);
+int array_new_like(Array **A, Array *B);
 // Initialize new A with exactly the same shape, dtype and so on, but
 // with a different memory buffer
-int Array_new_copy(Array **A, Array *B, char order);
+int array_new_copy(Array **A, Array *B, char order);
 // Create copy of A with given data layout or keeping layout if order ==
 // 'N'
-int Array_free(Array *A);
+int array_free(Array *A);
 // Free memory, consumed by A structure and buffer
-int Array_info(Array *A);
+int array_info(Array *A);
 // Print all the data from Array structure
-int Array_print(Array *A);
+int array_print(Array *A);
 // Print elements of A, different rows of A are printed on different
 // rows of output
-int Array_init(Array *A, char *kind);
+int array_init(Array *A, char *kind);
 // Init buffer in a special manner: randn, rand, ones or zeros
-int Array_init_randn(Array *A);
+int array_init_randn(Array *A);
 // Init buffer of A with random numbers of normal (0,1) distribution
-int Array_init_rand(Array *A);
+int array_init_rand(Array *A);
 // Init buffer with random numbers of uniform [0,1] distribution
-int Array_init_zeros(Array *A);
+int array_init_zeros(Array *A);
 // Set all elements to 0.0
-int Array_init_ones(Array *A);
+int array_init_ones(Array *A);
 // Set all elements to 1.0
-int Array_tomatrix(Array *A, char kind);
+int array_to_matrix(Array *A, char kind);
 // Convert N-dimensional A to 2-dimensional A (matrix) by
 // collapsing dimensions. This collapse can be assumed as attempt to look
 // at A as at a matrix with long rows (kind == 'R') or long columns
@@ -91,31 +83,31 @@ int Array_tomatrix(Array *A, char kind);
 // minus one are collapsed into rows. Example: A of shape (2,3,4,5)
 // will be collapsed to A of shape (2,60) if kind is 'R' or to A of
 // shape (24,5) if kind is 'C'.
-int Array_trans_inplace(Array *A);
+int array_trans_inplace(Array *A);
 // Transposition of A. No real transposition is performed, only changes
 // shape, stride and order.
-int Array_dot(Array* A, Array *B, Array **C);
+int array_dot(Array* A, Array *B, Array **C);
 // GEMM for two As. Multiplication is performed by last dimension of
 // A A and first dimension of A B. These dimensions, data types and
 // ordering of both As should be equal.
-int Array_SVD(Array *A, Array **U, Array **S, Array **V);
+int array_SVD(Array *A, Array **U, Array **S, Array **V);
 // Compute short SVD of 2-dimensional A
 int SVD_get_rank(Array *S, double tol, char type, int *rank);
 // Returns rank by given A of singular values, tolerance and type of norm
 // ('2' for spectral norm, 'F' for Frobenius norm)
-int Array_scale(Array *A, char kind, Array *S);
+int array_scale(Array *A, char kind, Array *S);
 // Apply row or column scaling to A
-int Array_diff(Array *A, Array *B, double *result);
+int array_diff(Array *A, Array *B, double *result);
 // Measure Frobenius error of approximation of A by B
-int Array_norm(Array *A, double *result);
+int array_norm(Array *A, double *result);
 // Measure Frobenius norm of A
-int Array_convert(Array **A, Array *B, char dtype);
+int array_convert(Array **A, Array *B, char dtype);
 // Copy A and convert data type
-int Array_Cholesky(Array *A, char uplo);
+int array_cholesky(Array *A, char uplo);
 // Cholesky factoriation for an A
 
 
-struct STARS_Problem
+struct starsh_problem
 // Structure, storing all the necessary data for reconstruction of matrix,
 // generated by given kernel. This matrix may be not 2-dimensional (e.g. for
 // Astrophysics problem, where each matrix entry is a vector of 3 elements.
@@ -151,7 +143,7 @@ struct STARS_Problem
     // to set it as desired.
 };
 
-int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
+int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, block_kernel kernel,
         char *name);
 // Init for STARS_Problem instance
@@ -173,21 +165,21 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
 // Returns:
 //    STARS_Problem *: pointer to structure problem with proper filling of all
 //    the fields of structure.
-int STARS_Problem_free(STARS_Problem *P);
+int starsh_problem_free(STARSH_problem *P);
 // Free memory, consumed by data buffers of data
-int STARS_Problem_info(STARS_Problem *P);
+int starsh_problem_info(STARSH_problem *P);
 // Print some info about Problem
-int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
-        int *icol, Array **A);
+int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
+        int *irow, int *icol, Array **A);
 // Get submatrix on given rows and columns (rows=first dimension, columns=last
 // dimension)
-int STARS_Problem_from_array(STARS_Problem **P, Array *A, char symm);
+int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm);
 // Generate STARS_Problem with a given A and flag if it is symmetric
-int STARS_Problem_to_array(STARS_Problem *P, Array **A);
+int starsh_problem_to_array(STARSH_problem *P, Array **A);
 // Compute matrix/A, corresponding to the problem
 
 
-struct STARS_Cluster
+struct starsh_cluster
 // Information on clusterization (hierarchical or plain) of physical data.
 {
     void *data;
@@ -222,13 +214,13 @@ struct STARS_Cluster
     // subcluster. child_start has nblocks+1 elements, child has nblocks
     // elements in case of hierarchical cluster. In case of tiled cluster
     // child and child_start are NULL.
-    STARS_ClusterType type;
+    STARSH_cluster_type type;
     // Type of cluster (tiled or hierarchical).
 };
 
-int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
+int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARS_ClusterType type);
+        int *parent, int *child_start, int *child, STARSH_cluster_type type);
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data.
@@ -248,25 +240,25 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
 //   child: A of children of each subcluster.
 //   type: type of cluster. Tiled with STARS_ClusterTiled or hierarchical with
 //     STARS_ClusterHierarchical.
-int STARS_Cluster_free(STARS_Cluster *cluster);
+int starsh_cluster_free(STARSH_cluster *cluster);
 // Free data buffers, consumed by clusterization information.
-int STARS_Cluster_info(STARS_Cluster *cluster);
+int starsh_cluster_info(STARSH_cluster *cluster);
 // Print some info about clusterization
-int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
+int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
         int block_size);
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 
 
-struct STARS_BLRF
+struct starsh_blrf
 // STARS Block Low-Rank Format, means non-nested division of a matrix/A
 // into admissible blocks. Some of admissible blocks are low-rank, some are
 // dense.
 {
-    STARS_Problem *problem;
+    STARSH_problem *problem;
     // Pointer to a problem.
     char symm;
     // 'S' if format and problem are symmetric, and 'N' otherwise.
-    STARS_Cluster *row_cluster, *col_cluster;
+    STARSH_cluster *row_cluster, *col_cluster;
     // Clusterization of rows and columns into blocks/subclusters of discrete
     // elements.
     int nbrows, nbcols;
@@ -296,13 +288,14 @@ struct STARS_BLRF
 //    size_t *block_start, *block;
     // Blocks, corresponding to i-th MPI node, located in array block from
     // index block_start[i] to index block_start[i+1]-1 inclusively.
-    STARS_BLRF_Type type;
+    STARSH_blrf_type type;
     // Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 };
 
-int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
-        STARS_Cluster *R, STARS_Cluster *C, size_t nblocks_far, int *block_far,
-        size_t nblocks_near, int *block_near, STARS_BLRF_Type type);
+int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
+        int *block_far, size_t nblocks_near, int *block_near,
+        STARSH_blrf_type type);
 // Initialization of structure STARS_BLRF
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
@@ -320,29 +313,25 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
 //     is an index of block column.
 //   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
 //     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
-int STARS_BLRF_free(STARS_BLRF *F);
+int starsh_blrf_free(STARSH_blrf *F);
 // Free memory, used by block low rank format (partitioning of A into
 // blocks)
-void STARS_BLRF_swap(STARS_BLRF *F, STARS_BLRF *F2);
-// Swaps content of two BLR formats. Useful when inplace modification of one of
-// them is required due to new information (more accurate lists of far-field
-// and near-filed blocks)
-int STARS_BLRF_info(STARS_BLRF *F);
+int starsh_blrf_info(STARSH_blrf *F);
 // Print short info on block partitioning
-int STARS_BLRF_print(STARS_BLRF *F);
+int starsh_blrf_print(STARSH_blrf *F);
 // Print full info on block partitioning
-int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
-        STARS_Cluster *C, char symm);
+int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P,
+        STARSH_cluster *R, STARSH_cluster *C, char symm);
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
-int STARS_BLRF_get_block(STARS_BLRF *F, int i, int j, int *shape, void **D);
+int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D);
 // PLEASE CLEAN MEMORY POINTER *D AFTER USE
 
-struct STARS_BLRM
+struct starsh_blrm
 // STARS Block Low-Rank Matrix, which is used as an approximation in non-nested
 // block low-rank format.
 {
-    STARS_BLRF *blrf;
+    STARSH_blrf *format;
     // Pointer to block low-rank format.
     int *far_rank;
     // Rank of each far-field block.
@@ -365,60 +354,39 @@ struct STARS_BLRM
 };
 
 
-int STARS_BLRM_new(STARS_BLRM **M, STARS_BLRF *F, int *far_rank,
+int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type);
 // Init procedure for a non-nested block low-rank matrix
-int STARS_BLRM_free(STARS_BLRM *M);
+int starsh_blrm_free(STARSH_blrm *M);
 // Free memory of a non-nested block low-rank matrix
-int STARS_BLRM_info(STARS_BLRM *M);
+int starsh_blrm_info(STARSH_blrm *M);
 // Print short info on non-nested block low-rank matrix
-int STARS_BLRM_error(STARS_BLRM *M);
-int STARS_BLRM_error_ompfor(STARS_BLRM *M);
+//int starsh_blrm_error(STARS_blrm *M);
 // Measure error of approximation by non-nested block low-rank matrix
-int STARS_BLRM_get_block(STARS_BLRM *M, int i, int j, int *shape, int *rank,
+int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
 // Returns shape of block, its rank and low-rank factors or dense
 // representation of a block
-int STARS_BLRM_to_matrix(STARS_BLRM *M, Array **A);
-int STARS_BLRM_to_matrix_ompfor(STARS_BLRM *M, Array **A);
+//int starsh_blrm_to_matrix(STARS_BLRM *M, Array **A);
 // Creates copy of Block Low-rank Matrix in dense format
-int STARS_BLRM_tiled_compress_algebraic_svd_starpu(STARS_BLRM **M, STARS_BLRF *F,
-        int fixrank, double tol, int onfly, int maxrank);
-// Private function of STARS-H
-// Uses SVD to acquire rank of each block, compresses given matrix (given
-// by block kernel, which returns submatrices) with relative accuracy tol
-// or with given maximum rank (if maxrank <= 0, then tolerance is used)
-//int STARS_BRLM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-int STARS_BLRM_tiled_compress_algebraic_svd_ompfor(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly);
-int STARS_BLRM_tiled_compress_algebraic_svd_ompfor_nested(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly, int nthreads_outer,
-        int nthreads_inner);
 
-int STARS_BLRM_tiled_compress_algebraic_svd_batched(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
-        size_t max_buffer_size);
-int STARS_BLRM_tiled_compress_algebraic_svd_batched_nested(STARS_BLRM **M,
-        STARS_BLRF *F, int fixrank, double tol, int onfly, int maxrank,
-        size_t max_buffer_size, int nthreads_outer, int nthreads_inner);
-
-int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename);
+int STARS_BLRM_heatmap(STARSH_blrm *M, char *filename);
 // Put all the ranks to a specified file
 
-int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly);
-int starsh_blrm__dqp3(STARS_BLRM **M, STARS_BLRF *F, int maxrank,
+int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly);
+int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
-int starsh_blrm__drsdd(STARS_BLRM **M, STARS_BLRF *F, int maxrank,
+int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
-int starsh_blrm__drsdd2(STARS_BLRM **M, STARS_BLRF *F, int maxrank,
+int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh__dsvfr(int size, double *S, double tol);
-int starsh_blrm__dmml(STARS_BLRM *M, int nrhs, double *A, int lda,
+int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
         double *B, int ldb);
-double starsh_blrm__dfe(STARS_BLRM *M);
-int starsh_blrm__dca(STARS_BLRM *M, Array *A);
+double starsh_blrm__dfe(STARSH_blrm *M);
+int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 
 
-#endif // _STARS_H_
+#endif // _STARSH_H_

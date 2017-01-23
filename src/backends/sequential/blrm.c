@@ -11,10 +11,10 @@
 //#include "lapacke.h"
 #include "misc.h"
 
-int STARS_BLRM_heatmap(STARS_BLRM *M, char *filename)
+int starsh_blrm_heatmap(STARSH_blrm *M, char *filename)
 {
-    STARS_BLRF *F = M->blrf;
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_blrf *F = M->format;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     int *rank_map = malloc((size_t)F->nbrows*(size_t)F->nbcols*
             sizeof(*rank_map));
     size_t bi;

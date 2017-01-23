@@ -4,10 +4,10 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
+int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
-    STARS_Problem *P = F->problem;
+    STARSH_problem *P = F->problem;
     block_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
     // Following values default to given block low-rank format F, but they are
@@ -20,12 +20,12 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
-        STARS_MALLOC(far_U, nblocks_far);
-        STARS_MALLOC(far_V, nblocks_far);
-        STARS_MALLOC(far_rank, nblocks_far);
+        STARSH_MALLOC(far_U, nblocks_far);
+        STARSH_MALLOC(far_V, nblocks_far);
+        STARSH_MALLOC(far_rank, nblocks_far);
     }
     // Shortcuts to information about clusters
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;
     // Work variables
     int info;
@@ -46,12 +46,12 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         int *iwork;
         size_t D_size = (size_t)nrows*(size_t)ncols;
         // Allocate temporary arrays
-        STARS_MALLOC(D, D_size);
-        STARS_MALLOC(U, nrows*lmn);
-        STARS_MALLOC(S, lmn);
-        STARS_MALLOC(V, ncols*lmn);
-        STARS_MALLOC(work, lwork);
-        STARS_MALLOC(iwork, liwork);
+        STARSH_MALLOC(D, D_size);
+        STARSH_MALLOC(U, nrows*lmn);
+        STARSH_MALLOC(S, lmn);
+        STARSH_MALLOC(V, ncols*lmn);
+        STARSH_MALLOC(work, lwork);
+        STARSH_MALLOC(iwork, liwork);
         // Compute elements of a block
         kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                 RD, CD, D);
@@ -65,8 +65,8 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         {
             far_rank[bi] = rank;
             int shapeU[2] = {nrows, rank}, shapeV[2] = {ncols, rank};
-            Array_new(far_U+bi, 2, shapeU, 'd', 'F');
-            Array_new(far_V+bi, 2, shapeV, 'd', 'F');
+            array_new(far_U+bi, 2, shapeU, 'd', 'F');
+            array_new(far_V+bi, 2, shapeV, 'd', 'F');
             U2 = far_U[bi]->data;
             V2 = far_V[bi]->data;
             for(size_t k = 0; k < rank; k++)
@@ -102,7 +102,7 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
     {
         // IMPORTANT: `false_far` must to be in ascending order for later code
         // to work normally
-        STARS_MALLOC(false_far, nblocks_false_far);
+        STARSH_MALLOC(false_far, nblocks_false_far);
         bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)
             if(far_rank[bi] == -1)
@@ -114,7 +114,7 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
     {
         // Update list of near-field blocks
         new_nblocks_near = nblocks_near+nblocks_false_far;
-        STARS_MALLOC(block_near, 2*new_nblocks_near);
+        STARSH_MALLOC(block_near, 2*new_nblocks_near);
         // At first get all near-field blocks, assumed to be dense
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
@@ -129,7 +129,7 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         new_nblocks_far = nblocks_far-nblocks_false_far;
         if(new_nblocks_far > 0)
         {
-            STARS_MALLOC(block_far, 2*new_nblocks_far);
+            STARSH_MALLOC(block_far, 2*new_nblocks_far);
             bj = 0;
             for(bi = 0; bi < nblocks_far; bi++)
             {
@@ -146,22 +146,22 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             }
         }
         // Update format by creating new format
-        STARS_BLRF *F2;
-        info = STARS_BLRF_new(&F2, P, F->symm, R, C, new_nblocks_far,
+        STARSH_blrf *F2;
+        info = starsh_blrf_new(&F2, P, F->symm, R, C, new_nblocks_far,
                 block_far, new_nblocks_near, block_near, F->type);
         // Swap internal data of formats and free unnecessary data
-        STARS_BLRF tmp_blrf = *F;
+        STARSH_blrf tmp_blrf = *F;
         *F = *F2;
         *F2 = tmp_blrf;
-        STARS_WARNING("`F` was modified due to false far-field blocks");
-        info = STARS_BLRF_free(F2);
+        STARSH_WARNING("`F` was modified due to false far-field blocks");
+        info = starsh_blrf_free(F2);
         if(info != 0)
             return info;
     }
     // Compute near-field blocks if needed
     if(onfly == 0 && new_nblocks_near > 0)
     {
-        STARS_MALLOC(near_D, new_nblocks_near);
+        STARSH_MALLOC(near_D, new_nblocks_near);
         // For each near-field block compute its elements
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
@@ -172,7 +172,7 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
             int nrows = R->size[i];
             int ncols = C->size[j];
             int shape[2] = {nrows, ncols};
-            Array_new(near_D+bi, 2, shape, 'd', 'F');
+            array_new(near_D+bi, 2, shape, 'd', 'F');
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, near_D[bi]->data);
         }
@@ -193,9 +193,9 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
                 far_rank[bi-bj] = far_rank[bi];
             }
         }
-        STARS_REALLOC(far_rank, new_nblocks_far);
-        STARS_REALLOC(far_U, new_nblocks_far);
-        STARS_REALLOC(far_V, new_nblocks_far);
+        STARSH_REALLOC(far_rank, new_nblocks_far);
+        STARSH_REALLOC(far_U, new_nblocks_far);
+        STARSH_REALLOC(far_V, new_nblocks_far);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)
@@ -213,6 +213,6 @@ int starsh_blrm__dsdd(STARS_BLRM **M, STARS_BLRF *F, double tol, int onfly)
         free(false_far);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
-    return STARS_BLRM_new(M, F, far_rank, far_U, far_V, onfly, near_D,
+    return starsh_blrm_new(M, F, far_rank, far_U, far_V, onfly, near_D,
             NULL, NULL, NULL, '2');
 }

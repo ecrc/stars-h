@@ -27,24 +27,24 @@ int main(int argc, char **argv)
     // Setting random seed
     srand(time(NULL));
     // Generate data for spatial statistics problem
-    STARS_ssdata *data = STARS_gen_ssdata2(n, beta);
+    STARSH_ssdata *data = starsh_gen_ssdata2(n, beta);
     int ndim = 2, shape[2] = {data->count, data->count}, info;
     char symm = 'S', dtype = 'd';
     // Init problem with given data and kernel
-    STARS_Problem *P;
-    info = STARS_Problem_new(&P, ndim, shape, symm, dtype, data, data,
-            STARS_ssdata_block_exp_kernel, "Spatial Statistics example");
-    STARS_Problem_info(P);
+    STARSH_problem *P;
+    info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
+            starsh_ssdata_block_exp_kernel, "Spatial Statistics example");
+    starsh_problem_info(P);
     // Init tiled cluster for tiled low-rank approximation
-    STARS_Cluster *C;
-    info = STARS_Cluster_new_tiled(&C, data, data->count, block_size);
-    STARS_Cluster_info(C);
+    STARSH_cluster *C;
+    info = starsh_cluster_new_tiled(&C, data, data->count, block_size);
+    starsh_cluster_info(C);
     // Init tiled division into admissible blocks
-    STARS_BLRF *F;
-    info = STARS_BLRF_new_tiled(&F, P, C, C, 'S');
-    STARS_BLRF_info(F);
+    STARSH_blrf *F;
+    info = starsh_blrf_new_tiled(&F, P, C, C, 'S');
+    starsh_blrf_info(F);
     // Approximate each admissible block
-    STARS_BLRM *M;
+    STARSH_blrm *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
     double time0 = omp_get_wtime();
     if(strcmp(scheme, "sdd") == 0)
@@ -61,52 +61,52 @@ int main(int argc, char **argv)
         return 1;
     }
     printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);
-    STARS_BLRF_info(F);
+    starsh_blrf_info(F);
     // 0 for onfly=0
     // Print info about approximation
-    STARS_BLRM_info(M);
+    starsh_blrm_info(M);
     // Measure approximation error in Frobenius norm
     printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
     Array *A;
-    info = STARS_Problem_to_array(P, &A);
+    info = starsh_problem_to_array(P, &A);
     Array *B;
-    Array_new(&B, 2, P->shape, 'd', 'F');
+    array_new(&B, 2, P->shape, 'd', 'F');
     starsh_blrm__dca(M, B);
     printf("info of to matrix %d\n", info);
     // /*
     // Measure accuracy by dense matrices
     double diff, norm;
-    info = Array_diff(A, B, &diff);
-    info = Array_norm(A, &norm);
+    info = array_diff(A, B, &diff);
+    info = array_norm(A, &norm);
     printf("starsh_blrm__dca diff with Array: %e\n", diff/norm);
     // Check if this problem is good for Cholesky factorization
-    //printf("Info of potrf: %d\n", Array_Cholesky(A, 'L'));
+    //printf("Info of potrf: %d\n", array_cholesky(A, 'L'));
     // Free memory, consumed by array
-    Array_free(A);
+    array_free(A);
     int m = shape[0], k = 100;
     shape[1] = k;
-    Array_new(&A, 2, shape, 'd', 'F');
+    array_new(&A, 2, shape, 'd', 'F');
     Array *resM, *resB;
-    Array_new(&resM, 2, shape, 'd', 'F');
-    Array_init_randn(A);
-    Array_init_zeros(resM);
+    array_new(&resM, 2, shape, 'd', 'F');
+    array_init_randn(A);
+    array_init_zeros(resM);
     starsh_blrm__dmml(M, k, A->data, m, resM->data, m);
-    Array_dot(B, A, &resB);
-    Array_diff(resM, resB, &diff);
-    Array_norm(resB, &norm);
+    array_dot(B, A, &resB);
+    array_diff(resM, resB, &diff);
+    array_norm(resB, &norm);
     printf("starsh_blrm__dmml check: %e\n", diff/norm);
-    //Array_free(resM);
-    //Array_free(resB);
-    //Array_free(A);
-    //Array_free(B);
+    //array_free(resM);
+    //array_free(resB);
+    //array_free(A);
+    //array_free(B);
     // Free memory, used by matrix in block low-rank format
-    STARS_BLRM_free(M);
+    starsh_blrm_free(M);
     // Free memory, used by block low-rank format
-    STARS_BLRF_free(F);
+    starsh_blrf_free(F);
     // Free memory, used by clusterization info
-    STARS_Cluster_free(C);
+    starsh_cluster_free(C);
     // Free memory, used by STARS_Problem instance
-    STARS_Problem_free(P);
+    starsh_problem_free(P);
     // */
     return 0;
 }

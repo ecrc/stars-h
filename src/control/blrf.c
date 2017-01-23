@@ -10,10 +10,10 @@
 #include "misc.h"
 
 
-int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
-        STARS_Cluster *R, STARS_Cluster *C, size_t nblocks_far, int *block_far,
-        size_t nblocks_near, int *block_near, STARS_BLRF_Type type)
-// Initialization of structure STARS_BLRF
+int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far, int *block_far,
+        size_t nblocks_near, int *block_near, STARSH_blrf_type type)
+// Initialization of structure STARSH_blrf
 // Parameters:
 //   problem: pointer to a structure, holding all the information about problem
 //   symm: 'S' if problem and division into blocks are both symmetric, 'N'
@@ -28,48 +28,48 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
 //   block_near: array of pairs of admissible near-filed block rows and block
 //     columns. block_near[2*i] is an index of block row and block_near[2*i+1]
 //     is an index of block column.
-//   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
-//     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
+//   type: type of block low-rank format. Tiled with starsh_blrf_Tiled or
+//     hierarchical with starsh_blrf_H or starsh_blrf_HOLDR.
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARS_ERROR("invalid value of `symm`");
+        STARSH_ERROR("invalid value of `symm`");
         return 1;
     }
     if(R == NULL)
     {
-        STARS_ERROR("invalid value of `R`");
+        STARSH_ERROR("invalid value of `R`");
         return 1;
     }
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     if(nblocks_far > 0 && block_far == NULL)
     {
-        STARS_ERROR("invalid value of `block_far`");
+        STARSH_ERROR("invalid value of `block_far`");
         return 1;
     }
     if(nblocks_near > 0 && block_near == NULL)
     {
-        STARS_ERROR("invalid value of `block_near`");
+        STARSH_ERROR("invalid value of `block_near`");
         return 1;
     }
     int i, *size;
     size_t bi, bj;
-    STARS_MALLOC(*F, 1);
-    STARS_BLRF *F2 = *F;
+    STARSH_MALLOC(*F, 1);
+    STARSH_blrf *F2 = *F;
     F2->problem = P;
     F2->symm = symm;
     F2->block_far = NULL;
@@ -87,9 +87,9 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
     F2->brow_far = NULL;
     if(nblocks_far > 0)
     {
-        STARS_MALLOC(F2->brow_far_start, nbrows+1);
-        STARS_MALLOC(F2->brow_far, nblocks_far);
-        STARS_MALLOC(size, nbrows);
+        STARSH_MALLOC(F2->brow_far_start, nbrows+1);
+        STARSH_MALLOC(F2->brow_far, nblocks_far);
+        STARSH_MALLOC(size, nbrows);
         for(i = 0; i < nbrows; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_far; bi++)
@@ -113,9 +113,9 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
     F2->brow_near = NULL;
     if(nblocks_near > 0)
     {
-        STARS_MALLOC(F2->brow_near_start, nbrows+1);
-        STARS_MALLOC(F2->brow_near,nblocks_near);
-        STARS_MALLOC(size, nbrows);
+        STARSH_MALLOC(F2->brow_near_start, nbrows+1);
+        STARSH_MALLOC(F2->brow_near,nblocks_near);
+        STARSH_MALLOC(size, nbrows);
         for(i = 0; i < nbrows; i++)
             size[i] = 0;
         for(bi = 0; bi < nblocks_near; bi++)
@@ -143,9 +143,9 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
         F2->bcol_far = NULL;
         if(nblocks_far > 0)
         {
-            STARS_MALLOC(F2->bcol_far_start, nbcols+1);
-            STARS_MALLOC(F2->bcol_far,nblocks_far);
-            STARS_MALLOC(size, nbcols);
+            STARSH_MALLOC(F2->bcol_far_start, nbcols+1);
+            STARSH_MALLOC(F2->bcol_far,nblocks_far);
+            STARSH_MALLOC(size, nbcols);
             for(i = 0; i < nbcols; i++)
                 size[i] = 0;
             for(bi = 0; bi < nblocks_far; bi++)
@@ -169,9 +169,9 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
         F2->bcol_near = NULL;
         if(nblocks_near > 0)
         {
-            STARS_MALLOC(F2->bcol_near_start, nbcols+1);
-            STARS_MALLOC(F2->bcol_near, nblocks_near);
-            STARS_MALLOC(size, nbcols);
+            STARSH_MALLOC(F2->bcol_near_start, nbcols+1);
+            STARSH_MALLOC(F2->bcol_near, nblocks_near);
+            STARSH_MALLOC(size, nbcols);
             for(i = 0; i < nbcols; i++)
                 size[i] = 0;
             for(bi = 0; bi < nblocks_near; bi++)
@@ -206,13 +206,13 @@ int STARS_BLRF_new(STARS_BLRF **F, STARS_Problem *P, char symm,
     return 0;
 }
 
-int STARS_BLRF_free(STARS_BLRF *F)
+int starsh_blrf_free(STARSH_blrf *F)
 // Free memory, used by block low rank format (partitioning of array into
 // blocks)
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     if(F->nblocks_far > 0)
@@ -244,14 +244,14 @@ int STARS_BLRF_free(STARS_BLRF *F)
     return 0;
 }
 
-void STARS_BLRF_swap(STARS_BLRF *F, STARS_BLRF *F2)
+void starsh_blrf_swap(STARSH_blrf *F, STARSH_blrf *F2)
 {
-    STARS_BLRF tmp = *F;
+    STARSH_blrf tmp = *F;
     *F = *F2;
     *F2 = tmp;
 }
 
-void STARS_BLRF_swap2(STARS_BLRF *F, STARS_BLRF *F2)
+void starsh_blrf_swap2(STARSH_blrf *F, STARSH_blrf *F2)
 // Swap content about admissible blocks of two BLR formats (fields `problem`,
 // `symm`, `row_cluster` and `col_cluster` should be equal for input `F` and
 // `F2`). Useful when inplace modification of one of them is required due to
@@ -309,31 +309,31 @@ void STARS_BLRF_swap2(STARS_BLRF *F, STARS_BLRF *F2)
     F2->bcol_near = tmp_ptr;
 }
 
-int STARS_BLRF_info(STARS_BLRF *F)
+int starsh_blrf_info(STARSH_blrf *F)
 // Print short info on block partitioning
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
-    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
+    printf("<STARSH_blrf at %p, '%c' symmetric, %d block rows, %d "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
             F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
     return 0;
 }
 
-int STARS_BLRF_print(STARS_BLRF *F)
+int starsh_blrf_print(STARSH_blrf *F)
 // Print full info on block partitioning
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     int i;
     size_t j;
-    printf("<STARS_BLRF at %p, '%c' symmetric, %d block rows, %d "
+    printf("<STARSH_blrf at %p, '%c' symmetric, %d block rows, %d "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
             F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
     // Printing info about far-field blocks
@@ -371,44 +371,44 @@ int STARS_BLRF_print(STARS_BLRF *F)
     return 0;
 }
 
-int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
-        STARS_Cluster *C, char symm)
+int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
+        STARSH_cluster *C, char symm)
 // Create plain division into tiles/blocks using plain cluster trees for rows
 // and columns without actual pivoting
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(R == NULL)
     {
-        STARS_ERROR("invalid value of `R`");
+        STARSH_ERROR("invalid value of `R`");
         return 1;
     }
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARS_ERROR("invalid value of `symm`");
+        STARSH_ERROR("invalid value of `symm`");
         return 1;
     }
     if(symm == 'S' && P->symm == 'N')
     {
-        STARS_ERROR("invalid value of `symm`");
+        STARSH_ERROR("invalid value of `symm`");
         return 1;
     }
     if(symm == 'S' && R != C)
     {
-        STARS_ERROR("`R` and `C` should be equal");
+        STARSH_ERROR("`R` and `C` should be equal");
         return 1;
     }
     int nbrows = R->nblocks, nbcols = C->nblocks;
@@ -417,7 +417,7 @@ int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
     if(symm == 'N')
     {
         nblocks_far = (size_t)nbrows*(size_t)nbcols;
-        STARS_MALLOC(block_far, 2*nblocks_far);
+        STARSH_MALLOC(block_far, 2*nblocks_far);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j < nbcols; j++)
             {
@@ -429,7 +429,7 @@ int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
     else
     {
         nblocks_far = (size_t)nbrows*(size_t)(nbrows+1)/2;
-        STARS_MALLOC(block_far, 2*nblocks_far);
+        STARSH_MALLOC(block_far, 2*nblocks_far);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j <= i; j++)
             {
@@ -438,49 +438,49 @@ int STARS_BLRF_new_tiled(STARS_BLRF **F, STARS_Problem *P, STARS_Cluster *R,
                 k++;
             }
     }
-    return STARS_BLRF_new(F, P, symm, R, C, nblocks_far, block_far, 0, NULL,
-            STARS_BLRF_Tiled);
+    return starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far, 0, NULL,
+            STARSH_PLAIN);
 }
 
-int STARS_BLRF_get_block(STARS_BLRF *F, int i, int j, int *shape, void **D)
+int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
 // PLEASE CLEAN MEMORY POINTER *D AFTER USE
 {
     if(F == NULL)
     {
-        STARS_ERROR("invalid value of `F`");
+        STARSH_ERROR("invalid value of `F`");
         return 1;
     }
     if(i < 0 || i >= F->nbrows)
     {
-        STARS_ERROR("invalid value of `i`");
+        STARSH_ERROR("invalid value of `i`");
         return 1;
     }
     if(j < 0 || j >= F->nbcols)
     {
-        STARS_ERROR("invalid value of `j`");
+        STARSH_ERROR("invalid value of `j`");
         return 1;
     }
     if(shape == NULL)
     {
-        STARS_ERROR("invalid value of `shape`");
+        STARSH_ERROR("invalid value of `shape`");
         return 1;
     }
     if(D == NULL)
     {
-        STARS_ERROR("invalid value of `D`");
+        STARSH_ERROR("invalid value of `D`");
         return 1;
     }
-    STARS_Problem *P = F->problem;
+    STARSH_problem *P = F->problem;
     if(P->ndim != 2)
     {
-        STARS_ERROR("only scalar kernels are supported");
+        STARSH_ERROR("only scalar kernels are supported");
         return 1;
     }
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     int nrows = R->size[i], ncols = C->size[j], info;
     shape[0] = nrows;
     shape[1] = ncols;
-    STARS_MALLOC(*D, P->entry_size*(size_t)nrows*(size_t)ncols);
+    STARSH_MALLOC(*D, P->entry_size*(size_t)nrows*(size_t)ncols);
     info = P->kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
             P->row_data, P->col_data, *D);
     return info;

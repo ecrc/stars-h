@@ -4,9 +4,9 @@
 #include "stars.h"
 #include "misc.h"
 
-int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
+int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARS_ClusterType type)
+        int *parent, int *child_start, int *child, STARSH_cluster_type type)
 // Init for STARS_Cluster instance
 // Parameters:
 //   data: pointer structure, holding to physical data.
@@ -27,8 +27,8 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
 //   type: type of C. Tiled with STARS_ClusterTiled or hierarchical with
 //     STARS_ClusterHierarchical.
 {
-    STARS_MALLOC(*C, 1);
-    STARS_Cluster *C2 = *C;
+    STARSH_MALLOC(*C, 1);
+    STARSH_cluster *C2 = *C;
     C2->data = data;
     C2->ndata = ndata;
     C2->pivot = pivot;
@@ -44,12 +44,12 @@ int STARS_Cluster_new(STARS_Cluster **C, void *data, int ndata, int *pivot,
     return 0;
 }
 
-int STARS_Cluster_free(STARS_Cluster *C)
+int starsh_cluster_free(STARSH_cluster *C)
 // Free data buffers, consumed by Cization information.
 {
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     free(C->pivot);
@@ -67,16 +67,16 @@ int STARS_Cluster_free(STARS_Cluster *C)
     return 0;
 }
 
-int STARS_Cluster_info(STARS_Cluster *C)
+int starsh_cluster_info(STARSH_cluster *C)
 // Print some info about Cization
 {
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     printf("<STARS_Cluster at %p, ", C);
-    if(C->type == STARS_ClusterTiled)
+    if(C->type == STARSH_PLAIN)
         printf("tiled, ");
     else
         printf("hierarchical, ");
@@ -84,29 +84,29 @@ int STARS_Cluster_info(STARS_Cluster *C)
     return 0;
 }
 
-int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
+int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
         int block_size)
 // Plain (non-hierarchical) division of data into blocks of discrete elements.
 {
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     if(ndata < 0)
     {
-        STARS_ERROR("invalid value of `ndata`");
+        STARSH_ERROR("invalid value of `ndata`");
         return 1;
     }
     if(block_size < 0)
     {
-        STARS_ERROR("invalid value of `block_sizez");
+        STARSH_ERROR("invalid value of `block_sizez");
         return 1;
     }
     int i = 0, j, k = 0, nblocks = (ndata-1)/block_size+1;
     int *start, *size, *pivot;
-    STARS_MALLOC(start, nblocks);
-    STARS_MALLOC(size, nblocks);
+    STARSH_MALLOC(start, nblocks);
+    STARSH_MALLOC(size, nblocks);
     while(i < ndata)
     {
         j = i+block_size;
@@ -117,10 +117,10 @@ int STARS_Cluster_new_tiled(STARS_Cluster **C, void *data, int ndata,
         i = j;
         k++;
     }
-    STARS_MALLOC(pivot, ndata);
+    STARSH_MALLOC(pivot, ndata);
     for(i = 0; i < ndata; i++)
         pivot[i] = i;
-    return STARS_Cluster_new(C, data, ndata, pivot, nblocks, 0, NULL, start,
-            size, NULL, NULL, NULL, STARS_ClusterTiled);
+    return starsh_cluster_new(C, data, ndata, pivot, nblocks, 0, NULL, start,
+            size, NULL, NULL, NULL, STARSH_PLAIN);
 }
 

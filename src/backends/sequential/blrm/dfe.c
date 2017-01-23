@@ -5,16 +5,16 @@
 #include "stars.h"
 #include "misc.h"
 
-double starsh_blrm__dfe(STARS_BLRM *M)
+double starsh_blrm__dfe(STARSH_blrm *M)
 // Double precision Frobenius norm of Error
 //
 // Measure error of approximation by non-nested block low-rank matrix
 {
-    STARS_BLRF *F = M->blrf;
-    STARS_Problem *P = F->problem;
+    STARSH_blrf *F = M->format;
+    STARSH_problem *P = F->problem;
     block_kernel kernel = P->kernel;
     // Shortcuts to information about clusters
-    STARS_Cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;
     // Number of far-field and near-field blocks
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near, bi;
@@ -41,7 +41,7 @@ double starsh_blrm__dfe(STARS_BLRM *M)
         // Temporary array for more precise dnrm2
         double *D, D_norm[ncols];
         size_t D_size = (size_t)nrows*(size_t)ncols;
-        STARS_MALLOC(D, D_size);
+        STARSH_MALLOC(D, D_size);
         // Get actual elements of a block
         kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                 RD, CD, D);
@@ -97,7 +97,7 @@ double starsh_blrm__dfe(STARS_BLRM *M)
             int ncols = C->size[j];
             double *D, D_norm[ncols];
             // Allocate temporary array and fill it with elements of a block
-            STARS_MALLOC(D, (size_t)nrows*(size_t)ncols);
+            STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, D);
             // Compute norm of a block

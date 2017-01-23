@@ -6,7 +6,7 @@
 #include "stars.h"
 #include "misc.h"
 
-int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
+int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, block_kernel kernel,
         char *name)
 // Init for STARS_Problem instance
@@ -31,22 +31,22 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(ndim < 2)
     {
-        STARS_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("invalid value of `ndim`");
         return 1;
     }
     if(shape == NULL)
     {
-        STARS_ERROR("invalid value of `shape`");
+        STARSH_ERROR("invalid value of `shape`");
         return 1;
     }
     if(kernel == NULL)
     {
-        STARS_ERROR("invalud value of `kernel`");
+        STARSH_ERROR("invalud value of `kernel`");
         return 1;
     }
     int i;
@@ -61,16 +61,16 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
         dtype_size = sizeof(double complex);
     else
     {
-        STARS_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("invalid value of `dtype`");
         return 1;
     }
     size_t entry_size = dtype_size;
     for(i = 1; i < ndim-1; i++)
         entry_size *= shape[i];
-    STARS_MALLOC(*P, 1);
-    STARS_Problem *P2 = *P;
+    STARSH_MALLOC(*P, 1);
+    STARSH_problem *P2 = *P;
     P2->ndim = ndim;
-    STARS_MALLOC(P2->shape, ndim);
+    STARSH_MALLOC(P2->shape, ndim);
     memcpy(P2->shape, shape, ndim*sizeof(*P2->shape));
     P2->symm = symm;
     P2->dtype = dtype;
@@ -82,18 +82,18 @@ int STARS_Problem_new(STARS_Problem **P, int ndim, int *shape, char symm,
     P2->name = NULL;
     if(name != NULL)
     {
-        STARS_MALLOC(P2->name, strlen(name)+1);
+        STARSH_MALLOC(P2->name, strlen(name)+1);
         strcpy(P2->name, name);
     }
     return 0;
 }
 
-int STARS_Problem_free(STARS_Problem *P)
+int starsh_problem_free(STARSH_problem *P)
 // Free memory, consumed by data buffers of data
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     free(P->shape);
@@ -103,12 +103,12 @@ int STARS_Problem_free(STARS_Problem *P)
     return 0;
 }
 
-int STARS_Problem_info(STARS_Problem *P)
+int starsh_problem_info(STARSH_problem *P)
 // Print some info about Problem
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     printf("<STARS_Problem at %p, name \"%s\", shape (%d", P, P->name,
@@ -119,43 +119,43 @@ int STARS_Problem_info(STARS_Problem *P)
     return 0;
 }
 
-int STARS_Problem_get_block(STARS_Problem *P, int nrows, int ncols, int *irow,
-        int *icol, Array **A)
+int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
+        int *irow, int *icol, Array **A)
 // Get submatrix on given rows and columns (rows=first dimension, columns=last
 // dimension)
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(irow == NULL)
     {
-        STARS_ERROR("invalid value of `irow`");
+        STARSH_ERROR("invalid value of `irow`");
         return 1;
     }
     if(icol == NULL)
     {
-        STARS_ERROR("invalid value of `icol`");
+        STARSH_ERROR("invalid value of `icol`");
         return 1;
     }
     int ndim = P->ndim, info;
     if(nrows < 0)
     {
-        STARS_ERROR("invalid value of `nrows`");
+        STARSH_ERROR("invalid value of `nrows`");
         return 1;
     }
     if(ncols < 0)
     {
-        STARS_ERROR("invalid value of `ncols`");
+        STARSH_ERROR("invalid value of `ncols`");
         return 1;
     }
     int *shape;
-    STARS_MALLOC(shape, ndim);
+    STARSH_MALLOC(shape, ndim);
     shape[0] = nrows;
     shape[ndim-1] = ncols;
     memcpy(shape+1, P->shape+1, (ndim-2)*sizeof(*shape));
-    info = Array_new(A, ndim, shape, P->dtype, 'F');
+    info = array_new(A, ndim, shape, P->dtype, 'F');
     if(info != 0)
         return info;
     info = P->kernel(nrows, ncols, irow, icol, P->row_data, P->col_data,
@@ -198,67 +198,67 @@ static int _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
     return 0;
 }
 
-int STARS_Problem_from_array(STARS_Problem **P, Array *A, char symm)
+int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
 // Generate STARS_Problem with a given array and flag if it is symmetric
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->ndim < 2)
     {
-        STARS_ERROR("`A` should be at least 2-dimensional");
+        STARSH_ERROR("`A` should be at least 2-dimensional");
         return 1;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARS_ERROR("invalid value of `symm`");
+        STARSH_ERROR("invalid value of `symm`");
         return 1;
     }
     Array *A2 = A;
     int info;
     if(A->order == 'C')
     {
-        STARS_WARNING("A->order is 'C', creating "
+        STARSH_WARNING("A->order is 'C', creating "
                 "copy of array with layout in Fortran style ('F'-order). It "
                 "makes corresponding matrix non-freeable");
-        info = Array_new_copy(&A2, A, 'F');
+        info = array_new_copy(&A2, A, 'F');
         if(info != 0)
             return info;
     }
-    info = STARS_Problem_new(P, A->ndim, A->shape, symm, A->dtype, A2, A2,
+    info = starsh_problem_new(P, A->ndim, A->shape, symm, A->dtype, A2, A2,
             _matrix_kernel, "Problem from matrix");
     return info;
 }
 
-int STARS_Problem_to_array(STARS_Problem *P, Array **A)
+int starsh_problem_to_array(STARSH_problem *P, Array **A)
 // Compute matrix/array, corresponding to the P
 {
     if(P == NULL)
     {
-        STARS_ERROR("invalid value of `P`");
+        STARSH_ERROR("invalid value of `P`");
         return 1;
     }
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     int ndim = P->ndim, i, nrows = P->shape[0], ncols = P->shape[ndim-1], info;
     int *irow, *icol;
-    STARS_MALLOC(irow, nrows);
-    STARS_MALLOC(icol, ncols);
+    STARSH_MALLOC(irow, nrows);
+    STARSH_MALLOC(icol, ncols);
     for(i = 0; i < nrows; i++)
         irow[i] = i;
     for(i = 0; i < ncols; i++)
         icol[i] = i;
-    info = STARS_Problem_get_block(P, nrows, ncols, irow, icol, A);
+    info = starsh_problem_get_block(P, nrows, ncols, irow, icol, A);
     free(irow);
     free(icol);
     return info;

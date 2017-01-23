@@ -4,14 +4,14 @@
 #include "stars.h"
 #include "misc.h"
 
-int starsh_blrm__dca(STARS_BLRM *M, Array *A)
+int starsh_blrm__dca(STARSH_blrm *M, Array *A)
 // Double precision Convert to Array
 //
 // Create dense version of approximation
 {
-    STARS_BLRF *F = M->blrf;
-    STARS_Problem *P = F->problem;
-    STARS_Cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    STARSH_blrf *F = M->format;
+    STARSH_problem *P = F->problem;
+    STARSH_cluster *RC = F->row_cluster, *CC = F->col_cluster;
     void *RD = RC->data, *CD = CC->data;
     int onfly = M->onfly, lda = A->shape[0];
     double *data = A->data;
@@ -26,7 +26,7 @@ int starsh_blrm__dca(STARS_BLRM *M, Array *A)
         int nrows = RC->size[i], ncols = CC->size[j], rank = M->far_rank[bi];
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nrows, ncols,
                 rank, 1.0, U, nrows, V, ncols, 0.0, B, lda);
-        if(F->symm == 'S')
+        if(F->symm == 'S' && i != j)
         {
             double *B2 = data+CC->start[j]+RC->start[i]*(size_t)lda;
             for(int k = 0; k < ncols; k++)
@@ -36,7 +36,6 @@ int starsh_blrm__dca(STARS_BLRM *M, Array *A)
     // Restore near-field blocks
     for(bi = 0; bi < F->nblocks_near; bi++)
     {
-        //printf("NEAR %zu\n", bi);
         int i = F->block_near[2*bi];
         int j = F->block_near[2*bi+1];
         double *B = data+RC->start[i]+CC->start[j]*(size_t)lda;
@@ -46,7 +45,7 @@ int starsh_blrm__dca(STARS_BLRM *M, Array *A)
             D = M->near_D[bi]->data;
         else
         {
-            STARS_MALLOC(D, (size_t)nrows*(size_t)ncols);
+            STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
             P->kernel(nrows, ncols, RC->pivot+RC->start[i],
                     CC->pivot+CC->start[j], RD, CD, D);
         }

@@ -7,31 +7,31 @@
 #include "stars.h"
 #include "misc.h"
 
-int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
+int array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         char order, void *data)
 // Init `A` from given buffer. Check if all parameters are good and proceed.
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(ndim < 0)
     {
-        STARS_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("invalid value of `ndim`");
         return 1;
     }
     if(order != 'F' && order != 'C')
     {
-        STARS_ERROR("invalid value of `order`");
+        STARSH_ERROR("invalid value of `order`");
         return 1;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARS_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("invalid value of `dtype`");
         return 1;
     }
-    STARS_MALLOC(*A, 1);
+    STARSH_MALLOC(*A, 1);
     Array *A2 = *A;
     size_t dtype_size = 0, size = 1;
     if(dtype == 's')
@@ -58,9 +58,9 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
     }
     int i;
     ssize_t *stride;
-    STARS_MALLOC(stride, ndim);
+    STARSH_MALLOC(stride, ndim);
     int *newshape;
-    STARS_MALLOC(newshape, ndim);
+    STARSH_MALLOC(newshape, ndim);
     // Compute strides
     if(order == 'F')
     {
@@ -98,41 +98,41 @@ int Array_from_buffer(Array **A, int ndim, int *shape, char dtype,
     return 0;
 }
 
-int Array_new(Array **A, int ndim, int *shape, char dtype, char order)
+int array_new(Array **A, int ndim, int *shape, char dtype, char order)
 // Init `A` with NULL buffer and then allocate it
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
-    int info = Array_from_buffer(A, ndim, shape, dtype, order, NULL);
+    int info = array_from_buffer(A, ndim, shape, dtype, order, NULL);
     if(info != 0)
         return info;
-    STARS_MALLOC((*A)->data, (*A)->data_nbytes);
+    STARSH_MALLOC((*A)->data, (*A)->data_nbytes);
     return 0;
 }
 
-int Array_new_like(Array **A, Array *B)
+int array_new_like(Array **A, Array *B)
 // Initialize new `A` with exactly the same shape, dtype and so on, but
 // with a different memory buffer
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_ERROR("invalid value of `B`");
+        STARSH_ERROR("invalid value of `B`");
         return 1;
     }
-    STARS_MALLOC(*A, 1);
+    STARSH_MALLOC(*A, 1);
     Array *A2 = *A;
     A2->ndim = B->ndim;
-    STARS_MALLOC(A2->shape, B->ndim);
+    STARSH_MALLOC(A2->shape, B->ndim);
     memcpy(A2->shape, B->shape, B->ndim*sizeof(*B->shape));
-    STARS_MALLOC(A2->stride, B->ndim);
+    STARSH_MALLOC(A2->stride, B->ndim);
     memcpy(A2->stride, B->stride, B->ndim*sizeof(*B->stride));
     A2->order = B->order;
     A2->size = B->size;
@@ -140,34 +140,34 @@ int Array_new_like(Array **A, Array *B)
     A2->dtype_size = B->dtype_size;
     A2->nbytes = B->nbytes;
     A2->data_nbytes = B->data_nbytes;
-    STARS_MALLOC(A2->data, B->data_nbytes);
+    STARSH_MALLOC(A2->data, B->data_nbytes);
     return 0;
 }
 
-int Array_new_copy(Array **A, Array *B, char order)
+int array_new_copy(Array **A, Array *B, char order)
 // Create `A` as a copy of `B` with given data layout or keeping layout if
 // order == 'N'
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_ERROR("invalid value of `B`");
+        STARSH_ERROR("invalid value of `B`");
         return 1;
     }
     if(order != 'F' && order != 'C' && order != 'N')
     {
-        STARS_ERROR("invalid value of `order`");
+        STARSH_ERROR("invalid value of `order`");
         return 1;
     }
     int info;
     // If only simple copy isrequired
     if(order == B->order || order == 'N')
     {
-        info = Array_new_like(A, B);
+        info = array_new_like(A, B);
         if(info != 0)
             return info;
         memcpy((*A)->data, B->data, B->data_nbytes);
@@ -176,10 +176,10 @@ int Array_new_copy(Array **A, Array *B, char order)
     int j;
     size_t i, ind1 = 0, ind2 = 0;
     ssize_t *coord;
-    STARS_MALLOC(coord, B->ndim);
+    STARSH_MALLOC(coord, B->ndim);
     for(i = 0; i < B->ndim; i++)
         coord[i] = 0;
-    info = Array_new(A, B->ndim, B->shape, B->dtype, order);
+    info = array_new(A, B->ndim, B->shape, B->dtype, order);
     if(info != 0)
         return info;
     Array *A2 = *A;
@@ -207,12 +207,12 @@ int Array_new_copy(Array **A, Array *B, char order)
     return 0;
 }
 
-int Array_free(Array *A)
+int array_free(Array *A)
 // Free memory, consumed by structure and buffer of `A`
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->data != NULL)
@@ -225,12 +225,12 @@ int Array_free(Array *A)
     return 0;
 }
 
-int Array_info(Array *A)
+int array_info(Array *A)
 // Print all the data from Array structure `A`
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     int i;
@@ -254,20 +254,20 @@ int Array_info(Array *A)
     return 0;
 }
 
-int Array_print(Array *A)
+int array_print(Array *A)
 // Print elements of `A`, different rows of `A` are printed on different
 // rows of output
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     int j;
     size_t i, row, row_size = A->size/A->shape[0];
     ssize_t offset;
     ssize_t *index;
-    STARS_MALLOC(index, A->ndim);
+    STARSH_MALLOC(index, A->ndim);
     if(A->dtype == 's')
     {
         float *data = A->data;
@@ -378,36 +378,36 @@ int Array_print(Array *A)
     return 0;
 }
 
-int Array_init(Array *A, char *kind)
+int array_init(Array *A, char *kind)
 // Init buffer in a special manner: randn, rand, ones or zeros
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(strcmp(kind, "randn"))
-        Array_init_randn(A);
+        array_init_randn(A);
     else if(strcmp(kind, "rand"))
-        Array_init_rand(A);
+        array_init_rand(A);
     else if(strcmp(kind, "zeros"))
-        Array_init_zeros(A);
+        array_init_zeros(A);
     else if(strcmp(kind, "ones"))
-        Array_init_ones(A);
+        array_init_ones(A);
     else
     {
-        STARS_ERROR("invalid value of `kind`");
+        STARSH_ERROR("invalid value of `kind`");
         return 1;
     }
     return 0;
 }
 
-int Array_init_randn(Array *A)
+int array_init_randn(Array *A)
 // Init buffer of A with random numbers of normal (0,1) distribution
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -438,12 +438,12 @@ int Array_init_randn(Array *A)
     return 0;
 }
 
-int Array_init_rand(Array *A)
+int array_init_rand(Array *A)
 // Init buffer with random numbers of uniform [0,1] distribution
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -476,12 +476,12 @@ int Array_init_rand(Array *A)
     return 0;
 }
 
-int Array_init_zeros(Array *A)
+int array_init_zeros(Array *A)
 // Set all elements to 0.0
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -512,12 +512,12 @@ int Array_init_zeros(Array *A)
     return 0;
 }
 
-int Array_init_ones(Array *A)
+int array_init_ones(Array *A)
 // Set all elements to 1.0
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     size_t i;
@@ -548,7 +548,7 @@ int Array_init_ones(Array *A)
     return 0;
 }
 
-int Array_tomatrix(Array *A, char kind)
+int array_to_matrix(Array *A, char kind)
 // Convert N-dimensional `A` to 2-dimensional `A` (matrix) by
 // collapsing dimensions. This collapse can be assumed as attempt to look
 // at `A` as at a matrix with long rows (`kind` == 'R') or long columns
@@ -560,12 +560,12 @@ int Array_tomatrix(Array *A, char kind)
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARS_ERROR("invalid value of `kind`");
+        STARSH_ERROR("invalid value of `kind`");
         return 1;
     }
     if(kind == 'R')
@@ -590,20 +590,20 @@ int Array_tomatrix(Array *A, char kind)
     return 0;
 }
 
-int Array_trans_inplace(Array *A)
+int array_trans_inplace(Array *A)
 // Transposition of `A`. No real transposition is performed, only changes
 // shape, stride and order.
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     int i;
     int *new_shape;
-    STARS_MALLOC(new_shape, A->ndim);
+    STARSH_MALLOC(new_shape, A->ndim);
     ssize_t *new_stride;
-    STARS_MALLOC(new_stride, A->ndim);
+    STARSH_MALLOC(new_stride, A->ndim);
     for(i = 0; i < A->ndim; i++)
     {
         new_shape[i] = A->shape[A->ndim-i-1];
@@ -617,40 +617,40 @@ int Array_trans_inplace(Array *A)
     return 0;
 }
 
-int Array_dot(Array* A, Array *B, Array **C)
+int array_dot(Array* A, Array *B, Array **C)
 // GEMM for `A` and `B`. Multiplication is performed by last dimension of
 // `A` and first dimension of `B`. These dimensions, data types and
 // ordering of `A` and `B` should be equal.
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_ERROR("invalid value of `B`");
+        STARSH_ERROR("invalid value of `B`");
         return 1;
     }
     if(C == NULL)
     {
-        STARS_ERROR("invalid value of `C`");
+        STARSH_ERROR("invalid value of `C`");
         return 1;
     }
     int i;
     if(A->dtype != B->dtype)
     {
-        STARS_ERROR("`dtype` of `A` and `B` should be equal");
+        STARSH_ERROR("`dtype` of `A` and `B` should be equal");
         return 1;
     }
     if(A->order != B->order)
     {
-        STARS_ERROR("`order` of `A` and `B` should be equal");
+        STARSH_ERROR("`order` of `A` and `B` should be equal");
         return 1;
     }
     if(A->shape[A->ndim-1] != B->shape[0])
     {
-        STARS_ERROR("non-multiplicative shapes of `A` and `B`");
+        STARSH_ERROR("non-multiplicative shapes of `A` and `B`");
         return 1;
     }
     int order, new_ndim = A->ndim+B->ndim-2, info;
@@ -664,12 +664,12 @@ int Array_dot(Array* A, Array *B, Array **C)
     ssize_t lda = A->stride[0]*A->stride[A->ndim-1];
     ssize_t ldb = B->stride[0]*B->stride[B->ndim-1];
     int *new_shape;
-    STARS_MALLOC(new_shape, new_ndim);
+    STARSH_MALLOC(new_shape, new_ndim);
     for(i = 0; i < A->ndim-1; i++)
         new_shape[i] = A->shape[i];
     for(i = 0; i < B->ndim-1; i++)
         new_shape[i+A->ndim-1] = B->shape[i+1];
-    info = Array_new(C, new_ndim, new_shape, A->dtype, A->order);
+    info = array_new(C, new_ndim, new_shape, A->dtype, A->order);
     if(info != 0)
         return info;
     free(new_shape);
@@ -700,32 +700,32 @@ int Array_dot(Array* A, Array *B, Array **C)
     return 0;
 }
 
-int Array_SVD(Array *A, Array **U, Array **S, Array **V)
+int array_SVD(Array *A, Array **U, Array **S, Array **V)
 // Compute SVD of a given 2-dimensional `A`.
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(U == NULL)
     {
-        STARS_ERROR("invalid value of `U`");
+        STARSH_ERROR("invalid value of `U`");
         return 1;
     }
     if(S == NULL)
     {
-        STARS_ERROR("invalid value of `S`");
+        STARSH_ERROR("invalid value of `S`");
         return 1;
     }
     if(V == NULL)
     {
-        STARS_ERROR("invalid value of `V`");
+        STARSH_ERROR("invalid value of `V`");
         return 1;
     }
     if(A->ndim != 2)
     {
-        STARS_ERROR("`A` must be 2-dimensional");
+        STARSH_ERROR("`A` must be 2-dimensional");
         return 1;
     }
     char uv_dtype = A->dtype;
@@ -755,15 +755,15 @@ int Array_SVD(Array *A, Array **U, Array **S, Array **V)
     }
     tmp_shape[0] = A->shape[0];
     tmp_shape[1] = mn;
-    info = Array_new(U, 2, tmp_shape, uv_dtype, A->order);
+    info = array_new(U, 2, tmp_shape, uv_dtype, A->order);
     if(info != 0)
         return info;
     tmp_shape[1] = A->shape[1];
     tmp_shape[0] = mn;
-    info = Array_new(V, 2, tmp_shape, uv_dtype, A->order);
+    info = array_new(V, 2, tmp_shape, uv_dtype, A->order);
     if(info != 0)
         return info;
-    info = Array_new(S, 1, tmp_shape, s_dtype, A->order);
+    info = array_new(S, 1, tmp_shape, s_dtype, A->order);
     if(info != 0)
         return info;
     if(uv_dtype == 's')
@@ -780,23 +780,23 @@ int Array_SVD(Array *A, Array **U, Array **S, Array **V)
                 lda, (*S)->data, (*U)->data, ldu, (*V)->data, ldv);
 }
 
-int SVD_get_rank(Array *S, double tol, char type, int *rank)
+int svd_get_rank(Array *S, double tol, char type, int *rank)
 // Returns rank by given singular values `S`, tolerance and type of norm
 // ('2' for spectral norm, 'F' for Frobenius norm)
 {
     if(S == NULL)
     {
-        STARS_ERROR("invalid value of `S`");
+        STARSH_ERROR("invalid value of `S`");
         return 1;
     }
     if(rank == NULL)
     {
-        STARS_ERROR("invalid value of `rank`");
+        STARSH_ERROR("invalid value of `rank`");
         return 1;
     }
     if(type != 'F' && type != '2')
     {
-        STARS_ERROR("invalid value of `type`");
+        STARSH_ERROR("invalid value of `type`");
         return 1;
     }
     size_t i, size = S->size;
@@ -805,7 +805,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         float stol, tmp, *S2, *Sbuf = S->data;
         if(type == 'F')
         {
-            STARS_MALLOC(S2, size);
+            STARSH_MALLOC(S2, size);
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -833,7 +833,7 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
         double stol, tmp, *S2, *Sbuf = S->data;
         if(type == 'F')
         {
-            STARS_MALLOC(S2, size);
+            STARSH_MALLOC(S2, size);
             i = size-1;
             tmp = Sbuf[i];
             S2[i] = tmp*tmp;
@@ -860,42 +860,42 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
     return 0;
 }
 
-int Array_scale(Array *A, char kind, Array *S)
+int array_scale(Array *A, char kind, Array *S)
 // Apply row or column scaling to A
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(S == NULL)
     {
-        STARS_ERROR("invalid value of `S`");
+        STARSH_ERROR("invalid value of `S`");
         return 1;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARS_ERROR("invalid value of `kind`");
+        STARSH_ERROR("invalid value of `kind`");
         return 1;
     }
     if(A->dtype != S->dtype)
     {
-        STARS_ERROR("`dtype` of `A` and `S` should be equal");
+        STARSH_ERROR("`dtype` of `A` and `S` should be equal");
         return 1;
     }
     if(S->ndim != 1)
     {
-        STARS_ERROR("`S` should be 1-dimensional");
+        STARSH_ERROR("`S` should be 1-dimensional");
         return 1;
     }
     if(kind == 'R' && S->shape[0] != A->shape[0])
     {
-        STARS_ERROR("`A` and `S` should have equal number of rows");
+        STARSH_ERROR("`A` and `S` should have equal number of rows");
         return 1;
     }
     if(kind == 'C' && S->shape[0] != A->shape[A->ndim-1])
     {
-        STARS_ERROR("`A` and `S` should have equal number of "
+        STARSH_ERROR("`A` and `S` should have equal number of "
                 "columns");
         return 1;
     }
@@ -920,32 +920,32 @@ int Array_scale(Array *A, char kind, Array *S)
     return 0;
 }
 
-int Array_diff(Array *A, Array *B, double *result)
+int array_diff(Array *A, Array *B, double *result)
 // Measure Frobenius error of approximation of `A` by `B`
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_ERROR("invalid value of `B`");
+        STARSH_ERROR("invalid value of `B`");
         return 1;
     }
     if(result == NULL)
     {
-        STARS_ERROR("invalid value of `result`");
+        STARSH_ERROR("invalid value of `result`");
         return 1;
     }
     if(A->dtype != B->dtype)
     {
-        STARS_ERROR("`dtype` of `A` and `B` should be equal");
+        STARSH_ERROR("`dtype` of `A` and `B` should be equal");
         return 1;
     }
     if(A->ndim != B->ndim)
     {
-        STARS_ERROR("`ndim` of `A` and `B` should be equal");
+        STARSH_ERROR("`ndim` of `A` and `B` should be equal");
         return 1;
     }
     else
@@ -953,20 +953,20 @@ int Array_diff(Array *A, Array *B, double *result)
         for(int i = 0; i < A->ndim; i++)
             if(A->shape[i] != B->shape[i])
             {
-                STARS_ERROR("Shapes of `A` and `B` should be equal");
+                STARSH_ERROR("Shapes of `A` and `B` should be equal");
                 return 1;
             }
     }
     double diff = 0;
     void *tmp_buf;
-    STARS_MALLOC(tmp_buf, A->data_nbytes);
+    STARSH_MALLOC(tmp_buf, A->data_nbytes);
     int copied = 0, info;
     if(A->order != B->order)
     {
-        STARS_WARNING("`A` and `B` have different data layout "
+        STARSH_WARNING("`A` and `B` have different data layout "
                 "(one is 'C'-order, another is 'F'-order). Creating copy of "
                 "`B` with data layout of `A`");
-        info = Array_new_copy(&B, B, A->order);
+        info = array_new_copy(&B, B, A->order);
         if(info != 0)
             return info;
         copied = 1;
@@ -999,21 +999,21 @@ int Array_diff(Array *A, Array *B, double *result)
     }
     free(tmp_buf);
     if(copied == 1)
-        Array_free(B);
+        array_free(B);
     *result = diff;
     return 0;
 }
 
-int Array_norm(Array *A, double *result)
+int array_norm(Array *A, double *result)
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(result == NULL)
     {
-        STARS_ERROR("invalid value of `result`");
+        STARSH_ERROR("invalid value of `result`");
         return 1;
     }
     if(A->dtype == 's')
@@ -1035,33 +1035,33 @@ int Array_norm(Array *A, double *result)
     return 0;
 }
 
-int Array_convert(Array **A, Array *B, char dtype)
+int array_convert(Array **A, Array *B, char dtype)
 // Create `A` as a copy of `B` with different data type
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(B == NULL)
     {
-        STARS_ERROR("invalid value of `B`");
+        STARSH_ERROR("invalid value of `B`");
         return 1;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARS_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("invalid value of `dtype`");
         return 1;
     }
     if(B->dtype == dtype)
     {
-        return Array_new_copy(A, B, 'N');
+        return array_new_copy(A, B, 'N');
     }
     size_t i;
     if(dtype == 's')
     {
         float *dest;
-        STARS_MALLOC(dest, B->size);
+        STARSH_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1094,12 +1094,12 @@ int Array_convert(Array **A, Array *B, char dtype)
                 dest[i] = src[i];
             }
         }
-        return Array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
+        return array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
     }
     if(dtype == 'd')
     {
         double *dest;
-        STARS_MALLOC(dest, B->size);
+        STARSH_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1132,12 +1132,12 @@ int Array_convert(Array **A, Array *B, char dtype)
                 dest[i] = src[i];
             }
         }
-        return Array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
+        return array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
     }
     if(dtype == 'c')
     {
         float complex *dest;
-        STARS_MALLOC(dest, B->size);
+        STARSH_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1170,12 +1170,12 @@ int Array_convert(Array **A, Array *B, char dtype)
                 dest[i] = src[i];
             }
         }
-        return Array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
+        return array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
     }
     else// dtype == 'z'
     {
         double complex *dest;
-        STARS_MALLOC(dest, B->size);
+        STARSH_MALLOC(dest, B->size);
         if(B->dtype == 's')
         {
             float *src = B->data;
@@ -1208,31 +1208,31 @@ int Array_convert(Array **A, Array *B, char dtype)
                 dest[i] = src[i];
             }
         }
-        return Array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
+        return array_from_buffer(A, B->ndim, B->shape, dtype, B->order, dest);
     }
 }
 
-int Array_Cholesky(Array *A, char uplo)
+int array_cholesky(Array *A, char uplo)
 // Cholesky factoriation for `A`
 {
     if(A == NULL)
     {
-        STARS_ERROR("invalid value of `A`");
+        STARSH_ERROR("invalid value of `A`");
         return 1;
     }
     if(A->ndim != 2)
     {
-        STARS_ERROR("`A` should be 2-dimensional");
+        STARSH_ERROR("`A` should be 2-dimensional");
         return 1;
     }
     if(A->shape[0] != A->shape[1])
     {
-        STARS_ERROR("`A` must be square");
+        STARSH_ERROR("`A` must be square");
         return 1;
     }
     if(uplo != 'U' && uplo != 'L')
     {
-        STARS_ERROR("invalid value of `uplo`");
+        STARSH_ERROR("invalid value of `uplo`");
         return 1;
     }
     int order;
