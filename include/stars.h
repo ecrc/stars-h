@@ -8,7 +8,7 @@ typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
-typedef int (*block_kernel)(int nrows, int ncols, int *irow, int *icol,
+typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
 typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
@@ -134,7 +134,7 @@ struct starsh_problem
     // and by number of columns.
     void *row_data, *col_data;
     // Pointers to physical data, corresponding to rows and columns.
-    block_kernel kernel;
+    STARSH_kernel kernel;
     // Pointer to a function, returning submatrix on intersection of
     // given rows and columns. Rows stand for first dimension, columns stand
     // for last dimension.
@@ -144,7 +144,7 @@ struct starsh_problem
 };
 
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
-        char dtype, void *row_data, void *col_data, block_kernel kernel,
+        char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name);
 // Init for STARS_Problem instance
 // Parameters:

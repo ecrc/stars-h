@@ -5,8 +5,6 @@
 #include <mkl.h>
 #include <omp.h>
 #include "stars.h"
-//#include "cblas.h"
-//#include "lapacke.h"
 #include "misc.h"
 
 

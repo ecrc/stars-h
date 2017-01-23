@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <omp.h>
 #include "stars.h"
+#include "misc.h"
 #include "stars-misc.h"
 #include "stars-spatial.h"
 
 
-int starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
+static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 {
     // Block kernel for spatial statistics
@@ -30,7 +32,6 @@ int starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
             dist = sqrt(dist)/beta;
             buffer[j*(size_t)nrows+i] = exp(dist);
         }
-    return 0;
 }
 
 static uint32_t Part1By1(uint32_t x)
@@ -82,7 +83,7 @@ static void zsort(int n, double *points)
     }
 }
 
-static void gen_points_old(int n, double *points)
+static void gen_points(int n, double *points)
 {
     int i, j;
     double *A = points+n*n;
@@ -96,45 +97,6 @@ static void gen_points_old(int n, double *points)
     }
 }
 
-static void gen_ss_block_points(int m, int n, int block_size, double *points)
-{
-    int i, j, k;
-    size_t npoints = (size_t)m*(size_t)n*(size_t)block_size, ind = 0;
-    double *x = points, *y = points+npoints;
-    double noise_var = 1., rand_max = RAND_MAX;;
-    for(i = 0; i < m; i++)
-        for(j = 0; j < n; j++)
-            for(k = 0; k < block_size; k++)
-            {
-                x[ind] = (j+noise_var*rand()/rand_max)/n;
-                y[ind] = (i+noise_var*rand()/rand_max)/m;
-                ind++;
-            }
-}
-
-STARSH_ssdata *starsh_gen_ssdata(int row_blocks, int col_blocks,
-        int block_size, double beta)
-{
-    size_t n = (size_t)row_blocks*(size_t)col_blocks*(size_t)block_size;
-    STARSH_ssdata *data = malloc(sizeof(*data));
-    data->point = malloc(2*n*sizeof(*data->point));
-    gen_ss_block_points(row_blocks, col_blocks, block_size, data->point);
-    data->count = n;
-    data->beta = beta;
-    return data;
-}
-
-STARSH_ssdata *starsh_gen_ssdata2(int n, double beta)
-{
-    STARSH_ssdata *data = malloc(sizeof(*data));
-    data->point = malloc(2*n*n*sizeof(*data->point));
-    gen_points_old(n, data->point);
-    zsort(n*n, data->point);
-    data->count = n*n;
-    data->beta = beta;
-    return data;
-}
-
 void starsh_ssdata_free(STARSH_ssdata *data)
 {
     if(data == NULL)
@@ -145,4 +107,39 @@ void starsh_ssdata_free(STARSH_ssdata *data)
     }
     free(data->point);
     free(data);
+}
+
+int starsh_gen_ssdata(STARSH_ssdata **data, STARSH_kernel *kernel, int n,
+        double beta)
+{
+    if(data == NULL)
+    {
+        STARSH_ERROR("invalid value of `data`");
+        return 1;
+    }
+    if(kernel == NULL)
+    {
+        STARSH_ERROR("invalid value of `kernel`");
+        return 1;
+    }
+    if(n < 0)
+    {
+        STARSH_ERROR("invalid value of `n`");
+        return 1;
+    }
+    if(beta <= 0)
+    {
+        STARSH_ERROR("invalid value iof `beta`");
+        return 1;
+    }
+    *data = malloc(sizeof(**data));
+    double *point;
+    STARSH_MALLOC(point, 2*(size_t)n*(size_t)n);
+    gen_points(n, point);
+    zsort(n*n, point);
+    (*data)->point = point;
+    (*data)->count = n*n;
+    (*data)->beta = beta;
+    *kernel = starsh_ssdata_block_exp_kernel;
+    return 0;
 }

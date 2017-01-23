@@ -481,7 +481,7 @@ int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
     shape[0] = nrows;
     shape[1] = ncols;
     STARSH_MALLOC(*D, P->entry_size*(size_t)nrows*(size_t)ncols);
-    info = P->kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
+    P->kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
             P->row_data, P->col_data, *D);
     return info;
 }

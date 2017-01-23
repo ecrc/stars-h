@@ -21,19 +21,21 @@ int main(int argc, char **argv)
     int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
     char *scheme = argv[7];
-    int onfly = 1;
+    int onfly = 0;
     printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
             n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
     srand(time(NULL));
     // Generate data for spatial statistics problem
-    STARSH_ssdata *data = starsh_gen_ssdata2(n, beta);
+    STARSH_ssdata *data;
+    STARSH_kernel kernel;
+    starsh_gen_ssdata(&data, &kernel, n, beta);
     int ndim = 2, shape[2] = {data->count, data->count}, info;
     char symm = 'S', dtype = 'd';
     // Init problem with given data and kernel
     STARSH_problem *P;
     info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
-            starsh_ssdata_block_exp_kernel, "Spatial Statistics example");
+            kernel, "Spatial Statistics example");
     starsh_problem_info(P);
     // Init tiled cluster for tiled low-rank approximation
     STARSH_cluster *C;

@@ -12,7 +12,7 @@ double starsh_blrm__dfe(STARSH_blrm *M)
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;
-    block_kernel kernel = P->kernel;
+    STARSH_kernel kernel = P->kernel;
     // Shortcuts to information about clusters
     STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;

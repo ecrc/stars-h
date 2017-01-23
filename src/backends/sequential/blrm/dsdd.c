@@ -8,7 +8,7 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
 // Double precision Tile Low-Rank geSDD approximation
 {
     STARSH_problem *P = F->problem;
-    block_kernel kernel = P->kernel;
+    STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
     // Following values default to given block low-rank format F, but they are
     // changed when there are false far-field blocks.

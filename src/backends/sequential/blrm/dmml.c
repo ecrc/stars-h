@@ -10,7 +10,7 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;
-    block_kernel kernel = P->kernel;
+    STARSH_kernel kernel = P->kernel;
     // Shorcuts to information about clusters
     STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;

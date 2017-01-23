@@ -7,7 +7,7 @@
 #include "misc.h"
 
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
-        char dtype, void *row_data, void *col_data, block_kernel kernel,
+        char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name)
 // Init for STARS_Problem instance
 // Parameters:
@@ -158,12 +158,12 @@ int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
     info = array_new(A, ndim, shape, P->dtype, 'F');
     if(info != 0)
         return info;
-    info = P->kernel(nrows, ncols, irow, icol, P->row_data, P->col_data,
+    P->kernel(nrows, ncols, irow, icol, P->row_data, P->col_data,
             (*A)->data);
-    return info;
+    return 0;
 }
 
-static int _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
+static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
 {
     Array *A = row_data;
@@ -195,7 +195,6 @@ static int _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
                 memcpy(result+dest*esize, A->data+src*esize, esize);
             }
     }
-    return 0;
 }
 
 int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
