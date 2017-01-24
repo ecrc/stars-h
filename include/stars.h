@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 
+//! typedef for structure array
 typedef struct array Array;
 typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
@@ -11,276 +12,233 @@ typedef struct starsh_blrm STARSH_blrm;
 typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
+//! Enum type to show actual block low-rank format
 typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
     STARSH_blrf_type;
-// Enum type to show format type (tiled, hierarchical HOLDR or hierarchical H).
 
+//! Enum type to show type of clusterization
 typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
     STARSH_cluster_type;
-// Enum type to show type of clusterization.
+
 
 struct array
-// N-dimensional A
+//! `N`-dimensional array.
+/*! Simplifies debugging. */
 {
     int ndim;
-    // Number of dimensions of A.
+    //!< Number of dimensions of array.
     int *shape;
-    // Shape of A.
+    //!< Shape of array.
     ssize_t *stride;
-    // Size of step to increase value of corresponding axis by 1
+    //!< Strides of array
     char order;
-    // C or Fortran order. C-order means stride is descending, Fortran-order
-    // means stride is ascending.
+    //!< Ordering of array.
+    /*!< `'C'` for C order (row-major), `'F'` for Fortran order
+     * (column-major). */
     size_t size;
-    // Number of elements of an A.
+    //!< Number of elements of array.
     char dtype;
-    // Data type of each element of A. Possile value is 's', 'd', 'c' or
-    // 'z', much like in names of LAPACK routines.
+    //!< Precision of array.
+    /*!< Possile value is `'s'`, `'d'`, `'c'` or `'z'`, much like
+     * in names of **LAPACK** routines. */
     size_t dtype_size;
-    // Size in bytes of each element of a matrix
-    size_t nbytes, data_nbytes;
-    // Size of entire Array and only data buffer in bytes.
+    //!< Size of one element of array in bytes.
+    size_t nbytes;
+    //!< Size of data buffer and array structure together in bytes.
+    size_t data_nbytes;
+    //!< Size of data buffer in bytes.
     void *data;
-    // Buffer, containing A. Stored in Fortran style.
+    //!< Pointer to data buffer.
 };
 
-// Routines to work with N-dimensional As
 int array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         char order, void *buffer);
-// Init A from given buffer. Check if all parameters are good and
-// proceed.
 int array_new(Array **A, int ndim, int *shape, char dtype, char order);
-// Allocation of memory for A
 int array_new_like(Array **A, Array *B);
-// Initialize new A with exactly the same shape, dtype and so on, but
-// with a different memory buffer
 int array_new_copy(Array **A, Array *B, char order);
-// Create copy of A with given data layout or keeping layout if order ==
-// 'N'
 int array_free(Array *A);
-// Free memory, consumed by A structure and buffer
 int array_info(Array *A);
-// Print all the data from Array structure
 int array_print(Array *A);
-// Print elements of A, different rows of A are printed on different
-// rows of output
 int array_init(Array *A, char *kind);
-// Init buffer in a special manner: randn, rand, ones or zeros
 int array_init_randn(Array *A);
-// Init buffer of A with random numbers of normal (0,1) distribution
 int array_init_rand(Array *A);
-// Init buffer with random numbers of uniform [0,1] distribution
 int array_init_zeros(Array *A);
-// Set all elements to 0.0
 int array_init_ones(Array *A);
-// Set all elements to 1.0
 int array_to_matrix(Array *A, char kind);
-// Convert N-dimensional A to 2-dimensional A (matrix) by
-// collapsing dimensions. This collapse can be assumed as attempt to look
-// at A as at a matrix with long rows (kind == 'R') or long columns
-// (kind == 'C'). If kind is 'R', dimensions from 1 to the last are
-// collapsed into columns. If kind is 'C', dimensions from 0 to the last
-// minus one are collapsed into rows. Example: A of shape (2,3,4,5)
-// will be collapsed to A of shape (2,60) if kind is 'R' or to A of
-// shape (24,5) if kind is 'C'.
 int array_trans_inplace(Array *A);
-// Transposition of A. No real transposition is performed, only changes
-// shape, stride and order.
 int array_dot(Array* A, Array *B, Array **C);
-// GEMM for two As. Multiplication is performed by last dimension of
-// A A and first dimension of A B. These dimensions, data types and
-// ordering of both As should be equal.
 int array_SVD(Array *A, Array **U, Array **S, Array **V);
-// Compute short SVD of 2-dimensional A
 int SVD_get_rank(Array *S, double tol, char type, int *rank);
-// Returns rank by given A of singular values, tolerance and type of norm
-// ('2' for spectral norm, 'F' for Frobenius norm)
 int array_scale(Array *A, char kind, Array *S);
-// Apply row or column scaling to A
 int array_diff(Array *A, Array *B, double *result);
-// Measure Frobenius error of approximation of A by B
 int array_norm(Array *A, double *result);
-// Measure Frobenius norm of A
 int array_convert(Array **A, Array *B, char dtype);
-// Copy A and convert data type
 int array_cholesky(Array *A, char uplo);
-// Cholesky factoriation for an A
 
 
 struct starsh_problem
-// Structure, storing all the necessary data for reconstruction of matrix,
-// generated by given kernel. This matrix may be not 2-dimensional (e.g. for
-// Astrophysics problem, where each matrix entry is a vector of 3 elements.
-// Matrix elements are not stored in memory, but computed on demand.
-// Rows correspond to first dimension of the A and columns correspond to
-// last dimension of the A.
+//! Container to store everything about given problem.
+/*! Structure, storing all the necessary data for reconstruction of
+ * array, generated by given kernel. This array may be not
+ * `2`-dimensional (e.g. for astrophysics problem, where each matrix
+ * entry is a vector of `3` elements). Array elements are not stored in
+ * memory, but computed on demand. Rows correspond to first dimension
+ * of the array and columns correspond to last dimension of the array. */
 {
     int ndim;
-    // Real dimensionality of corresponding A. ndim=2 for problems with
-    // scalar kernel. ndim=3 for Astrophysics problem. May be greater than 2.
+    //!< Number of dimensions of corresponding problem.
+    /*!< Real dimensionality of corresponding array. `ndim=2` for
+     * problems with scalar kernel. `ndim=3` for astrophysics problem.
+     * Can not be less, than `2`. */
     int *shape;
-    // Real shape of corresponding A.
+    //!< Shape of corresponding array.
+    /*!< In case of non-scalar kernel `shape[0]` stands for number of
+     * rows of array, `shape[ndim-1]` stands for number of columns of
+     * array and `(ndim-2)`-dimensional tuple `shape[1:ndim-2]` stands
+     * for kernel shape. */
     char symm;
-    // 'S' if problem is symmetric, and 'N' otherwise.
+    //!< `'S'` if problem is symmetric, and `'N'` otherwise.
     char dtype;
-    // Possible values are 's', 'd', 'c' or 'z', just as in LAPACK routines
-    // names.
+    //!< Precision of problem and corresponding array.
+    /*!< Possile value is `'s'`, `'d'`, `'c'` or `'z'`, much like in
+     * names of **LAPACK** routines. */
     size_t dtype_size;
-    // Size of data type in bytes (size of scalar element of A).
+    //!< Size of element of array in bytes.
     size_t entry_size;
-    // Size of matrix entry in bytes (size of subA, corresponding to
-    // matrix entry on a given row on a given column). Equal to dtype_size,
-    // multiplied by total number of elements and divided by number of rows
-    // and by number of columns.
-    void *row_data, *col_data;
-    // Pointers to physical data, corresponding to rows and columns.
+    //!< Size of subarray, corresponding to kernel shape, in bytes.
+    /*!< Corresponds to size of subarray on a single row on a single
+     * column. Equal to size of array element, multiplied by total
+     * number of elements and divided by number of rows and number of
+     * columns. */
+    void *row_data;
+    //!< Pointer to data, corresponding to rows.
+    void *col_data;
+    //!< Pointer to data, corresponding to columns.
     STARSH_kernel kernel;
-    // Pointer to a function, returning submatrix on intersection of
-    // given rows and columns. Rows stand for first dimension, columns stand
-    // for last dimension.
+    //!< Pointer to a kernel.
+    /*!< Kernel computes elements of a submatrix on intersection of
+     * given rows and columns. Rows stand for first dimension and
+     * columns stand for last dimension. */
     char *name;
-    // Name of problem, useful for printing additional info. It is up to user
-    // to set it as desired.
+    //!< Name of corresponding problem.
 };
 
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name);
-// Init for STARS_Problem instance
-// Parameters:
-//   ndim: dimensionality of corresponding A. Equal 2+dimensionality of
-//     kernel
-//   shape: shape of corresponding A. shape[1:ndim-2] is equal to shape of
-//     kernel
-//   symm: 'S' for summetric problem, 'N' for nonsymmetric problem. Symmetric
-//     problem require symmetric kernel and equality of row_data and col_data
-//   dtype: data type of the problem. Equal to 's', 'd', 'c' or 'z' as in
-//     LAPACK routines. Stands for data type of an element of a kernel.
-//   row_data: pointer to some structure of physical data for rows
-//   col_data: pointer to some srructure of physical data for columns
-//   kernel: pointer to a function of interaction. More on this is written
-//     somewhere else.
-//   name: string, containgin name of the problem. Used only to print
-//     information about structure problem.
-// Returns:
-//    STARS_Problem *: pointer to structure problem with proper filling of all
-//    the fields of structure.
 int starsh_problem_free(STARSH_problem *P);
-// Free memory, consumed by data buffers of data
 int starsh_problem_info(STARSH_problem *P);
-// Print some info about Problem
 int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
         int *irow, int *icol, Array **A);
-// Get submatrix on given rows and columns (rows=first dimension, columns=last
-// dimension)
 int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm);
-// Generate STARS_Problem with a given A and flag if it is symmetric
 int starsh_problem_to_array(STARSH_problem *P, Array **A);
-// Compute matrix/A, corresponding to the problem
 
 
 struct starsh_cluster
-// Information on clusterization (hierarchical or plain) of physical data.
+//! Info about clusterization of physical data.
 {
     void *data;
-    // Pointer to structure, holding physical data.
+    //!< Pointer to structure, holding physical data.
     int ndata;
-    // Number of discrete elements, corresponding to physical data (particles,
-    // grid nodes or mesh elements).
+    //!< Number of discrete elements, corresponding to physical data.
+    /*!< Discrete element can be anything, i.e. particles, grid nodes,
+     * edges or mesh elements. */
     int *pivot;
-    // Pivoting for clusterization. After applying this pivoting, discrete
-    // elements, corresponding to a given cluster, have indexes in a row. pivot
-    // has ndata elements.
+    //!< Pivoting of discrete elements for clusterization.
+    /*!< After pivoting discrete elements of a single cluster are one
+     * after another. Used by field `start`. */
     int nblocks;
-    // Total number of subclusters/blocks of discrete elements.
+    //!< Total number of subclusters (blocks) of discrete elements.
     int nlevels;
-    // Number of levels of hierarchy. 0 in case of tiled cluster.
+    //!< Number of levels of hierarchy.
+    /*!< `0` in case of tiled clusterization. */
     int *level;
-    // Compressed format to store start points of each level of hierarchy.
-    // indexes of subclusters from level[i] to level[i+1]-1 correspond to i-th
-    // level of hierarchy. level has nlevels+1 elements in hierarchical case
-    // and is NULL in tiled case.
-    int *start, *size;
-    // Start points in A pivot and corresponding sizes of each subcluster
-    // of discrete elements. Since subclusters overlap in hierarchical
-    // case, value start[i+1]-start[i] does not represent actual size of
-    // subcluster. start and size have nblocks elements.
+    //!< Index of first cluster for each level of hierarchy.
+    /*!< All subclusters, corresponding to given level of hierarchy are
+     * stored in compressed format: subclusters with indexes from
+     * `level[i]` to `level[i+1]-1` inclusively correspond to `i`-th
+     * level of hierarchy. Field `level` is an array with `nlevels+1`
+     * elements in hierarchical case and is `NULL` in tiled case. */
+    int *start;
+    //!< Index of first pivoted discrete element of a cluster.
+    /*!< Indexes of discrete elements, corresponding to a single
+     * cluster, are located one after another in array `pivot`. */
+    int *size;
+    //!< Number of discrete elements in each cluster.
     int *parent;
-    // Array of parents, each node has only one parent. parent[0] = -1 since 0
-    // is assumed to be root node. In case of tiled cluster, parent is NULL.
+    //!< Parent cluster for each subcluster. `-1` for root cluster.
     int *child_start;
+    //!< Start index of `child` for each cluster.
+    /*!< Clusters with indexes from `child[child_start[i]]` to
+     * `child[child_start[i+1]]-1`inclusively are children for a
+     * cluster `i`. In case of tiled clusterization `child_start` is
+     * `NULL`.*/
     int *child;
-    // Arrays of children and start points in A of children of each
-    // subcluster. child_start has nblocks+1 elements, child has nblocks
-    // elements in case of hierarchical cluster. In case of tiled cluster
-    // child and child_start are NULL.
+    //!< Children clusters of each cluster.
+    /*!< Clusters with indexes from `child[child_start[i]]` to
+     * `child[child_start[i+1]]-1`inclusively are children for a
+     * cluster `i`. In case of tiled clusterization `child` is
+     * `NULL`.*/
     STARSH_cluster_type type;
-    // Type of cluster (tiled or hierarchical).
+    //!< Type of cluster (tiled or hierarchical).
 };
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
         int *parent, int *child_start, int *child, STARSH_cluster_type type);
-// Init for STARS_Cluster instance
-// Parameters:
-//   data: pointer structure, holding to physical data.
-//   ndata: number of discrete elements (particles or mesh elements),
-//     corresponding to physical data.
-//   pivot: pivoting of clusterization. After applying this pivoting, rows (or
-//     columns), corresponding to one block are placed in a row.
-//   nblocks: number of blocks/block rows/block columns/subclusters.
-//   nlevels: number of levels of hierarchy.
-//   level: A of size nlevels+1, indexes of blocks from level[i] to
-//     level[i+1]-1 inclusively belong to i-th level of hierarchy.
-//   start: start point of of indexes of discrete elements of each
-//     block/subcluster in A pivot.
-//   size: size of each block/subcluster/block row/block column.
-//   parent: A of parents, size is nblocks.
-//   child_start: A of start points in A child of each subcluster.
-//   child: A of children of each subcluster.
-//   type: type of cluster. Tiled with STARS_ClusterTiled or hierarchical with
-//     STARS_ClusterHierarchical.
 int starsh_cluster_free(STARSH_cluster *cluster);
-// Free data buffers, consumed by clusterization information.
 int starsh_cluster_info(STARSH_cluster *cluster);
-// Print some info about clusterization
 int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
         int block_size);
-// Plain (non-hierarchical) division of data into blocks of discrete elements.
 
 
 struct starsh_blrf
-// STARS Block Low-Rank Format, means non-nested division of a matrix/A
-// into admissible blocks. Some of admissible blocks are low-rank, some are
-// dense.
+//! Non-nested block low-rank format.
+/*! Stores non-nested division of problem/array into admissible blocks.
+ * Some of admissible blocks are low-rank, some are dense. */
 {
     STARSH_problem *problem;
-    // Pointer to a problem.
+    //!< Pointer to a problem.
     char symm;
-    // 'S' if format and problem are symmetric, and 'N' otherwise.
-    STARSH_cluster *row_cluster, *col_cluster;
-    // Clusterization of rows and columns into blocks/subclusters of discrete
-    // elements.
-    int nbrows, nbcols;
-    // Number of block rows/row subclusters and block columns/column
-    // subclusters.
-    size_t nblocks_far, nblocks_near;
-    // Number of admissible far-field blocks and admissible near-field blocks.
-    // Far-field blocks can be approximated with low rank, whereas near-field
-    // blocks can not.
-    int *block_far, *block_near;
-    // Indexes of far-field and near-field admissible blocks. block[2*i] and
-    // block[2*i+1] are indexes of block row and block column correspondingly.
-    size_t *brow_far_start, *brow_far;
+    //!< `'S'` if format is symmetric, and `'N'` otherwise.
+    STARSH_cluster *row_cluster;
+    //!< Clusterization of rows into subclusters(blocks).
+    STARSH_cluster *col_cluster;
+    //!< Clusterization of columns into subclusters(blocks).
+    int nbrows;
+    //!< Number of block rows (clusters of rows).
+    int nbcols;
+    //!< Number of block columns (clusters of columns).
+    size_t nblocks_far;
+    //!< Number of admissible far-field blocks.
+    /*!< Far-field blocks are approximated. */
+    size_t nblocks_near;
+    //!< Number of admissible near-field blocks.
+    /*!< Near-field blocks are dense. */
+    int *block_far;
+    //!< Coordinates of far-field admissible blocks.
+    /*!< `block_far[2*i]` is an index of block row (row cluster) and
+     * `block_far[2*i+1]` is an index of block column (column cluster).
+     * */
+    int **block_near;
+    //!< Coordinates of near-field admissible blocks.
+    /*!< `block_near[2*i]` is an index of block row (row cluster) and
+     * `block_near[2*i+1]` is an index of block column (column cluster).
+     * */
+    size_t *brow_far_start;
+    size_t *brow_far;
     // Compressed sparse format to store indexes of admissible far-field blocks
     // for each block row.
-    size_t *bcol_far_start, *bcol_far;
+    size_t *bcol_far_start;
+    size_t *bcol_far;
     // Compressed sparse format to store indexes of admissible far-field blocks
     // for each block column.
-    size_t *brow_near_start, *brow_near;
+    size_t *brow_near_start;
+    size_t *brow_near;
     // Compressed sparse format to store indexes of admissible near-field
     // blocks for each block row.
-    size_t *bcol_near_start, *bcol_near;
+    size_t *bcol_near_start;
+    size_t *bcol_near;
     // Compressed sparse format to store indexes of admissible near-field
     // blocks for each block column.
 //    MPI_comm comm;
@@ -296,36 +254,12 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
         STARSH_blrf_type type);
-// Initialization of structure STARS_BLRF
-// Parameters:
-//   problem: pointer to a structure, holding all the information about problem
-//   symm: 'S' if problem and division into blocks are both symmetric, 'N'
-//     otherwise.
-//   row_cluster: clusterization of rows into block rows.
-//   col_cluster: clusterization of columns into block columns.
-//   nblocks_far: number of admissible far-field blocks.
-//   block_far: A of pairs of admissible far-filed block rows and block
-//     columns. block_far[2*i] is an index of block row and block_far[2*i+1]
-//     is an index of block column.
-//   nblocks_near: number of admissible far-field blocks.
-//   block_near: A of pairs of admissible near-filed block rows and block
-//     columns. block_near[2*i] is an index of block row and block_near[2*i+1]
-//     is an index of block column.
-//   type: type of block low-rank format. Tiled with STARS_BLRF_Tiled or
-//     hierarchical with STARS_BLRF_H or STARS_BLRF_HOLDR.
 int starsh_blrf_free(STARSH_blrf *F);
-// Free memory, used by block low rank format (partitioning of A into
-// blocks)
 int starsh_blrf_info(STARSH_blrf *F);
-// Print short info on block partitioning
 int starsh_blrf_print(STARSH_blrf *F);
-// Print full info on block partitioning
 int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P,
         STARSH_cluster *R, STARSH_cluster *C, char symm);
-// Create plain division into tiles/blocks using plain cluster trees for rows
-// and columns without actual pivoting
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D);
-// PLEASE CLEAN MEMORY POINTER *D AFTER USE
 
 struct starsh_blrm
 // STARS Block Low-Rank Matrix, which is used as an approximation in non-nested
@@ -358,22 +292,11 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type);
-// Init procedure for a non-nested block low-rank matrix
 int starsh_blrm_free(STARSH_blrm *M);
-// Free memory of a non-nested block low-rank matrix
 int starsh_blrm_info(STARSH_blrm *M);
-// Print short info on non-nested block low-rank matrix
-//int starsh_blrm_error(STARS_blrm *M);
-// Measure error of approximation by non-nested block low-rank matrix
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
-// Returns shape of block, its rank and low-rank factors or dense
-// representation of a block
-//int starsh_blrm_to_matrix(STARS_BLRM *M, Array **A);
-// Creates copy of Block Low-rank Matrix in dense format
-
 int STARS_BLRM_heatmap(STARSH_blrm *M, char *filename);
-// Put all the ranks to a specified file
 
 int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly);
 int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
