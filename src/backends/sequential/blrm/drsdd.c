@@ -11,6 +11,9 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
+    // Shortcuts to information about clusters
+    STARSH_cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    void *RD = RC->data, *CD = CC->data;
     // Following values default to given block low-rank format F, but they are
     // changed when there are false far-field blocks.
     size_t new_nblocks_far = nblocks_far, new_nblocks_near = nblocks_near;
@@ -18,19 +21,33 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Places to store low-rank factors, dense blocks and ranks
     Array **far_U = NULL, **far_V = NULL, **near_D = NULL;
     int *far_rank = NULL;
+    double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
+    size_t offset_U = 0, offset_V = 0, offset_D = 0;
+    size_t bi, bj = 0;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
         STARSH_MALLOC(far_U, nblocks_far);
         STARSH_MALLOC(far_V, nblocks_far);
         STARSH_MALLOC(far_rank, nblocks_far);
+        size_t size_U = 0, size_V = 0;
+        // Simple cycle over all far-field blocks
+        for(bi = 0; bi < nblocks_far; bi++)
+        {
+            // Get indexes of corresponding block row and block column
+            int i = block_far[2*bi];
+            int j = block_far[2*bi+1];
+            // Get corresponding sizes and minimum of them
+            size_U += RC->size[i];
+            size_V += CC->size[j];
+        }
+        size_U *= maxrank;
+        size_V *= maxrank;
+        STARSH_MALLOC(alloc_U, size_U);
+        STARSH_MALLOC(alloc_V, size_V);
     }
-    // Shortcuts to information about clusters
-    STARSH_cluster *RC = F->row_cluster, *CC = F->col_cluster;
-    void *RD = RC->data, *CD = CC->data;
     // Work variables
     int info;
-    size_t bi, bj = 0;
     // Simple cycle over all far-field admissible blocks
     for(bi = 0; bi < nblocks_far; bi++)
     {
@@ -92,10 +109,12 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         {
             far_rank[bi] = rank;
             int shapeU[2] = {nrows, rank}, shapeV[2] = {ncols, rank};
-            array_new(far_U+bi, 2, shapeU, 'd', 'F');
-            array_new(far_V+bi, 2, shapeV, 'd', 'F');
-            U = far_U[bi]->data;
-            V = far_V[bi]->data;
+            U = alloc_U+offset_U;
+            V = alloc_V+offset_V;
+            array_from_buffer(far_U+bi, 2, shapeU, 'd', 'F', U);
+            array_from_buffer(far_V+bi, 2, shapeV, 'd', 'F', V);
+            offset_U += far_U[bi]->size;
+            offset_V += far_V[bi]->size;
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, rank,
                     mn2, 1.0, Q, nrows, svd_U, mn2, 0.0, U, nrows);
             for(size_t k = 0; k < rank; k++)
@@ -191,6 +210,20 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     if(onfly == 0 && new_nblocks_near > 0)
     {
         STARSH_MALLOC(near_D, new_nblocks_near);
+        size_t size_D = 0;
+        // Simple cycle over all near-field blocks
+        for(bi = 0; bi < new_nblocks_near; bi++)
+        {
+            // Get indexes of corresponding block row and block column
+            int i = block_near[2*bi];
+            int j = block_near[2*bi+1];
+            // Get corresponding sizes and minimum of them
+            size_t nrows = RC->size[i];
+            size_t ncols = CC->size[j];
+            // Update size_D
+            size_D += nrows*ncols;
+        }
+        STARSH_MALLOC(alloc_D, size_D);
         // For each near-field block compute its elements
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
@@ -201,9 +234,11 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             int nrows = RC->size[i];
             int ncols = CC->size[j];
             int shape[2] = {nrows, ncols};
-            array_new(near_D+bi, 2, shape, 'd', 'F');
+            double *D = alloc_D+offset_D;
+            array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
+            offset_D += near_D[bi]->size;
             kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, near_D[bi]->data);
+                    CC->pivot+CC->start[j], RD, CD, D);
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false
@@ -225,6 +260,8 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
+        STARSH_REALLOC(alloc_U, offset_U);
+        STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)
@@ -236,6 +273,10 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         far_U = NULL;
         free(far_V);
         far_V = NULL;
+        free(alloc_U);
+        alloc_U = NULL;
+        free(alloc_V);
+        alloc_V = NULL;
     }
     // Dealloc list of false far-field blocks if it is not empty
     if(nblocks_false_far > 0)
@@ -243,6 +284,6 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
     return starsh_blrm_new(M, F, far_rank, far_U, far_V, onfly, near_D,
-            NULL, NULL, NULL, '2');
+            alloc_U, alloc_V, alloc_D, '1');
 }
 

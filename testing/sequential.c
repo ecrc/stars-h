@@ -68,7 +68,9 @@ int main(int argc, char **argv)
     // Print info about approximation
     starsh_blrm_info(M);
     // Measure approximation error in Frobenius norm
+    time0 = omp_get_wtime();
     printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
+    printf("TIME TO MEASURE ERROR: %e secs\n", omp_get_wtime()-time0);
     Array *A;
     info = starsh_problem_to_array(P, &A);
     Array *B;
@@ -92,7 +94,9 @@ int main(int argc, char **argv)
     array_new(&resM, 2, shape, 'd', 'F');
     array_init_randn(A);
     array_init_zeros(resM);
+    time0 = omp_get_wtime();
     starsh_blrm__dmml(M, k, A->data, m, resM->data, m);
+    printf("TIME TO MULTIPLY BY DENSE: %e secs\n", omp_get_wtime()-time0);
     array_dot(B, A, &resB);
     array_diff(resM, resB, &diff);
     array_norm(resB, &norm);
