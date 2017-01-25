@@ -56,14 +56,14 @@ option(STARSH_TESTING "Generates testing binaries" OFF)
 if( STARSH_TESTING )
 	## CMAKE MODULES :: MORSE
 	## REQUIRED FOR TESTS TO LINK LIBRARIES
-	if(NOT EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/modules" )
-		message(FATAL_ERROR "MORSE CMake modules were not found."
+	if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules" )
+		message(FATAL_ERROR "MORSE CMake modules were not found.\n"
 	                         "Have you done: 'git submodule init && git submodule update'?" )
-	else
+	else()
 		## MORSE INITIALIZATION
-		list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse/modules")
-		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse/modules )
+		list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+		list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules")
+		set(MORSE_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules )
 		include(MorseInit)
 	endif()
 
