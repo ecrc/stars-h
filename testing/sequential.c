@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
     double time0 = omp_get_wtime();
     if(strcmp(scheme, "sdd") == 0)
-        starsh_blrm__dsdd(&M, F, tol, onfly);
+        starsh_blrm__dsdd(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "rsdd") == 0)
         starsh_blrm__drsdd(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "rsdd2") == 0)

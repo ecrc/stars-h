@@ -19,8 +19,10 @@
  * @param[in] onfly text
  * @result error code or 0 if everything is OK
  */
-int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
+int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly)
 {
+    (void)oversample;
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
@@ -52,11 +54,28 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
             int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
-            size_U += nrows*ncols/2;
-            size_V += nrows*ncols/2;
+            size_U += nrows*maxrank;
+            size_V += ncols*maxrank;
         }
         STARSH_MALLOC(alloc_U, size_U);
         STARSH_MALLOC(alloc_V, size_V);
+        for(bi = 0; bi < nblocks_far; bi++)
+        {
+            // Get indexes of corresponding block row and block column
+            int i = block_far[2*bi];
+            int j = block_far[2*bi+1];
+            // Get corresponding sizes and minimum of them
+            size_t nrows = RC->size[i], ncols = CC->size[j];
+            int shape_U[] = {nrows, maxrank};
+            int shape_V[] = {ncols, maxrank};
+            double *U = alloc_U+offset_U, *V = alloc_V+offset_V;
+            offset_U += nrows*maxrank;
+            offset_V += ncols*maxrank;
+            array_from_buffer(far_U+bi, 2, shape_U, 'd', 'F', U);
+            array_from_buffer(far_V+bi, 2, shape_V, 'd', 'F', V);
+        }
+        offset_U = 0;
+        offset_V = 0;
     }
     // Work variables
     int info;
@@ -71,56 +90,24 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
         int ncols = CC->size[j];
         int mn = nrows > ncols ? ncols : nrows;
         // Get size of temporary arrays
-        size_t lmn = mn, lwork = (4*lmn+7)*lmn, liwork = 8*lmn;
-        double *D, *svd_U, *svd_S, *svd_V, *work, *U, *V;
+        size_t lmn = mn, lwork = (4*lmn+8+nrows+ncols)*lmn, liwork = 8*lmn;
+        double *D, *work;
         int *iwork;
         size_t D_size = (size_t)nrows*(size_t)ncols;
         // Allocate temporary arrays
         STARSH_MALLOC(D, D_size);
-        STARSH_MALLOC(svd_U, nrows*lmn);
-        STARSH_MALLOC(svd_S, lmn);
-        STARSH_MALLOC(svd_V, ncols*lmn);
+        //STARSH_MALLOC(svd_U, nrows*lmn);
+        //STARSH_MALLOC(svd_S, lmn);
+        //STARSH_MALLOC(svd_V, ncols*lmn);
         STARSH_MALLOC(work, lwork);
         STARSH_MALLOC(iwork, liwork);
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        // Get SVD via GESDD function of LAPACK
-        LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', nrows, ncols, D, nrows,
-                svd_S, svd_U, nrows, svd_V, mn, work, lwork, iwork);
-        // Get rank, corresponding to given error tolerance
-        int rank = starsh__dsvfr(mn, svd_S, tol);
-        if(rank < mn/2)
-        // If far-field block is low-rank
-        {
-            far_rank[bi] = rank;
-            int shapeU[2] = {nrows, rank}, shapeV[2] = {ncols, rank};
-            U = alloc_U+offset_U;
-            V = alloc_V+offset_V;
-            array_from_buffer(far_U+bi, 2, shapeU, 'd', 'F', U);
-            array_from_buffer(far_V+bi, 2, shapeV, 'd', 'F', V);
-            offset_U += far_U[bi]->size;
-            offset_V += far_V[bi]->size;
-            for(size_t k = 0; k < rank; k++)
-            {
-                cblas_dcopy(nrows, svd_U+k*nrows, 1, U+k*nrows, 1);
-                cblas_dcopy(ncols, svd_V+k, mn, V+k*ncols, 1);
-                cblas_dscal(ncols, svd_S[k], V+k*ncols, 1);
-            }
-        }
-        else
-        // If far-field block is dense, although it was initially assumed
-        // to be low-rank. Let denote such a block as false far-field block
-        {
-            far_rank[bi] = -1;
-            far_U[bi] = NULL;
-            far_V[bi] = NULL;
-        }
+        starsh_kernel_dsdd(nrows, ncols, D, far_U[bi], far_V[bi], far_rank+bi,
+                maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
-        free(svd_U);
-        free(svd_S);
-        free(svd_V);
         free(work);
         free(iwork);
     }
@@ -130,6 +117,7 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly)
     for(bi = 0; bi < nblocks_far; bi++)
         if(far_rank[bi] == -1)
             nblocks_false_far++;
+    printf("False blocks: %zu\n", nblocks_false_far);
     if(nblocks_false_far > 0)
     {
         // IMPORTANT: `false_far` must to be in ascending order for later code

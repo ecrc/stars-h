@@ -220,7 +220,7 @@ struct starsh_blrf
     /*!< `block_far[2*i]` is an index of block row (row cluster) and
      * `block_far[2*i+1]` is an index of block column (column cluster).
      * */
-    int **block_near;
+    int *block_near;
     //!< Coordinates of near-field admissible blocks.
     /*!< `block_near[2*i]` is an index of block row (row cluster) and
      * `block_near[2*i+1]` is an index of block column (column cluster).
@@ -298,7 +298,8 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
 int STARS_BLRM_heatmap(STARSH_blrm *M, char *filename);
 
-int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, double tol, int onfly);
+int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
 int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -311,5 +312,11 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
 double starsh_blrm__dfe(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 
+void starsh_kernel_dsdd(int nrows, int ncols, double *D, Array *U, Array *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
+void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
 
 #endif // _STARSH_H_
