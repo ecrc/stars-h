@@ -56,34 +56,16 @@ option(STARSH_TESTING "Generates testing binaries" OFF)
 if( STARSH_TESTING )
 	## CMAKE MODULES :: MORSE
 	## REQUIRED FOR TESTS TO LINK LIBRARIES
-	if(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/.svn/entries" )
-		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse OUTPUT_QUIET )
-	else()
-		execute_process( COMMAND mkdir -p ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 OUTPUT_QUIET )
-	endif()
-
-
-	## MORSE INITIALIZATION
-	set( MORSE_DISTRIB_DIR "" CACHE PATH "Directory of MORSE distribution")
-	if(MORSE_DISTRIB_DIR)
-		list(APPEND CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${MORSE_DISTRIB_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules/morse )
-	elseif(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/")
+	if(NOT EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/modules" )
+		message(FATAL_ERROR "MORSE CMake modules were not found."
+	                         "Have you done: 'git submodule init && git submodule update'?" )
+	else
+		## MORSE INITIALIZATION
 		list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse )
-	else()
-		message(FATAL_ERROR "MORSE_DISTRIB_DIR is not set\n"
-		                    "Please indicate where is located your MORSE distribution directory. "
-		                    "This is necessary to find cmake_modules. \n"
-		                    "If you are a MORSE developer, you normally have access to the svn repository of the MORSE_DISTRIB_DIR: "
-		                    "svn checkout svn+ssh://yourlogin@scm.gforge.inria.fr/svnroot/morse/trunk/morse_distrib")
+		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse/modules")
+		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse/modules )
+		include(MorseInit)
 	endif()
-	include(MorseInit)
-
 
 	## BLAS
 	find_package(BLASEXT)
