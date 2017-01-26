@@ -117,7 +117,6 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     for(bi = 0; bi < nblocks_far; bi++)
         if(far_rank[bi] == -1)
             nblocks_false_far++;
-    printf("False blocks: %zu\n", nblocks_false_far);
     if(nblocks_false_far > 0)
     {
         // IMPORTANT: `false_far` must to be in ascending order for later code

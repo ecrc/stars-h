@@ -23,6 +23,7 @@ void starsh_kernel_dsdd(int nrows, int ncols, double *D, Array *U, Array *V,
     // Get rank, corresponding to given error tolerance
     *rank = starsh__dsvfr(mn, svd_S, tol);
     if(*rank < mn/2 && *rank <= maxrank)
+    // If far-field block is low-rank
     {
         for(size_t i = 0; i < *rank; i++)
         {
@@ -34,5 +35,7 @@ void starsh_kernel_dsdd(int nrows, int ncols, double *D, Array *U, Array *V,
         V->shape[1] = *rank;
     }
     else
+    // If far-field block is dense, although it was initially assumed
+    // to be low-rank. Let denote such a block as false far-field block
         *rank = -1;
 }

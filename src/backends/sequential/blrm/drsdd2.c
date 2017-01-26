@@ -45,6 +45,23 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         size_V *= maxrank;
         STARSH_MALLOC(alloc_U, size_U);
         STARSH_MALLOC(alloc_V, size_V);
+        for(bi = 0; bi < nblocks_far; bi++)
+        {
+            // Get indexes of corresponding block row and block column
+            int i = block_far[2*bi];
+            int j = block_far[2*bi+1];
+            // Get corresponding sizes and minimum of them
+            size_t nrows = RC->size[i], ncols = CC->size[j];
+            int shape_U[] = {nrows, maxrank};
+            int shape_V[] = {ncols, maxrank};
+            double *U = alloc_U+offset_U, *V = alloc_V+offset_V;
+            offset_U += nrows*maxrank;
+            offset_V += ncols*maxrank;
+            array_from_buffer(far_U+bi, 2, shape_U, 'd', 'F', U);
+            array_from_buffer(far_V+bi, 2, shape_V, 'd', 'F', V);
+        }
+        offset_U = 0;
+        offset_V = 0;
     }
     // Work variables
     int info;
@@ -67,98 +84,39 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         size_t lwork_sdd = (4*(size_t)mn2+7)*mn2;
         if(lwork_sdd > lwork)
             lwork = lwork_sdd;
+        lwork += (size_t)mn2*(2*ncols+2*nrows+1);
         size_t liwork = 8*mn2;
-        double *D, *X, *Y, *QX, *QY, *R, *work, *U, *V, *tau;
-        double *svd_U, *svd_S, *svd_V;
+        //double *D, *X, *Y, *QX, *QY, *R, *work, *U, *V, *tau;
+        double *D, *work;
+        //double *svd_U, *svd_S, *svd_V;
         int *iwork;
         // Allocate temporary arrays
         STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
-        STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
-        STARSH_MALLOC(Y, (size_t)nrows*(size_t)mn2);
-        STARSH_MALLOC(QX, (size_t)nrows*(size_t)mn2);
-        STARSH_MALLOC(QY, (size_t)ncols*(size_t)mn2);
+        //STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
+        //STARSH_MALLOC(Y, (size_t)nrows*(size_t)mn2);
+        //STARSH_MALLOC(QX, (size_t)nrows*(size_t)mn2);
+        //STARSH_MALLOC(QY, (size_t)ncols*(size_t)mn2);
         STARSH_MALLOC(iwork, liwork);
         STARSH_MALLOC(work, lwork);
-        STARSH_MALLOC(svd_S, mn2);
-        tau = svd_S;
-        svd_U = X;
-        svd_V = Y;
-        R = D;
+        //STARSH_MALLOC(svd_S, mn2);
+        //tau = svd_S;
+        //svd_U = X;
+        //svd_V = Y;
+        //R = D;
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        // Generate random matrices X and Y
-        for(size_t k = 0; k < mn2; k++)
-            for(size_t l = 0; l < ncols; l++)
-                X[k*ncols+l] = randn();
-        for(size_t k = 0; k < mn2; k++)
-            for(size_t l = 0; l < nrows; l++)
-                Y[k*nrows+l] = randn();
-        // Multiply by random matrices
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, mn2,
-                ncols, 1.0, D, nrows, X, ncols, 0.0, QX, nrows);
-        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, ncols, mn2,
-                nrows, 1.0, D, nrows, Y, nrows, 0.0, QY, ncols);
-        // Get Q factor of QR factorizations and R factor for one of matrices
-        LAPACKE_dgeqrf_work(LAPACK_COL_MAJOR, nrows, mn2, QX, nrows, tau, work,
-                lwork);
-        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, QX, nrows, tau,
-                work, lwork);
-        LAPACKE_dgeqrf_work(LAPACK_COL_MAJOR, ncols, mn2, QY, ncols, tau, work,
-                lwork);
-        for(size_t k = 0; k < mn2; k++)
-        {
-            cblas_dcopy(k+1, QY+k*ncols, 1, R+k, mn2);
-            for(size_t l = k+1; l < mn2; l++)
-                R[k+l*mn2] = 0.;
-        }
-        LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, ncols, mn2, mn2, QY, ncols, tau,
-                work, lwork);
-        // Multiply Q by random matrix
-        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, mn2, mn2, nrows,
-                1.0, Y, nrows, QX, nrows, 0.0, X, mn2);
-        // Solve system
-        LAPACKE_dgesv_work(LAPACK_COL_MAJOR, mn2, mn2, X, mn2, iwork, R, mn2);
-        // Get SVD of result to reduce rank
-        LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, mn2, R, mn2, svd_S,
-                svd_U, mn2, svd_V, mn2, work, lwork, iwork);
-        free(work);
-        free(iwork);
-        // Get rank, corresponding to given error tolerance
-        int rank = starsh__dsvfr(mn2, svd_S, tol);
-        if(rank < mn/2 && rank <= maxrank)
-        // If far-field block is low-rank
-        {
-            far_rank[bi] = rank;
-            int shapeU[2] = {nrows, rank}, shapeV[2] = {ncols, rank};
-            U = alloc_U+offset_U;
-            V = alloc_V+offset_V;
-            array_from_buffer(far_U+bi, 2, shapeU, 'd', 'F', U);
-            array_from_buffer(far_V+bi, 2, shapeV, 'd', 'F', V);
-            offset_U += far_U[bi]->size;
-            offset_V += far_V[bi]->size;
-            for(size_t k = 0; k < rank; k++)
-                cblas_dscal(mn2, svd_S[k], svd_U+k*mn2, 1);
-            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, rank,
-                    mn2, 1.0, QX, nrows, svd_U, mn2, 0.0, U, nrows);
-            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, ncols, rank,
-                    mn2, 1.0, QY, ncols, svd_V, mn2, 0.0, V, ncols);
-        }
-        else
-        // If far-field block is dense, although it was initially assumed
-        // to be low-rank. Let denote such a block as false far-field block
-        {
-            far_rank[bi] = -1;
-            far_U[bi] = NULL;
-            far_V[bi] = NULL;
-        }
+        starsh_kernel_drsdd2(nrows, ncols, D, far_U[bi], far_V[bi], far_rank+bi,
+                maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
-        free(X);
-        free(Y);
-        free(QX);
-        free(QY);
-        free(svd_S);
+        //free(X);
+        //free(Y);
+        //free(QX);
+        //free(QY);
+        //free(svd_S);
+        free(work);
+        free(iwork);
     }
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;

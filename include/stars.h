@@ -318,5 +318,11 @@ void starsh_kernel_dsdd(int nrows, int ncols, double *D, Array *U, Array *V,
 void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
+void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
+void starsh_kernel_dqp3(int nrows, int ncols, double *D, Array *U, Array *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
 
 #endif // _STARSH_H_
