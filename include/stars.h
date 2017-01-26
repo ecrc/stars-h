@@ -312,17 +312,30 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
 double starsh_blrm__dfe(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 
-void starsh_kernel_dsdd(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
-void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
-void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
-void starsh_kernel_dqp3(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
+
+void starsh_kernel_drsdd_starpu(void *buffers[], void *cl_arg);
+int starsh_blrm__drsdd_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+
+struct starsh_blrf_params_t
+{
+    STARSH_blrf *F;
+    int maxrank;
+    int oversample;
+    double tol;
+    int onfly;
+};
 
 #endif // _STARSH_H_

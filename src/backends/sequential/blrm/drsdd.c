@@ -66,6 +66,7 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
+#pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
         // Get indexes of corresponding block row and block column
@@ -88,12 +89,13 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         //double *D, *X, *Q, *work, *U, *V, *tau, *svd_U, *svd_S, *svd_V;
         double *D, *work;
         int *iwork;
+        int info;
         // Allocate temporary arrays
-        STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
+        STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
         //STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
         //STARSH_MALLOC(Q, (size_t)nrows*(size_t)mn2);
-        STARSH_MALLOC(iwork, liwork);
-        STARSH_MALLOC(work, lwork);
+        STARSH_PMALLOC(iwork, liwork, info);
+        STARSH_PMALLOC(work, lwork, info);
         //STARSH_MALLOC(svd_U, (size_t)mn2*(size_t)mn2);
         //STARSH_MALLOC(svd_S, mn2);
         //STARSH_MALLOC(svd_V, (size_t)mn2*(size_t)ncols);
@@ -101,8 +103,8 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        starsh_kernel_drsdd(nrows, ncols, D, far_U[bi], far_V[bi], far_rank+bi,
-                maxrank, oversample, tol, work, lwork, iwork);
+        starsh_kernel_drsdd(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
+                far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
         free(work);

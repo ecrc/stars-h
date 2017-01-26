@@ -57,6 +57,8 @@ int main(int argc, char **argv)
         starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "qp3") == 0)
         starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_rsdd") == 0)
+        starsh_blrm__drsdd_starpu(&M, F, maxrank, oversample, tol, onfly);
     else
     {
         printf("wrong scheme (possible: sdd, rsdd, qp3)\n");

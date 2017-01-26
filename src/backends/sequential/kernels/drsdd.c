@@ -4,7 +4,7 @@
 #include "stars.h"
 #include "misc.h"
 
-void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork)
 {
@@ -15,7 +15,7 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
     size_t svdqr_lwork = (4*(size_t)mn2+7)*mn2;
     if(svdqr_lwork < ncols)
         svdqr_lwork = ncols;
-    double *X, *Q, *tau, *svd_U, *svd_S, *svd_V, *svdqr_work, *out_U, *out_V;
+    double *X, *Q, *tau, *svd_U, *svd_S, *svd_V, *svdqr_work;
     X = work;
     Q = X+(size_t)ncols*mn2;
     svd_U = Q+(size_t)nrows*mn2;
@@ -23,8 +23,6 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
     tau = svd_S;
     svd_V = svd_S+mn2;
     svdqr_work = svd_V+(size_t)ncols*mn2;
-    out_U = U->data;
-    out_V = V->data;
     // Generate random matrix X
     for(size_t i = 0; i < mn2; i++)
         for(size_t j = 0; j < ncols; j++)
@@ -49,14 +47,12 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, Array *U, Array *V,
     // If far-field block is low-rank
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
-                mn2, 1.0, Q, nrows, svd_U, mn2, 0.0, out_U, nrows);
+                mn2, 1.0, Q, nrows, svd_U, mn2, 0.0, U, nrows);
         for(size_t i = 0; i < *rank; i++)
         {
-            cblas_dcopy(ncols, svd_V+i, mn2, out_V+i*ncols, 1);
-            cblas_dscal(ncols, svd_S[i], out_V+i*ncols, 1);
+            cblas_dcopy(ncols, svd_V+i, mn2, V+i*ncols, 1);
+            cblas_dscal(ncols, svd_S[i], V+i*ncols, 1);
         }
-        U->shape[1] = *rank;
-        V->shape[1] = *rank;
     }
     else
     // If far-field block is dense, although it was initially assumed

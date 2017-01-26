@@ -4,7 +4,7 @@
 #include "stars.h"
 #include "misc.h"
 
-void starsh_kernel_dqp3(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork)
 {
@@ -16,15 +16,12 @@ void starsh_kernel_dqp3(int nrows, int ncols, double *D, Array *U, Array *V,
     if(svdqr_lwork < 3*ncols+1)
         svdqr_lwork = 3*ncols+1;
     double *R, *tau, *svd_U, *svd_S, *svd_V, *svdqr_work;
-    double *out_U, *out_V;
     R = work;
     tau = R+(size_t)ncols*mn2;
     svd_U = tau+mn;
     svd_S = svd_U+(size_t)mn2*mn2;
     svd_V = svd_S+mn2;
     svdqr_work = svd_V+(size_t)ncols*mn2;
-    out_U = U->data;
-    out_V = V->data;
     // Set pivots for GEQP3 to zeros
     for(int i = 0; i < ncols; i++)
         iwork[i] = 0;
@@ -52,14 +49,12 @@ void starsh_kernel_dqp3(int nrows, int ncols, double *D, Array *U, Array *V,
     // If far-field block is low-rank
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
-                mn2, 1.0, D, nrows, svd_U, mn2, 0.0, out_U, nrows);
+                mn2, 1.0, D, nrows, svd_U, mn2, 0.0, U, nrows);
         for(size_t i = 0; i < *rank; i++)
         {
-            cblas_dcopy(ncols, svd_V+i, mn2, out_V+i*ncols, 1);
-            cblas_dscal(ncols, svd_S[i], out_V+i*ncols, 1);
+            cblas_dcopy(ncols, svd_V+i, mn2, V+i*ncols, 1);
+            cblas_dscal(ncols, svd_S[i], V+i*ncols, 1);
         }
-        U->shape[1] = *rank;
-        V->shape[1] = *rank;
     }
     else
     // If far-field block is dense, although it was initially assumed

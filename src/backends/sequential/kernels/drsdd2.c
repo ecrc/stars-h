@@ -4,7 +4,7 @@
 #include "stars.h"
 #include "misc.h"
 
-void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
+void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork)
 {
@@ -18,7 +18,6 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
     if(svdqr_lwork < nrows)
         svdqr_lwork = nrows;
     double *X, *Y, *QX, *QY, *tau, *R, *svd_U, *svd_S, *svd_V, *svdqr_work;
-    double *out_U, *out_V;
     X = work;
     Y = X+(size_t)ncols*mn2;
     QX = Y+(size_t)nrows*mn2;
@@ -29,8 +28,6 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
     tau = svd_S;
     svd_V = Y;
     svdqr_work = svd_S+mn2;
-    out_U = U->data;
-    out_V = V->data;
     // Generate random matrices X and Y
     for(size_t i = 0; i < mn2; i++)
         for(size_t j = 0; j < ncols; j++)
@@ -74,11 +71,9 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, Array *U, Array *V,
         for(size_t i = 0; i < *rank; i++)
             cblas_dscal(mn2, svd_S[i], svd_U+i*mn2, 1);
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
-                mn2, 1.0, QX, nrows, svd_U, mn2, 0.0, out_U, nrows);
+                mn2, 1.0, QX, nrows, svd_U, mn2, 0.0, U, nrows);
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, ncols, *rank,
-                mn2, 1.0, QY, ncols, svd_V, mn2, 0.0, out_V, ncols);
-        U->shape[1] = *rank;
-        V->shape[1] = *rank;
+                mn2, 1.0, QY, ncols, svd_V, mn2, 0.0, V, ncols);
     }
     else
     // If far-field block is dense, although it was initially assumed
