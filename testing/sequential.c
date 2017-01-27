@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
             n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
-    srand(time(NULL));
+    srand(100);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
@@ -57,11 +57,18 @@ int main(int argc, char **argv)
         starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "qp3") == 0)
         starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_sdd") == 0)
+        starsh_blrm__dsdd_starpu(&M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "starpu_rsdd") == 0)
         starsh_blrm__drsdd_starpu(&M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_rsdd2") == 0)
+        starsh_blrm__drsdd2_starpu(&M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_qp3") == 0)
+        starsh_blrm__dqp3_starpu(&M, F, maxrank, oversample, tol, onfly);
     else
     {
-        printf("wrong scheme (possible: sdd, rsdd, qp3)\n");
+        printf("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
+                "starpu_rsdd, starpu_rsdd2, starpu_qp3)\n");
         return 1;
     }
     printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);

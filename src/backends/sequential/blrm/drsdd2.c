@@ -66,6 +66,7 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
+#pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
         // Get indexes of corresponding block row and block column
@@ -90,14 +91,15 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         double *D, *work;
         //double *svd_U, *svd_S, *svd_V;
         int *iwork;
+        int info;
         // Allocate temporary arrays
-        STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
+        STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
         //STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
         //STARSH_MALLOC(Y, (size_t)nrows*(size_t)mn2);
         //STARSH_MALLOC(QX, (size_t)nrows*(size_t)mn2);
         //STARSH_MALLOC(QY, (size_t)ncols*(size_t)mn2);
-        STARSH_MALLOC(iwork, liwork);
-        STARSH_MALLOC(work, lwork);
+        STARSH_PMALLOC(iwork, liwork, info);
+        STARSH_PMALLOC(work, lwork, info);
         //STARSH_MALLOC(svd_S, mn2);
         //tau = svd_S;
         //svd_U = X;

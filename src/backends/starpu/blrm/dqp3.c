@@ -1,26 +1,13 @@
-/*!
- * @file dsdd.c
- */
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <starpu.h>
 #include <mkl.h>
 #include "stars.h"
 #include "misc.h"
 
-/*!
- * Approximate H-matrix by sdd procedure for every block.
- *
- * Uses DGESDD for each block. Complexity is very high!
- *
- * @param[out] M text
- * @param[in,out] F text
- * @param[in] tol text
- * @param[in] onfly text
- * @result error code or 0 if everything is OK
- */
-int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
+// Double precision Tile Low-Rank geSDD approximation
 {
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
@@ -38,6 +25,18 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     size_t bi, bj = 0;
+    struct starpu_codelet codelet =
+    {
+        .cpu_funcs = {starsh_kernel_dqp3_starpu},
+        .nbuffers = 6,
+        .modes = {STARPU_R, STARPU_W, STARPU_W, STARPU_W, STARPU_SCRATCH,
+            STARPU_SCRATCH}
+    };
+    (void)starpu_init(NULL);
+    size_t bi_value[nblocks_far];
+    starpu_data_handle_t bi_handle[nblocks_far], rank_handle[nblocks_far];
+    starpu_data_handle_t U_handle[nblocks_far], V_handle[nblocks_far];
+    starpu_data_handle_t work_handle[nblocks_far], iwork_handle[nblocks_far];
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -52,10 +51,11 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             int i = block_far[2*bi];
             int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
-            size_t nrows = RC->size[i], ncols = CC->size[j];
-            size_U += nrows*maxrank;
-            size_V += ncols*maxrank;
+            size_U += RC->size[i];
+            size_V += CC->size[j];
         }
+        size_U *= maxrank;
+        size_V *= maxrank;
         STARSH_MALLOC(alloc_U, size_U);
         STARSH_MALLOC(alloc_V, size_V);
         for(bi = 0; bi < nblocks_far; bi++)
@@ -65,6 +65,20 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
+            int mn = nrows < ncols ? nrows : ncols;
+            //int mn2 = mn < maxrank ? mn : maxrank;
+            int mn2 = maxrank+oversample;
+            if(mn2 > mn)
+                mn2 = mn;
+            // Get size of temporary arrays
+            size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
+            if(lwork_sdd > lwork)
+                lwork = lwork_sdd;
+            lwork += nrows*ncols+(size_t)mn2*(2*ncols+mn2+1)+mn;
+            //lwork += (size_t)nrows*ncols+(size_t)mn2*(2*ncols+nrows+mn2+1);
+            size_t liwork = ncols, liwork_sdd = 8*mn2;
+            if(liwork_sdd > liwork)
+                liwork = liwork_sdd;
             int shape_U[] = {nrows, maxrank};
             int shape_V[] = {ncols, maxrank};
             double *U = alloc_U+offset_U, *V = alloc_V+offset_V;
@@ -72,6 +86,19 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             offset_V += ncols*maxrank;
             array_from_buffer(far_U+bi, 2, shape_U, 'd', 'F', U);
             array_from_buffer(far_V+bi, 2, shape_V, 'd', 'F', V);
+            bi_value[bi] = bi;
+            starpu_variable_data_register(bi_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(bi_value+bi), sizeof(*bi_value));
+            starpu_variable_data_register(rank_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_rank+bi), sizeof(*far_rank));
+            starpu_vector_data_register(U_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_U[bi]->data), nrows*maxrank, sizeof(*U));
+            starpu_vector_data_register(V_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_V[bi]->data), ncols*maxrank, sizeof(*V));
+            starpu_vector_data_register(work_handle+bi, -1, 0, lwork,
+                    sizeof(*U));
+            starpu_vector_data_register(iwork_handle+bi, -1, 0, liwork,
+                    sizeof(int));
         }
         offset_U = 0;
         offset_V = 0;
@@ -79,39 +106,26 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-#pragma omp parallel for
     for(bi = 0; bi < nblocks_far; bi++)
     {
-        int info;
-        // Get indexes of corresponding block row and block column
-        int i = block_far[2*bi];
-        int j = block_far[2*bi+1];
-        // Get corresponding sizes and minimum of them
-        int nrows = RC->size[i];
-        int ncols = CC->size[j];
-        int mn = nrows > ncols ? ncols : nrows;
-        // Get size of temporary arrays
-        size_t lmn = mn, lwork = (4*lmn+8+nrows+ncols)*lmn, liwork = 8*lmn;
-        double *D, *work;
-        int *iwork;
-        size_t D_size = (size_t)nrows*(size_t)ncols;
-        // Allocate temporary arrays
-        STARSH_PMALLOC(D, D_size, info);
-        //STARSH_MALLOC(svd_U, nrows*lmn);
-        //STARSH_MALLOC(svd_S, lmn);
-        //STARSH_MALLOC(svd_V, ncols*lmn);
-        STARSH_PMALLOC(work, lwork, info);
-        STARSH_PMALLOC(iwork, liwork, info);
-        // Compute elements of a block
-        kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D);
-        starsh_kernel_dsdd(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
-                far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
-        // Free temporary arrays
-        free(D);
-        free(work);
-        free(iwork);
+        starpu_task_insert(&codelet, STARPU_VALUE, &F, sizeof(F),
+                STARPU_VALUE, &maxrank, sizeof(maxrank),
+                STARPU_VALUE, &oversample, sizeof(oversample),
+                STARPU_VALUE, &tol, sizeof(tol),
+                STARPU_R, bi_handle[bi], STARPU_W, rank_handle[bi],
+                STARPU_W, U_handle[bi], STARPU_W, V_handle[bi],
+                STARPU_SCRATCH, work_handle[bi],
+                STARPU_SCRATCH, iwork_handle[bi],
+                0);
+        starpu_data_unregister_submit(bi_handle[bi]);
+        starpu_data_unregister_submit(rank_handle[bi]);
+        starpu_data_unregister_submit(U_handle[bi]);
+        starpu_data_unregister_submit(V_handle[bi]);
+        starpu_data_unregister_submit(work_handle[bi]);
+        starpu_data_unregister_submit(iwork_handle[bi]);
     }
+    starpu_task_wait_for_all();
+    starpu_shutdown();
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;
     size_t *false_far = NULL;
@@ -258,3 +272,4 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     return starsh_blrm_new(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
+

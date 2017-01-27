@@ -81,7 +81,7 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
-        size_t lwork = ncols, lwork_sdd = (4*(size_t)mn2+7)*mn2;
+        size_t lwork = ncols, lwork_sdd = (4*mn2+7)*mn2;
         if(lwork_sdd > lwork)
             lwork = lwork_sdd;
         lwork += (size_t)mn2*(2*ncols+nrows+mn2+1);

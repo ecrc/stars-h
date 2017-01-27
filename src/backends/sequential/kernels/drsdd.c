@@ -12,9 +12,9 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
     int mn2 = maxrank+oversample;
     if(mn2 > mn)
         mn2 = mn;
-    size_t svdqr_lwork = (4*(size_t)mn2+7)*mn2;
-    if(svdqr_lwork < ncols)
-        svdqr_lwork = ncols;
+    //size_t svdqr_lwork = (4*mn2+7)*mn2;
+    //if(svdqr_lwork < ncols)
+    //    svdqr_lwork = ncols;
     double *X, *Q, *tau, *svd_U, *svd_S, *svd_V, *svdqr_work;
     X = work;
     Q = X+(size_t)ncols*mn2;
@@ -23,10 +23,10 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
     tau = svd_S;
     svd_V = svd_S+mn2;
     svdqr_work = svd_V+(size_t)ncols*mn2;
+    int svdqr_lwork = lwork-mn2*(2*ncols+nrows+mn2+1);
+    int iseed[4] = {0, 0, 0, 1};
     // Generate random matrix X
-    for(size_t i = 0; i < mn2; i++)
-        for(size_t j = 0; j < ncols; j++)
-            X[i*ncols+j] = randn();
+    LAPACKE_dlarnv_work(3, iseed, nrows*mn2, X);
     // Multiply by random matrix
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, mn2,
             ncols, 1.0, D, nrows, X, ncols, 0.0, Q, nrows);
