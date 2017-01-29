@@ -76,7 +76,6 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int nrows = RC->size[i];
         int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
-        //int mn2 = mn < maxrank ? mn : maxrank;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
@@ -86,20 +85,13 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             lwork = lwork_sdd;
         lwork += (size_t)mn2*(2*ncols+nrows+mn2+1);
         size_t liwork = 8*mn2;
-        //double *D, *X, *Q, *work, *U, *V, *tau, *svd_U, *svd_S, *svd_V;
         double *D, *work;
         int *iwork;
         int info;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        //STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
-        //STARSH_MALLOC(Q, (size_t)nrows*(size_t)mn2);
         STARSH_PMALLOC(iwork, liwork, info);
         STARSH_PMALLOC(work, lwork, info);
-        //STARSH_MALLOC(svd_U, (size_t)mn2*(size_t)mn2);
-        //STARSH_MALLOC(svd_S, mn2);
-        //STARSH_MALLOC(svd_V, (size_t)mn2*(size_t)ncols);
-        //tau = svd_S;
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
@@ -230,8 +222,8 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)

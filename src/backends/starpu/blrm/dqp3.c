@@ -66,7 +66,6 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
             int mn = nrows < ncols ? nrows : ncols;
-            //int mn2 = mn < maxrank ? mn : maxrank;
             int mn2 = maxrank+oversample;
             if(mn2 > mn)
                 mn2 = mn;
@@ -75,7 +74,6 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             if(lwork_sdd > lwork)
                 lwork = lwork_sdd;
             lwork += nrows*ncols+(size_t)mn2*(2*ncols+mn2+1)+mn;
-            //lwork += (size_t)nrows*ncols+(size_t)mn2*(2*ncols+nrows+mn2+1);
             size_t liwork = ncols, liwork_sdd = 8*mn2;
             if(liwork_sdd > liwork)
                 liwork = liwork_sdd;
@@ -246,8 +244,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)

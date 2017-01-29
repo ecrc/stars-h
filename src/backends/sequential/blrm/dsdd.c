@@ -97,9 +97,6 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         size_t D_size = (size_t)nrows*(size_t)ncols;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, D_size, info);
-        //STARSH_MALLOC(svd_U, nrows*lmn);
-        //STARSH_MALLOC(svd_S, lmn);
-        //STARSH_MALLOC(svd_V, ncols*lmn);
         STARSH_PMALLOC(work, lwork, info);
         STARSH_PMALLOC(iwork, liwork, info);
         // Compute elements of a block
@@ -232,8 +229,8 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)

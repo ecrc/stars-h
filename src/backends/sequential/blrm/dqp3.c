@@ -76,7 +76,6 @@ int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int nrows = RC->size[i];
         int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
-        //int mn2 = mn < maxrank ? mn : maxrank;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
@@ -88,20 +87,13 @@ int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         size_t liwork = ncols, liwork_sdd = 8*mn2;
         if(liwork_sdd > liwork)
             liwork = liwork_sdd;
-        //double *D, *R, *work, *U, *V, *tau, *svd_U, *svd_S, *svd_V;
         double *D, *work;
         int *iwork;
         int info;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        //STARSH_MALLOC(R, (size_t)mn2*(size_t)ncols);
         STARSH_PMALLOC(iwork, liwork, info);
-        //ipiv = iwork;
         STARSH_PMALLOC(work, lwork, info);
-        //STARSH_MALLOC(tau, mn);
-        //STARSH_MALLOC(svd_U, (size_t)mn2*(size_t)mn2);
-        //STARSH_MALLOC(svd_S, mn2);
-        //STARSH_MALLOC(svd_V, (size_t)mn2*(size_t)ncols);
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
@@ -111,10 +103,6 @@ int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(D);
         free(work);
         free(iwork);
-        //free(R);
-        //free(svd_U);
-        //free(svd_S);
-        //free(svd_V);
     }
     // Get number of false far-field blocks
     size_t nblocks_false_far = 0;
@@ -236,8 +224,8 @@ int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)

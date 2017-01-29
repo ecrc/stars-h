@@ -66,17 +66,11 @@ int starsh_blrm__dsdd_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
             int mn = nrows < ncols ? nrows : ncols;
-            //int mn2 = mn < maxrank ? mn : maxrank;
             int mn2 = maxrank;
             if(mn2 > mn)
                 mn2 = mn;
             // Get size of temporary arrays
-            //size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
-            //if(lwork_sdd > lwork)
-            //    lwork = lwork_sdd;
-            //lwork += (size_t)mn2*(2*ncols+mn2+1)+mn;
             size_t lwork = nrows*ncols+(4*mn+nrows+ncols+8)*mn;
-            //lwork += (size_t)nrows*ncols+(size_t)mn2*(2*ncols+nrows+mn2+1);
             size_t liwork = 8*mn;
             int shape_U[] = {nrows, maxrank};
             int shape_V[] = {ncols, maxrank};
@@ -245,8 +239,8 @@ int starsh_blrm__dsdd_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)

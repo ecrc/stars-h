@@ -76,7 +76,6 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int nrows = RC->size[i];
         int ncols = CC->size[j];
         int mn = nrows < ncols ? nrows : ncols;
-        //int mn2 = mn < maxrank ? mn : maxrank;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
@@ -87,24 +86,13 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             lwork = lwork_sdd;
         lwork += (size_t)mn2*(2*ncols+2*nrows+1);
         size_t liwork = 8*mn2;
-        //double *D, *X, *Y, *QX, *QY, *R, *work, *U, *V, *tau;
         double *D, *work;
-        //double *svd_U, *svd_S, *svd_V;
         int *iwork;
         int info;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        //STARSH_MALLOC(X, (size_t)ncols*(size_t)mn2);
-        //STARSH_MALLOC(Y, (size_t)nrows*(size_t)mn2);
-        //STARSH_MALLOC(QX, (size_t)nrows*(size_t)mn2);
-        //STARSH_MALLOC(QY, (size_t)ncols*(size_t)mn2);
         STARSH_PMALLOC(iwork, liwork, info);
         STARSH_PMALLOC(work, lwork, info);
-        //STARSH_MALLOC(svd_S, mn2);
-        //tau = svd_S;
-        //svd_U = X;
-        //svd_V = Y;
-        //R = D;
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
@@ -112,11 +100,6 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
-        //free(X);
-        //free(Y);
-        //free(QX);
-        //free(QY);
-        //free(svd_S);
         free(work);
         free(iwork);
     }
@@ -240,8 +223,8 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_rank, new_nblocks_far);
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
-        STARSH_REALLOC(alloc_U, offset_U);
-        STARSH_REALLOC(alloc_V, offset_V);
+        //STARSH_REALLOC(alloc_U, offset_U);
+        //STARSH_REALLOC(alloc_V, offset_V);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far == 0 && nblocks_far > 0)
