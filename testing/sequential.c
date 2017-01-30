@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
     char *scheme = argv[7];
-    int onfly = 0;
+    int onfly = 1;
     printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
             n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
@@ -80,36 +80,37 @@ int main(int argc, char **argv)
     time0 = omp_get_wtime();
     printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
     printf("TIME TO MEASURE ERROR: %e secs\n", omp_get_wtime()-time0);
-    Array *A;
+    //Array *A;
+    /*
     info = starsh_problem_to_array(P, &A);
     Array *B;
     array_new(&B, 2, P->shape, 'd', 'F');
     starsh_blrm__dca(M, B);
     printf("info of to matrix %d\n", info);
-    // /*
     // Measure accuracy by dense matrices
     double diff, norm;
     info = array_diff(A, B, &diff);
     info = array_norm(A, &norm);
     printf("starsh_blrm__dca diff with Array: %e\n", diff/norm);
+    */
     // Check if this problem is good for Cholesky factorization
     //printf("Info of potrf: %d\n", array_cholesky(A, 'L'));
     // Free memory, consumed by array
-    array_free(A);
-    int m = shape[0], k = 100;
-    shape[1] = k;
-    array_new(&A, 2, shape, 'd', 'F');
-    Array *resM, *resB;
-    array_new(&resM, 2, shape, 'd', 'F');
-    array_init_randn(A);
-    array_init_zeros(resM);
-    time0 = omp_get_wtime();
-    starsh_blrm__dmml(M, k, A->data, m, resM->data, m);
-    printf("TIME TO MULTIPLY BY DENSE: %e secs\n", omp_get_wtime()-time0);
-    array_dot(B, A, &resB);
-    array_diff(resM, resB, &diff);
-    array_norm(resB, &norm);
-    printf("starsh_blrm__dmml check: %e\n", diff/norm);
+    //array_free(A);
+    //int m = shape[0], k = 100;
+    //shape[1] = k;
+    //array_new(&A, 2, shape, 'd', 'F');
+    //Array *resM, *resB;
+    //array_new(&resM, 2, shape, 'd', 'F');
+    //array_init_randn(A);
+    //array_init_zeros(resM);
+    //time0 = omp_get_wtime();
+    //starsh_blrm__dmml(M, k, A->data, m, resM->data, m);
+    //printf("TIME TO MULTIPLY BY DENSE: %e secs\n", omp_get_wtime()-time0);
+    //array_dot(B, A, &resB);
+    //array_diff(resM, resB, &diff);
+    //array_norm(resB, &norm);
+    //printf("starsh_blrm__dmml check: %e\n", diff/norm);
     //array_free(resM);
     //array_free(resB);
     //array_free(A);

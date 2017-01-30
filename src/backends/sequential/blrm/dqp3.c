@@ -66,7 +66,7 @@ int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic,1)
     for(bi = 0; bi < nblocks_far; bi++)
     {
         // Get indexes of corresponding block row and block column

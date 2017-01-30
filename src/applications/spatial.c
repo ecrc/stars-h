@@ -21,7 +21,7 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
     double *buffer = result;
     //#pragma omp parallel
     //printf("myid %d\n", omp_get_thread_num());
-    #pragma omp parallel for private(tmp, dist, i, j)
+    //#pragma omp parallel for private(tmp, dist, i, j)
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
