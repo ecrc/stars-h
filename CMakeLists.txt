@@ -47,17 +47,17 @@ if (OPENMP_FOUND)
 endif()
 
 
-## CMAKE MODULES :: MORSE
+## CMAKE MODULES :: HICMA
 ## REQUIRED FOR TESTS TO LINK LIBRARIES
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules" )
-	message(FATAL_ERROR "MORSE CMake modules were not found.\n"
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules" )
+	message(FATAL_ERROR "HICMA CMake modules were not found.\n"
 	                    "Have you done: 'git submodule init && git submodule update'?" )
 else()
-	## MORSE INITIALIZATION
+	## HICMA INITIALIZATION
 	list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
-	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules")
-	set(MORSE_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules )
-	include(MorseInit)
+	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules")
+	set(HICMA_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules )
+	include(HicmaInit)
 endif()
 
 
@@ -103,7 +103,7 @@ if( STARSH_TESTING )
 			list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
 		endif()
 	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
+		if(HICMA_VERBOSE_FIND_PACKAGE)
 			if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
 				if (NOT CBLAS_cblas.h_DIRS)
 					Print_Find_Header_Status(cblas cblas.h)
@@ -113,8 +113,8 @@ if( STARSH_TESTING )
 				endif ()
 			endif()
 		else()
-			message(WARNING "CBLAS library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+			message(WARNING "CBLAS library has not been found and HICMA_VERBOSE_FIND_PACKAGE is set to OFF"
+			                "Try to activate HICMA_VERBOSE_FIND_PACKAGE option (-DHICMA_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
 		endif()
 		message(FATAL_ERROR "A CBLAS library is required but has not been found")
 	endif()
@@ -137,7 +137,7 @@ if( STARSH_TESTING )
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
 		endif()
 	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
+		if(HICMA_VERBOSE_FIND_PACKAGE)
 			if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
 				if (NOT LAPACKE_lapacke.h_DIRS)
 					Print_Find_Header_Status(lapacke lapacke.h)
@@ -147,8 +147,8 @@ if( STARSH_TESTING )
 				endif ()
 			endif()
 		else()
-			message(WARNING "LAPACKE library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+			message(WARNING "LAPACKE library has not been found and HICMA_VERBOSE_FIND_PACKAGE is set to OFF"
+			                "Try to activate HICMA_VERBOSE_FIND_PACKAGE option (-DHICMA_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
 		endif()
 		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
 	endif()
