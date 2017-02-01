@@ -1,0 +1,3 @@
+[submodule "cmake_modules/hicma"]
+	path = cmake_modules/hicma
+	url = https://github.com/ecrc/hicma_cmake.git
