@@ -47,6 +47,21 @@ if (OPENMP_FOUND)
 endif()
 
 
+## CMAKE MODULES :: MORSE
+## REQUIRED FOR TESTS TO LINK LIBRARIES
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules" )
+	message(FATAL_ERROR "MORSE CMake modules were not found.\n"
+	                    "Have you done: 'git submodule init && git submodule update'?" )
+else()
+	## MORSE INITIALIZATION
+	list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules")
+	set(MORSE_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules )
+	include(MorseInit)
+endif()
+
+
+
 # STARS-H code
 add_subdirectory(src)
 
@@ -54,19 +69,6 @@ add_subdirectory(src)
 # TESTS
 option(STARSH_TESTING "Generates testing binaries" OFF)
 if( STARSH_TESTING )
-	## CMAKE MODULES :: MORSE
-	## REQUIRED FOR TESTS TO LINK LIBRARIES
-	if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules" )
-		message(FATAL_ERROR "MORSE CMake modules were not found.\n"
-	                         "Have you done: 'git submodule init && git submodule update'?" )
-	else()
-		## MORSE INITIALIZATION
-		list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules")
-		set(MORSE_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/morse/modules )
-		include(MorseInit)
-	endif()
-
 	## BLAS
 	find_package(BLASEXT)
 	if(BLAS_FOUND)

@@ -1,14 +1,30 @@
 # Define the source files
-file(GLOB STARSH_SRC "*.c")
-# set ( STARSH_SRC array.c
-#                  blr.c
-#                  electrostatics.c
-#                  misc.c
-#                  problem.c
-#                  spatial.c
-#                  )
+#file(GLOB_RECURSE STARSH_SRC "*.c")
+set ( STARSH_SRC control/cluster.c
+                 control/blrf.c
+                 control/blrm.c
+                 control/array.c
+                 control/problem.c
+                 applications/spatial.c
+                 applications/electrostatics.c
+                 applications/astronomy.c
+                 misc.c
+                 )
+
+set( BACKEND_TYPE "sequential" CACHE STRING "Options are: sequential, omp, starpu" )
+file(GLOB_RECURSE BACKEND_SRC "backends/${BACKEND_TYPE}/*.c")
+list(APPEND STARSH_SRC ${BACKEND_SRC} )
 
 include_directories( ${PROJECT_SOURCE_DIR}/include)
+
+if( "${BACKEND_TYPE}" STREQUAL "starpu" )
+	find_package(STARPU)
+	if( STARPU_FOUND )
+		include_directories( ${STARPU_INCLUDE_DIRS})
+	else()
+	endif()
+endif()
+
 
 # Defines the STARS-H library to build
 add_library(starsh STATIC ${STARSH_SRC})
