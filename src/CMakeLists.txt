@@ -5,12 +5,10 @@ set ( STARSH_SRC misc.c
 add_subdirectory(control)
 add_subdirectory(applications)
 
-
 set( BACKEND_TYPE "sequential" CACHE STRING "Options are: sequential, omp, starpu" )
-file(GLOB_RECURSE BACKEND_SRC "backends/${BACKEND_TYPE}/*.c")
-list(APPEND STARSH_SRC ${BACKEND_SRC} )
+add_subdirectory(backends)
 
-include_directories( ${PROJECT_SOURCE_DIR}/include)
+
 
 if( "${BACKEND_TYPE}" STREQUAL "starpu" )
 	find_package(STARPU)
@@ -19,6 +17,8 @@ if( "${BACKEND_TYPE}" STREQUAL "starpu" )
 	else()
 	endif()
 endif()
+
+include_directories( ${PROJECT_SOURCE_DIR}/include)
 
 
 # Defines the STARS-H library to build
