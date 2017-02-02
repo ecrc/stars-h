@@ -1,15 +1,10 @@
 # Define the source files
 #file(GLOB_RECURSE STARSH_SRC "*.c")
-set ( STARSH_SRC control/cluster.c
-                 control/blrf.c
-                 control/blrm.c
-                 control/array.c
-                 control/problem.c
-                 applications/spatial.c
-                 applications/electrostatics.c
-                 applications/astronomy.c
-                 misc.c
+set ( STARSH_SRC misc.c
                  )
+add_subdirectory(control)
+add_subdirectory(applications)
+
 
 set( BACKEND_TYPE "sequential" CACHE STRING "Options are: sequential, omp, starpu" )
 file(GLOB_RECURSE BACKEND_SRC "backends/${BACKEND_TYPE}/*.c")
