@@ -10,23 +10,25 @@
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far, int *block_far,
         size_t nblocks_near, int *block_near, STARSH_blrf_type type)
-// Initialization of structure STARSH_blrf
-// Parameters:
-//   problem: pointer to a structure, holding all the information about problem
-//   symm: 'S' if problem and division into blocks are both symmetric, 'N'
-//     otherwise.
-//   R: clusterization of rows into block rows.
-//   C: clusterization of columns into block columns.
-//   nblocks_far: number of admissible far-field blocks.
-//   block_far: array of pairs of admissible far-filed block rows and block
-//     columns. block_far[2*i] is an index of block row and block_far[2*i+1]
-//     is an index of block column.
-//   nblocks_near: number of admissible far-field blocks.
-//   block_near: array of pairs of admissible near-filed block rows and block
-//     columns. block_near[2*i] is an index of block row and block_near[2*i+1]
-//     is an index of block column.
-//   type: type of block low-rank format. Tiled with starsh_blrf_Tiled or
-//     hierarchical with starsh_blrf_H or starsh_blrf_HOLDR.
+//! Initialization of STARSH_blrf.
+/*! @param[out] F: Address of pointer to `STARSH_blrf` object.
+ * @param[in] problem: Corresponding problem.
+ * @param[in] symm: 'S' if problem and clusterization are both symmetric, 'N'
+ *     otherwise.
+ * @param[in] R: Clusterization of rows into block rows.
+ * @param[in] C: Clusterization of columns into block columns.
+ * @param[in] nblocks_far: Number of admissible far-field blocks.
+ * @param[in] block_far: Array of pairs of admissible far-filed block rows
+ *     and block columns. `block_far[2*i]` is an index of block row and
+ *     `block_far[2*i+1]` is an index of block column.
+ * @param[in] nblocks_near: Number of admissible far-field blocks.
+ * @param[in] block_near: Array of pairs of admissible near-filed block rows
+ *     and block columns. `block_near[2*i]` is an index of block row and
+ *     `block_near[2*i+1]` is an index of block column.
+ * @param[in] type: Type of block low-rank format. Tiled with
+ *     `STARSH_blrf_Tiled` or hierarchical with `STARSH_blrf_H` or
+ *     `STARSH_blrf_HOLDR`.
+ * */
 {
     if(F == NULL)
     {
@@ -204,8 +206,7 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
 }
 
 int starsh_blrf_free(STARSH_blrf *F)
-// Free memory, used by block low rank format (partitioning of array into
-// blocks)
+//! Free fields and structure of block low-rank format.
 {
     if(F == NULL)
     {
@@ -241,73 +242,8 @@ int starsh_blrf_free(STARSH_blrf *F)
     return 0;
 }
 
-void starsh_blrf_swap(STARSH_blrf *F, STARSH_blrf *F2)
-{
-    STARSH_blrf tmp = *F;
-    *F = *F2;
-    *F2 = tmp;
-}
-
-void starsh_blrf_swap2(STARSH_blrf *F, STARSH_blrf *F2)
-// Swap content about admissible blocks of two BLR formats (fields `problem`,
-// `symm`, `row_cluster` and `col_cluster` should be equal for input `F` and
-// `F2`). Useful when inplace modification of one of them is required due to
-// new information (more accurate lists of far-field and near-filed blocks).
-{
-    void *tmp_ptr;
-    size_t tmp_size;
-
-    tmp_size = F->nblocks_far;
-    F->nblocks_far = F2->nblocks_far;
-    F2->nblocks_far = tmp_size;
-
-    tmp_size = F->nblocks_near;
-    F->nblocks_near = F2->nblocks_near;
-    F2->nblocks_near = tmp_size;
-
-    tmp_ptr = F->block_far;
-    F->block_far = F2->block_far;
-    F2->block_far = tmp_ptr;
-
-    tmp_ptr = F->block_near;
-    F->block_near = F2->block_near;
-    F2->block_near = tmp_ptr;
-
-    tmp_ptr = F->brow_far_start;
-    F->brow_far_start = F2->brow_far_start;
-    F2->brow_far_start = tmp_ptr;
-
-    tmp_ptr = F->brow_far;
-    F->brow_far = F2->brow_far;
-    F2->brow_far = tmp_ptr;
-
-    tmp_ptr = F->brow_near_start;
-    F->brow_near_start = F2->brow_near_start;
-    F2->brow_near_start = tmp_ptr;
-
-    tmp_ptr = F->brow_near;
-    F->brow_near = F2->brow_near;
-    F2->brow_near = tmp_ptr;
-
-    tmp_ptr = F->bcol_far_start;
-    F->bcol_far_start = F2->bcol_far_start;
-    F2->bcol_far_start = tmp_ptr;
-
-    tmp_ptr = F->bcol_far;
-    F->bcol_far = F2->bcol_far;
-    F2->bcol_far = tmp_ptr;
-
-    tmp_ptr = F->bcol_near_start;
-    F->bcol_near_start = F2->bcol_near_start;
-    F2->bcol_near_start = tmp_ptr;
-
-    tmp_ptr = F->bcol_near;
-    F->bcol_near = F2->bcol_near;
-    F2->bcol_near = tmp_ptr;
-}
-
 int starsh_blrf_info(STARSH_blrf *F)
-// Print short info on block partitioning
+//! Print short info on format.
 {
     if(F == NULL)
     {
@@ -321,7 +257,7 @@ int starsh_blrf_info(STARSH_blrf *F)
 }
 
 int starsh_blrf_print(STARSH_blrf *F)
-// Print full info on block partitioning
+//! Print full info on format.
 {
     if(F == NULL)
     {
@@ -370,8 +306,8 @@ int starsh_blrf_print(STARSH_blrf *F)
 
 int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
         STARSH_cluster *C, char symm)
-// Create plain division into tiles/blocks using plain cluster trees for rows
-// and columns without actual pivoting
+//! Plain division of array into admissible far-field and near-field blocks.
+/*! Non-pivoted non-hierarchical partitioning into blocks. */
 {
     if(F == NULL)
     {
@@ -440,7 +376,7 @@ int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
 }
 
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
-// PLEASE CLEAN MEMORY POINTER *D AFTER USE
+//! Returns dense block on intersection of given block row and column.
 {
     if(F == NULL)
     {

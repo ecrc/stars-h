@@ -4,9 +4,7 @@
 #include "starsh.h"
 
 int starsh_blrm__dca(STARSH_blrm *M, Array *A)
-// Double precision Convert to Array
-//
-// Create dense version of approximation
+//! Convert double precision block low-rank matrix to dense Array
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;

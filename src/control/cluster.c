@@ -6,25 +6,30 @@
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
         int *parent, int *child_start, int *child, STARSH_cluster_type type)
-// Init for STARS_Cluster instance
-// Parameters:
-//   data: pointer structure, holding to physical data.
-//   ndata: number of discrete elements (particles or mesh elements),
-//     corresponding to physical data.
-//   pivot: pivoting of Cization. After applying this pivoting, rows (or
-//     columns), corresponding to one block are placed in a row.
-//   nblocks: number of blocks/block rows/block columns/subCs.
-//   nlevels: number of levels of hierarchy.
-//   level: array of size nlevels+1, indexes of blocks from level[i] to
-//     level[i+1]-1 inclusively belong to i-th level of hierarchy.
-//   start: start point of of indexes of discrete elements of each
-//     block/subC in array pivot.
-//   size: size of each block/subC/block row/block column.
-//   parent: array of parents, size is nblocks.
-//   child_start: array of start points in array child of each subC.
-//   child: array of children of each subC.
-//   type: type of C. Tiled with STARS_ClusterTiled or hierarchical with
-//     STARS_ClusterHierarchical.
+//! Init for STARSH_cluster instance.
+/*! @param[out] C: Address of pointer to `STARSH_cluster` object.
+ * @param[in] data: Pointer structure, holding physical data.
+ * @param[in] ndata: Number of discrete elements, corresponding to
+ *     physical data.
+ * @param[in] pivot: Pivoting of clusterization. After applying this
+ *     pivoting, rows (or columns), corresponding to one block are
+ *     one after another.
+ * @param[in] nblocks: Number of blocks/block rows/block
+ *     columns/subclusters.
+ * @param[in] nlevels: Number of levels of hierarchy.
+ * @param[in] level: Indexes of subclusters for each level of hierarchy.
+ *     Subclusters with indexes from `level[i]` to `level[i+1]-1` inclusively
+ *     belong to `i`-th level of hierarchy.
+ * @param[in] start: Start point of of indexes of discrete elements of each
+ *     block/subcluster in array `pivot`.
+ * @param[in] size: Size of each block/subcluster/block row/block column.
+ * @param[in] parent: Array of parents.
+ * @param[in] child_start: Array of start points in array `child` of each
+ *    subcluster.
+ * @param[in] child: aAray of children of each subcluster.
+ * @param[in] type: Type of clustrization. `STARSH_ClusterTiled` for tiled and
+ *     `STARS_ClusterHierarchical` for hierarchical.
+ * */
 {
     STARSH_MALLOC(*C, 1);
     STARSH_cluster *C2 = *C;
@@ -44,7 +49,7 @@ int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
 }
 
 int starsh_cluster_free(STARSH_cluster *C)
-// Free data buffers, consumed by Cization information.
+//! Free fields and structure of the clusterization.
 {
     if(C == NULL)
     {
@@ -67,7 +72,7 @@ int starsh_cluster_free(STARSH_cluster *C)
 }
 
 int starsh_cluster_info(STARSH_cluster *C)
-// Print some info about Cization
+//! Print some info about clusterization.
 {
     if(C == NULL)
     {
@@ -85,7 +90,8 @@ int starsh_cluster_info(STARSH_cluster *C)
 
 int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
         int block_size)
-// Plain (non-hierarchical) division of data into blocks of discrete elements.
+//! Plain division of data into blocks of discrete elements.
+/*! Non-pivoted non-hierarchical clusterization. */
 {
     if(C == NULL)
     {

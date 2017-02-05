@@ -11,7 +11,21 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type)
-// Init procedure for a non-nested block low-rank matrix
+//! Init procedure for a non-nested block low-rank matrix.
+/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in] F: Block low-rank format.
+ * @param[in] far_rank: Array of ranks of far-field blocks.
+ * @param[in] far_U: Array of low-rank factors `U`.
+ * @param[in] far_V: Array of low-rank factors `V`.
+ * @param[in] onfly: Whether not to store dense blocks.
+ * @param[in] near_D: Array of dense near-field blocks.
+ * @param[in] alloc_U: Pointer to big buffer for all `far_U`.
+ * @param[in] alloc_V: Pointer to big buffer for all `far_V`.
+ * @param[in] alloc_D: Pointer to big buffer for all `near_D`.
+ * @param[in] alloc_type: Type of memory allocation. `1` if big buffers
+ *     are used.
+ * @return Error code.
+ * */
 {
     if(M == NULL)
     {
@@ -103,7 +117,7 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
 }
 
 int starsh_blrm_free(STARSH_blrm *M)
-// Free memory of a non-nested block low-rank matrix
+//! Free memory of a non-nested block low-rank matrix
 {
     if(M == NULL)
     {
@@ -176,7 +190,7 @@ int starsh_blrm_free(STARSH_blrm *M)
 }
 
 int starsh_blrm_info(STARSH_blrm *M)
-// Print short info on non-nested block low-rank matrix
+//! Print short info on non-nested block low-rank matrix
 {
     if(M == NULL)
     {
@@ -190,8 +204,7 @@ int starsh_blrm_info(STARSH_blrm *M)
 
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D)
-// Returns shape of block, its rank and low-rank factors or dense
-// representation of a block
+//! Get shape, rank and low-rank factors or dense representation of a block.
 {
     if(M == NULL)
     {
@@ -298,6 +311,20 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
 
 int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly, const char *scheme)
+//! Main call to get approximation in non-nested block low-rank format.
+/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in,out] F: Format of a matrix. May be changed on exit.
+ * @param[in] maxrank: Maximum rank.
+ * @param[in] oversample: Oversampling parameter for randomized SVD. Use `10`
+ *     as default value.
+ * @param[in] tol: Relative error tolerance.
+ * @param[in] onfly: Whether not to store dense near-field blocks.
+ * @param[in] scheme: Scheme to use for low=-rank approximations. Possible
+ *     values are: `sdd`, `qp3`, `rsdd`, `rsdd2`, `omp_sdd`, `omp_qp3`,
+ *     `omp_rsdd`, `omp_rsdd2`, `starpu_sdd`, `starpu_qp3`, `starpu_rsdd`,
+ *     `starpu_rsdd2`, 
+ * @return Error code.
+ * */
 {
     if(strcmp(scheme, "sdd") == 0)
         starsh_blrm__dsdd(M, F, maxrank, oversample, tol, onfly);

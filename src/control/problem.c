@@ -8,25 +8,23 @@
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name)
-// Init for STARS_Problem instance
-// Parameters:
-//   ndim: dimensionality of corresponding array. Equal 2+dimensionality of
-//     kernel
-//   shape: shape of corresponding array. shape[1:ndim-2] is equal to shape of
-//     kernel
-//   symm: 'S' for summetric P, 'N' for nonsymmetric P. Symmetric
-//     P require symmetric kernel and equality of row_data and col_data
-//   dtype: data type of the P. Equal to 's', 'd', 'c' or 'z' as in
-//     LAPACK routines. Stands for data type of an element of a kernel.
-//   row_data: pointer to some structure of physical data for rows
-//   col_data: pointer to some srructure of physical data for columns
-//   kernel: pointer to a function of interaction. More on this is written
-//     somewhere else.
-//   name: string, containgin name of the P. Used only to print
-//     information about structure P.
-//  Returns:
-//    STARS_Problem *: pointer to structure P with proper filling of all
-//    the fields of structure.
+//! Init for STARS_Problem instance
+/*! @param[out] P: Address of pointer to `STARSH_problem` object.
+ * @param[in] ndim: Dimensionality of corresponding array. Equal `2` plus
+ *     dimensionality of kernel.
+ * @param[in] shape: Shape of corresponding array. Subarray `shape[1:ndim-2]`
+ *     is equal to shape of kernel.
+ * @param[in] symm: 'S' for summetric problem, 'N' for nonsymmetric. Symmetric
+ *     problem requires symmetric kernel and equality of `row_data` and
+ *     `col_data`.
+ * @param[in] dtype: Data type of the problem. Equal to `'s'`, `'d'`, `'c'` or
+ *     `'z'` as in LAPACK routines.
+ * @param[in] row_data: Pointer to some structure of physical data for rows.
+ * @param[in] col_data: Pointer to some structure of physical data for columns.
+ * @param[in] kernel: Pointer to a function of interaction.
+ * @param[in] name: String, containing name of the problem.
+ * @return Error code.
+ * */
 {
     if(P == NULL)
     {
@@ -88,7 +86,7 @@ int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
 }
 
 int starsh_problem_free(STARSH_problem *P)
-// Free memory, consumed by data buffers of data
+//! Free fields and structure of the problem.
 {
     if(P == NULL)
     {
@@ -103,7 +101,7 @@ int starsh_problem_free(STARSH_problem *P)
 }
 
 int starsh_problem_info(STARSH_problem *P)
-// Print some info about Problem
+//! Print some info about problem.
 {
     if(P == NULL)
     {
@@ -120,8 +118,9 @@ int starsh_problem_info(STARSH_problem *P)
 
 int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
         int *irow, int *icol, Array **A)
-// Get submatrix on given rows and columns (rows=first dimension, columns=last
-// dimension)
+//! Get submatrix on given rows and columns.
+/*! Rows correspond to the first dimension and columns correspond to the
+ * last dimension. */
 {
     if(P == NULL)
     {
@@ -164,6 +163,7 @@ int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
 
 static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
+//! Kernel for problems, defined by dense matrices.
 {
     Array *A = row_data;
     size_t esize = A->dtype_size;
@@ -197,7 +197,7 @@ static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
 }
 
 int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
-// Generate STARS_Problem with a given array and flag if it is symmetric
+//! Create STARSH_problem instance, based on dense array.
 {
     if(P == NULL)
     {
@@ -236,7 +236,7 @@ int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
 }
 
 int starsh_problem_to_array(STARSH_problem *P, Array **A)
-// Compute matrix/array, corresponding to the P
+//! Generate dense array by a given problem.
 {
     if(P == NULL)
     {

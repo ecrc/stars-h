@@ -3,12 +3,13 @@
 
 #include <sys/types.h>
 
-//! typedef for structure array
+// typedef for different structures
 typedef struct array Array;
 typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
+// typedef for kernels
 typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
@@ -221,28 +222,55 @@ struct starsh_blrf
      * `block_near[2*i+1]` is an index of block column (column cluster).
      * */
     size_t *brow_far_start;
+    //!< Start indexes of admissibly far block columns for each block row.
+    /*!< Admissibly far blocks for a given block `i` are elements of array
+     * `brow_far` from index `brow_far_start[i]` to `brow_far_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *brow_far;
-    // Compressed sparse format to store indexes of admissible far-field blocks
-    // for each block row.
+    //!< List of admissibly far block columns for each block row.
+    /*!< Admissibly far blocks for a given block `i` are elements of array
+     * `brow_far` from index `brow_far_start[i]` to `brow_far_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *bcol_far_start;
+    //!< Start indexes of admissibly far block rows for each block column.
+    /*!< Admissibly far blocks for a given block `i` are elements of array
+     * `bcol_far` from index `bcol_far_start[i]` to `bcol_far_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *bcol_far;
-    // Compressed sparse format to store indexes of admissible far-field blocks
-    // for each block column.
+    //!< List of admissibly far block rows for each block column.
+    /*!< Admissibly far blocks for a given block `i` are elements of array
+     * `bcol_far` from index `bcol_far_start[i]` to `bcol_far_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *brow_near_start;
+    //!< Start indexes of admissibly near block colums for each block row.
+    /*!< Admissibly near blocks for a given block `i` are elements of array
+     * `brow_near` from index `brow_near_start[i]` to `brow_near_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *brow_near;
-    // Compressed sparse format to store indexes of admissible near-field
-    // blocks for each block row.
+    //!< List of admissibly near block columns for each block row.
+    /*!< Admissibly near blocks for a given block `i` are elements of array
+     * `brow_near` from index `brow_near_start[i]` to `brow_near_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *bcol_near_start;
+    //!< Start indexes of admissibly near block rows for each block column.
+    /*!< Admissibly near blocks for a given block `i` are elements of array
+     * `bcol_near` from index `bcol_near_start[i]` to `bcol_near_start[i+1]-1`
+     * inclusively.
+     * */
     size_t *bcol_near;
-    // Compressed sparse format to store indexes of admissible near-field
-    // blocks for each block column.
-//    MPI_comm comm;
-    // MPI communicator. Equal to MPI_COMM_NULL if not using MPI.
-//    size_t *block_start, *block;
-    // Blocks, corresponding to i-th MPI node, located in array block from
-    // index block_start[i] to index block_start[i+1]-1 inclusively.
+    //!< List of admissibly near block rows for each block column.
+    /*!< Admissibly near blocks for a given block `i` are elements of array
+     * `bcol_near` from index `bcol_near_start[i]` to `bcol_near_start[i+1]-1`
+     * inclusively.
+     * */
     STARSH_blrf_type type;
-    // Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
+    //!< Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 };
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
@@ -257,29 +285,41 @@ int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P,
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D);
 
 struct starsh_blrm
-// STARS Block Low-Rank Matrix, which is used as an approximation in non-nested
-// block low-rank format.
+//! Non-nested block low-rank matrix.
+/*! Stores approximation or dense form of each admissible blocks.Division into
+ * blocks is defined by corresponding block low-rank format. */
 {
     STARSH_blrf *format;
-    // Pointer to block low-rank format.
+    //!< Pointer to block low-rank format.
     int *far_rank;
-    // Rank of each far-field block.
-    Array **far_U, **far_V;
-    // Arrays of pointers to factors U and V of each low-rank far-field block
-    // and dense A of each dense far-field block.
+    //!< Rank of each far-field block.
+    Array **far_U;
+    //!< Low rank factor of each far-field block.
+    /*!< Multiplication of `far_U[i]` by transposed `far_V[i]` is an
+     * approximation of `i`-th far-field block. */
+    Array **far_V;
+    //!< Low rank factor of each far-field block.
+    /*!< Multiplication of `far_U[i]` by transposed `far_V[i]` is an
+     * approximation of `i`-th far-field block. */
     int onfly;
-    // 1 to store dense blocks, 0 not to store them and compute on demand.
+    //!< Equal to `1` to store dense blocks, `0` to compute it on demand.
     Array **near_D;
-    // Array of pointers to dense A of each near-field block.
-    void *alloc_U, *alloc_V, *alloc_D;
-    // Pointer to memory buffer, holding buffers of low-rank factors of
-    // low-rank blocks and dense buffers of dense blocks
+    //!< Array of pointers to dense near-field blocks.
+    void *alloc_U;
+    //!< Pointer to memory buffer, holding all `far_U`.
+    void *alloc_V;
+    //!< Pointer to memory buffer, holding all `far_V`.
+    void *alloc_D;
+    //!< Pointer to memory buffer, holding all `near_D`.
     char alloc_type;
-    // Type of memory allocation: '1' for allocating 3 big buffers U_alloc,
-    // V_alloc and D_alloc, '2' for allocating many small buffers U, V and D.
-    size_t nbytes, data_nbytes;
-    // Total number of bytes, consumed by Block Low-Rank Matrix, and total size
-    // of only data buffers of corresponding arrays.
+    //!< Type of memory allocation.
+    /*!< Equal to `1` if allocating 3 big buffers `U_alloc`, `V_alloc` and
+     * `D_alloc`; `2` if allocating many small buffers for each `far_U`,
+     * `far_V` and `near_D`. */
+    size_t nbytes;
+    //!< Total size of block low-rank matrix, including auxiliary buffers.
+    size_t data_nbytes;
+    //!< Size of low-rank factors and dense blocks in block low-rank matrix.
 };
 
 

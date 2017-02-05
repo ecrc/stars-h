@@ -8,6 +8,10 @@
 
 static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
+/*! Kernel for spatial statistics problem
+ *
+ * /params
+ */
 {
     // Block kernel for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 2D
