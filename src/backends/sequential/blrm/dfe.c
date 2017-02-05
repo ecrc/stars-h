@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <mkl.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 double starsh_blrm__dfe(STARSH_blrm *M)
 // Double precision Frobenius norm of Error

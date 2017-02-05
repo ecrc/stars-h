@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <starpu.h>
 #include <mkl.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)

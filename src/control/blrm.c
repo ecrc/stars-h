@@ -4,8 +4,7 @@
 #include <math.h>
 #include <mkl.h>
 #include <omp.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 
 int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
@@ -297,3 +296,39 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
     return info;
 }
 
+int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly, const char *scheme)
+{
+    if(strcmp(scheme, "sdd") == 0)
+        starsh_blrm__dsdd(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "rsdd") == 0)
+        starsh_blrm__drsdd(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "rsdd2") == 0)
+        starsh_blrm__drsdd2(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "qp3") == 0)
+        starsh_blrm__dqp3(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "omp_sdd") == 0)
+        starsh_blrm__dsdd_omp(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "omp_rsdd") == 0)
+        starsh_blrm__drsdd_omp(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "omp_rsdd2") == 0)
+        starsh_blrm__drsdd2_omp(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "omp_qp3") == 0)
+        starsh_blrm__dqp3_omp(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_sdd") == 0)
+        starsh_blrm__dsdd_starpu(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_rsdd") == 0)
+        starsh_blrm__drsdd_starpu(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_rsdd2") == 0)
+        starsh_blrm__drsdd2_starpu(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "starpu_qp3") == 0)
+        starsh_blrm__dqp3_starpu(M, F, maxrank, oversample, tol, onfly);
+    else
+    {
+        STARSH_ERROR("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
+                "starpu_rsdd, starpu_rsdd2, starpu_qp3, omp_sdd, omp_rsdd, "
+                "omp_rsdd2, omp_qp3)");
+        return 1;
+    }
+    return 0;
+}

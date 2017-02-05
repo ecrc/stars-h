@@ -3,11 +3,8 @@
 #include <string.h>
 #include <math.h>
 #include <omp.h>
-#include "stars.h"
-#include "misc.h"
-#include "stars-misc.h"
-#include "stars-spatial.h"
-
+#include "starsh.h"
+#include "starsh-spatial.h"
 
 static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)

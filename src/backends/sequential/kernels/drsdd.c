@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mkl.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,

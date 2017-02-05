@@ -3,8 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <complex.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,

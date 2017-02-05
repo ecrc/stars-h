@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,

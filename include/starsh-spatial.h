@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "stars.h"
+#include "starsh.h"
 
 typedef struct starsh_ssdata
 {

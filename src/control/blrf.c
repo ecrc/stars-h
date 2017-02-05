@@ -3,11 +3,8 @@
 #include <math.h>
 #include <complex.h>
 #include <string.h>
-#include "stars.h"
-#include "stars-misc.h"
-#include "cblas.h"
-#include "lapacke.h"
-#include "misc.h"
+#include <mkl.h>
+#include "starsh.h"
 
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,

@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mkl.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 /*!
  * Approximate H-matrix by sdd procedure for every block.
@@ -79,7 +78,6 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-#pragma omp parallel for schedule(dynamic,1)
     for(bi = 0; bi < nblocks_far; bi++)
     {
         int info;

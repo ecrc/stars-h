@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "stars.h"
-#include "misc.h"
+#include "starsh.h"
 
 int starsh__dsvfr(int size, double *S, double tol)
 // Double precision Singular Values Frobenius norm Rank

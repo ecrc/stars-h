@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <mkl.h>
 #include <starpu.h>
-#include "stars.h"
+#include "starsh.h"
 
 void starsh_kernel_dsdd_starpu(void *buffer[], void *cl_arg)
 {

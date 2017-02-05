@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-double randn();
-
 #define STARSH_MALLOC_FAILED 1
 
 #define STARSH_ERROR(format, ...)\

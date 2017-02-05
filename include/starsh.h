@@ -59,11 +59,6 @@ int array_new_copy(Array **A, Array *B, char order);
 int array_free(Array *A);
 int array_info(Array *A);
 int array_print(Array *A);
-int array_init(Array *A, char *kind);
-int array_init_randn(Array *A);
-int array_init_rand(Array *A);
-int array_init_zeros(Array *A);
-int array_init_ones(Array *A);
 int array_to_matrix(Array *A, char kind);
 int array_trans_inplace(Array *A);
 int array_dot(Array* A, Array *B, Array **C);
@@ -296,7 +291,11 @@ int starsh_blrm_free(STARSH_blrm *M);
 int starsh_blrm_info(STARSH_blrm *M);
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
-int STARS_BLRM_heatmap(STARSH_blrm *M, char *filename);
+int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly, const char *scheme);
+
+
+// Approximation procedures
 
 int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
@@ -306,6 +305,7 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
+
 int starsh__dsvfr(int size, double *S, double tol);
 int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
         double *B, int ldb);
@@ -325,6 +325,15 @@ void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
 
+int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+
 void starsh_kernel_dsdd_starpu(void *buffers[], void *cl_arg);
 void starsh_kernel_drsdd_starpu(void *buffers[], void *cl_arg);
 void starsh_kernel_drsdd2_starpu(void *buffers[], void *cl_arg);
@@ -338,4 +347,5 @@ int starsh_blrm__drsdd2_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
+#include "misc.h"
 #endif // _STARSH_H_

@@ -3,8 +3,8 @@
 #include <time.h>
 #include <string.h>
 #include <omp.h>
-#include "stars.h"
-#include "stars-spatial.h"
+#include "starsh.h"
+#include "starsh-spatial.h"
 
 int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
@@ -49,28 +49,7 @@ int main(int argc, char **argv)
     STARSH_blrm *M;
     //info = STARS_BLRM_tiled_compress_algebraic_svd(&M, F, fixrank, tol, 1);
     double time0 = omp_get_wtime();
-    if(strcmp(scheme, "sdd") == 0)
-        starsh_blrm__dsdd(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "rsdd") == 0)
-        starsh_blrm__drsdd(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "rsdd2") == 0)
-        starsh_blrm__drsdd2(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "qp3") == 0)
-        starsh_blrm__dqp3(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_sdd") == 0)
-        starsh_blrm__dsdd_starpu(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_rsdd") == 0)
-        starsh_blrm__drsdd_starpu(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_rsdd2") == 0)
-        starsh_blrm__drsdd2_starpu(&M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_qp3") == 0)
-        starsh_blrm__dqp3_starpu(&M, F, maxrank, oversample, tol, onfly);
-    else
-    {
-        printf("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
-                "starpu_rsdd, starpu_rsdd2, starpu_qp3)\n");
-        return 1;
-    }
+    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
     printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);
     starsh_blrf_info(F);
     // 0 for onfly=0
