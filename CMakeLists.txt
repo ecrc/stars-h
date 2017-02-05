@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-project(STARS-H C CXX)
+#project(STARS-H C CXX)
+project(STARS-H C)
 
 
 # directly make an error if in-source build
@@ -34,17 +35,32 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 SET(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
 SET(CPACK_GENERATOR "TGZ")
 INCLUDE(CPack)
-
+INCLUDE(CMakePushCheckState)
 
 # This project eeds C99 standard to compile properly
 # (could have used CMAKE_C_FLAGS instead)
-ADD_DEFINITIONS( -std=c99 )
+ADD_DEFINITIONS( -std=gnu99 )
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+
+## CMAKE MODULES :: HICMA
+## REQUIRED FOR TESTS TO LINK LIBRARIES
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules" )
+	message(FATAL_ERROR "HICMA CMake modules were not found.\n"
+	                    "Have you done: 'git submodule init && git submodule update'?" )
+else()
+	## HICMA INITIALIZATION
+	list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules")
+	set(HICMA_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/hicma/modules )
+	include(HicmaInit)
+endif()
+
 
 
 # STARS-H code
@@ -54,37 +70,6 @@ add_subdirectory(src)
 # TESTS
 option(STARSH_TESTING "Generates testing binaries" OFF)
 if( STARSH_TESTING )
-	## CMAKE MODULES :: MORSE
-	## REQUIRED FOR TESTS TO LINK LIBRARIES
-	if(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/.svn/entries" )
-		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse OUTPUT_QUIET )
-	else()
-		execute_process( COMMAND mkdir -p ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 OUTPUT_QUIET )
-	endif()
-
-
-	## MORSE INITIALIZATION
-	set( MORSE_DISTRIB_DIR "" CACHE PATH "Directory of MORSE distribution")
-	if(MORSE_DISTRIB_DIR)
-		list(APPEND CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${MORSE_DISTRIB_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules/morse )
-	elseif(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/")
-		list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse )
-	else()
-		message(FATAL_ERROR "MORSE_DISTRIB_DIR is not set\n"
-		                    "Please indicate where is located your MORSE distribution directory. "
-		                    "This is necessary to find cmake_modules. \n"
-		                    "If you are a MORSE developer, you normally have access to the svn repository of the MORSE_DISTRIB_DIR: "
-		                    "svn checkout svn+ssh://yourlogin@scm.gforge.inria.fr/svnroot/morse/trunk/morse_distrib")
-	endif()
-	include(MorseInit)
-
-
 	## BLAS
 	find_package(BLASEXT)
 	if(BLAS_FOUND)
@@ -119,7 +104,7 @@ if( STARSH_TESTING )
 			list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
 		endif()
 	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
+		if(HICMA_VERBOSE_FIND_PACKAGE)
 			if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
 				if (NOT CBLAS_cblas.h_DIRS)
 					Print_Find_Header_Status(cblas cblas.h)
@@ -129,8 +114,8 @@ if( STARSH_TESTING )
 				endif ()
 			endif()
 		else()
-			message(WARNING "CBLAS library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+			message(WARNING "CBLAS library has not been found and HICMA_VERBOSE_FIND_PACKAGE is set to OFF"
+			                "Try to activate HICMA_VERBOSE_FIND_PACKAGE option (-DHICMA_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
 		endif()
 		message(FATAL_ERROR "A CBLAS library is required but has not been found")
 	endif()
@@ -153,7 +138,7 @@ if( STARSH_TESTING )
 			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
 		endif()
 	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
+		if(HICMA_VERBOSE_FIND_PACKAGE)
 			if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
 				if (NOT LAPACKE_lapacke.h_DIRS)
 					Print_Find_Header_Status(lapacke lapacke.h)
@@ -163,15 +148,26 @@ if( STARSH_TESTING )
 				endif ()
 			endif()
 		else()
-			message(WARNING "LAPACKE library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+			message(WARNING "LAPACKE library has not been found and HICMA_VERBOSE_FIND_PACKAGE is set to OFF"
+			                "Try to activate HICMA_VERBOSE_FIND_PACKAGE option (-DHICMA_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
 		endif()
 		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
 	endif()
 
+foreach(BACKEND ${BACKEND_TYPE})
+    if( "${BACKEND}" STREQUAL "starpu" )
+        find_package(STARPU)
+        if( STARPU_FOUND )
+            include_directories( ${STARPU_INCLUDE_DIRS})
+            link_directories( ${STARPU_LIBRARY_DIRS} )
+            link_libraries( ${STARPU_LIBRARIES} )
+        else()
+        endif()
+    endif()
+endforeach()
 
 	# BUILD TESTS
 	enable_testing() # enables ctest
-	add_subdirectory(testing)
+	add_subdirectory(examples)
 endif()
 
