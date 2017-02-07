@@ -5,7 +5,7 @@
 
 int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
-// Double precision Tile Low-Rank geSDD approximation
+//! Approximate each tile with RRQR (GEQP3 function).
 {
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;

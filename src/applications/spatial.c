@@ -10,7 +10,13 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 /*! Kernel for spatial statistics problem
  *
- * /params
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
  */
 {
     // Block kernel for spatial statistics
@@ -85,6 +91,7 @@ static void zsort(int n, double *points)
 }
 
 static void gen_points(int n, double *points)
+//! Generate particles in 2-dimensional grid plus random noise.
 {
     int i, j;
     double *A = points+n*n;
@@ -99,6 +106,7 @@ static void gen_points(int n, double *points)
 }
 
 void starsh_ssdata_free(STARSH_ssdata *data)
+//! Free data.
 {
     if(data == NULL)
     {
@@ -112,6 +120,14 @@ void starsh_ssdata_free(STARSH_ssdata *data)
 
 int starsh_gen_ssdata(STARSH_ssdata **data, STARSH_kernel *kernel, int n,
         double beta)
+//! Generate spatial statistics data.
+/*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
+ * @param[out] kernel: Interaction kernel (exponential).
+ * @param[in] n: Number of grid steps in one dimension. Total number of
+ *     elements will be `n^2`.
+ * @param[in] beta: Parameter for kernel.
+ * @return Error code.
+ * */
 {
     if(data == NULL)
     {

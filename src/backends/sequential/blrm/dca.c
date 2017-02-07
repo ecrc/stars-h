@@ -5,6 +5,8 @@
 
 int starsh_blrm__dca(STARSH_blrm *M, Array *A)
 //! Convert double precision block low-rank matrix to dense Array
+/*! Memory for output array must be allocated prior calling this function.
+ * */
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;

@@ -1,44 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <string.h>
 #include <omp.h>
 #include "starsh.h"
-#include "starsh-spatial.h"
+#include "starsh-rndtiled.h"
 
 int main(int argc, char **argv)
-// Example of how to use STARS library for spatial statistics.
-// For more information on STARS structures look inside of header files.
 {
-    if(argc < 8)
+    if(argc < 9)
     {
-        printf("%d\n", argc);
-        printf("spatial n block_size maxrank oversample tol beta scheme\n");
-        exit(1);
+        printf("rndtiled nblocks block_size decay noise maxrank oversample "
+                "tol scheme\n");
+        return 1;
     }
-    int n = atoi(argv[1]), block_size = atoi(argv[2]);
-    int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
-    double tol = atof(argv[5]), beta = atof(argv[6]);
-    char *scheme = argv[7];
+    int nblocks = atoi(argv[1]);
+    int block_size = atoi(argv[2]);
+    double decay = atof(argv[3]);
+    double noise = atof(argv[4]);
+    int maxrank = atoi(argv[5]);
+    int oversample = atoi(argv[6]);
+    double tol = atof(argv[7]);
+    char *scheme = argv[8];
     int onfly = 1;
-    printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
-            n, block_size, maxrank, oversample, tol, beta, scheme);
-    // Setting random seed
-    srand(100);
-    // Generate data for spatial statistics problem
-    STARSH_ssdata *data;
+    int n = nblocks*block_size;
+    int shape[2] = {n, n};
+    // Generate problem by random matrices
+    STARSH_rndtiled *data;
     STARSH_kernel kernel;
-    starsh_gen_ssdata(&data, &kernel, n, beta);
-    int ndim = 2, shape[2] = {data->count, data->count};
-    char symm = 'S', dtype = 'd';
+    starsh_rndtiled_gen(&data, &kernel, nblocks, block_size, decay, noise);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
-    starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
-            kernel, "Spatial Statistics example");
+    starsh_problem_new(&P, 2, shape, 'S', 'd', data, data, kernel,
+            "Randomly generated matrix");
     starsh_problem_info(P);
     // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, data->count, block_size);
+    starsh_cluster_new_tiled(&C, data, n, block_size);
     starsh_cluster_info(C);
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
@@ -64,7 +60,7 @@ int main(int argc, char **argv)
     starsh_cluster_free(C);
     // Free STARS_Problem instance
     starsh_problem_free(P);
-    // Free spatial statistics randomly generated data
-    starsh_ssdata_free(data);
+    // Free randomly generated data
+    starsh_rndtiled_free(data);
     return 0;
 }

@@ -5,7 +5,7 @@
 
 int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double *A, int lda,
         double *B, int ldb)
-// Double precision Multiply by dense Matrix, blr-matrix is on Left side
+//! Double precision Multiply by dense Matrix, blr-matrix is on Left side.
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;

@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <complex.h>
 #include <string.h>
-#include <lapacke.h>
-#include <cblas.h>
+#include <mkl.h>
 #include "starsh.h"
 
 int array_from_buffer(Array **A, int ndim, int *shape, char dtype,

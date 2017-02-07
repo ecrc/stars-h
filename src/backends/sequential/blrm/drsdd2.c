@@ -5,7 +5,7 @@
 
 int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
-// Double precision Tile Low-Rank geSDD approximation
+//! Approximate each tile by 2-way randomized SVD.
 {
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;

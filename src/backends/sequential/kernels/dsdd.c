@@ -6,6 +6,20 @@
 void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork)
+//! DGESDD approximation of a dense double precision matrix.
+/* @param[in] nrows: Number of rows of a matrix.
+ * @param[in] ncols: Number of columns of a matrix.
+ * @param[in,out] D: Pointer to dense matrix.
+ * @param[out] U: Pointer to low-rank factor `U`.
+ * @param[out] V: Pointer to low-rank factor `V`.
+ * @param[out] rank: Address of rank variable.
+ * @param[in] maxrank: Maximum possible rank.
+ * @param[in] oversample: Ignored.
+ * @param[in] tol: Relative error for approximation.
+ * @param[in] work: Working array.
+ * @param[in] lwork: Size of `work` array.
+ * @param[in] iwork: Temporary integer array.
+ * */
 {
     (void)oversample;
     int mn = nrows < ncols ? nrows : ncols;

@@ -5,9 +5,7 @@
 #include "starsh.h"
 
 double starsh_blrm__dfe(STARSH_blrm *M)
-// Double precision Frobenius norm of Error
-//
-// Measure error of approximation by non-nested block low-rank matrix
+//! Approximation error in Frobenius norm of double precision matrix.
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;

@@ -27,7 +27,7 @@ include_directories( ${PROJECT_SOURCE_DIR}/include)
 add_library(starsh STATIC ${STARSH_SRC})
 
 # Add public headers files to installation
-set( STARSH_PUB_HDR ${PROJECT_SOURCE_DIR}/include/stars.h ${PROJECT_SOURCE_DIR}/include/stars-spatial.h )
+set( STARSH_PUB_HDR ${PROJECT_SOURCE_DIR}/include/starsh.h ${PROJECT_SOURCE_DIR}/include/starsh-spatial.h ${PROJECT_SOURCE_DIR}/include/starsh-rndtiled.h)
 set_target_properties( starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}" )
 
 

@@ -8,7 +8,7 @@
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name)
-//! Init for STARS_Problem instance
+//! Init for STARSH_problem instance.
 /*! @param[out] P: Address of pointer to `STARSH_problem` object.
  * @param[in] ndim: Dimensionality of corresponding array. Equal `2` plus
  *     dimensionality of kernel.
