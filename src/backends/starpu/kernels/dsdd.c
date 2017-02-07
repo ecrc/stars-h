@@ -5,6 +5,7 @@
 #include "starsh.h"
 
 void starsh_kernel_dsdd_starpu(void *buffer[], void *cl_arg)
+//! STARPU kernel for DGESDD on a tile.
 {
     STARSH_blrf *F;
     int maxrank;

@@ -6,7 +6,14 @@
 
 int starsh_blrm__drsdd_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
-// Double precision Tile Low-Rank geSDD approximation
+//! Approximate each tile by 1-way randomized SVD.
+/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in] F: Block low-rank format.
+ * @param[in] maxrank: Maximum possible rank.
+ * @param[in] oversample: Rank oversampling.
+ * @param[in] tol: Relative error tolerance.
+ * @param[in] onfly: Whether not to store dense blocks.
+ * */
 {
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;

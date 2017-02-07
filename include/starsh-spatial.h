@@ -2,10 +2,14 @@
 #include "starsh.h"
 
 typedef struct starsh_ssdata
+//! Structure for Spatial Statistics problems.
 {
     size_t count;
+    //!< Number of sptial points.
     double *point;
+    //!< Coordinates of spatial points.
     double beta;
+    //!< Parameter for exponential function.
 } STARSH_ssdata;
 
 //int starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,

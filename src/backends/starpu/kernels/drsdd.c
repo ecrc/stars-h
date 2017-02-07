@@ -5,6 +5,7 @@
 #include "starsh.h"
 
 void starsh_kernel_drsdd_starpu(void *buffer[], void *cl_arg)
+//! STARPU kernel for 1-way randomized SVD on a tile.
 {
     STARSH_blrf *F;
     int maxrank;

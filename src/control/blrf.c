@@ -12,7 +12,7 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         size_t nblocks_near, int *block_near, STARSH_blrf_type type)
 //! Initialization of STARSH_blrf.
 /*! @param[out] F: Address of pointer to `STARSH_blrf` object.
- * @param[in] problem: Corresponding problem.
+ * @param[in] P: Corresponding problem.
  * @param[in] symm: 'S' if problem and clusterization are both symmetric, 'N'
  *     otherwise.
  * @param[in] R: Clusterization of rows into block rows.

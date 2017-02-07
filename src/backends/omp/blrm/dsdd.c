@@ -1,25 +1,18 @@
-/*!
- * @file dsdd.c
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <mkl.h>
 #include "starsh.h"
 
-/*!
- * Approximate H-matrix by sdd procedure for every block.
- *
- * Uses DGESDD for each block. Complexity is very high!
- *
- * @param[out] M text
- * @param[in,out] F text
- * @param[in] tol text
- * @param[in] onfly text
- * @result error code or 0 if everything is OK
- */
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
+//! Approximate each tile by divide-and-conquer SVD (GESDD function).
+/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in] F: Block low-rank format.
+ * @param[in] maxrank: Maximum possible rank.
+ * @param[in] oversample: Rank oversampling.
+ * @param[in] tol: Relative error tolerance.
+ * @param[in] onfly: Whether not to store dense blocks.
+ * */
 {
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;

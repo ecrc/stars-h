@@ -5,6 +5,7 @@
 #include "starsh.h"
 
 void starsh_kernel_dqp3_starpu(void *buffer[], void *cl_arg)
+//! STARPU kernel for RRQR on a tile.
 {
     STARSH_blrf *F;
     int maxrank;
