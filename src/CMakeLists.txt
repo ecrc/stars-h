@@ -3,6 +3,7 @@
 set(STARSH_SRC)
 add_subdirectory(control)
 add_subdirectory(applications)
+add_subdirectory(itersolvers)
 
 set( BACKEND_TYPE "sequential" "omp" "starpu" CACHE STRING "Options are: sequential, omp, starpu" )
 add_subdirectory(backends)

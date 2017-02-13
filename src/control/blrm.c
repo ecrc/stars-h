@@ -67,17 +67,18 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         STARSH_ERROR("invalid value of `alloc_type`");
         return 1;
     }
-    if(alloc_U == NULL && alloc_type == '1')
+    if(alloc_U == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_U`");
         return 1;
     }
-    if(alloc_V == NULL && alloc_type == '1')
+    if(alloc_V == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_V`");
         return 1;
     }
-    if(alloc_D == NULL && alloc_type == '1' && onfly == 0)
+    if(alloc_D == NULL && F->nblocks_near > 0 && alloc_type == '1' &&
+            onfly == 0)
     {
         STARSH_ERROR("invalid value of `alloc_D`");
         return 1;
