@@ -57,42 +57,36 @@ int main(int argc, char **argv)
     time0 = omp_get_wtime();
     printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
     printf("TIME TO MEASURE ERROR: %e secs\n", omp_get_wtime()-time0);
-    // Check conversion
-    Array *A, *B;
-    double norm, diff;
-    starsh_problem_to_array(P, &A);
-    array_new(&B, 2, P->shape, 'd', 'F');
-    starsh_blrm__dca(M, B);
-    array_diff(A, B, &diff);
-    array_norm(A, &norm);
-    printf("starsh_blrm__dca diff with Array: %e\n", diff/norm);
-    // Check matvec
-    double rhs[data->count], res1[data->count];
-    int iseed[4] = {0, 0, 0, 1};
-    LAPACKE_dlarnv_work(2, iseed, data->count, rhs);
-    starsh_blrm__dmml(M, 1, 1.0, rhs, data->count, 0.0, res1, data->count);
-    Array *Arhs, *Ares2;
-    int k = 1, shape2[2] = {data->count, k};
-    array_from_buffer(&Arhs, 2, shape2, 'd', 'F', rhs);
-    //array_from_buffer(&Ares2, 1, shape, 'd', 'F', res2);
-    array_dot(B, Arhs, &Ares2);
-    printf("mv norms: %e %e\n", cblas_dnrm2(data->count, res1, 1),
-            cblas_dnrm2(data->count, Ares2->data, 1));
-    cblas_daxpy(data->count, -1., res1, 1, Ares2->data, 1);
-    printf("matvec diff=%e\n", cblas_dnrm2(data->count, Ares2->data,1)/
-            cblas_dnrm2(data->count, res1, 1));
-    // Check CG solution
-    double *x, *b, *tmp_b;
+    // Allocate memory to check CG solver
+    double *x0, *x, *b;
     double *CG_work;
+    STARSH_MALLOC(x0, data->count);
     STARSH_MALLOC(x, data->count);
     STARSH_MALLOC(b, data->count);
-    STARSH_MALLOC(tmp_b, data->count);
+    // Allocate memory for temporary buffers for CG
     STARSH_MALLOC(CG_work, 3*data->count);
-    LAPACKE_dlarnv_work(3, iseed, data->count, b);
-    norm = cblas_dnrm2(data->count, b, 1);
-    starsh_itersolvers__dcg(M, data->count, b, tol, x, CG_work);
+    // Generate random solution x0
+    int iseed[4] = {0, 0, 0, 1};
+    LAPACKE_dlarnv_work(3, iseed, data->count, x0);
+    // Get corresponding right hand side
+    starsh_blrm__dmml(M, 1, 1.0, x0, data->count, 0.0, b, data->count);
+    // Measure norm of solution and rhs
+    double rhs_norm = cblas_dnrm2(data->count, b, 1);
+    double x0_norm = cblas_dnrm2(data->count, x0, 1);
+    // Solve with CG, approximate solution is in x, initial guess is zero
+    memset(x, 0, data->count*sizeof(double));
+    starsh_itersolvers__dcg(M, b, tol, x, CG_work);
+    // Multiply M by approximate solution
     starsh_blrm__dmml(M, 1, -1.0, x, data->count, 1.0, b, data->count);
-    printf("result diff=%e\n", cblas_dnrm2(n, b, 1)/norm);
+    // Measure error of residual and solution
+    printf("residual error=%e\n", cblas_dnrm2(data->count, b, 1)/rhs_norm);
+    cblas_daxpy(data->count, -1.0, x, 1, x0, 1);
+    printf("solution error=%e\n", cblas_dnrm2(data->count, x0, 1)/x0_norm);
+    // Free CG memory
+    free(x0);
+    free(x);
+    free(b);
+    free(CG_work);
     // Free block low-rank matrix
     starsh_blrm_free(M);
     // Free block low-rank format
