@@ -69,15 +69,20 @@ int main(int argc, char **argv)
     int iseed[4] = {0, 0, 0, 1};
     LAPACKE_dlarnv_work(3, iseed, data->count, x0);
     // Get corresponding right hand side
-    starsh_blrm__dmml(M, 1, 1.0, x0, data->count, 0.0, b, data->count);
+    time0 = omp_get_wtime();
+    for(int i = 0; i < 100; i++)
+        starsh_blrm__dmml_omp(M, 1, 1.0, x0, data->count, 0.0, b, data->count);
+    printf("TIME TO 100 MATVEC: %e secs\n", omp_get_wtime()-time0);
     // Measure norm of solution and rhs
     double rhs_norm = cblas_dnrm2(data->count, b, 1);
     double x0_norm = cblas_dnrm2(data->count, x0, 1);
     // Solve with CG, approximate solution is in x, initial guess is zero
     memset(x, 0, data->count*sizeof(double));
+    time0 = omp_get_wtime();
     starsh_itersolvers__dcg(M, b, tol, x, CG_work);
+    printf("TIME TO SOLVE: %e secs\n", omp_get_wtime()-time0);
     // Multiply M by approximate solution
-    starsh_blrm__dmml(M, 1, -1.0, x, data->count, 1.0, b, data->count);
+    starsh_blrm__dmml_omp(M, 1, -1.0, x, data->count, 1.0, b, data->count);
     // Measure error of residual and solution
     printf("residual error=%e\n", cblas_dnrm2(data->count, b, 1)/rhs_norm);
     cblas_daxpy(data->count, -1.0, x, 1, x0, 1);

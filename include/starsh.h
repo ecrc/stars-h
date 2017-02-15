@@ -349,6 +349,8 @@ int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 int starsh__dsvfr(int size, double *S, double tol);
 int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb);
+int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
+        int lda, double beta, double *B, int ldb);
 double starsh_blrm__dfe(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 

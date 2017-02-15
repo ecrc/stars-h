@@ -133,9 +133,11 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         new_nblocks_near = nblocks_near+nblocks_false_far;
         STARSH_MALLOC(block_near, 2*new_nblocks_near);
         // At first get all near-field blocks, assumed to be dense
+        #pragma omp parallel for schedule(static)
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
         // Add false far-field blocks
+        #pragma omp parallel for schedule(static)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
             size_t bj = false_far[bi];
@@ -193,7 +195,8 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             size_D += nrows*ncols;
         }
         STARSH_MALLOC(alloc_D, size_D);
-        //Simple cycle over all near-field blocks
+        // Simple cycle over all near-field blocks
+        #pragma omp parallel for schedule(dynamic,1)
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
             // Get indexes of corresponding block row and block column
@@ -203,22 +206,13 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             size_t nrows = RC->size[i];
             size_t ncols = CC->size[j];
             int shape[2] = {nrows, ncols};
-            // Allocate Array
-            double *D = alloc_D+offset_D;
-            array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
-            offset_D += near_D[bi]->size;
-        }
-        // For each near-field block compute its elements
-        #pragma omp parallel for schedule(dynamic,1)
-        for(bi = 0; bi < new_nblocks_near; bi++)
-        {
-            // Get indexes of corresponding block row and block column
-            int i = block_near[2*bi];
-            int j = block_near[2*bi+1];
-            // Get corresponding sizes and minimum of them
-            int nrows = RC->size[i];
-            int ncols = CC->size[j];
-            double *D = near_D[bi]->data;
+            double *D;
+            #pragma omp critical
+            {
+                D = alloc_D+offset_D;
+                array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
+                offset_D += near_D[bi]->size;
+            }
             kernel(nrows, ncols, RC->pivot+RC->start[i],
                     CC->pivot+CC->start[j], RD, CD, D);
         }

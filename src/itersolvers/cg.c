@@ -20,7 +20,7 @@ int starsh_itersolvers__dcg(STARSH_blrm *M, double *b, double tol,
     double *p = r+n;
     double *next_p = p+n;
     double rscheck, rsold, rsnew;
-    starsh_blrm__dmml(M, 1, -1.0, x, n, 0.0, r, n);
+    starsh_blrm__dmml_omp(M, 1, -1.0, x, n, 0.0, r, n);
     cblas_daxpy(n, 1., b, 1, r, 1);
     cblas_dcopy(n, r, 1, p, 1);
     rsold = cblas_dnrm2(n, r, 1);
@@ -29,7 +29,7 @@ int starsh_itersolvers__dcg(STARSH_blrm *M, double *b, double tol,
     //printf("rsold=%e\n", rsold);
     for(int i = 0; i < n; i++)
     {
-        starsh_blrm__dmml(M, 1, 1.0, p, n, 0.0, next_p, n);
+        starsh_blrm__dmml_omp(M, 1, 1.0, p, n, 0.0, next_p, n);
         double tmp = cblas_ddot(n, p, 1, next_p, 1);
         double alpha = rsold/tmp;
         cblas_daxpy(n, alpha, p, 1, x, 1);
