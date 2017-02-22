@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mkl.h>
+#include <omp.h>
 #include "starsh.h"
 
 int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -30,6 +31,7 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     size_t bi, bj = 0;
+    double drsdd_time = 0, kernel_time = 0;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -99,10 +101,18 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_PMALLOC(iwork, liwork, info);
         STARSH_PMALLOC(work, lwork, info);
         // Compute elements of a block
+        double time0 = omp_get_wtime();
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
+        double time1 = omp_get_wtime();
         starsh_kernel_drsdd(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
                 far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
+        double time2 = omp_get_wtime();
+        #pragma omp critical
+        {
+            drsdd_time += time2-time1;
+            kernel_time += time1-time0;
+        }
         // Free temporary arrays
         free(D);
         free(work);
@@ -212,8 +222,12 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
                 offset_D += near_D[bi]->size;
             }
+            double time0 = omp_get_wtime();
             kernel(nrows, ncols, RC->pivot+RC->start[i],
                     CC->pivot+CC->start[j], RD, CD, D);
+            double time1 = omp_get_wtime();
+            #pragma omp critical
+            kernel_time += time1-time0;
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false
@@ -258,6 +272,8 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(false_far);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
+    STARSH_WARNING("DRSDD kernel total time: %e secs", drsdd_time);
+    STARSH_WARNING("MATRIX kernel total time: %e secs", kernel_time);
     return starsh_blrm_new(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
