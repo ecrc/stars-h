@@ -11,6 +11,7 @@ int main(int argc, char **argv)
 // Example of how to use STARS library for spatial statistics.
 // For more information on STARS structures look inside of header files.
 {
+    /*
     if(argc < 8)
     {
         printf("%d\n", argc);
@@ -22,9 +23,14 @@ int main(int argc, char **argv)
     int maxrank = atoi(argv[3]), oversample = atoi(argv[4]);
     double tol = atof(argv[5]), beta = atof(argv[6]);
     char *scheme = argv[7];
+    */
+    int n = 100, block_size = 1000;
+    int maxrank = 100, oversample = 10;
+    double tol = 1e-9, beta = .1;
+    char *scheme = "omp_rsdd";
     int onfly = 0;
-    printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
-            n, block_size, maxrank, oversample, tol, beta, scheme);
+    //printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
+    //        n, block_size, maxrank, oversample, tol, beta, scheme);
     // Setting random seed
     srand(100);
     // Generate data for spatial statistics problem
