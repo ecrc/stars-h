@@ -17,7 +17,6 @@ SET( STARSH_VERSION_MAJOR 0 )
 SET( STARSH_VERSION_MINOR 1 )
 SET( STARSH_VERSION_PATCH 1 )
 set( STARSH_VERSION "${STARSH_VERSION_MAJOR}.${STARSH_VERSION_MINOR}.${STARSH_VERSION_PATCH}" )
-execute_process(COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE STARSH_VERSION_RELEASE )
 
 
 # Set the RPATH config
@@ -171,4 +170,14 @@ endforeach()
 	add_subdirectory(examples)
         add_subdirectory(testing)
 endif()
+
+# PKGCONFIG
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(libdir ${CMAKE_INSTALL_PREFIX}/lib)
+set(includedir ${CMAKE_INSTALL_PREFIX}/include)
+set(PKG_CONFIG_DIR ${libdir}/pkgconfig)
+configure_file(${CMAKE_SOURCE_DIR}/starsh.pc.in ${CMAKE_CURRENT_BINARY_DIR}/starsh.pc)
+install( FILES ${CMAKE_BINARY_DIR}/starsh.pc
+         DESTINATION ${PKG_CONFIG_DIR}
+       )
 

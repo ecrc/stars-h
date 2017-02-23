@@ -1,0 +1,11 @@
+prefix=@prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: starsh
+Description: Software for Testing Accuracy, Reliability and Scalability of Hierarchical computations
+Version: @STARSH_VERSION@
+URL: http://github.com/ecrc/stars-h-dev
+Cflags: -I${includedir}
+Libs: -L${libdir} -lstarsh
+Requires:
