@@ -1,75 +1,109 @@
+###############################################################################
+#                       THIS IS A TOP-LEVEL CMAKELISTS.txt                    #
+#                                                                             #
+#        It is intended to find all dependencies (required or optional)       #
+#                    and set up corresponding variables                       #
+###############################################################################
+
+# Need to identify lowest possible CMake version
 cmake_minimum_required(VERSION 2.8)
-#project(STARS-H C CXX)
-project(STARS-H C)
 
+# Set STARS-H version
+set(STARSH_VERSION_MAJOR 1)
+set(STARSH_VERSION_MINOR 0)
+set(STARSH_VERSION_PATCH 0)
+set(STARSH_VERSION_EXTRA rc1)
+set(STARSH_VERSION_LIST ${STARSH_VERSION_MAJOR}.
+    ${STARSH_VERSION_MINOR}.
+    ${STARSH_VERSION_PATCH}-
+    ${STARSH_VERSION_EXTRA})
+string(REPLACE ";" "" STARSH_VERSION ${STARSH_VERSION_LIST})
+message(STATUS "Building STARS-H ${STARSH_VERSION}")
 
-# directly make an error if in-source build
-if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-	message(FATAL_ERROR "In-source builds are not allowed.\n"
-	"Please create a build directory first and execute cmake configuration from "
-	"this directory. Example: mkdir build && cd build && cmake ..")
+# Restrict building in top-level directory
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "In-source builds are not allowed.\nPlease create a "
+        "build directory first and execute cmake configuration from this "
+        "directory. Example: mkdir build && cd build && cmake ..")
 endif()
 
+# Check if ECRC CMake modules are there
+# This modules are used to find all required and optional dependencies
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+    message(FATAL_ERROR "ECRC CMake modules were not found.\nHave you done: "
+        "'git submodule update --init'?")
+endif()
 
-# Version
-# Number 0.1.1 is temptative, may differ from actual release.
-SET( STARSH_VERSION_MAJOR 0 )
-SET( STARSH_VERSION_MINOR 1 )
-SET( STARSH_VERSION_PATCH 1 )
-set( STARSH_VERSION "${STARSH_VERSION_MAJOR}.${STARSH_VERSION_MINOR}.${STARSH_VERSION_PATCH}" )
-execute_process(COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE STARSH_VERSION_RELEASE )
-
+# Create project and check C compiler
+project(STARS-H C)
 
 # Set the RPATH config
 # --------------------
 # use, i.e. don't skip the full RPATH for the build tree
-set(CMAKE_SKIP_BUILD_RPATH  FALSE)
+#set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 # when building, use the install RPATH already
 # (automated test will need this)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # the RPATH to be used when installing
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
+#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 # Packaging (make package)
-SET(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
-SET(CPACK_GENERATOR "TGZ")
-INCLUDE(CPack)
-INCLUDE(CMakePushCheckState)
+#set(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
+#set(CPACK_GENERATOR "TGZ")
+#include(CPack)
 
-# This project eeds C99 standard to compile properly
-# (could have used CMAKE_C_FLAGS instead)
-ADD_DEFINITIONS( -std=gnu99 )
+# Append path to CMake modules and init ECRC CMake modules
+set(ECRC_CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+list(APPEND CMAKE_MODULE_PATH ${ECRC_CMAKE_MODULE_PATH})
+include(EcrcInit)
 
-find_package(OpenMP REQUIRED)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+# Set desired backends
+# One may use -DSTARPU=OFF to disable StarPU support manually
+option(STARPU "Use StarPU backend" ON)
+option(OPENMP "Use OpenMP support" ON)
+
+# Check if OpenMP is supported and expand compilation flags
+# Addition of OpenMP flags will be local in future versions
+if(OPENMP)
+    find_package(OpenMP)
+    if(OPENMP_FOUND)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        add_definitions(-DOPENMP)
+    else()
+        message("OpenMP is NOT supported, skipping it")
+        set(OPENMP OFF)
+    endif()
 endif()
 
-
-## CMAKE MODULES :: ECRC
-## REQUIRED FOR TESTS TO LINK LIBRARIES
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake_modules/ecrc/modules" )
-	message(FATAL_ERROR "ECRC CMake modules were not found.\n"
-	                    "Have you done: 'git submodule init && git submodule update'?" )
-else()
-	## ECRC INITIALIZATION
-	list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
-	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules/ecrc/modules")
-        set(ECRC_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/ecrc/modules )
-        include(EcrcInit)
+# Check if StarPU is available and add links to library
+# Addition of StarPU directories and libraries will be local in future versions
+if(STARPU)
+    find_package(StarPU)
+    if(STARPU_FOUND)
+        include_directories(${STARPU_INCLUDE_DIRS})
+        link_directories(${STARPU_LIBRARY_DIRS})
+        link_libraries(${STARPU_LIBRARIES})
+        add_definitions(-DSTARPU)
+    else()
+        message("StarPU is NOT found, skipping it")
+        set(STARPU OFF)
+    endif()
 endif()
 
-
-
-# STARS-H code
+# Collect STARS-H sources + headers
 add_subdirectory(src)
+add_subdirectory(include)
 
+# Options for examples, testing and documentation
+option(TESTING "Generate testing binaries" OFF)
+option(EXAMPLES "Generate example binaries" ON)
+option(DOCS "Build documentation in docs directory" OFF)
 
+if(TESTING OR EXAMPLES)
+    include(CTest)
+    enable_testing() # enables ctest
 # TESTS
-option(STARSH_TESTING "Generates testing binaries" OFF)
-if( STARSH_TESTING )
 	## BLAS
 	find_package(BLASEXT)
 	if(BLAS_FOUND)
@@ -153,22 +187,22 @@ if( STARSH_TESTING )
 		endif()
 		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
 	endif()
-
-foreach(BACKEND ${BACKEND_TYPE})
-    if( "${BACKEND}" STREQUAL "starpu" )
-        find_package(STARPU)
-        if( STARPU_FOUND )
-            include_directories( ${STARPU_INCLUDE_DIRS})
-            link_directories( ${STARPU_LIBRARY_DIRS} )
-            link_libraries( ${STARPU_LIBRARIES} )
-        else()
-        endif()
-    endif()
-endforeach()
-
-	# BUILD TESTS
-	enable_testing() # enables ctest
-	add_subdirectory(examples)
-        add_subdirectory(testing)
 endif()
 
+if(TESTING)
+    add_subdirectory(testing)
+endif()
+
+if(EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+if(DOCS)
+    find_package(Doxygen)
+    message(STATUS "Looking for doxygen")
+    if(DOXYGEN_FOUND)
+        add_subdirectory(docs)
+    else()
+        message(STATUS "Doxygen NOT found, skipping it")
+    endif()
+endif()

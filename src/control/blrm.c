@@ -335,6 +335,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         starsh_blrm__drsdd2(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "qp3") == 0)
         starsh_blrm__dqp3(M, F, maxrank, oversample, tol, onfly);
+#ifdef OPENMP
     else if(strcmp(scheme, "omp_sdd") == 0)
         starsh_blrm__dsdd_omp(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "omp_rsdd") == 0)
@@ -343,6 +344,8 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         starsh_blrm__drsdd2_omp(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "omp_qp3") == 0)
         starsh_blrm__dqp3_omp(M, F, maxrank, oversample, tol, onfly);
+#endif
+#ifdef STARPU
     else if(strcmp(scheme, "starpu_sdd") == 0)
         starsh_blrm__dsdd_starpu(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "starpu_rsdd") == 0)
@@ -351,6 +354,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         starsh_blrm__drsdd2_starpu(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "starpu_qp3") == 0)
         starsh_blrm__dqp3_starpu(M, F, maxrank, oversample, tol, onfly);
+#endif
     else
     {
         STARSH_ERROR("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "

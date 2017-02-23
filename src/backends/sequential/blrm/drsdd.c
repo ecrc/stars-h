@@ -30,6 +30,7 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     size_t bi, bj = 0;
+    int BAD_TILE = 0;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -80,6 +81,12 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Get corresponding sizes and minimum of them
         int nrows = RC->size[i];
         int ncols = CC->size[j];
+        if(nrows != ncols && BAD_TILE == 0)
+        {
+            BAD_TILE = 1;
+            STARSH_WARNING("This was only tested on square tiles, error of "
+                    "approximation may be much higher, than demanded");
+        }
         int mn = nrows < ncols ? nrows : ncols;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)
