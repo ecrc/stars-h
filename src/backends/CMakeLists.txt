@@ -1,5 +1,5 @@
 # Add sequential code
-add_subdirectory(sequential)
+add_subdirectory("sequential")
 
 # Add StarPU code
 if(STARPU)
@@ -12,4 +12,4 @@ if(OPENMP)
 endif()
 
 # set the values of the variable in the parent scope
-set( STARSH_SRC ${STARSH_SRC} PARENT_SCOPE)
+set(STARSH_SRC "${STARSH_SRC}" PARENT_SCOPE)

@@ -1,9 +1,6 @@
 # Add public headers files to installation
-set( STARSH_PUBLIC_HDR 
-    starsh.h
-    starsh-spatial.h
-    starsh-rndtiled.h )
-
-#set_target_properties( starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}" )
-
-#install(TARGETS starsh PUBLIC_HEADER DESTINATION include/starsh )
+set(STARSH_PUB_HDR
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-spatial.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-rndtiled.h"
+    ${STARSH_PUB_HDR} PARENT_SCOPE)
