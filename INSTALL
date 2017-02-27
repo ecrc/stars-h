@@ -1,0 +1,26 @@
+STARS-H has following dependencies:
+ * Intel MKL (required)
+ * OpenMP (optional)
+ * StarPU (optional)
+
+Although OpenMP is stated as optional, it is highly recommended to use
+openmp-aware compiler, since it is the main source of parallelism and
+performance of STARS-H.
+
+Building and installation process relies on CMake. Follow these steps to
+install STARS-H:
+1. Pull submodule cmake_modules/ecrc by `git submodule update --init`
+2. Create build directory by `mkdir build`
+3. Configure CMake build system by `cmake ..`
+4. Build STARS-H library and examples/tests by `make`
+5. Install library by `make install`.
+6. (Optional) Run `make docs` to compile documentation.
+7. (Optional) Run `make test` to run tests, based on sources from examples
+    folder.
+
+You can use following flags to control build of STARS-H:
+ * -DTESTING=OFF to disable compilation of tests
+ * -DEXAMPLES=OFF to disable compilation of examples
+ * -DDOCS=OFF to disable documentation
+ * -DSTARPU=OFF to disable support for StarPU
+ * -DOPENMP=OFF to disable support for OpenMP
