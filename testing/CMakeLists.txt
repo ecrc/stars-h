@@ -1,5 +1,6 @@
 # Defines the source files of the tests. Each file generates 1 test
-set(tests_files "symm_positivity_after_compression.c")
+set(tests_files "symm_positivity_after_compression.c"
+    "plasma/solve.c")
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Uses RUNPATH instead of RPATH
