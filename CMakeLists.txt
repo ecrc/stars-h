@@ -95,6 +95,23 @@ if(STARPU)
     endif()
 endif()
 
+# Set desired wrappers
+# One may use -DPLASMA=OFF to disable wrappers for PLASMA
+option(PLASMA "Wrappers for PLASMA" ON)
+
+# Check if PLASMA is available to build wrappers
+if(PLASMA)
+    pkg_search_module(PLASMA plasma)
+    if(PLASMA_FOUND)
+        include_directories(${PLASMA_INCLUDE_DIRS})
+        link_directories("${PLASMA_LIBRARY_DIRS}")
+        link_libraries("${PLASMA_LIBRARIES}")
+    else()
+        message("PLASMA is NOT found, skipping it")
+        set(PLASMA OFF)
+    endif()
+endif()
+
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
 option(EXAMPLES "Generate example binaries" ON)
@@ -233,6 +250,10 @@ set(STARSH_SRC)
 set(STARSH_PUB_HDR)
 add_subdirectory("src")
 add_subdirectory("include")
+
+# Collect wrappers
+add_subdirectory("wrappers")
+message("ALL SOURCES: ${STARSH_SRC}")
 
 # Defines the STARS-H library to build
 add_library(starsh STATIC ${STARSH_SRC})
