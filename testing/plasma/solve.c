@@ -40,17 +40,18 @@ int main(int argc, char **argv)
     time0 = omp_get_wtime()-time0;
     printf("Compute entire matrix: %e secs\n", time0);
     int N = A->shape[0];
+    int nrhs = 10;
     double *b, *x, *x_CG, *CG_work;
-    STARSH_MALLOC(b, N);
-    STARSH_MALLOC(x, N);
-    STARSH_MALLOC(x_CG, N);
+    STARSH_MALLOC(b, N*nrhs);
+    STARSH_MALLOC(x, N*nrhs);
+    STARSH_MALLOC(x_CG, N*nrhs);
     int iseed[4] = {0, 0, 0, 1};
-    LAPACKE_dlarnv_work(3, iseed, N, b);
+    LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
     //LAPACKE_dlarnv_work(3, iseed, N, x);
-    STARSH_MALLOC(CG_work, 3*N);
+    STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
     plasma_init();
     time0 = omp_get_wtime();
-    solve(N, A->data, N, b, x);
+    solve(N, A->data, N, nrhs, b, N, x, N);
     time0 = omp_get_wtime()-time0;
     printf("Time to solve SPD problem: %e secs\n", time0);
     plasma_finalize();
@@ -75,14 +76,14 @@ int main(int argc, char **argv)
     //memset(x, 0, data->count*sizeof(double));
     cblas_dcopy(N, b, 1, x_CG, 1);
     time1 = omp_get_wtime();
-    int info = starsh_itersolvers__dcg(M, b, tol, x_CG, CG_work);
+    int info = starsh_itersolvers__dcg(M, nrhs, b, N, x_CG, N, tol, CG_work);
     printf("CG INFO: %d\n", info);
-    cblas_daxpy(N, -1.0, x, 1, x_CG, 1);
+    cblas_daxpy(N*nrhs, -1.0, x, 1, x_CG, 1);
     //for(int i = 0; i < 1000; i++)
     //    starsh_blrm__dmml_omp(M, 1, 1.0, b, N, 0.0, x, N);
     double time2 = omp_get_wtime();
     printf("TIME TO SOLVE: %e secs\n", time2-time1);
     printf("TOTAL TIME FOR STARSH: %e secs\n", time2-time0);
-    printf("ACCURACY OF SOLUTION: %e\n", cblas_dnrm2(N, x_CG, 1)/cblas_dnrm2(N, x, 1));
+    printf("ACCURACY OF SOLUTION: %e\n", cblas_dnrm2(N*nrhs, x_CG, 1)/cblas_dnrm2(N*nrhs, x, 1));
     return 0;
 }
