@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     STARSH_MALLOC(x, data->count);
     STARSH_MALLOC(b, data->count);
     // Allocate memory for temporary buffers for CG
-    STARSH_MALLOC(CG_work, 3*data->count);
+    STARSH_MALLOC(CG_work, 3*data->count+3);
     // Generate random solution x0
     int iseed[4] = {0, 0, 0, 1};
     LAPACKE_dlarnv_work(3, iseed, data->count, x0);
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     // Solve with CG, approximate solution is in x, initial guess is zero
     memset(x, 0, data->count*sizeof(double));
     time0 = omp_get_wtime();
-    starsh_itersolvers__dcg(M, b, tol, x, CG_work);
+    starsh_itersolvers__dcg(M, 1, b, data->count, x, data->count, tol, CG_work);
     printf("TIME TO SOLVE: %e secs\n", omp_get_wtime()-time0);
     // Multiply M by approximate solution
     starsh_blrm__dmml_omp(M, 1, -1.0, x, data->count, 1.0, b, data->count);
