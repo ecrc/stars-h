@@ -1,3 +1,5 @@
+@mainpage STARS-H documentation
+
 What is STARS-H?
 ================
 

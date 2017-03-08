@@ -1,177 +1,248 @@
+###############################################################################
+#                       THIS IS A TOP-LEVEL CMAKELISTS.txt                    #
+#                                                                             #
+#        It is intended to find all dependencies (required or optional)       #
+#                    and set up corresponding variables                       #
+###############################################################################
+
+# Need to identify lowest possible CMake version
 cmake_minimum_required(VERSION 2.8)
-project(STARS-H C CXX)
 
+# Set STARS-H version
+set(STARSH_VERSION_MAJOR 1)
+set(STARSH_VERSION_MINOR 0)
+set(STARSH_VERSION_PATCH 0)
+set(STARSH_VERSION_EXTRA rc1)
+set(STARSH_VERSION_LIST "${STARSH_VERSION_MAJOR}."
+    "${STARSH_VERSION_MINOR}."
+    "${STARSH_VERSION_PATCH}-"
+    "${STARSH_VERSION_EXTRA}")
+string(REPLACE ";" "" STARSH_VERSION "${STARSH_VERSION_LIST}")
+message(STATUS "Building STARS-H ${STARSH_VERSION}")
 
-# directly make an error if in-source build
-if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-	message(FATAL_ERROR "In-source builds are not allowed.\n"
-	"Please create a build directory first and execute cmake configuration from "
-	"this directory. Example: mkdir build && cd build && cmake ..")
+# Restrict building in top-level directory
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "In-source builds are not allowed.\nPlease create a "
+        "build directory first and execute cmake configuration from this "
+        "directory. Example: mkdir build && cd build && cmake ..")
 endif()
 
+# Check if ECRC CMake modules are there
+# This modules are used to find all required and optional dependencies
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+    message(FATAL_ERROR "ECRC CMake modules were not found.\nHave you done: "
+        "'git submodule update --init'?")
+endif()
 
-# Version
-# Number 0.1.1 is temptative, may differ from actual release.
-SET( STARSH_VERSION_MAJOR 0 )
-SET( STARSH_VERSION_MINOR 1 )
-SET( STARSH_VERSION_PATCH 1 )
-set( STARSH_VERSION "${STARSH_VERSION_MAJOR}.${STARSH_VERSION_MINOR}.${STARSH_VERSION_PATCH}" )
-execute_process(COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE STARSH_VERSION_RELEASE )
-
+# Create project and check C compiler
+project(STARS-H C)
 
 # Set the RPATH config
 # --------------------
 # use, i.e. don't skip the full RPATH for the build tree
-set(CMAKE_SKIP_BUILD_RPATH  FALSE)
+#set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 # when building, use the install RPATH already
 # (automated test will need this)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # the RPATH to be used when installing
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
+#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 # Packaging (make package)
-SET(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
-SET(CPACK_GENERATOR "TGZ")
-INCLUDE(CPack)
+#set(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
+#set(CPACK_GENERATOR "TGZ")
+#include(CPack)
 
+# Append path to CMake modules and init ECRC CMake modules
+set(ECRC_CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
+include(EcrcInit)
 
-# This project eeds C99 standard to compile properly
-# (could have used CMAKE_C_FLAGS instead)
-ADD_DEFINITIONS( -std=c99 )
+# Set desired backends
+# One may use -DSTARPU=OFF to disable StarPU support manually
+option(STARPU "Use StarPU backend" ON)
+option(OPENMP "Use OpenMP support" ON)
 
-find_package(OpenMP REQUIRED)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+# init requirements
+set(REQUIRES)
+
+# Check if OpenMP is supported and expand compilation flags
+# Addition of OpenMP flags will be local in future versions
+if(OPENMP)
+    find_package(OpenMP)
+    if(OPENMP_FOUND)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        add_definitions("-DOPENMP")
+    else()
+        message("OpenMP is NOT supported, skipping it")
+        set(OPENMP OFF)
+    endif()
 endif()
 
-
-# STARS-H code
-add_subdirectory(src)
-
-
-# TESTS
-option(STARSH_TESTING "Generates testing binaries" OFF)
-if( STARSH_TESTING )
-	## CMAKE MODULES :: MORSE
-	## REQUIRED FOR TESTS TO LINK LIBRARIES
-	if(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/morse/.svn/entries" )
-		execute_process( COMMAND svn up ${CMAKE_BINARY_DIR}/cmake_modules/morse OUTPUT_QUIET )
-	else()
-		execute_process( COMMAND mkdir -p ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 COMMAND svn co https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/morse_distrib/cmake_modules/morse ${CMAKE_BINARY_DIR}/cmake_modules/morse
-		                 OUTPUT_QUIET )
-	endif()
-
-
-	## MORSE INITIALIZATION
-	set( MORSE_DISTRIB_DIR "" CACHE PATH "Directory of MORSE distribution")
-	if(MORSE_DISTRIB_DIR)
-		list(APPEND CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${MORSE_DISTRIB_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${MORSE_DISTRIB_DIR}/cmake_modules/morse )
-	elseif(EXISTS "${CMAKE_BINARY_DIR}/cmake_modules/")
-		list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/cmake_modules/morse")
-		set(MORSE_CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules/morse )
-	else()
-		message(FATAL_ERROR "MORSE_DISTRIB_DIR is not set\n"
-		                    "Please indicate where is located your MORSE distribution directory. "
-		                    "This is necessary to find cmake_modules. \n"
-		                    "If you are a MORSE developer, you normally have access to the svn repository of the MORSE_DISTRIB_DIR: "
-		                    "svn checkout svn+ssh://yourlogin@scm.gforge.inria.fr/svnroot/morse/trunk/morse_distrib")
-	endif()
-	include(MorseInit)
-
-
-	## BLAS
-	find_package(BLASEXT)
-	if(BLAS_FOUND)
-	# Use parallel blas for cblas
-	option( USE_PARALLEL_BLAS "If possible, prefer parallel blas libraries" ON )
-	if( USE_PARALLEL_BLAS AND NOT "${BLAS_PAR_LIBRARIES}" STREQUAL "" )
-		message( STATUS "Using Parallel Blas" )
-		set( BLAS_LIBRARIES "${BLAS_PAR_LIBRARIES}" )
-	endif()
-	else()
-		message(FATAL_ERROR "BLAS library has not been found")
-	endif()
-
-	# CBLAS
-	find_package(CBLAS COMPONENTS BLASEXT)
-	if(BLAS_FOUND)
-		if (BLAS_LIBRARY_DIRS)
-			# the RPATH to be used when installing
-			list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
-		endif()
-		if(BLAS_LINKER_FLAGS)
-			#list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
-			set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${BLAS_LINKER_FLAGS}")
-		endif()
-	else()
-		message(FATAL_ERROR "BLAS library has not been found")
-	endif()
-	if(CBLAS_FOUND)
-		include_directories(${CBLAS_INCLUDE_DIRS})
-		if(CBLAS_LIBRARY_DIRS)
-			# the RPATH to be used when installing
-			list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
-		endif()
-	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
-			if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
-				if (NOT CBLAS_cblas.h_DIRS)
-					Print_Find_Header_Status(cblas cblas.h)
-				endif ()
-				if (NOT CBLAS_cblas_LIBRARY)
-					Print_Find_Library_Status(cblas libcblas)
-				endif ()
-			endif()
-		else()
-			message(WARNING "CBLAS library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-		endif()
-		message(FATAL_ERROR "A CBLAS library is required but has not been found")
-	endif()
-
-	## LAPACKE
-	find_package(LAPACKE COMPONENTS LAPACKEXT)
-	if(LAPACK_FOUND AND LAPACK_LIBRARY_DIRS)
-		# the RPATH to be used when installing
-		list(APPEND CMAKE_INSTALL_RPATH "${LAPACK_LIBRARY_DIRS}")
-	else()
-		message(FATAL_ERROR "A LAPACK library is required but has not been found")
-	endif()
-	if(LAPACKE_FOUND)
-		include_directories(${LAPACKE_INCLUDE_DIRS})
-		if(LAPACKE_LIBRARY_DIRS)
-			# the RPATH to be used when installing
-			list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS}")
-		endif()
-		if(LAPACKE_LINKER_FLAGS)
-			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
-		endif()
-	else()
-		if(MORSE_VERBOSE_FIND_PACKAGE)
-			if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
-				if (NOT LAPACKE_lapacke.h_DIRS)
-					Print_Find_Header_Status(lapacke lapacke.h)
-				endif ()
-				if (NOT LAPACKE_lapacke_LIBRARY)
-					Print_Find_Library_Status(lapacke liblapacke)
-				endif ()
-			endif()
-		else()
-			message(WARNING "LAPACKE library has not been found and MORSE_VERBOSE_FIND_PACKAGE is set to OFF"
-			                "Try to activate MORSE_VERBOSE_FIND_PACKAGE option (-DMORSE_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
-		endif()
-		message(FATAL_ERROR "A LAPACKE library is required but has not been found")
-	endif()
-
-
-	# BUILD TESTS
-	enable_testing() # enables ctest
-	add_subdirectory(testing)
+# Check if StarPU is available and add links to library
+# Addition of StarPU directories and libraries will be local in future versions
+if(STARPU)
+    find_package(StarPU)
+    if(STARPU_FOUND)
+        include_directories("${STARPU_INCLUDE_DIRS}")
+        link_directories("${STARPU_LIBRARY_DIRS}")
+        link_libraries("${STARPU_LIBRARIES}")
+        add_definitions("-DSTARPU")
+        list(APPEND REQUIRES ${STARPU_LIBRARIES})
+    else()
+        message("StarPU is NOT found, skipping it")
+        set(STARPU OFF)
+    endif()
 endif()
 
+# Options for examples, testing and documentation
+option(TESTING "Generate testing binaries" ON)
+option(EXAMPLES "Generate example binaries" ON)
+option(DOCS "Build documentation in docs directory" ON)
+
+if(TESTING OR EXAMPLES)
+    # Enable testing
+    include(CTest)
+    enable_testing()
+    # Find BLAS
+    find_package(BLASEXT)
+    if(BLAS_FOUND)
+        # Use parallel blas for cblas
+        option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" ON)
+        if(USE_PARALLEL_BLAS AND NOT "${BLAS_PAR_LIBRARIES}" STREQUAL "")
+            message(STATUS "Using Parallel Blas")
+            set(BLAS_LIBRARIES "${BLAS_PAR_LIBRARIES}")
+        endif()
+    else()
+        message(FATAL_ERROR "BLAS library has not been found")
+    endif()
+    # Find CBLAS
+    find_package(CBLAS COMPONENTS BLASEXT)
+    if(BLAS_FOUND)
+        if (BLAS_LIBRARY_DIRS)
+            # the RPATH to be used when installing
+            list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
+        endif()
+        if(BLAS_LINKER_FLAGS)
+            #list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
+            set(CMAKE_EXE_LINKER_FLAGS
+                "${CMAKE_EXE_LINKER_FLAGS} ${BLAS_LINKER_FLAGS}")
+        endif()
+    else()
+        message(FATAL_ERROR "BLAS library has not been found")
+    endif()
+    if(CBLAS_FOUND)
+        include_directories(${CBLAS_INCLUDE_DIRS})
+        if(CBLAS_LIBRARY_DIRS)
+            # the RPATH to be used when installing
+            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
+        endif()
+    else()
+        if(ECRC_VERBOSE_FIND_PACKAGE)
+            if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
+                if (NOT CBLAS_cblas.h_DIRS)
+                    Print_Find_Header_Status(cblas cblas.h)
+                endif ()
+                if (NOT CBLAS_cblas_LIBRARY)
+                    Print_Find_Library_Status(cblas libcblas)
+                endif ()
+            endif()
+        else()
+            message(WARNING "CBLAS library has not been found and "
+                "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
+                "activate ECRC_VERBOSE_FIND_PACKAGE option "
+                "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
+                "for the detection")
+        endif()
+        message(FATAL_ERROR "A CBLAS library is required but has "
+            "not been found")
+    endif()
+    ## LAPACKE
+    find_package(LAPACKE COMPONENTS LAPACKEXT)
+    if(LAPACK_FOUND AND LAPACK_LIBRARY_DIRS)
+        # the RPATH to be used when installing
+        list(APPEND CMAKE_INSTALL_RPATH "${LAPACK_LIBRARY_DIRS}")
+    else()
+        message(FATAL_ERROR "A LAPACK library is required but has not "
+            "been found")
+    endif()
+    if(LAPACKE_FOUND)
+        include_directories(${LAPACKE_INCLUDE_DIRS})
+        if(LAPACKE_LIBRARY_DIRS)
+            # the RPATH to be used when installing
+            list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS}")
+        endif()
+        if(LAPACKE_LINKER_FLAGS)
+            set(CMAKE_EXE_LINKER_FLAGS
+                "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
+        endif()
+    else()
+        if(ECRC_VERBOSE_FIND_PACKAGE)
+            if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
+                if (NOT LAPACKE_lapacke.h_DIRS)
+                    Print_Find_Header_Status(lapacke lapacke.h)
+                endif ()
+                if (NOT LAPACKE_lapacke_LIBRARY)
+                    Print_Find_Library_Status(lapacke liblapacke)
+                endif ()
+            endif()
+        else()
+            message(WARNING "LAPACKE library has not been found and "
+                "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
+                "activate ECRC_VERBOSE_FIND_PACKAGE option "
+                "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
+                "for the detection")
+        endif()
+        message(FATAL_ERROR "A LAPACKE library is required but has not "
+            "been found")
+    endif()
+endif()
+
+if(TESTING)
+    add_subdirectory("testing")
+endif()
+
+if(EXAMPLES)
+    add_subdirectory("examples")
+endif()
+
+if(DOCS)
+    find_package(Doxygen)
+    message(STATUS "Looking for Doxygen")
+    if(DOXYGEN_FOUND)
+        message(STATUS "Doxygen found")
+        add_subdirectory("docs")
+    else()
+        message(STATUS "Doxygen NOT found, skipping it")
+    endif()
+endif()
+
+# PKGCONFIG
+set(PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
+set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
+string(REPLACE ";" "," REQUIRES "${REQUIRES}")
+configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
+
+include_directories("${CMAKE_SOURCE_DIR}/include")
+
+# Collect STARS-H sources + headers
+set(STARSH_SRC)
+set(STARSH_PUB_HDR)
+add_subdirectory("src")
+add_subdirectory("include")
+
+# Defines the STARS-H library to build
+add_library(starsh STATIC ${STARSH_SRC})
+set_target_properties(starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}")
+
+# Install library
+install(TARGETS starsh
+    DESTINATION "${LIBDIR}"
+    PUBLIC_HEADER
+    DESTINATION "${INCDIR}")
+install(
+    FILES "${CMAKE_BINARY_DIR}/starsh.pc"
+    DESTINATION "${PKG_CONFIG_DIR}")
