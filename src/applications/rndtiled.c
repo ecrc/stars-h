@@ -64,6 +64,7 @@ int starsh_rndtiled_gen(STARSH_rndtiled **data, STARSH_kernel *kernel,
     free(work);
     free(tau);
     LAPACKE_dlarnv_work(2, iseed, n*nblocks, rndS);
+    cblas_dscal(n*nblocks, noise, rndS, 1);
     S[0] = 1.;
     for(int i = 1; i < block_size; i++)
         S[i] = S[i-1]*decay;
