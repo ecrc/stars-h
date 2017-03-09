@@ -82,7 +82,7 @@ endif()
 # Check if StarPU is available and add links to library
 # Addition of StarPU directories and libraries will be local in future versions
 if(STARPU)
-    find_package(StarPU)
+    find_package(STARPU)
     if(STARPU_FOUND)
         include_directories("${STARPU_INCLUDE_DIRS}")
         link_directories("${STARPU_LIBRARY_DIRS}")
