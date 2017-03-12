@@ -1,5 +1,5 @@
-# set the values of the variable in the parent scope
+set(SRC)
 add_subdirectory("blrm")
 add_subdirectory("kernels")
-set(STARSH_SRC "${CMAKE_CURRENT_SOURCE_DIR}/dsvfr.c"
-    "${STARSH_SRC}" PARENT_SCOPE)
+add_library(backends_sequential OBJECT ${SRC})
+target_include_directories(backends_sequential PRIVATE "${CMAKE_SOURCE_DIR}/include")

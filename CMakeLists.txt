@@ -6,7 +6,7 @@
 ###############################################################################
 
 # Need to identify lowest possible CMake version
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 # Set STARS-H version
 set(STARSH_VERSION_MAJOR 1)
@@ -35,7 +35,7 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 endif()
 
 # Create project and check C compiler
-project(STARS-H C)
+project(STARSH C)
 
 # Set the RPATH config
 # --------------------
@@ -71,10 +71,8 @@ set(REQUIRES)
 if(OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         add_definitions("-DOPENMP")
     else()
-        message("OpenMP is NOT supported, skipping it")
         set(OPENMP OFF)
     endif()
 endif()
@@ -82,7 +80,7 @@ endif()
 # Check if StarPU is available and add links to library
 # Addition of StarPU directories and libraries will be local in future versions
 if(STARPU)
-    find_package(StarPU)
+    find_package(STARPU)
     if(STARPU_FOUND)
         include_directories("${STARPU_INCLUDE_DIRS}")
         link_directories("${STARPU_LIBRARY_DIRS}")
@@ -114,8 +112,8 @@ endif()
 
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" ON)
-option(DOCS "Build documentation in docs directory" ON)
+option(EXAMPLES "Generate example binaries" OFF)
+option(DOCS "Build documentation in docs directory" OFF)
 
 if(TESTING OR EXAMPLES)
     # Enable testing
@@ -238,32 +236,21 @@ endif()
 set(PREFIX "${CMAKE_INSTALL_PREFIX}")
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
-set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
-string(REPLACE ";" "," REQUIRES "${REQUIRES}")
-configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # Collect STARS-H sources + headers
-set(STARSH_SRC)
-set(STARSH_PUB_HDR)
 add_subdirectory("src")
+set(STARSH_PUB_HDR)
 add_subdirectory("include")
 
 # Collect wrappers
 add_subdirectory("wrappers")
-message("ALL SOURCES: ${STARSH_SRC}")
 
-# Defines the STARS-H library to build
-add_library(starsh STATIC ${STARSH_SRC})
-set_target_properties(starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}")
-
-# Install library
-install(TARGETS starsh
-    DESTINATION "${LIBDIR}"
-    PUBLIC_HEADER
-    DESTINATION "${INCDIR}")
-install(
-    FILES "${CMAKE_BINARY_DIR}/starsh.pc"
+#Install Pkg-config file
+set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
+string(REPLACE ";" "," REQUIRES "${REQUIRES}")
+configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
+install(FILES "${CMAKE_BINARY_DIR}/starsh.pc"
     DESTINATION "${PKG_CONFIG_DIR}")
