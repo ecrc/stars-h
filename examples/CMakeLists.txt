@@ -1,8 +1,6 @@
 # Defines the source files of the tests. Each file generates 1 test
 set(tests_files "spatial.c" "rndtiled.c")
 
-include_directories("${CMAKE_SOURCE_DIR}/include")
-
 # Uses RUNPATH instead of RPATH
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 

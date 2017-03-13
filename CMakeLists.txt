@@ -37,6 +37,8 @@ endif()
 # Create project and check C compiler
 project(STARSH C)
 
+set(CMAKE_BUILD_TYPE Release)
+
 # Set the RPATH config
 # --------------------
 # use, i.e. don't skip the full RPATH for the build tree
@@ -57,6 +59,8 @@ set(ECRC_CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
 include(EcrcInit)
+include(FindPkgConfig)
+find_package(PkgConfig QUIET)
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
@@ -65,6 +69,9 @@ option(OPENMP "Use OpenMP support" ON)
 
 # init requirements
 set(REQUIRES)
+
+# Set path to header files of STARS-H
+include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # Check if OpenMP is supported and expand compilation flags
 # Addition of OpenMP flags will be local in future versions
@@ -82,9 +89,8 @@ endif()
 if(STARPU)
     find_package(STARPU)
     if(STARPU_FOUND)
-        include_directories("${STARPU_INCLUDE_DIRS}")
-        link_directories("${STARPU_LIBRARY_DIRS}")
-        link_libraries("${STARPU_LIBRARIES}")
+        include_directories(${STARPU_INCLUDE_DIRS})
+        link_directories(${STARPU_LIBRARY_DIRS})
         add_definitions("-DSTARPU")
         list(APPEND REQUIRES ${STARPU_LIBRARIES})
     else()
@@ -102,13 +108,13 @@ if(PLASMA)
     pkg_search_module(PLASMA plasma)
     if(PLASMA_FOUND)
         include_directories(${PLASMA_INCLUDE_DIRS})
-        link_directories("${PLASMA_LIBRARY_DIRS}")
-        link_libraries("${PLASMA_LIBRARIES}")
+        link_directories(${PLASMA_LIBRARY_DIRS})
     else()
         message("PLASMA is NOT found, skipping it")
         set(PLASMA OFF)
     endif()
 endif()
+
 
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
@@ -223,9 +229,7 @@ endif()
 
 if(DOCS)
     find_package(Doxygen)
-    message(STATUS "Looking for Doxygen")
     if(DOXYGEN_FOUND)
-        message(STATUS "Doxygen found")
         add_subdirectory("docs")
     else()
         message(STATUS "Doxygen NOT found, skipping it")
@@ -237,15 +241,10 @@ set(PREFIX "${CMAKE_INSTALL_PREFIX}")
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
 
-include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # Collect STARS-H sources + headers
 add_subdirectory("src")
-set(STARSH_PUB_HDR)
 add_subdirectory("include")
-
-# Collect wrappers
-add_subdirectory("wrappers")
 
 #Install Pkg-config file
 set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
