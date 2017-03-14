@@ -65,7 +65,7 @@ int starsh_itersolvers__dcg(STARSH_blrm *M, int nrhs, double *B, int ldb,
             rsold[j] = rsnew[j];
         }
         if(finished == nrhs)
-            break;
+            return i;
     }
-    return 0;
+    return -1;
 }

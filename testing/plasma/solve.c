@@ -6,6 +6,7 @@
 #include "starsh-spatial.h"
 #include "starsh-plasma.h"
 #include <plasma.h>
+#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
     int n = atoi(argv[1]), block_size = atoi(argv[2]);
     double beta = 0.1;
     int maxrank = 100, oversample = 10, onfly = 0;
-    double tol = 1e-9;
+    double tol = 1e-12;
     char *scheme = "omp_rsdd";
     srand(100);
     // Generate data for spatial statistics problem
@@ -67,27 +68,33 @@ int main(int argc, char **argv)
     starsh_blrf_info(F);
     starsh_blrm_info(M);
     printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    double rel_err = starsh_blrm__dfe(M);
+    printf("APPROXIMATION RELATIVE ERROR: %e\n", rel_err);
+    starsh_blrm__dmml_omp(M, nrhs, 1.0, b, N, 0.0, x, N);
+    printf("MATVEC by b: %.12e\n", cblas_dnrm2(N*nrhs, x, 1));
     // Solve with CG, approximate solution is in x, initial guess is zero
-    //memset(x, 0, data->count*sizeof(double));
-    cblas_dcopy(N*nrhs, b, 1, x_CG, 1);
+    memset(x, 0, N*nrhs*sizeof(double));
+    //cblas_dcopy(N*nrhs, b, 1, x_CG, 1);
     time1 = omp_get_wtime();
     int info = starsh_itersolvers__dcg(M, nrhs, b, N, x_CG, N, tol, CG_work);
+    double time2 = omp_get_wtime();
     printf("CG INFO: %d\n", info);
+    printf("NORM OF CG SOLUTION: %.16e\n", cblas_dnrm2(N*nrhs, x_CG, 1));
+    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, N, nrhs, N, 1.0, A->data, N, x_CG, N, 0.0, b_CG, N);
+    cblas_daxpy(N*nrhs, -1.0, b, 1, b_CG, 1);
+    printf("ACCURACY OF RHS: %e\n", cblas_dnrm2(N*nrhs, b_CG, 1)/cblas_dnrm2(N*nrhs, b, 1));
     //for(int i = 0; i < 1000; i++)
     //    starsh_blrm__dmml_omp(M, 1, 1.0, b, N, 0.0, x, N);
-    double time2 = omp_get_wtime();
     printf("TIME TO SOLVE: %e secs\n", time2-time1);
     printf("TOTAL TIME FOR STARSH: %e secs\n", time2-time0);
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, N, nrhs, N, 1.0, A->data, N, x_CG, N, 0.0, b_CG, N);
     plasma_init();
     time0 = omp_get_wtime();
     solve(N, A->data, N, nrhs, b, N, x, N);
     time0 = omp_get_wtime()-time0;
     printf("TIME PLASMA: %e secs\n", time0);
+    printf("NORM OF PLASMA SOLUTION: %.16e\n", cblas_dnrm2(N*nrhs, x, 1));
     plasma_finalize();
     cblas_daxpy(N*nrhs, -1.0, x, 1, x_CG, 1);
-    cblas_daxpy(N*nrhs, -1.0, b, 1, b_CG, 1);
     printf("ACCURACY OF SOLUTION: %e\n", cblas_dnrm2(N*nrhs, x_CG, 1)/cblas_dnrm2(N*nrhs, x, 1));
-    printf("ACCURACY OF RHS: %e\n", cblas_dnrm2(N*nrhs, b_CG, 1)/cblas_dnrm2(N*nrhs, b, 1));
     return 0;
 }
