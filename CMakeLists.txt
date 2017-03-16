@@ -6,7 +6,7 @@
 ###############################################################################
 
 # Need to identify lowest possible CMake version
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1.3)
 
 # Set STARS-H version
 #set(STARSH_VERSION_MAJOR 1)
@@ -40,9 +40,26 @@ project(STARS-H VERSION 1.0.0.2 LANGUAGES C)
 
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
+# Set build type for optimization flags
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Set desired backends
+# One may use -DSTARPU=OFF to disable StarPU support manually
+option(STARPU "Use StarPU backend" ON)
+option(OPENMP "Use OpenMP support" ON)
+
+# Use STARPU backend only when compiling by gcc
+if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
+    set(STARPU OFF)
+endif()
+
+# Workaround for C99 standard for Intel compiler
+if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel"))
+    set(CMAKE_C_STANDARD 99)
+    set(CMAKE_C_STANDARD_REQUIRED ON)
+else()
+    add_definitions("-std=c99")
+endif()
 
 # Set the RPATH config
 # --------------------
@@ -66,11 +83,6 @@ list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
 include(EcrcInit)
 include(FindPkgConfig)
 find_package(PkgConfig QUIET)
-
-# Set desired backends
-# One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU backend" ON)
-option(OPENMP "Use OpenMP support" ON)
 
 # init requirements
 set(REQUIRES)
