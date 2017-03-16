@@ -9,16 +9,16 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Set STARS-H version
-set(STARSH_VERSION_MAJOR 1)
-set(STARSH_VERSION_MINOR 0)
-set(STARSH_VERSION_PATCH 0)
-set(STARSH_VERSION_EXTRA rc1)
-set(STARSH_VERSION_LIST "${STARSH_VERSION_MAJOR}."
-    "${STARSH_VERSION_MINOR}."
-    "${STARSH_VERSION_PATCH}-"
-    "${STARSH_VERSION_EXTRA}")
-string(REPLACE ";" "" STARSH_VERSION "${STARSH_VERSION_LIST}")
-message(STATUS "Building STARS-H ${STARSH_VERSION}")
+#set(STARSH_VERSION_MAJOR 1)
+#set(STARSH_VERSION_MINOR 0)
+#set(STARSH_VERSION_PATCH 0)
+#set(STARSH_VERSION_EXTRA rc1)
+#set(STARSH_VERSION_LIST "${STARSH_VERSION_MAJOR}."
+#    "${STARSH_VERSION_MINOR}."
+#    "${STARSH_VERSION_PATCH}-"
+#    "${STARSH_VERSION_EXTRA}")
+#string(REPLACE ";" "" STARSH_VERSION "${STARSH_VERSION_LIST}")
+#message(STATUS "Building STARS-H ${STARSH_VERSION}")
 
 # Restrict building in top-level directory
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -35,9 +35,14 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 endif()
 
 # Create project and check C compiler
-project(STARSH C)
+cmake_policy(SET CMP0048 NEW)
+project(STARS-H VERSION 1.0.0.2 LANGUAGES C)
+
+message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
 set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Set the RPATH config
 # --------------------
