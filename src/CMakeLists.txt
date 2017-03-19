@@ -19,7 +19,6 @@ if(OPENMP)
 endif(OPENMP)
 if(STARPU)
     target_link_libraries(starsh PRIVATE ${STARPU_LIBRARIES})
-    message("")
 endif(STARPU)
 
 # Install STARSH library

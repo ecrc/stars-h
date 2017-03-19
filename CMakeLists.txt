@@ -8,18 +8,6 @@
 # Need to identify lowest possible CMake version
 cmake_minimum_required(VERSION 3.1.3)
 
-# Set STARS-H version
-#set(STARSH_VERSION_MAJOR 1)
-#set(STARSH_VERSION_MINOR 0)
-#set(STARSH_VERSION_PATCH 0)
-#set(STARSH_VERSION_EXTRA rc1)
-#set(STARSH_VERSION_LIST "${STARSH_VERSION_MAJOR}."
-#    "${STARSH_VERSION_MINOR}."
-#    "${STARSH_VERSION_PATCH}-"
-#    "${STARSH_VERSION_EXTRA}")
-#string(REPLACE ";" "" STARSH_VERSION "${STARSH_VERSION_LIST}")
-#message(STATUS "Building STARS-H ${STARSH_VERSION}")
-
 # Restrict building in top-level directory
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source builds are not allowed.\nPlease create a "
@@ -47,6 +35,15 @@ set(CMAKE_BUILD_TYPE Release)
 # One may use -DSTARPU=OFF to disable StarPU support manually
 option(STARPU "Use StarPU backend" ON)
 option(OPENMP "Use OpenMP support" ON)
+
+# Set desired external libraries
+# One may use -DPLASMA=OFF to disable wrappers for PLASMA
+option(PLASMA "Wrappers for PLASMA" ON)
+
+# Options for examples, testing and documentation
+option(TESTING "Generate testing binaries" ON)
+option(EXAMPLES "Generate example binaries" OFF)
+option(DOCS "Build documentation in docs directory" OFF)
 
 # Use STARPU backend only when compiling by gcc
 if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
@@ -116,28 +113,21 @@ if(STARPU)
     endif()
 endif()
 
-# Set desired wrappers
-# One may use -DPLASMA=OFF to disable wrappers for PLASMA
-option(PLASMA "Wrappers for PLASMA" ON)
-
 # Check if PLASMA is available to build wrappers
 if(PLASMA)
     pkg_search_module(PLASMA plasma)
     if(PLASMA_FOUND)
         include_directories(${PLASMA_INCLUDE_DIRS})
         link_directories(${PLASMA_LIBRARY_DIRS})
+        add_definitions("-DPLASMA")
+        list(APPEND REQUIRES ${PLASMA_LIBRARIES})
     else()
         message("PLASMA is NOT found, skipping it")
         set(PLASMA OFF)
     endif()
 endif()
 
-
-# Options for examples, testing and documentation
-option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" OFF)
-option(DOCS "Build documentation in docs directory" OFF)
-
+# Find LAPACK and BLAS for tests and examples
 if(TESTING OR EXAMPLES)
     # Enable testing
     include(CTest)

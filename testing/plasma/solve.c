@@ -26,6 +26,7 @@ int main(int argc, char **argv)
     STARSH_ssdata *data;
     STARSH_kernel kernel;
     starsh_gen_ssdata(&data, &kernel, n, beta);
+    //starsh_application(&data, &kernel, "spatial", "N", n*n, "Beta", beta, NULL);
     int ndim = 2, shape[2] = {data->count, data->count};
     char symm = 'S', dtype = 'd';
     // Init problem with given data and kernel and print short info
