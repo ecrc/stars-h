@@ -1,5 +1,4 @@
 set(SRC)
 add_subdirectory("blrm")
 add_library(backends_openmp OBJECT ${SRC})
-target_include_directories(backends_openmp PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_compile_options(backends_openmp PUBLIC "${OpenMP_C_FLAGS}")

@@ -9,11 +9,16 @@ typedef struct starsh_ssdata
     double *point;
     //!< Coordinates of spatial points.
     double beta;
-    //!< Parameter for exponential function.
+    //!< Characteristical length of covariance. Notes as l in some papers.
+    double nu;
+    //!< Order of Matern kernel.
 } STARSH_ssdata;
 
-//int starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
-//        int *icol, void *row_data, void *col_data, void *result);
-int starsh_gen_ssdata(STARSH_ssdata **data, STARSH_kernel *kernel, int n,
-        double beta);
+int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
+        double nu);
+int starsh_ssdata_new_vav(STARSH_ssdata **data, const int n, char dtype,
+        va_list args);
+int starsh_ssdata_new_va(STARSH_ssdata **data, const int n, char dtype, ...);
 void starsh_ssdata_free(STARSH_ssdata *data);
+
+int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type, char dtype);

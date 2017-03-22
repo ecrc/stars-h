@@ -20,6 +20,9 @@ endif(OPENMP)
 if(STARPU)
     target_link_libraries(starsh PRIVATE ${STARPU_LIBRARIES})
 endif(STARPU)
+if(GSL_FOUND)
+    target_link_libraries(starsh PRIVATE ${GSL_LIBRARIES})
+endif(GSL_FOUND)
 
 # Install STARSH library
 install(TARGETS starsh

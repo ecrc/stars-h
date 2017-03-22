@@ -21,7 +21,8 @@ typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
 typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
     STARSH_cluster_type;
 
-int starsh_application(void **data, STARSH_kernel *kernel, char *type, ...);
+int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
+        const char *problem_type, const char *kernel_type, ...);
 
 struct array
 //! `N`-dimensional array.

@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     int oversample = atoi(argv[6]);
     double tol = atof(argv[7]);
     char *scheme = argv[8];
-    int onfly = 1;
+    int onfly = 0;
     int n = nblocks*block_size;
     int shape[2] = {n, n};
     // Generate problem by random matrices
@@ -32,13 +32,22 @@ int main(int argc, char **argv)
     starsh_problem_new(&P, 2, shape, 'S', 'd', data, data, kernel,
             "Randomly generated matrix");
     starsh_problem_info(P);
+    // Create new problem out of dense matrix
+    Array *A;
+    starsh_problem_to_array(P, &A);
+    double *matrix = A->data;
+    for(int i = 0; i < n; i++)
+        matrix[i*(n+1)] += n;
+    starsh_problem_free(P);
+    starsh_problem_from_array(&P, A, 'S');
     // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, n, block_size);
+    //starsh_cluster_new_tiled(&C, data, n, block_size);
+    starsh_cluster_new_tiled(&C, A, n, block_size);
     starsh_cluster_info(C);
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
-    starsh_blrf_new_tiled(&F, P, C, C, 'S');
+    starsh_blrf_new_tiled(&F, P, C, C, 'N');
     starsh_blrf_info(F);
     // Approximate each admissible block
     STARSH_blrm *M;
@@ -61,6 +70,6 @@ int main(int argc, char **argv)
     // Free STARS_Problem instance
     starsh_problem_free(P);
     // Free randomly generated data
-    starsh_rndtiled_free(data);
+    //starsh_rndtiled_free(data);
     return 0;
 }

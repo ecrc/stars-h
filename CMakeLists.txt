@@ -6,7 +6,7 @@
 ###############################################################################
 
 # Need to identify lowest possible CMake version
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.2.3)
 
 # Restrict building in top-level directory
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -37,8 +37,9 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU backend" ON)
-option(OPENMP "Use OpenMP support" ON)
+option(STARPU "Use StarPU" ON)
+option(OPENMP "Use OpenMP" ON)
+option(MPI "Use MPI" ON)
 
 # Set desired external libraries
 # One may use -DPLASMA=OFF to disable wrappers for PLASMA
@@ -46,7 +47,7 @@ option(PLASMA "Wrappers for PLASMA" ON)
 
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" OFF)
+option(EXAMPLES "Generate example binaries" ON)
 option(DOCS "Build documentation in docs directory" OFF)
 
 # Use STARPU backend only when compiling by gcc
@@ -117,6 +118,16 @@ if(STARPU)
     endif()
 endif()
 
+if(MPI)
+    find_package(MPI)
+    if(MPI_C_FOUND)
+        add_definitions("-DMPI")
+    else()
+        message("MPI is NOT found, skipping it")
+        set(MPI OFF)
+    endif()
+endif()
+
 # Check if PLASMA is available to build wrappers
 if(PLASMA)
     pkg_search_module(PLASMA plasma>=3.0.0)
@@ -130,6 +141,14 @@ if(PLASMA)
         message("PLASMA is NOT found, skipping it")
         set(PLASMA OFF)
     endif()
+endif()
+
+# Check if GNU Scientific Library is available (for Matern kernel and
+# Bessel function)
+find_package(GSL)
+if(GSL_FOUND)
+    include_directories(${GSL_INCLUDE_DIRS})
+    add_definitions("-DGSL")
 endif()
 
 # Find LAPACK and BLAS for tests and examples

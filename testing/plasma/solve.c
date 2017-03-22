@@ -10,25 +10,29 @@
 
 int main(int argc, char **argv)
 {
-    if(argc < 3)
+    if(argc < 4)
     {
         printf("%d\n", argc);
-        printf("spatial n block_size\n");
+        printf("solve sqrtn block_size kernel\n");
         exit(1);
     }
-    int n = atoi(argv[1]), block_size = atoi(argv[2]);
+    int sqrtn = atoi(argv[1]), block_size = atoi(argv[2]);
+    char *kernel_type = argv[3];
     double beta = 0.1;
+    double nu = 0.5;
     int maxrank = 100, oversample = 10, onfly = 0;
     double tol = 1e-12;
     char *scheme = "omp_rsdd";
+    int N = sqrtn*sqrtn;
+    char symm = 'S', dtype = 'd';
+    int ndim = 2, shape[2] = {N, N};
     srand(100);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
-    starsh_gen_ssdata(&data, &kernel, n, beta);
-    //starsh_application(&data, &kernel, "spatial", "N", n*n, "Beta", beta, NULL);
-    int ndim = 2, shape[2] = {data->count, data->count};
-    char symm = 'S', dtype = 'd';
+    //starsh_gen_ssdata(&data, &kernel, n, beta);
+    starsh_application((void **)&data, &kernel, N, dtype, "spatial",
+            kernel_type, "beta", beta, "nu", nu, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
@@ -38,10 +42,8 @@ int main(int argc, char **argv)
     Array *A;
     double time0 = omp_get_wtime();
     //array_from_buffer(&A, 2, shape, 'd', 'F', NULL);
-    starsh_problem_to_array(P, &A);
     time0 = omp_get_wtime()-time0;
     printf("Compute entire matrix: %e secs\n", time0);
-    int N = A->shape[0];
     int nrhs = 1;
     double *b, *b_CG, *x, *x_CG, *CG_work;
     STARSH_MALLOC(b, N*nrhs);
@@ -55,7 +57,7 @@ int main(int argc, char **argv)
     // Init tiled cluster for tiled low-rank approximation and print info
     time0 = omp_get_wtime();
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, data->count, block_size);
+    starsh_cluster_new_tiled(&C, data, N, block_size);
     //starsh_cluster_info(C);
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;

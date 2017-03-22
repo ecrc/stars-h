@@ -24,21 +24,22 @@ int main(int argc, char **argv)
     double tol = atof(argv[5]), beta = atof(argv[6]);
     char *scheme = argv[7];
     */
-    int n = 100, block_size = 1000;
+    int sqrtn = 100, block_size = 1000;
     int maxrank = 100, oversample = 10;
-    double tol = 1e-9, beta = .1;
+    double tol = 1e-9, beta = 0.1;
+    double nu = 0.0;
     char *scheme = "omp_rsdd";
     int onfly = 0;
-    //printf("\nn=%d, bs=%d, mr=%d, os=%d, tol=%e, beta=%f, scheme=%s\n",
-    //        n, block_size, maxrank, oversample, tol, beta, scheme);
+    int N = sqrtn*sqrtn;
     // Setting random seed
     srand(100);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
-    starsh_gen_ssdata(&data, &kernel, n, beta);
-    int ndim = 2, shape[2] = {data->count, data->count};
+    int ndim = 2, shape[2] = {N, N};
     char symm = 'S', dtype = 'd';
+    starsh_application((void **)&data, &kernel, N, dtype, "spatial", "exp",
+            "beta", beta, "nu", nu, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
     starsh_problem_info(P);
     // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, data->count, block_size);
+    starsh_cluster_new_tiled(&C, data, N, block_size);
     starsh_cluster_info(C);
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
