@@ -4,6 +4,7 @@
 #include <complex.h>
 #include <string.h>
 #include <mkl.h>
+#include <mpi.h>
 #include "starsh.h"
 
 
@@ -202,6 +203,23 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         F2->bcol_near = F2->brow_near;
     }
     F2->type = type;
+    return 0;
+}
+
+int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
+        int *block_far, size_t nblocks_near, int *block_near,
+        size_t nblocks_far_local, size_t *block_far_local,
+        size_t nblocks_near_local, size_t *block_near_local,
+        STARSH_blrf_type type)
+{
+    int info;
+    info = starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far,
+            nblocks_near, block_near, type);
+    (*F)->nblocks_far_local = nblocks_far_local;
+    (*F)->block_far_local = block_far_local;
+    (*F)->nblocks_near_local = nblocks_near_local;
+    (*F)->block_near_local = block_near_local;
     return 0;
 }
 
@@ -419,3 +437,83 @@ int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
     return info;
 }
 
+int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
+        STARSH_cluster *R, STARSH_cluster *C, char symm)
+//! Plain division of array into admissible far-field and near-field blocks.
+/*! Non-pivoted non-hierarchical partitioning into blocks. */
+{
+    if(F == NULL)
+    {
+        STARSH_ERROR("invalid value of `F`");
+        return 1;
+    }
+    if(P == NULL)
+    {
+        STARSH_ERROR("invalid value of `P`");
+        return 1;
+    }
+    if(R == NULL)
+    {
+        STARSH_ERROR("invalid value of `R`");
+        return 1;
+    }
+    if(C == NULL)
+    {
+        STARSH_ERROR("invalid value of `C`");
+        return 1;
+    }
+    if(symm != 'S' && symm != 'N')
+    {
+        STARSH_ERROR("invalid value of `symm`");
+        return 1;
+    }
+    if(symm == 'S' && P->symm == 'N')
+    {
+        STARSH_ERROR("invalid value of `symm`");
+        return 1;
+    }
+    if(symm == 'S' && R != C)
+    {
+        STARSH_ERROR("`R` and `C` should be equal");
+        return 1;
+    }
+    int nbrows = R->nblocks, nbcols = C->nblocks;
+    int i, j, *block_far;
+    size_t k = 0, nblocks_far, nblocks_far_local;
+    size_t *block_far_local;
+    int mpi_rank, mpi_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    if(symm == 'N')
+    {
+        nblocks_far = (size_t)nbrows*(size_t)nbcols;
+        STARSH_MALLOC(block_far, 2*nblocks_far);
+        for(i = 0; i < nbrows; i++)
+            for(j = 0; j < nbcols; j++)
+            {
+                block_far[2*k] = i;
+                block_far[2*k+1] = j;
+                k++;
+            }
+    }
+    else
+    {
+        nblocks_far = (size_t)nbrows*(size_t)(nbrows+1)/2;
+        STARSH_MALLOC(block_far, 2*nblocks_far);
+        for(i = 0; i < nbrows; i++)
+            for(j = 0; j <= i; j++)
+            {
+                block_far[2*k] = i;
+                block_far[2*k+1] = j;
+                k++;
+            }
+    }
+    nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
+    printf("SIZE=%d RANK=%d LOCAL=%d TOTAL=%d\n", mpi_size, mpi_rank,
+            nblocks_far_local, nblocks_far);
+    STARSH_MALLOC(block_far_local, nblocks_far_local);
+    for(k = 0; k < nblocks_far_local; k++)
+        block_far_local[k] = mpi_rank+k*mpi_size;
+    return starsh_blrf_new_mpi(F, P, symm, R, C, nblocks_far, block_far, 0,
+            NULL, nblocks_far_local, block_far_local, 0, NULL, STARSH_PLAIN);
+}

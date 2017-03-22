@@ -16,9 +16,9 @@ typedef struct starsh_ssdata
 
 int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
         double nu);
-int starsh_ssdata_new_vav(STARSH_ssdata **data, const int n, char dtype,
+int starsh_ssdata_new_va(STARSH_ssdata **data, const int n, char dtype,
         va_list args);
-int starsh_ssdata_new_va(STARSH_ssdata **data, const int n, char dtype, ...);
+int starsh_ssdata_new_el(STARSH_ssdata **data, const int n, char dtype, ...);
 void starsh_ssdata_free(STARSH_ssdata *data);
 
 int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type, char dtype);

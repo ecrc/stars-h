@@ -1,5 +1,7 @@
 # Defines the source files of the tests. Each file generates 1 test
-set(tests_files "symm_positivity_after_compression.c" )
+set(tests_files "symm_positivity_after_compression.c"
+    "mpi.c")
+
 if( PLASMA_FOUND )
     list(APPEND tests_files "plasma/solve.c")
 endif()

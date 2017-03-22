@@ -273,16 +273,29 @@ struct starsh_blrf
      * */
     STARSH_blrf_type type;
     //!< Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
+
+    size_t nblocks_far_local;
+    size_t nblocks_near_local;
+    size_t *block_far_local;
+    size_t *block_near_local;
 };
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
         STARSH_blrf_type type);
+int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
+        int *block_far, size_t nblocks_near, int *block_near,
+        size_t nblocks_far_local, size_t *block_far_local,
+        size_t nblocks_near_local, size_t *block_near_local,
+        STARSH_blrf_type type);
 int starsh_blrf_free(STARSH_blrf *F);
 int starsh_blrf_info(STARSH_blrf *F);
 int starsh_blrf_print(STARSH_blrf *F);
 int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P,
+        STARSH_cluster *R, STARSH_cluster *C, char symm);
+int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
         STARSH_cluster *R, STARSH_cluster *C, char symm);
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D);
 
@@ -326,6 +339,10 @@ struct starsh_blrm
 
 
 int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
+        Array **far_U, Array **far_V, int onfly,
+        Array **near_D, void *alloc_U, void *alloc_V,
+        void *alloc_D, char alloc_type);
+int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type);
@@ -392,6 +409,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
 
+int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
 
 
 int starsh_itersolvers__dcg(STARSH_blrm *M, int nrhs, double *B, int ldb,

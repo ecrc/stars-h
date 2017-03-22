@@ -227,7 +227,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
     return 0;
 }
 
-int starsh_ssdata_new_vav(STARSH_ssdata **data, int n, char dtype,
+int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
         va_list args)
 {
     char *arg_type;
@@ -242,21 +242,21 @@ int starsh_ssdata_new_vav(STARSH_ssdata **data, int n, char dtype,
         else if(!strcmp(arg_type, "nu"))
             nu = va_arg(args, double);
         else
-            STARSH_ERROR("Wrong parameter name");
+            STARSH_ERROR("Wrong parameter name %s", arg_type);
         int sqrtn = sqrt(n);
         if(sqrtn*sqrtn != n)
             STARSH_ERROR("Parameter n must be square of integer");
-        printf("PARAMS:sqrtn=%d beta=%f nu=%f\n", sqrtn, beta, nu);
+        //printf("PARAMS:sqrtn=%d beta=%f nu=%f\n", sqrtn, beta, nu);
         starsh_ssdata_new(data, sqrtn, dtype, beta, nu);
     }
     return 0;
 }
 
-int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype, ...)
+int starsh_ssdata_new_el(STARSH_ssdata **data, int n, char dtype, ...)
 {
     va_list args;
     va_start(args, dtype);
-    int info = starsh_ssdata_new_vav(data, n, dtype, args);
+    int info = starsh_ssdata_new_va(data, n, dtype, args);
     va_end(args);
     return info;
 }

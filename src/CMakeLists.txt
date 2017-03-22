@@ -23,6 +23,9 @@ endif(STARPU)
 if(GSL_FOUND)
     target_link_libraries(starsh PRIVATE ${GSL_LIBRARIES})
 endif(GSL_FOUND)
+if(MPI)
+    target_link_libraries(starsh PRIVATE ${MPI_C_LIBRARIES})
+endif(MPI)
 
 # Install STARSH library
 install(TARGETS starsh

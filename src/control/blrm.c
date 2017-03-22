@@ -355,6 +355,10 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     else if(strcmp(scheme, "starpu_qp3") == 0)
         starsh_blrm__dqp3_starpu(M, F, maxrank, oversample, tol, onfly);
 #endif
+#ifdef MPI
+    else if(strcmp(scheme, "mpi_rsdd") == 0)
+        starsh_blrm__drsdd_mpi(M, F, maxrank, oversample, tol, onfly);
+#endif
     else
     {
         STARSH_ERROR("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
@@ -362,5 +366,115 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 "omp_rsdd2, omp_qp3)");
         return 1;
     }
+    return 0;
+}
+
+int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
+        Array **far_U, Array **far_V, int onfly,
+        Array **near_D, void *alloc_U, void *alloc_V,
+        void *alloc_D, char alloc_type)
+//! Init procedure for a non-nested block low-rank matrix.
+/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in] F: Block low-rank format.
+ * @param[in] far_rank: Array of ranks of far-field blocks.
+ * @param[in] far_U: Array of low-rank factors `U`.
+ * @param[in] far_V: Array of low-rank factors `V`.
+ * @param[in] onfly: Whether not to store dense blocks.
+ * @param[in] near_D: Array of dense near-field blocks.
+ * @param[in] alloc_U: Pointer to big buffer for all `far_U`.
+ * @param[in] alloc_V: Pointer to big buffer for all `far_V`.
+ * @param[in] alloc_D: Pointer to big buffer for all `near_D`.
+ * @param[in] alloc_type: Type of memory allocation. `1` if big buffers
+ *     are used.
+ * @return Error code.
+ * */
+{
+    if(M == NULL)
+    {
+        STARSH_ERROR("invalid value of `M`");
+        return 1;
+    }
+    if(F == NULL)
+    {
+        STARSH_ERROR("invalid value of `F`");
+        return 1;
+    }
+    if(far_rank == NULL && F->nblocks_far_local > 0)
+    {
+        STARSH_ERROR("invalid value of `far_rank`");
+        return 1;
+    }
+    if(far_U == NULL && F->nblocks_far_local > 0)
+    {
+        STARSH_ERROR("invalid value of `far_U`");
+        return 1;
+    }
+    if(far_V == NULL && F->nblocks_far_local > 0)
+    {
+        STARSH_ERROR("invalid value of `far_V`");
+        return 1;
+    }
+    if(onfly != 0 && onfly != 1)
+    {
+        STARSH_ERROR("invalid value of `onfly`");
+        return 1;
+    }
+    if(near_D == NULL && F->nblocks_near_local > 0 && onfly == 0)
+    {
+        STARSH_ERROR("invalid value of `near_D`");
+        return 1;
+    }
+    if(alloc_type != '1' && alloc_type != '2')
+    {
+        STARSH_ERROR("invalid value of `alloc_type`");
+        return 1;
+    }
+    if(alloc_U == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
+    {
+        STARSH_ERROR("invalid value of `alloc_U`");
+        return 1;
+    }
+    if(alloc_V == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
+    {
+        STARSH_ERROR("invalid value of `alloc_V`");
+        return 1;
+    }
+    if(alloc_D == NULL && F->nblocks_near_local > 0 && alloc_type == '1' &&
+            onfly == 0)
+    {
+        STARSH_ERROR("invalid value of `alloc_D`");
+        return 1;
+    }
+    STARSH_MALLOC(*M, 1);
+    STARSH_blrm *M2 = *M;
+    M2->format = F;
+    M2->far_rank = far_rank;
+    M2->far_U = far_U;
+    M2->far_V = far_V;
+    M2->onfly = onfly;
+    M2->near_D = near_D;
+    M2->alloc_U = alloc_U;
+    M2->alloc_V = alloc_V;
+    M2->alloc_D = alloc_D;
+    M2->alloc_type = alloc_type;
+    size_t lbi, bi, data_size = 0, size = 0;
+    size += sizeof(*M2);
+    size += F->nblocks_far_local*(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
+    for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
+    {
+        size += far_U[lbi]->nbytes+far_V[lbi]->nbytes;
+        data_size += far_U[lbi]->data_nbytes+far_V[lbi]->data_nbytes;
+    }
+    if(onfly == 0)
+    {
+        size += F->nblocks_near_local*sizeof(*near_D);
+        for(lbi = 0; lbi < F->nblocks_near_local; lbi++)
+        {
+            size += near_D[lbi]->nbytes;
+            data_size += near_D[lbi]->data_nbytes;
+        }
+    }
+    M2->nbytes = size;
+    M2->data_nbytes = data_size;
     return 0;
 }
