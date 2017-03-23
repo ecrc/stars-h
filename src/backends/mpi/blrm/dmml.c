@@ -29,6 +29,8 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    for(int i = 0; i < nrhs; i++)
+        MPI_Bcast(A+i*lda, ncols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     double *temp_D, *temp_B;
     int num_threads;
     #pragma omp parallel
@@ -150,8 +152,12 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         for(int j = 0; j < nrhs; j++)
             for(int k = 1; k < num_threads; k++)
                 temp_B[j*ldout+i] += temp_B[(k*nrhs+j)*ldout+i];
+    // Since I keep result only on root node, following code is commented
+    //for(int i = 0; i < nrhs; i++)
+    //    MPI_Allreduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM,
+    //            MPI_COMM_WORLD);
     for(int i = 0; i < nrhs; i++)
-        MPI_Allreduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM,
+        MPI_Reduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM, 0,
                 MPI_COMM_WORLD);
     free(temp_B);
     free(temp_D);

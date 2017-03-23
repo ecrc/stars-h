@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     memset(x, 0, N*nrhs*sizeof(double));
     //cblas_dcopy(N*nrhs, b, 1, x_CG, 1);
     time1 = omp_get_wtime();
-    int info = starsh_itersolvers__dcg(M, nrhs, b, N, x_CG, N, tol, CG_work);
+    int info = starsh_itersolvers__dcg_omp(M, nrhs, b, N, x_CG, N, tol, CG_work);
     double time2 = omp_get_wtime();
     printf("CG INFO: %d\n", info);
     printf("NORM OF CG SOLUTION: %.16e\n", cblas_dnrm2(N*nrhs, x_CG, 1));

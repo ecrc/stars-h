@@ -416,7 +416,9 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
 
-int starsh_itersolvers__dcg(STARSH_blrm *M, int nrhs, double *B, int ldb,
+int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
+        double *X, int ldx, double tol, double *work);
+int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work);
 
 #define STARSH_MALLOC_FAILED 1

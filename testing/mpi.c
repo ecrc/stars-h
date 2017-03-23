@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     srand(randseed);
     double beta = 0.1;
     double nu = 0.5;
-    int maxrank = 100, oversample = 10, onfly = 0;
+    int maxrank = 100, oversample = 10, onfly = 1;
     double tol = 1e-12;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
@@ -76,18 +76,31 @@ int main(int argc, char **argv)
     STARSH_MALLOC(b_CG, N*nrhs);
     STARSH_MALLOC(x, N*nrhs);
     STARSH_MALLOC(x_CG, N*nrhs);
+    STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
     int iseed[4] = {0, 0, 0, 1};
     LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
     starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
-    STARSH_blrm *M2;
-    starsh_blrm_approximate(&M2, F, maxrank, oversample, tol, onfly, "omp_rsdd");
-    starsh_blrm__dmml_omp(M2, nrhs, 1.0, b, N, 0.0, x_CG, N);
     if(mpi_rank == 0)
     {
+        STARSH_blrm *M2;
+        starsh_blrm_approximate(&M2, F, maxrank, oversample, tol, onfly, "omp_rsdd");
+        starsh_blrm__dmml_omp(M2, nrhs, 1.0, b, N, 0.0, x_CG, N);
         double norm = cblas_dnrm2(N, x, 1);
         cblas_daxpy(N, -1.0, x, 1, x_CG, 1);
         double diff = cblas_dnrm2(N, x_CG, 1);
         printf("RELATIVE ERROR OF MATVEC (MPI VS OMP): %e\n", diff/norm);
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    time1 = MPI_Wtime();
+    int info = starsh_itersolvers__dcg_mpi(M, nrhs, b, N, x_CG, N, tol, CG_work);
+    time1 = MPI_Wtime()-time1;
+    starsh_blrm__dmml_mpi(M, nrhs, 1.0, x_CG, N, 0.0, b_CG, N);
+    if(mpi_rank == 0)
+    {
+        cblas_daxpy(N, -1.0, b, 1, b_CG, 1);
+        double norm = cblas_dnrm2(N, b, 1);
+        double diff = cblas_dnrm2(N, b_CG, 1);
+        printf("CG INFO=%d TIME=%f seconds RELATIVE ERROR IN RHS=%e\n", info, time1, diff/norm);
     }
     MPI_Finalize();
     return 0;

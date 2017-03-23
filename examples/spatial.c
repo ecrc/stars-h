@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     // Solve with CG, approximate solution is in x, initial guess is zero
     memset(x, 0, N*sizeof(double));
     time0 = omp_get_wtime();
-    starsh_itersolvers__dcg(M, 1, b, N, x, N, tol, CG_work);
+    starsh_itersolvers__dcg_omp(M, 1, b, N, x, N, tol, CG_work);
     printf("TIME TO SOLVE: %e secs\n", omp_get_wtime()-time0);
     // Multiply M by approximate solution
     starsh_blrm__dmml_omp(M, 1, -1.0, x, N, 1.0, b, N);
