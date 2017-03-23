@@ -110,7 +110,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-    #pragma omp parallel for schedule(dynamic,1)
+    #pragma omp parallel for schedule(dynamic, 1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
     {
         size_t bi = block_far_local[lbi];
@@ -309,7 +309,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         }
         STARSH_MALLOC(alloc_D, size_D);
         // For each near-field block compute its elements
-        #pragma omp parallel for schedule(dynamic,1)
+        #pragma omp parallel for schedule(dynamic, 1)
         for(lbi = 0; lbi < new_nblocks_near_local; lbi++)
         {
             size_t bi = block_near_local[lbi];
@@ -342,7 +342,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         lbj = 0;
         for(lbi = 0; lbi < nblocks_far_local; lbi++)
         {
-            if(false_far_local[lbj] == block_far_local[lbi])
+            if(far_rank[lbi] == -1)
                 lbj++;
             else
             {
@@ -351,9 +351,9 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 far_rank[lbi-lbj] = far_rank[lbi];
             }
         }
-        STARSH_REALLOC(far_rank, new_nblocks_far);
-        STARSH_REALLOC(far_U, new_nblocks_far);
-        STARSH_REALLOC(far_V, new_nblocks_far);
+        STARSH_REALLOC(far_rank, new_nblocks_far_local);
+        STARSH_REALLOC(far_U, new_nblocks_far_local);
+        STARSH_REALLOC(far_V, new_nblocks_far_local);
     }
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far_local == 0 && nblocks_far_local > 0)
@@ -386,6 +386,10 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     {
         STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
         STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
+        printf("FAR_RANK:");
+        for(lbi = 0; lbi < new_nblocks_far_local; lbi++)
+            printf(" %d", far_rank[lbi]);
+        printf("\n");
     }
     return starsh_blrm_new_mpi(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');

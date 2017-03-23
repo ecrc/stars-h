@@ -64,6 +64,9 @@ int main(int argc, char **argv)
     //starsh_blrm_info(M);
     if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    double rel_err = starsh_blrm__dfe_mpi(M);
+//    if(mpi_rank == 0)
+        printf("RELATIVE ERROR: %e\n", rel_err);
     MPI_Finalize();
     return 0;
 }
