@@ -9,6 +9,9 @@
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
+    int mpi_size, mpi_rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if(argc < 5)
     {
         printf("%d\n", argc);
@@ -38,23 +41,29 @@ int main(int argc, char **argv)
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
-    starsh_problem_info(P); 
+    if(mpi_rank == 0)
+        starsh_problem_info(P); 
     // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
     starsh_cluster_new_tiled(&C, data, N, block_size);
-    starsh_cluster_info(C);
+    if(mpi_rank == 0)
+        starsh_cluster_info(C);
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
     starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
-    starsh_blrf_info(F);
+    if(mpi_rank == 0)
+        starsh_blrf_info(F);
     // Approximate each admissible block
-    //double time1 = omp_get_wtime();
+    MPI_Barrier(MPI_COMM_WORLD);
+    double time1 = MPI_Wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
-    //time1 = omp_get_wtime()-time1;
-    //starsh_blrf_info(F);
+    time1 = MPI_Wtime()-time1;
+    if(mpi_rank == 0)
+        starsh_blrf_info(F);
     //starsh_blrm_info(M);
-    //printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    if(mpi_rank == 0)
+        printf("TIME TO APPROXIMATE: %e secs\n", time1);
     MPI_Finalize();
     return 0;
 }

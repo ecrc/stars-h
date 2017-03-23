@@ -509,8 +509,6 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
             }
     }
     nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
-    printf("SIZE=%d RANK=%d LOCAL=%d TOTAL=%d\n", mpi_size, mpi_rank,
-            nblocks_far_local, nblocks_far);
     STARSH_MALLOC(block_far_local, nblocks_far_local);
     for(k = 0; k < nblocks_far_local; k++)
         block_far_local[k] = mpi_rank+k*mpi_size;

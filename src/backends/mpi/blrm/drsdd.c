@@ -109,7 +109,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     }
     // Work variables
     int info;
-    //STARSH_WARNING("1");
     // Simple cycle over all far-field admissible blocks
     #pragma omp parallel for schedule(dynamic,1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
@@ -164,7 +163,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(work);
         free(iwork);
     }
-    //STARSH_WARNING("2");
     // Get number of false far-field blocks
     size_t nblocks_false_far_local = 0;
     size_t *false_far_local = NULL;
@@ -173,97 +171,56 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             nblocks_false_far_local++;
     if(nblocks_false_far_local > 0)
     {
-        // IMPORTANT: `false_far` must be in ascending order for later code
-        // to work normally
+        // IMPORTANT: `false_far` and `false_far_local` must be in
+        // ascending order for later code to work normally
         STARSH_MALLOC(false_far_local, nblocks_false_far_local);
         lbj = 0;
         for(lbi = 0; lbi < nblocks_far_local; lbi++)
             if(far_rank[lbi] == -1)
                 false_far_local[lbj++] = block_far_local[lbi];
-        //STARSH_WARNING("FALSE FAR LOCAL 1: %zu %zu %zu", false_far_local[0], false_far_local[1], false_far_local[2]);
     }
-    //STARSH_WARNING("FALSE FAR LOCAL 2 %zu: %zu %zu %zu\n", nblocks_false_far_local, false_far_local[0], false_far_local[1], false_far_local[nblocks_false_far_local-1]);
     // Sync list of all false far-field blocks
     size_t nblocks_false_far = 0;
     int int_nblocks_false_far_local = nblocks_false_far_local;
-    //STARSH_WARNING("size_t->int:%d", int_nblocks_false_far_local);
     int *mpi_recvcount, *mpi_offset;
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     STARSH_MALLOC(mpi_recvcount, mpi_size);
     STARSH_MALLOC(mpi_offset, mpi_size);
-    //STARSH_WARNING("MPI SIZE=%d", mpi_size);
     MPI_Allgather(&int_nblocks_false_far_local, 1, MPI_INT, mpi_recvcount,
             1, MPI_INT, MPI_COMM_WORLD);
-    //STARSH_WARNING("recvcount %d %d", mpi_recvcount[0], mpi_recvcount[1]);
     for(bi = 0; bi < mpi_size; bi++)
         nblocks_false_far += mpi_recvcount[bi];
     mpi_offset[0] = 0;
     for(bi = 1; bi < mpi_size; bi++)
         mpi_offset[bi] = mpi_offset[bi-1]+mpi_recvcount[bi-1];
-    //STARSH_WARNING("Allreduce info=%d result=%d", info, nblocks_false_far);
     size_t *false_far = NULL;
     if(nblocks_false_far > 0)
         STARSH_MALLOC(false_far, nblocks_false_far);
     MPI_Allgatherv(false_far_local, nblocks_false_far_local, my_MPI_SIZE_T,
-            false_far, mpi_recvcount, mpi_offset, my_MPI_SIZE_T, MPI_COMM_WORLD);
+            false_far, mpi_recvcount, mpi_offset, my_MPI_SIZE_T,
+            MPI_COMM_WORLD);
+    free(mpi_recvcount);
+    free(mpi_offset);
     // Make false_far be in ascending order
     qsort(false_far, nblocks_false_far, sizeof(*false_far), cmp_size_t);
-    //STARSH_WARNING("FALSE FAR: %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu %zu", false_far[0], false_far[1], false_far[2], false_far[3], false_far[4], false_far[5], false_far[6], false_far[7], false_far[8], false_far[9], false_far[10], false_far[11], false_far[12], false_far[13], false_far[14], false_far[15], false_far[16], false_far[17]);
-    //MPI_Barrier(MPI_COMM_WORLD);
-    //STARSH_WARNING("3");
-    // Update lists of far-field and near-field blocks using previously
-    // generated list of false far-field blocks
-    /*
-    for(bi = 0; bi < mpi_size; bi++)
-    {
-        if(bi == mpi_rank)
-        {
-            printf("RANK=%d\n", mpi_rank);
-            printf("FAR %d:\n", nblocks_far);
-            for(bj = 0; bj < nblocks_far; bj++)
-            {
-                lbj = bj;
-                printf(" %zu=(%d,%d)", lbj, block_far[2*lbj], block_far[2*lbj+1]);
-            }
-            //printf("FAR_LOCAL %d:\n", nblocks_far_local);
-            for(bj = 0; bj < nblocks_far_local; bj++)
-            {
-                lbj = block_far_local[bj];
-                printf(" %zu=(%d,%d)", lbj, block_far[2*lbj], block_far[2*lbj+1]);
-            }
-            //printf("\nNEAR_LOCAL:");
-            for(bj = 0; bj < nblocks_near_local; bj++)
-            {
-                lbj = block_near_local[bj];
-                printf(" %zu=(%d,%d)", lbj,block_near[2*lbj], block_near[2*lbj+1]);
-            }
-            printf("\n");
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
-    */
     if(nblocks_false_far > 0)
     {
         // Update list of near-field blocks
         new_nblocks_near = nblocks_near+nblocks_false_far;
         new_nblocks_near_local = nblocks_near_local+nblocks_false_far_local;
-        //STARSH_WARNING("NFF: %zu %zu", nblocks_false_far, nblocks_false_far_local);
         STARSH_MALLOC(block_near, 2*new_nblocks_near);
         if(new_nblocks_near_local > 0)
             STARSH_MALLOC(block_near_local, new_nblocks_near_local);
-        //STARSH_WARNING("3.1");
         // At first get all near-field blocks, assumed to be dense
         #pragma omp parallel for schedule(static)
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
+        #pragma omp parallel for schedule(static)
         for(lbi = 0; lbi < nblocks_near_local; lbi++)
             block_near_local[lbi] = F->block_near_local[lbi];
         // Add false far-field blocks
-        lbi = 0;
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //STARSH_WARNING("3.2");
         #pragma omp parallel for schedule(static)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
@@ -278,13 +235,10 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             while(false_far[bi] < lbj)
                 bi++;
             block_near_local[nblocks_near_local+lbi] = nblocks_near+bi;
-            //STARSH_WARNING("APPEND NEAR %d: [%zu]=%zu", mpi_rank, nblocks_near_local+lbi, nblocks_near+bi);
         }
         // Update list of far-field blocks
         new_nblocks_far = nblocks_far-nblocks_false_far;
         new_nblocks_far_local = nblocks_far_local-nblocks_false_far_local;
-        //MPI_Barrier(MPI_COMM_WORLD);
-        //STARSH_WARNING("3.3");
         if(new_nblocks_far > 0)
         {
             STARSH_MALLOC(block_far, 2*new_nblocks_far);
@@ -300,14 +254,16 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 {
                     if(nblocks_false_far_local > lbj &&
                             false_far_local[lbj] == bi)
-                        lbi++, lbj++;
+                    {
+                        lbi++;
+                        lbj++;
+                    }
                     bj++;
                 }
                 else
                 {
                     block_far[2*(bi-bj)] = F->block_far[2*bi];
                     block_far[2*(bi-bj)+1] = F->block_far[2*bi+1];
-                    //STARSH_WARNING("CHECK EQ: %zu %zu", bi, F->block_far_local[lbi]);
                     if(nblocks_far_local > lbi &&
                             F->block_far_local[lbi] == bi)
                     {
@@ -317,8 +273,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 }
             }
         }
-        //STARSH_WARNING("LBJ=%zu BJ=%zu LBI=%zu", lbj, bj, lbi);
-        //STARSH_WARNING("3.5");
         // Update format by creating new format
         STARSH_blrf *F2;
         info = starsh_blrf_new_mpi(&F2, P, F->symm, RC, CC, new_nblocks_far,
@@ -329,12 +283,12 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_blrf tmp_blrf = *F;
         *F = *F2;
         *F2 = tmp_blrf;
-        STARSH_WARNING("`F` was modified due to false far-field blocks");
+        if(mpi_rank == 0)
+            STARSH_WARNING("`F` was modified due to false far-field blocks");
         info = starsh_blrf_free(F2);
         if(info != 0)
             return info;
     }
-    //STARSH_WARNING("4");
     // Compute near-field blocks if needed
     if(onfly == 0 && new_nblocks_near > 0)
     {
@@ -381,7 +335,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             kernel_time += time1-time0;
         }
     }
-    //STARSH_WARNING("5");
     // Change sizes of far_rank, far_U and far_V if there were false
     // far-field blocks
     if(nblocks_false_far_local > 0 && new_nblocks_far_local > 0)
@@ -402,7 +355,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_REALLOC(far_U, new_nblocks_far);
         STARSH_REALLOC(far_V, new_nblocks_far);
     }
-    //STARSH_WARNING("6");
     // If all far-field blocks are false, then dealloc buffers
     if(new_nblocks_far_local == 0 && nblocks_far_local > 0)
     {
@@ -418,7 +370,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(alloc_V);
         alloc_V = NULL;
     }
-    //STARSH_WARNING("7");
     // Dealloc list of false far-field blocks if it is not empty
     if(nblocks_false_far > 0)
         free(false_far);
@@ -426,31 +377,16 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(false_far_local);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
-    /*
-    for(bi = 0; bi < mpi_size; bi++)
+    double mpi_drsdd_time = 0, mpi_kernel_time = 0;
+    MPI_Reduce(&drsdd_time, &mpi_drsdd_time, 1, MPI_DOUBLE, MPI_SUM, 0,
+            MPI_COMM_WORLD);
+    MPI_Reduce(&kernel_time, &mpi_kernel_time, 1, MPI_DOUBLE, MPI_SUM, 0,
+            MPI_COMM_WORLD);
+    if(mpi_rank == 0)
     {
-        if(bi == mpi_rank)
-        {
-            printf("RANK=%d\n", mpi_rank);
-            printf("FAR_LOCAL %d:\n", new_nblocks_far_local);
-            for(bj = 0; bj < new_nblocks_far_local; bj++)
-            {
-                lbj = block_far_local[bj];
-                printf(" (%d,%d)", block_far[2*lbj], block_far[2*lbj+1]);
-            }
-            printf("\nNEAR_LOCAL:");
-            for(bj = 0; bj < new_nblocks_near_local; bj++)
-            {
-                lbj = block_near_local[bj];
-                printf(" (%d,%d)", block_near[2*lbj], block_near[2*lbj+1]);
-            }
-            printf("\n");
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
+        STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
+        STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
     }
-    */
-    STARSH_WARNING("DRSDD kernel total time: %e secs", drsdd_time);
-    STARSH_WARNING("MATRIX kernel total time: %e secs", kernel_time);
     return starsh_blrm_new_mpi(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
