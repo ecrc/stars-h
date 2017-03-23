@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <mkl.h>
 #include <omp.h>
+#include <mpi.h>
 #include <string.h>
 #include "starsh.h"
 
-int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
+int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb)
 //! Double precision Multiply by dense Matrix, blr-matrix is on Left side.
 /*! Performs `B=alpha*M*A+beta*B` using OpenMP */
@@ -19,21 +20,15 @@ int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
     STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;
     // Number of far-field and near-field blocks
-    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near, bi;
+    size_t nblocks_far_local = F->nblocks_far_local;
+    size_t nblocks_near_local = F->nblocks_near_local;
+    size_t lbi;
     char symm = F->symm;
     int maxrank = 100;
     int maxnb = nrows/F->nbrows;
-    // Setting B = beta*B
-    if(beta == 0.)
-        #pragma omp parallel for schedule(static)
-        for(int i = 0; i < nrows; i++)
-            for(int j = 0; j < nrhs; j++)
-                B[j*ldb+i] = 0.;
-    else
-        #pragma omp parallel for schedule(static)
-        for(int i = 0; i < nrows; i++)
-            for(int j = 0; j < nrhs; j++)
-                B[j*ldb+i] *= beta;
+    int mpi_size, mpi_rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     double *temp_D, *temp_B;
     int num_threads;
     #pragma omp parallel
@@ -48,26 +43,33 @@ int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
         STARSH_MALLOC(temp_D, num_threads*maxnb*maxnb);
     }
     STARSH_MALLOC(temp_B, num_threads*nrhs*nrows);
+    // Setting temp_B=beta*B for master thread of root node and B=0 otherwise
     #pragma omp parallel
     {
         double *out = temp_B+omp_get_thread_num()*nrhs*nrows;
         for(int j = 0; j < nrhs*nrows; j++)
             out[j] = 0.;
     }
+    if(beta != 0. && mpi_rank == 0)
+        #pragma omp parallel for schedule(static)
+        for(int i = 0; i < nrows; i++)
+            for(int j = 0; j < nrhs; j++)
+                temp_B[j*ldb+i] = beta*B[j*ldb+i];
     int ldout = nrows;
     // Simple cycle over all far-field admissible blocks
     #pragma omp parallel for schedule(dynamic, 1)
-    for(bi = 0; bi < nblocks_far; bi++)
+    for(lbi = 0; lbi < nblocks_far_local; lbi++)
     {
+        size_t bi = F->block_far_local[lbi];
         // Get indexes of corresponding block row and block column
         int i = F->block_far[2*bi];
         int j = F->block_far[2*bi+1];
         // Get sizes and rank
         int nrows = R->size[i];
         int ncols = C->size[j];
-        int rank = M->far_rank[bi];
+        int rank = M->far_rank[lbi];
         // Get pointers to data buffers
-        double *U = M->far_U[bi]->data, *V = M->far_V[bi]->data;
+        double *U = M->far_U[lbi]->data, *V = M->far_V[lbi]->data;
         int info = 0;
         double *D = temp_D+omp_get_thread_num()*nrhs*maxrank;
         double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
@@ -90,8 +92,9 @@ int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
     if(M->onfly == 1)
         // Simple cycle over all near-field blocks
         #pragma omp parallel for schedule(dynamic, 1)
-        for(bi = 0; bi < nblocks_near; bi++)
+        for(lbi = 0; lbi < nblocks_near_local; lbi++)
         {
+            size_t bi = F->block_near_local[lbi];
             // Get indexes and sizes of corresponding block row and column
             int i = F->block_near[2*bi];
             int j = F->block_near[2*bi+1];
@@ -118,15 +121,16 @@ int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
     else
         // Simple cycle over all near-field blocks
         #pragma omp parallel for schedule(dynamic, 1)
-        for(bi = 0; bi < nblocks_near; bi++)
+        for(lbi = 0; lbi < nblocks_near_local; lbi++)
         {
+            size_t bi = F->block_near_local[lbi];
             // Get indexes and sizes of corresponding block row and column
             int i = F->block_near[2*bi];
             int j = F->block_near[2*bi+1];
             int nrows = R->size[i];
             int ncols = C->size[j];
             // Get pointers to data buffers
-            double *D = M->near_D[bi]->data;
+            double *D = M->near_D[lbi]->data;
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
             // Multiply 2 dense matrices
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
@@ -140,11 +144,15 @@ int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
                         1.0, out+C->start[j], ldout);
             }
         }
+    // Reduce result to temp_B, corresponding to master openmp thread
     #pragma omp parallel for schedule(static)
     for(int i = 0; i < ldout; i++)
         for(int j = 0; j < nrhs; j++)
-            for(int k = 0; k < num_threads; k++)
-                B[j*ldb+i] += temp_B[(k*nrhs+j)*ldout+i];
+            for(int k = 1; k < num_threads; k++)
+                temp_B[j*ldout+i] += temp_B[(k*nrhs+j)*ldout+i];
+    for(int i = 0; i < nrhs; i++)
+        MPI_Allreduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM,
+                MPI_COMM_WORLD);
     free(temp_B);
     free(temp_D);
     return 0;

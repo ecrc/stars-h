@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <omp.h>
+#include <mkl.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
 
@@ -24,13 +25,13 @@ int main(int argc, char **argv)
     srand(randseed);
     double beta = 0.1;
     double nu = 0.5;
-    int maxrank = 100, oversample = 10, onfly = 1;
+    int maxrank = 100, oversample = 10, onfly = 0;
     double tol = 1e-12;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'S', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
-    srand(100);
+    //srand(100);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
     // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
+    //starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
     starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
     if(mpi_rank == 0)
         starsh_blrf_info(F);
@@ -65,8 +67,28 @@ int main(int argc, char **argv)
     if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
     double rel_err = starsh_blrm__dfe_mpi(M);
-//    if(mpi_rank == 0)
+    if(mpi_rank == 0)
         printf("RELATIVE ERROR: %e\n", rel_err);
+    // Multiply TLR matrix by vector
+    double *b, *b_CG, *x, *x_CG, *CG_work;
+    int nrhs = 1;
+    STARSH_MALLOC(b, N*nrhs);
+    STARSH_MALLOC(b_CG, N*nrhs);
+    STARSH_MALLOC(x, N*nrhs);
+    STARSH_MALLOC(x_CG, N*nrhs);
+    int iseed[4] = {0, 0, 0, 1};
+    LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
+    starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
+    STARSH_blrm *M2;
+    starsh_blrm_approximate(&M2, F, maxrank, oversample, tol, onfly, "omp_rsdd");
+    starsh_blrm__dmml_omp(M2, nrhs, 1.0, b, N, 0.0, x_CG, N);
+    if(mpi_rank == 0)
+    {
+        double norm = cblas_dnrm2(N, x, 1);
+        cblas_daxpy(N, -1.0, x, 1, x_CG, 1);
+        double diff = cblas_dnrm2(N, x_CG, 1);
+        printf("RELATIVE ERROR OF MATVEC (MPI VS OMP): %e\n", diff/norm);
+    }
     MPI_Finalize();
     return 0;
 }

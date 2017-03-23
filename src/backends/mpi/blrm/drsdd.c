@@ -386,10 +386,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     {
         STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
         STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
-        printf("FAR_RANK:");
-        for(lbi = 0; lbi < new_nblocks_far_local; lbi++)
-            printf(" %d", far_rank[lbi]);
-        printf("\n");
     }
     return starsh_blrm_new_mpi(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
