@@ -425,14 +425,14 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
 
 #define STARSH_ERROR(format, ...)\
 {\
-    fprintf(stderr, "STARS ERROR: %s(): ", __func__);\
+    fprintf(stderr, "STARSH ERROR: %s(): ", __func__);\
     fprintf(stderr, format, ##__VA_ARGS__);\
     fprintf(stderr, "\n");\
 }
 
 #define STARSH_WARNING(format, ...)\
 {\
-    fprintf(stderr, "STARS WARNING: %s(): ", __func__);\
+    fprintf(stderr, "STARSH WARNING: %s(): ", __func__);\
     fprintf(stderr, format, ##__VA_ARGS__);\
     fprintf(stderr, "\n");\
 }
