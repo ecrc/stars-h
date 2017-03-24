@@ -86,7 +86,7 @@ double starsh_blrm__dfe_mpi(STARSH_blrm *M)
             double *D = M->near_D[lbi]->data, D_norm[ncols];
             for(size_t k = 0; k < ncols; k++)
                 D_norm[k] = cblas_dnrm2(nrows, D+k*nrows, 1);
-            near_block_norm[bi] = cblas_dnrm2(ncols, D_norm, 1);
+            near_block_norm[lbi] = cblas_dnrm2(ncols, D_norm, 1);
             if(i != j && symm == 'S')
                 // Multiply by square root of 2 in symmetric case
                 near_block_norm[lbi] *= sqrt2;
