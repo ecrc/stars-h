@@ -203,6 +203,19 @@ int starsh_blrm_info(STARSH_blrm *M)
     return 0;
 }
 
+int starsh_blrm_info_mpi(STARSH_blrm *M)
+//! Print short info on non-nested block low-rank matrix
+{
+    if(M == NULL)
+    {
+        STARSH_ERROR("invalid value of `M`");
+        return 1;
+    }
+    printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
+            "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
+    return 0;
+}
+
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D)
 //! Get shape, rank and low-rank factors or dense representation of a block.
@@ -459,7 +472,8 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
     M2->alloc_type = alloc_type;
     size_t lbi, bi, data_size = 0, size = 0;
     size += sizeof(*M2);
-    size += F->nblocks_far_local*(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
+    size += F->nblocks_far_local
+        *(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
     for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
     {
         size += far_U[lbi]->nbytes+far_V[lbi]->nbytes;
@@ -474,7 +488,11 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
             data_size += near_D[lbi]->data_nbytes;
         }
     }
-    M2->nbytes = size;
-    M2->data_nbytes = data_size;
+    MPI_Allreduce(&size, &(M2->nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
+            MPI_COMM_WORLD);
+    MPI_Allreduce(&data_size, &(M2->data_nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
+            MPI_COMM_WORLD);
+    //M2->nbytes = size;
+    //M2->data_nbytes = data_size;
     return 0;
 }

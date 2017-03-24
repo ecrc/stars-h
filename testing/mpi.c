@@ -62,8 +62,10 @@ int main(int argc, char **argv)
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
+    {
         starsh_blrf_info(F);
-    //starsh_blrm_info(M);
+        starsh_blrm_info(M);
+    }
     if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -73,6 +75,8 @@ int main(int argc, char **argv)
     if(mpi_rank == 0)
         printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
                 time1, rel_err);
+    // Flush STDOUT, since next step is very time consuming
+    fflush(stdout);
     // Multiply TLR matrix by vector
     double *b, *b_CG, *x, *x_CG, *CG_work;
     int nrhs = 1;
