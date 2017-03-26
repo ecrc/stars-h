@@ -29,7 +29,11 @@ project(STARS-H VERSION 1.0.0.2 LANGUAGES C)
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
 # Set build type for optimization flags
-set(CMAKE_BUILD_TYPE Release)
+IF(NOT CMAKE_BUILD_TYPE)
+    SET( CMAKE_BUILD_TYPE Release CACHE STRING
+         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel"
+         FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
