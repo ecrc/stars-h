@@ -6,19 +6,7 @@
 ###############################################################################
 
 # Need to identify lowest possible CMake version
-cmake_minimum_required(VERSION 2.8)
-
-# Set STARS-H version
-set(STARSH_VERSION_MAJOR 1)
-set(STARSH_VERSION_MINOR 0)
-set(STARSH_VERSION_PATCH 0)
-set(STARSH_VERSION_EXTRA rc1)
-set(STARSH_VERSION_LIST "${STARSH_VERSION_MAJOR}."
-    "${STARSH_VERSION_MINOR}."
-    "${STARSH_VERSION_PATCH}-"
-    "${STARSH_VERSION_EXTRA}")
-string(REPLACE ";" "" STARSH_VERSION "${STARSH_VERSION_LIST}")
-message(STATUS "Building STARS-H ${STARSH_VERSION}")
+cmake_minimum_required(VERSION 3.1.3)
 
 # Restrict building in top-level directory
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -35,7 +23,44 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 endif()
 
 # Create project and check C compiler
-project(STARS-H C)
+cmake_policy(SET CMP0048 NEW)
+project(STARS-H VERSION 1.0.0.2 LANGUAGES C)
+
+message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
+
+# Set build type for optimization flags
+IF(NOT CMAKE_BUILD_TYPE)
+    SET( CMAKE_BUILD_TYPE Release CACHE STRING
+         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel"
+         FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
+# Set desired backends
+# One may use -DSTARPU=OFF to disable StarPU support manually
+option(STARPU "Use StarPU backend" ON)
+option(OPENMP "Use OpenMP support" ON)
+
+# Set desired external libraries
+# One may use -DPLASMA=OFF to disable wrappers for PLASMA
+option(PLASMA "Wrappers for PLASMA" ON)
+
+# Options for examples, testing and documentation
+option(TESTING "Generate testing binaries" ON)
+option(EXAMPLES "Generate example binaries" OFF)
+option(DOCS "Build documentation in docs directory" OFF)
+
+# Use STARPU backend only when compiling by gcc
+if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
+    set(STARPU OFF)
+endif()
+
+# Workaround for C99 standard for Intel compiler
+if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel"))
+    set(CMAKE_C_STANDARD 99)
+    set(CMAKE_C_STANDARD_REQUIRED ON)
+else()
+    add_definitions("-std=c99")
+endif()
 
 # Set the RPATH config
 # --------------------
@@ -57,24 +82,22 @@ set(ECRC_CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
 include(EcrcInit)
-
-# Set desired backends
-# One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU backend" ON)
-option(OPENMP "Use OpenMP support" ON)
+include(FindPkgConfig)
+find_package(PkgConfig QUIET)
 
 # init requirements
 set(REQUIRES)
+
+# Set path to header files of STARS-H
+include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # Check if OpenMP is supported and expand compilation flags
 # Addition of OpenMP flags will be local in future versions
 if(OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         add_definitions("-DOPENMP")
     else()
-        message("OpenMP is NOT supported, skipping it")
         set(OPENMP OFF)
     endif()
 endif()
@@ -84,9 +107,8 @@ endif()
 if(STARPU)
     find_package(STARPU)
     if(STARPU_FOUND)
-        include_directories("${STARPU_INCLUDE_DIRS}")
-        link_directories("${STARPU_LIBRARY_DIRS}")
-        link_libraries("${STARPU_LIBRARIES}")
+        include_directories(${STARPU_INCLUDE_DIRS})
+        link_directories(${STARPU_LIBRARY_DIRS})
         add_definitions("-DSTARPU")
         list(APPEND REQUIRES ${STARPU_LIBRARIES})
     else()
@@ -95,11 +117,22 @@ if(STARPU)
     endif()
 endif()
 
-# Options for examples, testing and documentation
-option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" ON)
-option(DOCS "Build documentation in docs directory" ON)
+# Check if PLASMA is available to build wrappers
+if(PLASMA)
+    pkg_search_module(PLASMA plasma>=3.0.0)
+    if(PLASMA_FOUND)
+        include_directories(${PLASMA_INCLUDE_DIRS})
+        link_directories(${PLASMA_LIBRARY_DIRS})
+        add_definitions("-DPLASMA")
+        list(APPEND REQUIRES ${PLASMA_LIBRARIES})
+        message(STATUS "PLASMA ${PLASMA_VERSION} found")
+    else()
+        message("PLASMA is NOT found, skipping it")
+        set(PLASMA OFF)
+    endif()
+endif()
 
+# Find LAPACK and BLAS for tests and examples
 if(TESTING OR EXAMPLES)
     # Enable testing
     include(CTest)
@@ -208,9 +241,7 @@ endif()
 
 if(DOCS)
     find_package(Doxygen)
-    message(STATUS "Looking for Doxygen")
     if(DOXYGEN_FOUND)
-        message(STATUS "Doxygen found")
         add_subdirectory("docs")
     else()
         message(STATUS "Doxygen NOT found, skipping it")
@@ -221,28 +252,16 @@ endif()
 set(PREFIX "${CMAKE_INSTALL_PREFIX}")
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
+
+
+# Collect STARS-H sources + headers
+add_subdirectory("src")
+add_subdirectory("include")
+
+#Install Pkg-config file
 set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
 string(REPLACE ";" "," REQUIRES "${REQUIRES}")
 configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
-
-include_directories("${CMAKE_SOURCE_DIR}/include")
-
-# Collect STARS-H sources + headers
-set(STARSH_SRC)
-set(STARSH_PUB_HDR)
-add_subdirectory("src")
-add_subdirectory("include")
-
-# Defines the STARS-H library to build
-add_library(starsh STATIC ${STARSH_SRC})
-set_target_properties(starsh PROPERTIES PUBLIC_HEADER "${STARSH_PUB_HDR}")
-
-# Install library
-install(TARGETS starsh
-    DESTINATION "${LIBDIR}"
-    PUBLIC_HEADER
-    DESTINATION "${INCDIR}")
-install(
-    FILES "${CMAKE_BINARY_DIR}/starsh.pc"
+install(FILES "${CMAKE_BINARY_DIR}/starsh.pc"
     DESTINATION "${PKG_CONFIG_DIR}")

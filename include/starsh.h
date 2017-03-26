@@ -21,6 +21,7 @@ typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
 typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
     STARSH_cluster_type;
 
+int starsh_application(void **data, STARSH_kernel *kernel, char *type, ...);
 
 struct array
 //! `N`-dimensional array.
@@ -392,8 +393,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 
 
 
-int starsh_itersolvers__dcg(STARSH_blrm *M, double *b, double tol,
-        double *x, double *work);
+int starsh_itersolvers__dcg(STARSH_blrm *M, int nrhs, double *B, int ldb,
+        double *X, int ldx, double tol, double *work);
 
 #define STARSH_MALLOC_FAILED 1
 

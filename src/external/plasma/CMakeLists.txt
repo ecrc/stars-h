@@ -1,0 +1,3 @@
+set(STARSH_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/solve.c"
+    "${STARSH_SRC}" PARENT_SCOPE)
