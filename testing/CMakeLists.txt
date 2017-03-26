@@ -1,6 +1,8 @@
 # Defines the source files of the tests. Each file generates 1 test
-set(tests_files "symm_positivity_after_compression.c"
-    "plasma/solve.c")
+set(tests_files "symm_positivity_after_compression.c" )
+if( PLASMA_FOUND )
+    list(APPEND tests_files "plasma/solve.c")
+endif()
 
 # Uses RUNPATH instead of RPATH
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
