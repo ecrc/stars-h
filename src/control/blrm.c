@@ -488,6 +488,9 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
             data_size += near_D[lbi]->data_nbytes;
         }
     }
+    M2->nbytes = 0;
+    M2->data_nbytes = 0;
+    STARSH_WARNING("SIZE=%e MB, DATA=%e MB", size/1024./1024., data_size/1024./1024.);
     MPI_Allreduce(&size, &(M2->nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
             MPI_COMM_WORLD);
     MPI_Allreduce(&data_size, &(M2->data_nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
