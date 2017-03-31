@@ -17,6 +17,11 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         starsh_ssdata_new_va((STARSH_ssdata **)data, n, dtype, args);
         starsh_ssdata_get_kernel(kernel, kernel_type, dtype);
     }
+    else if(!strcmp(problem_type, "spatial1d"))
+    {
+        starsh_ssdata_new_1d_va((STARSH_ssdata **)data, n, dtype, args);
+        starsh_ssdata_1d_get_kernel(kernel, kernel_type, dtype);
+    }
     else
         STARSH_ERROR("Wrong value of problem_type");
     va_end(args);

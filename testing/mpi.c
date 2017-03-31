@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     double beta = 0.1;
     double nu = 0.5;
     int maxrank = 100, oversample = 10, onfly = 0;
-    double tol = 1e-12;
+    double tol = 1e-9;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'S', dtype = 'd';

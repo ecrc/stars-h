@@ -329,8 +329,12 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 lbj++;
             else
             {
-                far_U[lbi-lbj] = far_U[lbi];
-                far_V[lbi-lbj] = far_V[lbi];
+                int shape_U[2] = {far_U[lbi]->shape[0], far_rank[lbi]};
+                int shape_V[2] = {far_V[lbi]->shape[0], far_rank[lbi]};
+                array_from_buffer(far_U+lbi-lbj, 2, shape_U, 'd', 'F',
+                        far_U[lbi]->data);
+                array_from_buffer(far_V+lbi-lbj, 2, shape_V, 'd', 'F',
+                        far_V[lbi]->data);
                 far_rank[lbi-lbj] = far_rank[lbi];
             }
         }
