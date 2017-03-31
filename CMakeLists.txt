@@ -37,17 +37,17 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU" ON)
+option(STARPU "Use StarPU" OFF)
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
 
 # Set desired external libraries
 # One may use -DPLASMA=OFF to disable wrappers for PLASMA
-option(PLASMA "Wrappers for PLASMA" ON)
+option(PLASMA "Wrappers for PLASMA" OFF)
 
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" ON)
+option(EXAMPLES "Generate example binaries" OFF)
 option(DOCS "Build documentation in docs directory" OFF)
 
 # Use STARPU backend only when compiling by gcc

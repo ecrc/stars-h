@@ -26,12 +26,11 @@ int main(int argc, char **argv)
     double beta = 0.1;
     double nu = 0.5;
     int maxrank = 100, oversample = 10, onfly = 0;
+    //double tol = 1e-9;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'S', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
-    if(mpi_rank == 0)
-        printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
     srand(0);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
@@ -84,14 +83,15 @@ int main(int argc, char **argv)
     int nrhs = 1;
     STARSH_MALLOC(b, N*nrhs);
     STARSH_MALLOC(x, N*nrhs);
-    //STARSH_MALLOC(r, N*nrhs);
-    //STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
+    STARSH_MALLOC(r, N*nrhs);
+    STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
     if(mpi_rank == 0)
     {
         int iseed[4] = {0, 0, 0, 1};
         LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
         cblas_dscal(N*nrhs, 0.0, x, 1);
     }
+    /*
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 100; i++)
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     {
         printf("TIME TO 100 MATVECS: %e secs\n", time1);
     }
-    /*
+    */
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     int info = starsh_itersolvers__dcg_mpi(M, nrhs, b, N, x, N, tol, CG_work);
@@ -117,7 +117,6 @@ int main(int argc, char **argv)
         printf("CG INFO=%d\nCG TIME=%f secs\nCG RELATIVE ERROR IN RHS=%e\n",
                 info, time1, norm_res/norm_rhs);
     }
-    */
     MPI_Finalize();
     return 0;
 }
