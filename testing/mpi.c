@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     double beta = 0.1;
     double nu = 0.5;
     int maxrank = 100, oversample = 10, onfly = 0;
-    char *scheme = "omp_rsdd";
+    char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'S', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
@@ -38,11 +38,7 @@ int main(int argc, char **argv)
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     starsh_application((void **)&data, &kernel, N, dtype, "spatial",
-            kernel_type, "beta", beta, "nu", nu, NULL);
-    return 0;
-    if(mpi_rank == 0)
-        for(int i = 0; i < N; i++)
-            printf("%f %f\n", data->point[i], data->point[i+N]);
+            "exp", "beta", beta, "nu", nu, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,

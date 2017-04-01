@@ -43,10 +43,6 @@ int main(int argc, char **argv)
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
-    for(int i = 0; i < N; i++)
-    {
-        printf("%f %f %f\n", data->point[i], data->point[i+N], data->point[i+2*N]);
-    }
     if(mpi_rank == 0)
         starsh_problem_info(P); 
     // Init tiled cluster for tiled low-rank approximation and print info

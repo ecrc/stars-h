@@ -569,7 +569,6 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
     char *arg_type;
     double beta = 0.1;
     double nu = 0.5;
-    STARSH_WARNING("INSIDE");
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
     while((arg_type = va_arg(args, char *)) != NULL)

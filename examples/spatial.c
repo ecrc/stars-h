@@ -35,8 +35,6 @@ int main(int argc, char **argv)
     char symm = 'S', dtype = 'd';
     starsh_application((void **)&data, &kernel, N, dtype, "spatial", "exp",
             "beta", beta, "nu", nu, NULL);
-    for(int i = 0; i < N; i++)
-        printf("%f %f\n", data->point[i], data->point[i+N]);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
