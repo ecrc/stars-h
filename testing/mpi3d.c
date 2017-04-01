@@ -10,24 +10,24 @@
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
-    int mpi_size = 1, mpi_rank = 0;
+    int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if(argc < 5)
     {
         printf("%d\n", argc);
-        printf("mpi sqrtn block_size kernel tol\n");
+        printf("mpi cbrtn block_size kernel tol\n");
         exit(1);
     }
-    int sqrtn = atoi(argv[1]), block_size = atoi(argv[2]);
+    int cbrtn = atoi(argv[1]), block_size = atoi(argv[2]);
     char *kernel_type = argv[3];
     double tol = atof(argv[4]);
     //srand(randseed);
     double beta = 0.1;
     double nu = 0.5;
     int maxrank = 100, oversample = 10, onfly = 0;
-    char *scheme = "omp_rsdd";
-    int N = sqrtn*sqrtn;
+    char *scheme = "mpi_rsdd";
+    int N = cbrtn*cbrtn*cbrtn;
     char symm = 'S', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
     if(mpi_rank == 0)
@@ -37,16 +37,16 @@ int main(int argc, char **argv)
     STARSH_ssdata *data;
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
-    starsh_application((void **)&data, &kernel, N, dtype, "spatial",
+    starsh_application((void **)&data, &kernel, N, dtype, "spatial3d",
             kernel_type, "beta", beta, "nu", nu, NULL);
-    return 0;
-    if(mpi_rank == 0)
-        for(int i = 0; i < N; i++)
-            printf("%f %f\n", data->point[i], data->point[i+N]);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
+    for(int i = 0; i < N; i++)
+    {
+        printf("%f %f %f\n", data->point[i], data->point[i+N], data->point[i+2*N]);
+    }
     if(mpi_rank == 0)
         starsh_problem_info(P); 
     // Init tiled cluster for tiled low-rank approximation and print info

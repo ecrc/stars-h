@@ -14,13 +14,21 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
     va_start(args, kernel_type);
     if(!strcmp(problem_type, "spatial"))
     {
+        STARSH_WARNING("GENERATE 2D");
         starsh_ssdata_new_va((STARSH_ssdata **)data, n, dtype, args);
         starsh_ssdata_get_kernel(kernel, kernel_type, dtype);
     }
     else if(!strcmp(problem_type, "spatial1d"))
     {
+        STARSH_WARNING("GENERATE 1D");
         starsh_ssdata_new_1d_va((STARSH_ssdata **)data, n, dtype, args);
         starsh_ssdata_1d_get_kernel(kernel, kernel_type, dtype);
+    }
+    else if(!strcmp(problem_type, "spatial3d"))
+    {
+        STARSH_WARNING("GENERATE 3D");
+        starsh_ssdata_new_3d_va((STARSH_ssdata **)data, n, dtype, args);
+        starsh_ssdata_3d_get_kernel(kernel, kernel_type, dtype);
     }
     else
         STARSH_ERROR("Wrong value of problem_type");

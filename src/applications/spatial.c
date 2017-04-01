@@ -223,9 +223,44 @@ static uint32_t Compact1By1(uint32_t x)
   return x;
 }
 
+static uint64_t Part1By3(uint64_t x)
+{
+    x &= 0x000000000000ffff;
+    // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
+    x = (x ^ (x << 24)) & 0x000000ff000000ff;
+    // x = ---- ---- ---- ---- ---- ---- fedc ba98 ---- ---- ---- ---- ---- ---- 7654 3210
+    x = (x ^ (x << 12)) & 0x000f000f000f000f;
+    // x = ---- ---- ---- fedc ---- ---- ---- ba98 ---- ---- ---- 7654 ---- ---- ---- 3210
+    x = (x ^ (x << 6)) & 0x0303030303030303;
+    // x = ---- --fe ---- --dc ---- --ba ---- --98 ---- --76 ---- --54 ---- --32 ---- --10
+    x = (x ^ (x << 3)) & 0x1111111111111111;
+    // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
+    return x;
+}
+
+static uint64_t Compact1By3(uint64_t x)
+{
+    x &= 0x1111111111111111;
+    // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
+    x = (x ^ (x >> 3)) & 0x0303030303030303;
+    // x = ---- --fe ---- --dc ---- --ba ---- --98 ---- --76 ---- --54 ---- --32 ---- --10
+    x = (x ^ (x >> 6)) & 0x000f000f000f000f;
+    // x = ---- ---- ---- fedc ---- ---- ---- ba98 ---- ---- ---- 7654 ---- ---- ---- 3210
+    x = (x ^ (x >> 12)) & 0x000000ff000000ff;
+    // x = ---- ---- ---- ---- ---- ---- fedc ba98 ---- ---- ---- ---- ---- ---- 7654 3210
+    x = (x ^ (x >> 24)) & 0x000000000000ffff;
+    // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
+    return x;
+}
+
 static uint32_t EncodeMorton2(uint32_t x, uint32_t y)
 {
     return (Part1By1(y) << 1) + Part1By1(x);
+}
+
+static uint64_t EncodeMorton3(uint64_t x, uint64_t y, uint64_t z)
+{
+    return (Part1By3(z) << 2) + (Part1By3(y) << 1) + Part1By3(x);
 }
 
 static uint32_t DecodeMorton2X(uint32_t code)
@@ -238,9 +273,37 @@ static uint32_t DecodeMorton2Y(uint32_t code)
     return Compact1By1(code >> 1);
 }
 
+static uint64_t DecodeMorton3X(uint64_t code)
+{
+    return Compact1By3(code >> 0);
+}
+
+static uint64_t DecodeMorton3Y(uint64_t code)
+{
+    return Compact1By3(code >> 1);
+}
+
+static uint64_t DecodeMorton3Z(uint64_t code)
+{
+    return Compact1By3(code >> 2);
+}
+
 static int compare_uint32(const void *a, const void *b)
 {
-    return *(uint32_t *)a-*(uint32_t *)b;
+    uint32_t _a = *(uint32_t *)a;
+    uint32_t _b = *(uint32_t *)b;
+    if(_a < _b) return -1;
+    if(_a == _b) return 0;
+    return 1;
+}
+
+static int compare_uint64(const void *a, const void *b)
+{
+    uint64_t _a = *(uint64_t *)a;
+    uint64_t _b = *(uint64_t *)b;
+    if(_a < _b) return -1;
+    if(_a == _b) return 0;
+    return 1;
 }
 
 static void zsort(int n, double *points)
@@ -251,15 +314,41 @@ static void zsort(int n, double *points)
     uint32_t z[n];
     for(i = 0; i < n; i++)
     {
-        x = (uint16_t)(points[i]*(double)UINT16_MAX + .5);
-        y = (uint16_t)(points[i+n]*(double)UINT16_MAX + .5);
+        x = (uint16_t)(points[i]*(double)UINT16_MAX +.5);
+        y = (uint16_t)(points[i+n]*(double)UINT16_MAX +.5);
+        //printf("%f %f -> %u %u\n", points[i], points[i+n], x, y);
         z[i] = EncodeMorton2(x, y);
     }
     qsort(z, n, sizeof(uint32_t), compare_uint32);
     for(i = 0; i < n; i++)
     {
-        points[i] = (double)DecodeMorton2X(z[i])/(double)UINT16_MAX;
-        points[i+n] = (double)DecodeMorton2Y(z[i])/(double)UINT16_MAX;
+        x = DecodeMorton2X(z[i]);
+        y = DecodeMorton2Y(z[i]);
+        points[i] = (double)x/(double)UINT16_MAX;
+        points[i+n] = (double)y/(double)UINT16_MAX;
+        //printf("%lu (%u %u) -> %f %f\n", z[i], x, y, points[i], points[i+n]);
+    }
+}
+
+static void zsort3(int n, double *points)
+{
+    // Some sorting, required by spatial statistics code
+    int i;
+    uint16_t x, y, z;
+    uint64_t Z[n];
+    for(i = 0; i < n; i++)
+    {
+        x = (uint16_t)(points[i]*(double)UINT16_MAX + 0.5);
+        y = (uint16_t)(points[i+n]*(double)UINT16_MAX + 0.5);
+        z = (uint16_t)(points[i+2*n]*(double)UINT16_MAX + 0.5);
+        Z[i] = EncodeMorton3(x, y, z);
+    }
+    qsort(Z, n, sizeof(uint64_t), compare_uint64);
+    for(i = 0; i < n; i++)
+    {
+        points[i] = (double)DecodeMorton3X(Z[i])/(double)UINT16_MAX;
+        points[i+n] = (double)DecodeMorton3Y(Z[i])/(double)UINT16_MAX;
+        points[i+2*n] = (double)DecodeMorton3Z(Z[i])/(double)UINT16_MAX;
     }
 }
 
@@ -334,8 +423,8 @@ int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
             nu = va_arg(args, double);
         else
             STARSH_ERROR("Wrong parameter name %s", arg_type);
-        starsh_ssdata_new_1d(data, n, dtype, beta, nu);
     }
+    starsh_ssdata_new_1d(data, n, dtype, beta, nu);
     return 0;
 }
 
@@ -421,8 +510,18 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
     double *point;
     int n = cbrtn*cbrtn*cbrtn;
     STARSH_MALLOC(point, 3*n);
+    double *x = point, *y = x+n, *z = y+n;
+    for(int i = 0; i < cbrtn; i++)
+        for(int j = 0; j < cbrtn; j++)
+            for(int k = 0; k < cbrtn; k++)
+            {
+                int ind = (i*cbrtn + j)*cbrtn + k;
+                x[ind] = (i+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
+                y[ind] = (j+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
+                z[ind] = (k+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
+            }
     //gen_points(sqrtn, point);
-    //zsort(n, point);
+    zsort3(n, point);
     (*data)->point = point;
     (*data)->count = n;
     (*data)->ndim = 3;
@@ -431,7 +530,7 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
     return 0;
 }
 
-int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
+int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
         va_list args)
 {
     char *arg_type;
@@ -447,12 +546,45 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
             nu = va_arg(args, double);
         else
             STARSH_ERROR("Wrong parameter name %s", arg_type);
-        int sqrtn = sqrt(n);
-        if(sqrtn*sqrtn != n)
-            STARSH_ERROR("Parameter n must be square of integer");
-        //printf("PARAMS:sqrtn=%d beta=%f nu=%f\n", sqrtn, beta, nu);
-        starsh_ssdata_new(data, sqrtn, dtype, beta, nu);
     }
+    int cbrtn = cbrt(n);
+    if(cbrtn*cbrtn*cbrtn != n)
+        STARSH_ERROR("Parameter n must be square of integer");
+    starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu);
+    return 0;
+}
+
+int starsh_ssdata_new_3d_el(STARSH_ssdata **data, int n, char dtype, ...)
+{
+    va_list args;
+    va_start(args, dtype);
+    int info = starsh_ssdata_new_3d_va(data, n, dtype, args);
+    va_end(args);
+    return info;
+}
+
+int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
+        va_list args)
+{
+    char *arg_type;
+    double beta = 0.1;
+    double nu = 0.5;
+    STARSH_WARNING("INSIDE");
+    if(dtype != 'd')
+        STARSH_ERROR("Only dtype='d' is supported");
+    while((arg_type = va_arg(args, char *)) != NULL)
+    {
+        if(!strcmp(arg_type, "beta"))
+            beta = va_arg(args, double);
+        else if(!strcmp(arg_type, "nu"))
+            nu = va_arg(args, double);
+        else
+            STARSH_ERROR("Wrong parameter name %s", arg_type);
+    }
+    int sqrtn = sqrt(n);
+    if(sqrtn*sqrtn != n)
+        STARSH_ERROR("Parameter n must be square of integer");
+    starsh_ssdata_new(data, sqrtn, dtype, beta, nu);
     return 0;
 }
 
@@ -501,6 +633,18 @@ int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
     if(!strcmp(type, "exp"))
         *kernel = starsh_ssdata_block_exp_kernel_1d;
+    else
+        STARSH_ERROR("Wrong type of kernel");
+    return 0;
+}
+
+int starsh_ssdata_3d_get_kernel(STARSH_kernel *kernel, const char *type,
+        char dtype)
+{
+    if(dtype != 'd')
+        STARSH_ERROR("Only dtype='d' is supported");
+    if(!strcmp(type, "exp"))
+        *kernel = starsh_ssdata_block_exp_kernel_3d;
     else
         STARSH_ERROR("Wrong type of kernel");
     return 0;
