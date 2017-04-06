@@ -1,9 +1,9 @@
 # Defines the source files of the tests. Each file generates 1 test
 set(tests_files "symm_positivity_after_compression.c"
     "mpi.c"
-    "mpi3d.c"
-    "mpi_solve.c"
-    "mpi_nomatvec.c"
+    #"mpi3d.c"
+    #"mpi_solve.c"
+    #"mpi_nomatvec.c"
     )
 
 if( PLASMA_FOUND )

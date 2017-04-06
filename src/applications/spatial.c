@@ -618,8 +618,10 @@ int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type,
         *kernel = starsh_ssdata_block_exp_kernel;
     else if(!strcmp(type, "sqrexp"))
         *kernel = starsh_ssdata_block_sqr_exp_kernel;
+#ifdef GSL
     else if(!strcmp(type, "Matern"))
         *kernel = starsh_ssdata_block_matern_kernel;
+#endif
     else
         STARSH_ERROR("Wrong type of kernel");
     return 0;

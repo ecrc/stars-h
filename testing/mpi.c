@@ -15,9 +15,13 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     if(argc < 5)
     {
-        printf("%d\n", argc);
-        printf("mpi sqrtn block_size kernel tol\n");
-        exit(1);
+        if(mpi_rank == 0)
+        {
+            printf("%d arguments provided, but 4 are needed\n", argc-1);
+            printf("mpi sqrtn block_size kernel tol\n");
+        }
+        MPI_Finalize();
+        exit(0);
     }
     int sqrtn = atoi(argv[1]), block_size = atoi(argv[2]);
     char *kernel_type = argv[3];
