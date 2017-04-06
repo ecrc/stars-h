@@ -16,16 +16,16 @@ int main(int argc, char **argv)
     if(argc < 5)
     {
         printf("%d\n", argc);
-        printf("mpi cbrtn block_size kernel tol\n");
+        printf("mpi cbrtn block_size maxrank tol\n");
         exit(1);
     }
     int cbrtn = atoi(argv[1]), block_size = atoi(argv[2]);
-    char *kernel_type = argv[3];
+    int maxrank = atoi(argv[3]);
     double tol = atof(argv[4]);
     //srand(randseed);
     double beta = 0.1;
     double nu = 0.5;
-    int maxrank = 100, oversample = 10, onfly = 0;
+    int oversample = 10, onfly = 0;
     char *scheme = "mpi_rsdd";
     int N = cbrtn*cbrtn*cbrtn;
     char symm = 'S', dtype = 'd';
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     starsh_application((void **)&data, &kernel, N, dtype, "spatial3d",
-            kernel_type, "beta", beta, "nu", nu, NULL);
+            "exp", "beta", beta, "nu", nu, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
@@ -61,6 +61,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
@@ -72,6 +73,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     double rel_err = starsh_blrm__dfe_mpi(M);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
         printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
@@ -94,14 +96,12 @@ int main(int argc, char **argv)
     }
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
-    for(int i = 0; i < 100; i++)
-    {
-        starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
-    }
+    starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
-        printf("TIME TO 100 MATVECS: %e secs\n", time1);
+        printf("TIME TO 1 MATVECS: %e secs\n", time1);
     }
     /*
     MPI_Barrier(MPI_COMM_WORLD);

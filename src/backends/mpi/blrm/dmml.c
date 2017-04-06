@@ -24,7 +24,10 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
     size_t nblocks_near_local = F->nblocks_near_local;
     size_t lbi;
     char symm = F->symm;
-    int maxrank = 100;
+    int maxrank = 0;
+    for(size_t lbi = 0; lbi < nblocks_far_local; lbi++)
+        if(maxrank < M->far_rank[lbi])
+            maxrank = M->far_rank[lbi];
     int maxnb = nrows/F->nbrows;
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);

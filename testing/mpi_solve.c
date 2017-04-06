@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     double rel_err = starsh_blrm__dfe_mpi(M);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
         printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
@@ -107,6 +109,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     int info = starsh_itersolvers__dcg_mpi(M, nrhs, b, N, x, N, tol, CG_work);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     starsh_blrm__dmml_mpi(M, nrhs, -1.0, x, N, 0.0, r, N);
     if(mpi_rank == 0)

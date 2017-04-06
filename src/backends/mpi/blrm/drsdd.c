@@ -9,7 +9,9 @@ int cmp_size_t(const void *a, const void *b)
 {
     size_t _a = *(size_t *)a;
     size_t _b = *(size_t *)b;
-    return _a - _b;
+    if(_a > _b) return 1;
+    if(_a == _b) return 0;
+    return -1;
 }
 
 int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,

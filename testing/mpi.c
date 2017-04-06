@@ -61,6 +61,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
@@ -72,6 +73,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     double rel_err = starsh_blrm__dfe_mpi(M);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
         printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
@@ -94,14 +96,12 @@ int main(int argc, char **argv)
     }
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
-    for(int i = 0; i < 100; i++)
-    {
-        starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
-    }
+    starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
+    MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
-        printf("TIME TO 100 MATVECS: %e secs\n", time1);
+        printf("TIME TO 1 MATVEC: %e secs\n", time1);
     }
     /*
     MPI_Barrier(MPI_COMM_WORLD);

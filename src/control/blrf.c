@@ -479,39 +479,87 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
     }
     int nbrows = R->nblocks, nbcols = C->nblocks;
     int i, j, *block_far;
-    size_t k = 0, nblocks_far, nblocks_far_local;
+    size_t k = 0, nblocks_far, nblocks_far_local, li = 0;
     size_t *block_far_local;
     int mpi_rank, mpi_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    /*
+    int grid_nx = 1, grid_ny, grid_x, grid_y;
+    int pow = 0, val = 1;
+    while(val < mpi_size)
+    {
+        pow++;
+        val *= 4;
+        grid_nx *= 2;
+    }
+    if(val != mpi_size)
+        STARSH_ERROR("MPI SIZE MUST BE POWER OF 4!");
+    grid_ny = mpi_size / grid_nx;
+    grid_x = mpi_rank % grid_nx;
+    grid_y = mpi_rank / grid_nx;
+    STARSH_WARNING("MPI GRID=%d x %d, MPI RANK=%d, MPI COORD=(%d, %d)", grid_nx, grid_ny, mpi_rank, grid_x, grid_y);
+    */
     if(symm == 'N')
     {
         nblocks_far = (size_t)nbrows*(size_t)nbcols;
         STARSH_MALLOC(block_far, 2*nblocks_far);
+        nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
+        //nblocks_far_local = (nbrows+grid_nx-1-grid_x)*(nbcols+grid_ny-1-grid_y)/mpi_size;
+        STARSH_MALLOC(block_far_local, nblocks_far_local);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j < nbcols; j++)
             {
                 block_far[2*k] = i;
                 block_far[2*k+1] = j;
+                //if(i % grid_nx == grid_x && j % grid_ny == grid_y)
+                if(k % mpi_size == mpi_rank)
+                {
+                    block_far_local[li] = k;
+                    li++;
+                }
                 k++;
             }
+        //if(li != nblocks_far_local)
+        //    STARSH_ERROR("WRONG COUNT FOR LOCAL BLOCKS");
     }
     else
     {
         nblocks_far = (size_t)nbrows*(size_t)(nbrows+1)/2;
         STARSH_MALLOC(block_far, 2*nblocks_far);
+        /*
+        nblocks_far_local = (nbrows+grid_nx-1-grid_x)/grid_nx-1;
+        nblocks_far_local = nblocks_far_local*(nblocks_far_local+1)/2;
+        if(grid_x >= grid_y)
+        {
+            nblocks_far_local += nbrows/grid_nx;
+            if(nbrows % grid_nx > grid_x && nbcols % grid_ny > grid_y)
+                nblocks_far_local += 1;
+        }
+        */
+        nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
+        //STARSH_WARNING("LOCAL BLOCKS=%zu", nblocks_far_local);
+        STARSH_MALLOC(block_far_local, nblocks_far_local);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j <= i; j++)
             {
                 block_far[2*k] = i;
                 block_far[2*k+1] = j;
+                //if(i % grid_nx == grid_x && j % grid_ny == grid_y)
+                if(k % mpi_size == mpi_rank)
+                {
+                    block_far_local[li] = k;
+                    li++;
+                    if(li > nblocks_far_local)
+                    {
+                        STARSH_ERROR("WRONG COUNG FOR LOCAL BLOCKS 2");
+                    }
+                }
                 k++;
             }
+        if(li != nblocks_far_local)
+            STARSH_ERROR("WRONG COUNT FOR LOCAL BLOCKS");
     }
-    nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
-    STARSH_MALLOC(block_far_local, nblocks_far_local);
-    for(k = 0; k < nblocks_far_local; k++)
-        block_far_local[k] = mpi_rank+k*mpi_size;
     return starsh_blrf_new_mpi(F, P, symm, R, C, nblocks_far, block_far, 0,
             NULL, nblocks_far_local, block_far_local, 0, NULL, STARSH_PLAIN);
 }
