@@ -503,7 +503,7 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
         nblocks_far = (size_t)nbrows*(size_t)nbcols;
         STARSH_MALLOC(block_far, 2*nblocks_far);
         //nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
-        nblocks_far_local = (nbrows+grid_nx-1-grid_x)*(nbcols+grid_ny-1-grid_y)/mpi_size;
+        nblocks_far_local = ((nbrows+grid_nx-1-grid_x)/grid_nx)*((nbcols+grid_ny-1-grid_y)/grid_ny);
         STARSH_MALLOC(block_far_local, nblocks_far_local);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j < nbcols; j++)

@@ -206,10 +206,65 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     if(val != mpi_size)
         STARSH_ERROR("MPI SIZE MUST BE POWER OF 4!");
     grid_ny = mpi_size / grid_nx;
-    grid_x = mpi_rank % grid_nx;
-    grid_y = mpi_rank / grid_nx;
-    for(int i = 0; i < nrhs; i++)
-        MPI_Bcast(A+i*lda, ncols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    grid_x = mpi_rank / grid_nx;
+    grid_y = mpi_rank % grid_nx;
+    MPI_Group mpi_leadingx_group, mpi_leadingy_group, mpi_world_group;
+    MPI_Comm mpi_splitx, mpi_splity, mpi_leadingx, mpi_leadingy;
+    MPI_Comm_group(MPI_COMM_WORLD, &mpi_world_group);
+    int group_rank[grid_nx];
+    for(int i = 0; i < grid_ny; i++)
+        group_rank[i] = i;
+    MPI_Group_incl(mpi_world_group, grid_ny, group_rank, &mpi_leadingy_group);
+    MPI_Comm_create_group(MPI_COMM_WORLD, mpi_leadingy_group, 0, &mpi_leadingy);
+    for(int i = 0; i < grid_nx; i++)
+        group_rank[i] = i*grid_ny;
+    MPI_Group_incl(mpi_world_group, grid_nx, group_rank, &mpi_leadingx_group);
+    MPI_Comm_create_group(MPI_COMM_WORLD, mpi_leadingx_group, 0, &mpi_leadingx);
+    MPI_Comm_split(MPI_COMM_WORLD, grid_x, mpi_rank, &mpi_splitx);
+    MPI_Comm_split(MPI_COMM_WORLD, grid_y, mpi_rank, &mpi_splity);
+    int mpi_leadingx_rank=-1, mpi_leadingx_size=-1;
+    int mpi_leadingy_rank=-1, mpi_leadingy_size=-1;
+    int mpi_splitx_rank, mpi_splitx_size;
+    int mpi_splity_rank, mpi_splity_size;
+    if(mpi_leadingx != MPI_COMM_NULL)
+    {
+        MPI_Comm_rank(mpi_leadingx, &mpi_leadingx_rank);
+        MPI_Comm_size(mpi_leadingx, &mpi_leadingx_size);
+    }
+    if(mpi_leadingy != MPI_COMM_NULL)
+    {
+        MPI_Comm_rank(mpi_leadingy, &mpi_leadingy_rank);
+        MPI_Comm_size(mpi_leadingy, &mpi_leadingy_size);
+    }
+    MPI_Comm_rank(mpi_splitx, &mpi_splitx_rank);
+    MPI_Comm_size(mpi_splitx, &mpi_splitx_size);
+    MPI_Comm_rank(mpi_splity, &mpi_splity_rank);
+    MPI_Comm_size(mpi_splity, &mpi_splity_size);
+    /*
+    STARSH_WARNING("MPI: GLOBAL=%d/%d LEADX=%d/%d LEADY=%d/%d SPLITX=%d/%d "
+            "SPLITY=%d/%d", mpi_rank, mpi_size, mpi_leadingx_rank,
+            mpi_leadingx_size, mpi_leadingy_rank, mpi_leadingy_size,
+            mpi_splitx_rank, mpi_splitx_size, mpi_splity_rank,
+            mpi_splity_size);
+    */
+    int grid_block_size = maxnb*grid_nx;
+    int ld_temp_A = ncols/grid_nx;
+    double *temp_A;
+    STARSH_MALLOC(temp_A, nrhs*ld_temp_A);
+    if(mpi_leadingx != MPI_COMM_NULL)
+        for(int i = 0; i < F->nbcols/grid_nx; i++)
+        {
+            double *src = A+i*grid_block_size;
+            double *recv = temp_A+i*maxnb;
+            for(int j = 0; j < nrhs; j++)
+            {
+                MPI_Scatter(src+j*lda, maxnb, MPI_DOUBLE, recv+j*ld_temp_A,
+                        maxnb, MPI_DOUBLE, 0, mpi_leadingx);
+            }
+        }
+    MPI_Bcast(temp_A, nrhs*ld_temp_A, MPI_DOUBLE, 0, mpi_splitx);
+    //for(int i = 0; i < nrhs; i++)
+    //    MPI_Bcast(A+i*lda, ncols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     double *temp_D, *temp_B;
     int num_threads;
     #pragma omp parallel
@@ -223,20 +278,30 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     {
         STARSH_MALLOC(temp_D, num_threads*maxnb*maxnb);
     }
-    STARSH_MALLOC(temp_B, num_threads*nrhs*nrows);
+    int ldout = nrows/grid_ny;
+    STARSH_MALLOC(temp_B, num_threads*nrhs*ldout);
     // Setting temp_B=beta*B for master thread of root node and B=0 otherwise
     #pragma omp parallel
     {
-        double *out = temp_B+omp_get_thread_num()*nrhs*nrows;
-        for(int j = 0; j < nrhs*nrows; j++)
+        double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+        for(int j = 0; j < nrhs*ldout; j++)
             out[j] = 0.;
     }
-    if(beta != 0. && mpi_rank == 0)
-        #pragma omp parallel for schedule(static)
-        for(int i = 0; i < nrows; i++)
+    if(beta != 0. && mpi_leadingy != MPI_COMM_NULL)
+    {
+        for(int i = 0; i < F->nbrows/grid_ny; i++)
+        {
+            double *src = B+i*maxnb*grid_ny;
+            double *recv = temp_B+i*maxnb;
             for(int j = 0; j < nrhs; j++)
-                temp_B[j*ldb+i] = beta*B[j*ldb+i];
-    int ldout = nrows;
+                MPI_Scatter(src+j*ldb, maxnb, MPI_DOUBLE, recv+j*ldout, maxnb,
+                        MPI_DOUBLE, 0, mpi_leadingy);
+        }
+        #pragma omp parallel for schedule(static)
+        for(int i = 0; i < ldout; i++)
+            for(int j = 0; j < nrhs; j++)
+                temp_B[j*ldb+i] *= beta;
+    }
     // Simple cycle over all far-field admissible blocks
     #pragma omp parallel for schedule(dynamic, 1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
@@ -255,20 +320,13 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         double *D = temp_D+omp_get_thread_num()*nrhs*maxrank;
         double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
         // Multiply low-rank matrix in U*V^T format by a dense matrix
+        //cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
+        //        ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
         cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
-                ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
+                ncols, 1.0, V, ncols, temp_A+(j/grid_nx)*maxnb, ld_temp_A, 0.0,
+                D, rank);
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, nrhs,
-                rank, alpha, U, nrows, D, rank, 1.0, out+R->start[i], ldout);
-        if(i != j && symm == 'S')
-        {
-            // Multiply low-rank matrix in V*U^T format by a dense matrix
-            // U and V are simply swapped in case of symmetric block
-            cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
-                    nrows, 1.0, U, nrows, A+R->start[i], lda, 0.0, D, rank);
-            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, ncols,
-                    nrhs, rank, alpha, V, ncols, D, rank, 1.0,
-                    out+C->start[j], ldout);
-        }
+                rank, alpha, U, nrows, D, rank, 1.0, out+i/grid_ny*maxnb, ldout);
     }
     if(M->onfly == 1)
         // Simple cycle over all near-field blocks
@@ -288,16 +346,12 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
             kernel(nrows, ncols, R->pivot+R->start[i],
                     C->pivot+C->start[j], RD, CD, D);
             // Multiply 2 dense matrices
+            //cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
+            //        nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
+            //        out+R->start[i], ldout);
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
-                    nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
-                    out+R->start[i], ldout);
-            if(i != j && symm == 'S')
-            {
-                // Repeat in case of symmetric matrix
-                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, ncols,
-                        nrhs, nrows, alpha, D, nrows, A+R->start[i], lda,
-                        1.0, out+C->start[j], ldout);
-            }
+                    nrhs, ncols, alpha, D, nrows, temp_A+(j/grid_nx)*maxnb,
+                    ld_temp_A, 1.0, out+i/grid_ny*maxnb, ldout);
         }
     else
         // Simple cycle over all near-field blocks
@@ -314,16 +368,12 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
             double *D = M->near_D[lbi]->data;
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
             // Multiply 2 dense matrices
+            //cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
+            //        nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
+            //        out+R->start[i], ldout);
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
-                    nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
-                    out+R->start[i], ldout);
-            if(i != j && symm == 'S')
-            {
-                // Repeat in case of symmetric matrix
-                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, ncols,
-                        nrhs, nrows, alpha, D, nrows, A+R->start[i], lda,
-                        1.0, out+C->start[j], ldout);
-            }
+                    nrhs, ncols, alpha, D, nrows, temp_A+(j/grid_nx)*maxnb,
+                    ld_temp_A, 1.0, out+i/grid_ny*maxnb, ldout);
         }
     // Reduce result to temp_B, corresponding to master openmp thread
     #pragma omp parallel for schedule(static)
@@ -335,9 +385,33 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     //for(int i = 0; i < nrhs; i++)
     //    MPI_Allreduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM,
     //            MPI_COMM_WORLD);
-    for(int i = 0; i < nrhs; i++)
-        MPI_Reduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM, 0,
-                MPI_COMM_WORLD);
+    //for(int i = 0; i < nrhs; i++)
+    //    MPI_Reduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM, 0,
+    //            MPI_COMM_WORLD);
+    double *final_B = NULL;
+    if(mpi_splity_rank == 0)
+    {
+        STARSH_MALLOC(final_B, nrhs*ldout);
+        #pragma omp parallel for schedule(static)
+        for(int i = 0; i < nrhs*ldout; i++)
+            final_B[i] = 0.0;
+    }
+    MPI_Reduce(temp_B, final_B, nrhs*ldout, MPI_DOUBLE, MPI_SUM, 0,
+            mpi_splity);
+    //STARSH_WARNING("REDUCE(%d): %f", mpi_rank, temp_B[0]);
+    //if(mpi_splity_rank == 0)
+    //    STARSH_WARNING("RESULT(%d): %f", mpi_rank, final_B[0]);
+    if(mpi_leadingy != MPI_COMM_NULL)
+    {
+        for(int i = 0; i < F->nbrows/grid_ny; i++)
+        {
+            double *src = final_B+i*maxnb;
+            double *recv = B+i*maxnb*grid_ny;
+            for(int j = 0; j < nrhs; j++)
+                MPI_Gather(src+j*ldout, maxnb, MPI_DOUBLE, recv+j*ldb, maxnb,
+                        MPI_DOUBLE, 0, mpi_leadingy);
+        }
+    }
     free(temp_B);
     free(temp_D);
     return 0;

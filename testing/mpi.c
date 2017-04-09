@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     int maxrank = 100, oversample = 10, onfly = 0;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
-    char symm = 'S', dtype = 'd';
+    char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
     if(mpi_rank == 0)
         printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
@@ -101,11 +101,14 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
+    double norm = cblas_dnrm2(N, x, 1);
+    starsh_blrm__dmml_mpi_tiled(M, nrhs, -1.0, b, N, 1.0, x, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
         printf("TIME TO 1 MATVEC: %e secs\n", time1);
+        printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, x, 1)/norm);
     }
     /*
     MPI_Barrier(MPI_COMM_WORLD);
