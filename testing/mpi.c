@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     int nrhs = 1;
     STARSH_MALLOC(b, N*nrhs);
     STARSH_MALLOC(x, N*nrhs);
-    //STARSH_MALLOC(r, N*nrhs);
+    STARSH_MALLOC(r, N*nrhs);
     //STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
     if(mpi_rank == 0)
     {
@@ -100,15 +100,25 @@ int main(int argc, char **argv)
     }
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
-    starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
-    double norm = cblas_dnrm2(N, x, 1);
-    starsh_blrm__dmml_mpi_tiled(M, nrhs, -1.0, b, N, 1.0, x, N);
+    for(int i = 0; i < 10; i++)
+        starsh_blrm__dmml_mpi(M, nrhs, 1.0, b, N, 0.0, x, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
-        printf("TIME TO 1 MATVEC: %e secs\n", time1);
-        printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, x, 1)/norm);
+        printf("TIME FOR 10 OLD MATVEC: %e secs\n", time1);
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    time1 = MPI_Wtime();
+    for(int i = 0; i < 10; i++)
+        starsh_blrm__dmml_mpi_tiled(M, nrhs, 1.0, b, N, 0.0, r, N);
+    MPI_Barrier(MPI_COMM_WORLD);
+    time1 = MPI_Wtime()-time1;
+    if(mpi_rank == 0)
+    {
+        cblas_daxpy(N, -1.0, x, 1, r, 1);
+        printf("TIME FOR 10 NEW MATVEC: %e secs\n", time1);
+        printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, r, 1)/cblas_dnrm2(N, x, 1));
     }
     /*
     MPI_Barrier(MPI_COMM_WORLD);

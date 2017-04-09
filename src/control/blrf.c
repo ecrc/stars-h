@@ -497,7 +497,7 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
     grid_ny = mpi_size / grid_nx;
     grid_x = mpi_rank % grid_nx;
     grid_y = mpi_rank / grid_nx;
-    STARSH_WARNING("MPI GRID=%d x %d, MPI RANK=%d, MPI COORD=(%d, %d)", grid_nx, grid_ny, mpi_rank, grid_x, grid_y);
+    //STARSH_WARNING("MPI GRID=%d x %d, MPI RANK=%d, MPI COORD=(%d, %d)", grid_nx, grid_ny, mpi_rank, grid_x, grid_y);
     if(symm == 'N')
     {
         nblocks_far = (size_t)nbrows*(size_t)nbcols;
