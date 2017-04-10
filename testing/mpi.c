@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     starsh_application((void **)&data, &kernel, N, dtype, "spatial",
-            "exp", "beta", beta, "nu", nu, NULL);
+            kernel_type, "beta", beta, "nu", nu, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,

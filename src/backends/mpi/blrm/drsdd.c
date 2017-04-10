@@ -309,9 +309,11 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             #pragma omp critical
             {
                 D = alloc_D+offset_D;
-                array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
-                offset_D += near_D[lbi]->size;
+                offset_D += nrows*ncols;
+                //array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
+                //offset_D += near_D[lbi]->size;
             }
+            array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
             double time0 = omp_get_wtime();
             kernel(nrows, ncols, RC->pivot+RC->start[i],
                     CC->pivot+CC->start[j], RD, CD, D);

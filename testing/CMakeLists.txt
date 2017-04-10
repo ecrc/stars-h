@@ -2,7 +2,7 @@
 set(tests_files "symm_positivity_after_compression.c"
     "mpi.c"
     #"mpi3d.c"
-    #"mpi_solve.c"
+    "mpi_solve.c"
     #"mpi_nomatvec.c"
     )
 

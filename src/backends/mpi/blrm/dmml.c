@@ -434,7 +434,7 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     //    MPI_Reduce(temp_B+i*ldout, B+i*ldb, ldout, MPI_DOUBLE, MPI_SUM, 0,
     //            MPI_COMM_WORLD);
     double *final_B = NULL;
-    if(mpi_splity_rank == 0)
+    if(mpi_leadingy != MPI_COMM_NULL)
     {
         STARSH_MALLOC(final_B, nrhs*ldout);
         #pragma omp parallel for schedule(static)
@@ -486,7 +486,14 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
                             NULL, MPI_DOUBLE, 0, mpi_leadingy);
             }
         }
+        MPI_Comm_free(&mpi_leadingy);
+        free(final_B);
     }
+    if(mpi_leadingx != MPI_COMM_NULL)
+        MPI_Comm_free(&mpi_leadingx);
+    MPI_Comm_free(&mpi_splitx);
+    MPI_Comm_free(&mpi_splity);
+    free(temp_A);
     free(temp_B);
     free(temp_D);
     return 0;

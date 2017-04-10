@@ -93,7 +93,7 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    starsh_blrm__dmml_mpi(M, nrhs, -1.0, X, ldx, 0.0, R, n);
+    starsh_blrm__dmml_mpi_tiled(M, nrhs, -1.0, X, ldx, 0.0, R, n);
     if(mpi_rank == 0)
     {
         for(i = 0; i < nrhs; i++)
@@ -110,7 +110,7 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
     //printf("rsold=%e\n", rsold);
     for(i = 0; i < n; i++)
     {
-        starsh_blrm__dmml_mpi(M, nrhs, 1.0, P, n, 0.0, next_P, n);
+        starsh_blrm__dmml_mpi_tiled(M, nrhs, 1.0, P, n, 0.0, next_P, n);
         if(mpi_rank == 0)
         {
             for(int j = 0; j < nrhs; j++)
