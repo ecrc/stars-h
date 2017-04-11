@@ -26,11 +26,9 @@ int main(int argc, char **argv)
     int sqrtn = atoi(argv[1]), block_size = atoi(argv[2]);
     char *kernel_type = argv[3];
     double tol = atof(argv[4]);
-    //srand(randseed);
     double beta = atof(argv[5]);
     double nu = atof(argv[6]);
     int maxrank = 100, oversample = 10, onfly = 0;
-    //double tol = 1e-9;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'N', dtype = 'd';
@@ -75,6 +73,7 @@ int main(int argc, char **argv)
     }
     if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    // Measure approximation error
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     double rel_err = starsh_blrm__dfe_mpi(M);
@@ -85,8 +84,8 @@ int main(int argc, char **argv)
                 time1, rel_err);
     // Flush STDOUT, since next step is very time consuming
     fflush(stdout);
-    // Solve with CG, initial solution x=0
-    // b is RHS and r is residual
+    // Measure time for 10 BLRM and TLR matvecs and then solve with CG, initial
+    // solution x=0, b is RHS and r is residual
     double *b, *x, *r, *CG_work;
     int nrhs = 1;
     STARSH_MALLOC(b, N*nrhs);
@@ -98,6 +97,7 @@ int main(int argc, char **argv)
         int iseed[4] = {0, 0, 0, 1};
         LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
     }
+    // Measure 10 TLR matvecs
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
@@ -107,8 +107,9 @@ int main(int argc, char **argv)
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
-        printf("TIME FOR 10 NEW MATVECS: %e secs\n", time1);
+        printf("TIME FOR 10 TLR MATVECS: %e secs\n", time1);
     }
+    // Measure 10 BLRM matvecs
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
@@ -118,11 +119,12 @@ int main(int argc, char **argv)
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
-        printf("TIME FOR 10 OLD MATVECS: %e secs\n", time1);
+        printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
         cblas_daxpy(N, -1.0, x, 1, r, 1);
         printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, r, 1)/cblas_dnrm2(N, x, 1));
         cblas_dscal(N*nrhs, 0.0, x, 1);
     }
+    // Solve with CG
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     int info = starsh_itersolvers__dcg_mpi(M, nrhs, b, N, x, N, tol, CG_work);

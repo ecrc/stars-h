@@ -115,6 +115,78 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
         }
 }
 
+static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Square exponential kernel for spatial statistics problem
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel for spatial statistics
+    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
+    // in 2D
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    double tmp, dist, beta = -2*data->beta*data->beta;
+    double *x = data->point;
+    double *buffer = result;
+    //#pragma omp parallel
+    //printf("myid %d\n", omp_get_thread_num());
+    //#pragma omp parallel for private(tmp, dist, i, j)
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            dist = dist/beta;
+            buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
+static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Square exponential kernel for spatial statistics problem
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel for spatial statistics
+    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
+    // in 2D
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    double tmp, dist, beta = -2*data->beta*data->beta;
+    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    double *buffer = result;
+    //#pragma omp parallel
+    //printf("myid %d\n", omp_get_thread_num());
+    //#pragma omp parallel for private(tmp, dist, i, j)
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            tmp = y[irow[i]]-y[icol[j]];
+            dist += tmp*tmp;
+            tmp = z[irow[i]]-z[icol[j]];
+            dist += tmp*tmp;
+            dist = dist/beta;
+            buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
 static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 /*! Square exponential kernel for spatial statistics problem
@@ -152,6 +224,87 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 }
 
 #ifdef GSL
+    static void starsh_ssdata_block_matern_kernel_1d(int nrows, int ncols,
+            int *irow, int *icol, void *row_data, void *col_data, void *result)
+    /*! Matern kernel for spatial statistics problem
+     *
+     * @param[in] nrows: Number of rows of corresponding array.
+     * @param[in] ncols: Number of columns of corresponding array.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data.
+     * @param[in] col_data: Pointer to physical data.
+     * @param[out] result: Where to write elements of an array.
+     */
+    {
+        // Block kernel for spatial statistics
+        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
+        // and r is a distance between particles in 2D
+        int i, j;
+        STARSH_ssdata *data = row_data;
+        double tmp, dist, beta = data->beta, nu = data->nu;
+        double theta = sqrt(2*nu)/beta;
+        double *x = data->point;
+        double *buffer = result;
+        //#pragma omp parallel
+        //printf("myid %d\n", omp_get_thread_num());
+        //#pragma omp parallel for private(tmp, dist, i, j)
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = abs(tmp);
+                dist = dist*theta;
+                if(dist == 0)
+                    buffer[j*nrows+i] = 1.0;
+                else
+                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
+                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
+            }
+    }
+
+    static void starsh_ssdata_block_matern_kernel_3d(int nrows, int ncols,
+            int *irow, int *icol, void *row_data, void *col_data, void *result)
+    /*! Matern kernel for spatial statistics problem
+     *
+     * @param[in] nrows: Number of rows of corresponding array.
+     * @param[in] ncols: Number of columns of corresponding array.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data.
+     * @param[in] col_data: Pointer to physical data.
+     * @param[out] result: Where to write elements of an array.
+     */
+    {
+        // Block kernel for spatial statistics
+        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
+        // and r is a distance between particles in 2D
+        int i, j;
+        STARSH_ssdata *data = row_data;
+        double tmp, dist, beta = data->beta, nu = data->nu;
+        double theta = sqrt(2*nu)/beta;
+        double *x = data->point, *y = x+data->count, *z = y+data->count;
+        double *buffer = result;
+        //#pragma omp parallel
+        //printf("myid %d\n", omp_get_thread_num());
+        //#pragma omp parallel for private(tmp, dist, i, j)
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = tmp*tmp;
+                tmp = y[irow[i]]-y[icol[j]];
+                dist += tmp*tmp;
+                tmp = z[irow[i]]-z[icol[j]];
+                dist += tmp*tmp;
+                dist = sqrt(dist)*theta;
+                if(dist == 0)
+                    buffer[j*nrows+i] = 1.0;
+                else
+                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
+                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
+            }
+    }
     static void starsh_ssdata_block_matern_kernel(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
     /*! Matern kernel for spatial statistics problem
@@ -171,6 +324,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int i, j;
         STARSH_ssdata *data = row_data;
         double tmp, dist, beta = data->beta, nu = data->nu;
+        double theta = sqrt(2*nu)/beta;
         double *x = data->point, *y = x+data->count;
         double *buffer = result;
         //#pragma omp parallel
@@ -183,7 +337,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 dist = tmp*tmp;
                 tmp = y[irow[i]]-y[icol[j]];
                 dist += tmp*tmp;
-                dist = sqrt(2*nu*dist)/beta;
+                dist = sqrt(dist)*theta;
                 if(dist == 0)
                     buffer[j*nrows+i] = 1.0;
                 else
@@ -634,6 +788,12 @@ int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
     if(!strcmp(type, "exp"))
         *kernel = starsh_ssdata_block_exp_kernel_1d;
+    else if(!strcmp(type, "sqrexp"))
+        *kernel = starsh_ssdata_block_sqr_exp_kernel_1d;
+#ifdef GSL
+    else if(!strcmp(type, "Matern"))
+        *kernel = starsh_ssdata_block_matern_kernel_1d;
+#endif
     else
         STARSH_ERROR("Wrong type of kernel");
     return 0;
@@ -646,7 +806,14 @@ int starsh_ssdata_3d_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
     if(!strcmp(type, "exp"))
         *kernel = starsh_ssdata_block_exp_kernel_3d;
+    else if(!strcmp(type, "sqrexp"))
+        *kernel = starsh_ssdata_block_sqr_exp_kernel_3d;
+#ifdef GSL
+    else if(!strcmp(type, "Matern"))
+        *kernel = starsh_ssdata_block_matern_kernel_3d;
+#endif
     else
         STARSH_ERROR("Wrong type of kernel");
     return 0;
 }
+

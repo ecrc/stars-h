@@ -73,6 +73,8 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int nrows = R->size[i];
         int ncols = C->size[j];
         int rank = M->far_rank[lbi];
+        if(rank == 0)
+            continue;
         // Get pointers to data buffers
         double *U = M->far_U[lbi]->data, *V = M->far_V[lbi]->data;
         int info = 0;
@@ -355,6 +357,8 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         int nrows = R->size[i];
         int ncols = C->size[j];
         int rank = M->far_rank[lbi];
+        if(rank == 0)
+            continue;
         // Get pointers to data buffers
         double *U = M->far_U[lbi]->data, *V = M->far_V[lbi]->data;
         int info = 0;
