@@ -13,12 +13,12 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc < 7)
+    if(argc < 9)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 6 are needed\n", argc-1);
-            printf("mpi sqrtn block_size kernel tol beta nu\n");
+            printf("%d arguments provided, but 8 are needed\n", argc-1);
+            printf("mpi sqrtn block_size kernel tol beta nu noise nrhs\n");
         }
         MPI_Finalize();
         exit(0);
@@ -28,20 +28,23 @@ int main(int argc, char **argv)
     double tol = atof(argv[4]);
     double beta = atof(argv[5]);
     double nu = atof(argv[6]);
+    double noise = atof(argv[7]);
+    int nrhs = atoi(argv[8]);
     int maxrank = 100, oversample = 10, onfly = 0;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
     if(mpi_rank == 0)
-        printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
+        printf("PARAMS: N=%d NB=%d KERNEL=%s TOL=%e BETA=%f NU=%f NOISE=%f\n",
+                N, block_size, kernel_type, tol, beta, nu, noise);
     srand(0);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     starsh_application((void **)&data, &kernel, N, dtype, "spatial",
-            kernel_type, "beta", beta, "nu", nu, NULL);
+            kernel_type, "beta", beta, "nu", nu, "noise", noise, NULL);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
@@ -87,7 +90,6 @@ int main(int argc, char **argv)
     // Measure time for 10 BLRM and TLR matvecs and then solve with CG, initial
     // solution x=0, b is RHS and r is residual
     double *b, *x, *r, *CG_work;
-    int nrhs = 1;
     STARSH_MALLOC(b, N*nrhs);
     STARSH_MALLOC(x, N*nrhs);
     STARSH_MALLOC(r, N*nrhs);

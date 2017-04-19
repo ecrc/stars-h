@@ -14,14 +14,16 @@ typedef struct starsh_ssdata
     //!< Characteristical length of covariance. Notes as l in some papers.
     double nu;
     //!< Order of Matern kernel.
+    double noise;
+    //!< Noise and regularization parameter.
 } STARSH_ssdata;
 
 int starsh_ssdata_new_1d(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
-        double nu);
+        double nu, double noise);
 int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
-        double nu);
+        double nu, double noise);
 int starsh_ssdata_new_3d(STARSH_ssdata **data, int sqrtn, char dtype, double beta,
-        double nu);
+        double nu, double noise);
 int starsh_ssdata_new_1d_va(STARSH_ssdata **data, const int n, char dtype,
         va_list args);
 int starsh_ssdata_new_va(STARSH_ssdata **data, const int n, char dtype,

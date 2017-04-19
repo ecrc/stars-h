@@ -130,6 +130,7 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
                 {
                     finished++;
                     rscheck[j] = -1.;
+                    printf("%d solve in %d iterations\n", j, i+1);
                     continue;
                 }
                 rsnew[j] *= rsnew[j];

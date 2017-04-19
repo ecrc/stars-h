@@ -29,6 +29,7 @@ static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -data->beta;
+    double noise = data->noise;
     double *x = data->point;
     double *buffer = result;
     //#pragma omp parallel
@@ -39,7 +40,10 @@ static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
         {
             tmp = fabs(x[irow[i]]-x[icol[j]]);
             dist = tmp/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -61,6 +65,7 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -data->beta;
+    double noise = data->noise;
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
     //#pragma omp parallel
@@ -74,7 +79,10 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
             tmp = y[irow[i]]-y[icol[j]];
             dist += tmp*tmp;
             dist = sqrt(dist)/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -96,6 +104,7 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -data->beta;
+    double noise = data->noise;
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
     //#pragma omp parallel
@@ -111,7 +120,10 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
             tmp = z[irow[i]]-z[icol[j]];
             dist += tmp*tmp;
             dist = sqrt(dist)/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -134,6 +146,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
     double *x = data->point;
     double *buffer = result;
     //#pragma omp parallel
@@ -145,7 +158,10 @@ static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
             tmp = x[irow[i]]-x[icol[j]];
             dist = tmp*tmp;
             dist = dist/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -168,6 +184,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
     //#pragma omp parallel
@@ -183,7 +200,10 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
             tmp = z[irow[i]]-z[icol[j]];
             dist += tmp*tmp;
             dist = dist/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -206,6 +226,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
     int i, j;
     STARSH_ssdata *data = row_data;
     double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
     //#pragma omp parallel
@@ -219,7 +240,10 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
             tmp = y[irow[i]]-y[icol[j]];
             dist += tmp*tmp;
             dist = dist/beta;
-            buffer[j*(size_t)nrows+i] = exp(dist);
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
         }
 }
 
@@ -243,6 +267,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int i, j;
         STARSH_ssdata *data = row_data;
         double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
         double *x = data->point;
         double *buffer = result;
@@ -256,7 +281,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 dist = abs(tmp);
                 dist = dist*theta;
                 if(dist == 0)
-                    buffer[j*nrows+i] = 1.0;
+                    buffer[j*nrows+i] = 1.0+noise;
                 else
                     buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
                         pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
@@ -282,6 +307,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int i, j;
         STARSH_ssdata *data = row_data;
         double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
         double *x = data->point, *y = x+data->count, *z = y+data->count;
         double *buffer = result;
@@ -299,7 +325,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 dist += tmp*tmp;
                 dist = sqrt(dist)*theta;
                 if(dist == 0)
-                    buffer[j*nrows+i] = 1.0;
+                    buffer[j*nrows+i] = 1.0+noise;
                 else
                     buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
                         pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
@@ -324,6 +350,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int i, j;
         STARSH_ssdata *data = row_data;
         double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
         double *x = data->point, *y = x+data->count;
         double *buffer = result;
@@ -339,7 +366,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 dist += tmp*tmp;
                 dist = sqrt(dist)*theta;
                 if(dist == 0)
-                    buffer[j*nrows+i] = 1.0;
+                    buffer[j*nrows+i] = 1.0+noise;
                 else
                     buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
                         pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
@@ -522,7 +549,7 @@ static void gen_points(int n, double *points)
 }
 
 int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
-        double nu)
+        double nu, double noise)
 //! Generate spatial statistics data.
 /*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
  * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
@@ -548,6 +575,11 @@ int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
     }
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
+    if(noise < 0)
+    {
+        STARSH_ERROR("invalid value of `noise`");
+        return 1;
+    }
     *data = malloc(sizeof(**data));
     double *point;
     STARSH_MALLOC(point, n);
@@ -558,6 +590,7 @@ int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
     (*data)->ndim = 1;
     (*data)->beta = beta;
     (*data)->nu = nu;
+    (*data)->noise = noise;
     return 0;
 }
 
@@ -567,6 +600,7 @@ int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
     char *arg_type;
     double beta = 0.1;
     double nu = 0.5;
+    double noise = 0;
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
     while((arg_type = va_arg(args, char *)) != NULL)
@@ -575,10 +609,12 @@ int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
             beta = va_arg(args, double);
         else if(!strcmp(arg_type, "nu"))
             nu = va_arg(args, double);
+        else if(!strcmp(arg_type, "noise"))
+            noise = va_arg(args, double);
         else
             STARSH_ERROR("Wrong parameter name %s", arg_type);
     }
-    starsh_ssdata_new_1d(data, n, dtype, beta, nu);
+    starsh_ssdata_new_1d(data, n, dtype, beta, nu, noise);
     return 0;
 }
 
@@ -593,7 +629,7 @@ int starsh_ssdata_new_1d_el(STARSH_ssdata **data, int n, char dtype, ...)
 
 
 int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
-        double beta, double nu)
+        double beta, double nu, double noise)
 //! Generate spatial statistics data.
 /*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
  * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
@@ -619,6 +655,11 @@ int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
     }
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
+    if(noise < 0)
+    {
+        STARSH_ERROR("invalid value of `noise`");
+        return 1;
+    }
     *data = malloc(sizeof(**data));
     double *point;
     int n = sqrtn*sqrtn;
@@ -630,11 +671,12 @@ int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
     (*data)->ndim = 2;
     (*data)->beta = beta;
     (*data)->nu = nu;
+    (*data)->noise = noise;
     return 0;
 }
 
 int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
-        double beta, double nu)
+        double beta, double nu, double noise)
 //! Generate spatial statistics data.
 /*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
  * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
@@ -655,11 +697,16 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
     }
     if(beta <= 0)
     {
-        STARSH_ERROR("invalid value iof `beta`");
+        STARSH_ERROR("invalid value of `beta`");
         return 1;
     }
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
+    if(noise < 0)
+    {
+        STARSH_ERROR("invalid value of `noise`");
+        return 1;
+    }
     *data = malloc(sizeof(**data));
     double *point;
     int n = cbrtn*cbrtn*cbrtn;
@@ -681,6 +728,7 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
     (*data)->ndim = 3;
     (*data)->beta = beta;
     (*data)->nu = nu;
+    (*data)->noise = noise;
     return 0;
 }
 
@@ -690,6 +738,7 @@ int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
     char *arg_type;
     double beta = 0.1;
     double nu = 0.5;
+    double noise = 0;
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
     while((arg_type = va_arg(args, char *)) != NULL)
@@ -698,13 +747,15 @@ int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
             beta = va_arg(args, double);
         else if(!strcmp(arg_type, "nu"))
             nu = va_arg(args, double);
+        else if(!strcmp(arg_type, "noise"))
+            noise = va_arg(args, double);
         else
             STARSH_ERROR("Wrong parameter name %s", arg_type);
     }
     int cbrtn = cbrt(n);
     if(cbrtn*cbrtn*cbrtn != n)
         STARSH_ERROR("Parameter n must be square of integer");
-    starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu);
+    starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu, noise);
     return 0;
 }
 
@@ -723,6 +774,7 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
     char *arg_type;
     double beta = 0.1;
     double nu = 0.5;
+    double noise = 0;
     if(dtype != 'd')
         STARSH_ERROR("Only dtype='d' is supported");
     while((arg_type = va_arg(args, char *)) != NULL)
@@ -731,13 +783,15 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
             beta = va_arg(args, double);
         else if(!strcmp(arg_type, "nu"))
             nu = va_arg(args, double);
+        else if(!strcmp(arg_type, "noise"))
+            noise = va_arg(args, double);
         else
             STARSH_ERROR("Wrong parameter name %s", arg_type);
     }
     int sqrtn = sqrt(n);
     if(sqrtn*sqrtn != n)
         STARSH_ERROR("Parameter n must be square of integer");
-    starsh_ssdata_new(data, sqrtn, dtype, beta, nu);
+    starsh_ssdata_new(data, sqrtn, dtype, beta, nu, noise);
     return 0;
 }
 

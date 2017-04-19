@@ -13,22 +13,23 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc < 7)
+    if(argc < 8)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 6 are needed\n", argc-1);
-            printf("mpi sqrtn block_size kernel tol beta nu\n");
+            printf("%d arguments provided, but 7 are needed\n", argc-1);
+            printf("mpi sqrtn block_size kernel maxrank tol beta nu\n");
         }
         MPI_Finalize();
         exit(0);
     }
     int sqrtn = atoi(argv[1]), block_size = atoi(argv[2]);
     char *kernel_type = argv[3];
-    double tol = atof(argv[4]);
-    double beta = atof(argv[5]);
-    double nu = atof(argv[6]);
-    int maxrank = 100, oversample = 10, onfly = 0;
+    int maxrank = atoi(argv[4]);
+    double tol = atof(argv[5]);
+    double beta = atof(argv[6]);
+    double nu = atof(argv[7]);
+    int oversample = 10, onfly = 0;
     char *scheme = "mpi_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'N', dtype = 'd';
