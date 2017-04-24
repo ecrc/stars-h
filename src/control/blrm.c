@@ -371,6 +371,8 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 #ifdef MPI
     else if(strcmp(scheme, "mpi_rsdd") == 0)
         starsh_blrm__drsdd_mpi(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "mpi_na") == 0)
+        starsh_blrm__dna_mpi(M, F, maxrank, oversample, tol, onfly);
 #endif
     else
     {

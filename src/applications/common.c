@@ -3,6 +3,7 @@
 #include <mkl.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
+#include "starsh-minimal.h"
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
@@ -26,6 +27,11 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
     {
         starsh_ssdata_new_3d_va((STARSH_ssdata **)data, n, dtype, args);
         starsh_ssdata_3d_get_kernel(kernel, kernel_type, dtype);
+    }
+    else if(!strcmp(problem_type, "minimal"))
+    {
+        starsh_mindata_new_va((STARSH_mindata **)data, n, dtype, args);
+        starsh_mindata_get_kernel(kernel, kernel_type, dtype);
     }
     else
         STARSH_ERROR("Wrong value of problem_type");

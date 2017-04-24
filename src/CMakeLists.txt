@@ -15,6 +15,7 @@ add_subdirectory("backends")
 
 add_library(starsh STATIC ${STARSH_SRC} ${BACKENDS_OBJECTS})
 if(OPENMP)
+    target_compile_options(starsh PRIVATE "${OpenMP_C_FLAGS}")
     target_link_libraries(starsh PRIVATE "${OpenMP_C_FLAGS}")
 endif(OPENMP)
 if(STARPU)

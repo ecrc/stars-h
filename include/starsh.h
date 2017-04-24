@@ -408,6 +408,9 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
 void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
+void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
@@ -433,6 +436,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 
 
 int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
 

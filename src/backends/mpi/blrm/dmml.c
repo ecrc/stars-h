@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <mpi.h>
 #include <string.h>
+#include <math.h>
 #include "starsh.h"
 
 int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
@@ -197,16 +198,9 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     int mpi_rank, mpi_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-    int grid_nx = 1, grid_ny, grid_x, grid_y;
-    int pow = 0, val = 1;
-    while(val < mpi_size)
-    {
-        pow++;
-        val *= 4;
-        grid_nx *= 2;
-    }
-    if(val != mpi_size)
-        STARSH_ERROR("MPI SIZE MUST BE POWER OF 4!");
+    int grid_nx = sqrt(mpi_size), grid_ny = grid_nx, grid_x, grid_y;
+    if(grid_nx*grid_ny != mpi_size)
+        STARSH_ERROR("MPI SIZE MUST BE SQUARE OF INTEGER!");
     grid_ny = mpi_size / grid_nx;
     grid_x = mpi_rank / grid_nx;
     grid_y = mpi_rank % grid_nx;

@@ -4,6 +4,8 @@ set(tests_files "symm_positivity_after_compression.c"
     "mpi3d.c"
     "mpi_solve.c"
     "mpi3d_solve.c"
+    "mpi_minimal.c"
+    "mpi_na.c"
     )
 
 if( PLASMA_FOUND )
