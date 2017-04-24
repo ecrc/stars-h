@@ -369,8 +369,12 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         starsh_blrm__dqp3_starpu(M, F, maxrank, oversample, tol, onfly);
 #endif
 #ifdef MPI
+    else if(strcmp(scheme, "mpi_sdd") == 0)
+        starsh_blrm__dsdd_mpi(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "mpi_rsdd") == 0)
         starsh_blrm__drsdd_mpi(M, F, maxrank, oversample, tol, onfly);
+    else if(strcmp(scheme, "mpi_qp3") == 0)
+        starsh_blrm__dqp3_mpi(M, F, maxrank, oversample, tol, onfly);
     else if(strcmp(scheme, "mpi_na") == 0)
         starsh_blrm__dna_mpi(M, F, maxrank, oversample, tol, onfly);
 #endif
@@ -378,7 +382,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     {
         STARSH_ERROR("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
                 "starpu_rsdd, starpu_rsdd2, starpu_qp3, omp_sdd, omp_rsdd, "
-                "omp_rsdd2, omp_qp3)");
+                "omp_rsdd2, omp_qp3, mpi_sdd, mpi_rsdd, mpi_qp3)");
         return 1;
     }
     return 0;

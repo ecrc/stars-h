@@ -5,7 +5,7 @@
 #include <mpi.h>
 #include "starsh.h"
 
-int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
 //! Approximate each tile by 1-way randomized SVD.
 /*! @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -86,11 +86,6 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-    // Since this is fake low-rank approximation, every tile is dense
-    #pragma omp parallel for schedule(static)
-    for(lbi = 0; lbi < nblocks_far_local; lbi++)
-        far_rank[lbi] = -1;
-    /*
     #pragma omp parallel for schedule(dynamic, 1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
     {
@@ -113,24 +108,26 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
-        size_t lwork = ncols, lwork_sdd = (4*mn2+7)*mn2;
+        size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
         if(lwork_sdd > lwork)
             lwork = lwork_sdd;
-        lwork += (size_t)mn2*(2*ncols+nrows+mn2+1);
-        size_t liwork = 8*mn2;
+        lwork += (size_t)mn2*(2*ncols+mn2+1)+mn;
+        size_t liwork = ncols, liwork_sdd = 8*mn2;
+        if(liwork_sdd > liwork)
+            liwork = liwork_sdd;
         double *D, *work;
         int *iwork;
         int info;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        //STARSH_PMALLOC(iwork, liwork, info);
-        //STARSH_PMALLOC(work, lwork, info);
+        STARSH_PMALLOC(iwork, liwork, info);
+        STARSH_PMALLOC(work, lwork, info);
         // Compute elements of a block
         double time0 = omp_get_wtime();
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
         double time1 = omp_get_wtime();
-        starsh_kernel_dna(nrows, ncols, D, far_U[lbi]->data,
+        starsh_kernel_dqp3(nrows, ncols, D, far_U[lbi]->data,
                 far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
                 lwork, iwork);
         double time2 = omp_get_wtime();
@@ -141,10 +138,9 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         }
         // Free temporary arrays
         free(D);
-        //free(work);
-        //free(iwork);
+        free(work);
+        free(iwork);
     }
-    */
     // Get number of false far-field blocks
     size_t nblocks_false_far_local = 0;
     size_t *false_far_local = NULL;
