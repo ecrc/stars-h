@@ -4,6 +4,7 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 #include "starsh-minimal.h"
+#include "starsh-rndtiled.h"
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
@@ -33,6 +34,12 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
     {
         info = starsh_mindata_new_va((STARSH_mindata **)data, n, dtype, args);
         info |= starsh_mindata_get_kernel(kernel, kernel_type, dtype);
+    }
+    else if(!strcmp(problem_type, "rndtiled"))
+    {
+        info = starsh_rndtiled_new_va((STARSH_rndtiled **)data, n, dtype,
+                args);
+        info |= starsh_rndtiled_get_kernel(kernel, kernel_type, dtype);
     }
     else
     {

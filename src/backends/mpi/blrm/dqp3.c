@@ -7,7 +7,7 @@
 
 int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
-//! Approximate each tile by 1-way randomized SVD.
+//! Approximate each tile by rank-revealing QR.
 /*! @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.

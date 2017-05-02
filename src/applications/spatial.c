@@ -13,7 +13,7 @@
 
 static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Exponential kernel for spatial statistics problem
+/*! Exponential kernel for spatial statistics problem in 1D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -24,17 +24,17 @@ static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel without SIMD instructions for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 1D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
+    // Get X coordinate
     double *x = data->point;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -49,7 +49,7 @@ static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
 
 static void starsh_ssdata_block_exp_kernel_simd(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Exponential kernel for spatial statistics problem
+/*! Exponential kernel for spatial statistics problem in 2D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -60,17 +60,17 @@ static void starsh_ssdata_block_exp_kernel_simd(int nrows, int ncols, int *irow,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel with SIMD instructions for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
+    // Get X and Y coordinates
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
@@ -89,7 +89,7 @@ static void starsh_ssdata_block_exp_kernel_simd(int nrows, int ncols, int *irow,
 
 static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Exponential kernel for spatial statistics problem
+/*! Exponential kernel for spatial statistics problem in 2D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -100,17 +100,17 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel without SIMD instructions for spatial statistics
     // Returns exp^{-r/beta}, where r is a distance between particles in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
+    // Get X and Y coordinates
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -128,7 +128,7 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
 
 static void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Exponential kernel for spatial statistics problem
+/*! Exponential kernel for spatial statistics problem in 3D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -139,17 +139,17 @@ static void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols, int *ir
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
-    // Returns exp^{-r/beta}, where r is a distance between particles in 2D
+    // Block kernel with SIMD instructions for spatial statistics
+    // Returns exp^{-r/beta}, where r is a distance between particles in 3D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
+    // Get X, Y and Z coordinates
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
@@ -170,7 +170,7 @@ static void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols, int *ir
 
 static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Exponential kernel for spatial statistics problem
+/*! Exponential kernel for spatial statistics problem in 3D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -181,17 +181,17 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
-    // Returns exp^{-r/beta}, where r is a distance between particles in 2D
+    // Block kernel without SIMD instructions for spatial statistics
+    // Returns exp^{-r/beta}, where r is a distance between particles in 3D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
+    // Get X, Y and Z coordinates
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -211,7 +211,7 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
 
 static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem
+/*! Square exponential kernel for spatial statistics problem in 1D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -222,18 +222,17 @@ static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel without SIMD instructions for spatial statistics
     // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    // in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
+    // Get X coordinates
     double *x = data->point;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -249,7 +248,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
 
 static void starsh_ssdata_block_sqr_exp_kernel_3d_simd(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem
+/*! Square exponential kernel for spatial statistics problem in 3D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -260,18 +259,17 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d_simd(int nrows, int ncols,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel with SIMD instructions for spatial statistics
     // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    // in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
+    // Get X, Y and Z coordinates
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
@@ -292,7 +290,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d_simd(int nrows, int ncols,
 
 static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem
+/*! Square exponential kernel for spatial statistics problem in 3D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -303,18 +301,17 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel without SIMD instructions for spatial statistics
     // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    // in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
+    // Get X, Y and Z coordinates
     double *x = data->point, *y = x+data->count, *z = y+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -334,7 +331,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
 
 static void starsh_ssdata_block_sqr_exp_kernel_simd(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem
+/*! Square exponential kernel for spatial statistics problem in 2D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -347,16 +344,15 @@ static void starsh_ssdata_block_sqr_exp_kernel_simd(int nrows, int ncols, int *i
 {
     // Block kernel for spatial statistics
     // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    // in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
+    // Get X and Y coordinates
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
@@ -375,7 +371,7 @@ static void starsh_ssdata_block_sqr_exp_kernel_simd(int nrows, int ncols, int *i
 
 static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem
+/*! Square exponential kernel for spatial statistics problem in 2D
  *
  * @param[in] nrows: Number of rows of corresponding array.
  * @param[in] ncols: Number of columns of corresponding array.
@@ -386,18 +382,17 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
  * @param[out] result: Where to write elements of an array.
  */
 {
-    // Block kernel for spatial statistics
+    // Block kernel without SIMD instructions for spatial statistics
     // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    // in 2D
     int i, j;
     STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
+    // Get X and Y coordinates
     double *x = data->point, *y = x+data->count;
     double *buffer = result;
-    //#pragma omp parallel
-    //printf("myid %d\n", omp_get_thread_num());
-    //#pragma omp parallel for private(tmp, dist, i, j)
+    // Fill column-major matrix
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -416,7 +411,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 #ifdef GSL
     static void starsh_ssdata_block_matern_kernel_1d(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem
+    /*! Matern kernel for spatial statistics problem in 1D
      *
      * @param[in] nrows: Number of rows of corresponding array.
      * @param[in] ncols: Number of columns of corresponding array.
@@ -427,19 +422,19 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
      * @param[out] result: Where to write elements of an array.
      */
     {
-        // Block kernel for spatial statistics
+        // Block kernel without SIMD instructions for spatial statistics
         // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles in 2D
+        // and r is a distance between particles
         int i, j;
         STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
         double tmp, dist, beta = data->beta, nu = data->nu;
         double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
+        // Get X coordinates
         double *x = data->point;
         double *buffer = result;
-        //#pragma omp parallel
-        //printf("myid %d\n", omp_get_thread_num());
-        //#pragma omp parallel for private(tmp, dist, i, j)
+        // Fill column-major matrix
         for(j = 0; j < ncols; j++)
             for(i = 0; i < nrows; i++)
             {
@@ -456,7 +451,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 
     static void starsh_ssdata_block_matern_kernel_3d_simd(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem
+    /*! Matern kernel for spatial statistics problem in 3D
      *
      * @param[in] nrows: Number of rows of corresponding array.
      * @param[in] ncols: Number of columns of corresponding array.
@@ -467,19 +462,19 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
      * @param[out] result: Where to write elements of an array.
      */
     {
-        // Block kernel for spatial statistics
+        // Block kernel with SIMD instructions for spatial statistics
         // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles in 2D
+        // and r is a distance between particles
         int i, j;
         STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
         double tmp, dist, beta = data->beta, nu = data->nu;
         double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
+        // Get X, Y and Z coordinates
         double *x = data->point, *y = x+data->count, *z = y+data->count;
         double *buffer = result;
-        //#pragma omp parallel
-        //printf("myid %d\n", omp_get_thread_num());
-        //#pragma omp parallel for private(tmp, dist, i, j)
+        // Fill column-major matrix
         #pragma omp simd
         for(j = 0; j < ncols; j++)
             for(i = 0; i < nrows; i++)
@@ -501,7 +496,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 
     static void starsh_ssdata_block_matern_kernel_3d(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem
+    /*! Matern kernel for spatial statistics problem in 3D
      *
      * @param[in] nrows: Number of rows of corresponding array.
      * @param[in] ncols: Number of columns of corresponding array.
@@ -512,19 +507,19 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
      * @param[out] result: Where to write elements of an array.
      */
     {
-        // Block kernel for spatial statistics
+        // Block kernel without SIMD instructions for spatial statistics
         // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles in 2D
+        // and r is a distance between particles
         int i, j;
         STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
         double tmp, dist, beta = data->beta, nu = data->nu;
         double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
+        // Get X, Y and Z coordinates
         double *x = data->point, *y = x+data->count, *z = y+data->count;
         double *buffer = result;
-        //#pragma omp parallel
-        //printf("myid %d\n", omp_get_thread_num());
-        //#pragma omp parallel for private(tmp, dist, i, j)
+        // Fill column-major matrix
         for(j = 0; j < ncols; j++)
             for(i = 0; i < nrows; i++)
             {
@@ -545,7 +540,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 
     static void starsh_ssdata_block_matern_kernel_simd(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem
+    /*! Matern kernel for spatial statistics problem in 2D
      *
      * @param[in] nrows: Number of rows of corresponding array.
      * @param[in] ncols: Number of columns of corresponding array.
@@ -556,19 +551,19 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
      * @param[out] result: Where to write elements of an array.
      */
     {
-        // Block kernel for spatial statistics
+        // Block kernel with SIMD instructions for spatial statistics
         // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles in 2D
+        // and r is a distance between particles
         int i, j;
         STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
         double tmp, dist, beta = data->beta, nu = data->nu;
         double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
+        // Get X and Y coordinates
         double *x = data->point, *y = x+data->count;
         double *buffer = result;
-        //#pragma omp parallel
-        //printf("myid %d\n", omp_get_thread_num());
-        //#pragma omp parallel for private(tmp, dist, i, j)
+        // Fill column-major matrix
         #pragma omp simd
         for(j = 0; j < ncols; j++)
             for(i = 0; i < nrows; i++)
@@ -588,7 +583,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 
     static void starsh_ssdata_block_matern_kernel(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem
+    /*! Matern kernel for spatial statistics problem in 2D
      *
      * @param[in] nrows: Number of rows of corresponding array.
      * @param[in] ncols: Number of columns of corresponding array.
@@ -599,19 +594,19 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
      * @param[out] result: Where to write elements of an array.
      */
     {
-        // Block kernel for spatial statistics
+        // Block kernel without SIMD instructions for spatial statistics
         // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles in 2D
+        // and r is a distance between particles
         int i, j;
         STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
         double tmp, dist, beta = data->beta, nu = data->nu;
         double noise = data->noise;
         double theta = sqrt(2*nu)/beta;
+        // Get X and Y coordinates
         double *x = data->point, *y = x+data->count;
         double *buffer = result;
-        //#pragma omp parallel
-        //printf("myid %d\n", omp_get_thread_num());
-        //#pragma omp parallel for private(tmp, dist, i, j)
+        // Fill column-major matrix
         for(j = 0; j < ncols; j++)
             for(i = 0; i < nrows; i++)
             {
@@ -630,6 +625,7 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
 #endif
 
 static uint32_t Part1By1(uint32_t x)
+//! Spread lower bits of input
 {
   x &= 0x0000ffff;
   // x = ---- ---- ---- ---- fedc ba98 7654 3210
@@ -645,6 +641,7 @@ static uint32_t Part1By1(uint32_t x)
 }
 
 static uint32_t Compact1By1(uint32_t x)
+//! Collect every second bit into lower part of input
 {
   x &= 0x55555555;
   // x = -f-e -d-c -b-a -9-8 -7-6 -5-4 -3-2 -1-0
@@ -660,6 +657,7 @@ static uint32_t Compact1By1(uint32_t x)
 }
 
 static uint64_t Part1By3(uint64_t x)
+//! Spread lower bits of input
 {
     x &= 0x000000000000ffff;
     // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
@@ -675,6 +673,7 @@ static uint64_t Part1By3(uint64_t x)
 }
 
 static uint64_t Compact1By3(uint64_t x)
+//! Collect every 4-th bit into lower part of input
 {
     x &= 0x1111111111111111;
     // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
@@ -690,41 +689,49 @@ static uint64_t Compact1By3(uint64_t x)
 }
 
 static uint32_t EncodeMorton2(uint32_t x, uint32_t y)
+//! Encode two inputs into one
 {
     return (Part1By1(y) << 1) + Part1By1(x);
 }
 
 static uint64_t EncodeMorton3(uint64_t x, uint64_t y, uint64_t z)
+//! Encode 3 inputs into one
 {
     return (Part1By3(z) << 2) + (Part1By3(y) << 1) + Part1By3(x);
 }
 
 static uint32_t DecodeMorton2X(uint32_t code)
+//! Decode first input
 {
     return Compact1By1(code >> 0);
 }
 
 static uint32_t DecodeMorton2Y(uint32_t code)
+//! Decode second input
 {
     return Compact1By1(code >> 1);
 }
 
 static uint64_t DecodeMorton3X(uint64_t code)
+//! Decode first input
 {
     return Compact1By3(code >> 0);
 }
 
 static uint64_t DecodeMorton3Y(uint64_t code)
+//! Decode second input
 {
     return Compact1By3(code >> 1);
 }
 
 static uint64_t DecodeMorton3Z(uint64_t code)
+//! Decode third input
 {
     return Compact1By3(code >> 2);
 }
 
 static int compare_uint32(const void *a, const void *b)
+//! Compare two uint32_t
 {
     uint32_t _a = *(uint32_t *)a;
     uint32_t _b = *(uint32_t *)b;
@@ -734,6 +741,7 @@ static int compare_uint32(const void *a, const void *b)
 }
 
 static int compare_uint64(const void *a, const void *b)
+//! Compare two uint64_t
 {
     uint64_t _a = *(uint64_t *)a;
     uint64_t _b = *(uint64_t *)b;
@@ -743,11 +751,13 @@ static int compare_uint64(const void *a, const void *b)
 }
 
 static void zsort(int n, double *points)
+//! Sort in Morton order (input points must be in [0;1]x[0;1] square])
 {
     // Some sorting, required by spatial statistics code
     int i;
     uint16_t x, y;
     uint32_t z[n];
+    // Encode data into vector z
     for(i = 0; i < n; i++)
     {
         x = (uint16_t)(points[i]*(double)UINT16_MAX +.5);
@@ -755,7 +765,9 @@ static void zsort(int n, double *points)
         //printf("%f %f -> %u %u\n", points[i], points[i+n], x, y);
         z[i] = EncodeMorton2(x, y);
     }
+    // Sort vector z
     qsort(z, n, sizeof(uint32_t), compare_uint32);
+    // Decode data from vector z
     for(i = 0; i < n; i++)
     {
         x = DecodeMorton2X(z[i]);
@@ -767,11 +779,13 @@ static void zsort(int n, double *points)
 }
 
 static void zsort3(int n, double *points)
+//! Sort in Morton order for 3D
 {
     // Some sorting, required by spatial statistics code
     int i;
     uint16_t x, y, z;
     uint64_t Z[n];
+    // Encode data into vector Z
     for(i = 0; i < n; i++)
     {
         x = (uint16_t)(points[i]*(double)UINT16_MAX + 0.5);
@@ -779,7 +793,9 @@ static void zsort3(int n, double *points)
         z = (uint16_t)(points[i+2*n]*(double)UINT16_MAX + 0.5);
         Z[i] = EncodeMorton3(x, y, z);
     }
+    // Sort Z
     qsort(Z, n, sizeof(uint64_t), compare_uint64);
+    // Decode data from vector Z
     for(i = 0; i < n; i++)
     {
         points[i] = (double)DecodeMorton3X(Z[i])/(double)UINT16_MAX;
@@ -797,8 +813,8 @@ static void gen_points(int n, double *points)
     {
         for(j = 0; j < n; j++)
         {
-            points[i*n+j] = (j+0.5-0.4*rand()/(double)RAND_MAX)/n;
-            A[i*n+j] = (i+0.5-0.4*rand()/(double)RAND_MAX)/n;
+            points[i*n+j] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
+            A[i*n+j] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
         }
     }
 }
@@ -842,7 +858,7 @@ int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
     double *point;
     STARSH_MALLOC(point, n);
     for(int i = 0; i < n; i++)
-        point[i] = (i+0.5-0.4*rand()/(double)RAND_MAX)/n;
+        point[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
     (*data)->point = point;
     (*data)->count = n;
     (*data)->ndim = 1;
@@ -854,6 +870,8 @@ int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
 
 int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
         va_list args)
+//! Generate spatial statistics data with va_list.
+//! For more info look at starsh_ssdata_new_1d
 {
     char *arg_type;
     double beta = 0.1;
@@ -878,11 +896,12 @@ int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
             return 1;
         }
     }
-    starsh_ssdata_new_1d(data, n, dtype, beta, nu, noise);
-    return 0;
+    return starsh_ssdata_new_1d(data, n, dtype, beta, nu, noise);
 }
 
 int starsh_ssdata_new_1d_el(STARSH_ssdata **data, int n, char dtype, ...)
+//! Generate spatial statistics data with ellipsis
+//! For more info look at starsh_ssdata_new_1d
 {
     va_list args;
     va_start(args, dtype);
@@ -931,7 +950,14 @@ int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
     double *point;
     int n = sqrtn*sqrtn;
     STARSH_MALLOC(point, 2*n);
-    gen_points(sqrtn, point);
+    double *x = point, *y = x+n;
+    for(int i = 0; i < sqrtn; i++)
+        for(int j = 0; j < sqrtn; j++)
+        {
+            int ind = i*sqrtn + j;
+            x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+            y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+        }
     zsort(n, point);
     (*data)->point = point;
     (*data)->count = n;
@@ -987,11 +1013,10 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
             for(int k = 0; k < cbrtn; k++)
             {
                 int ind = (i*cbrtn + j)*cbrtn + k;
-                x[ind] = (i+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
-                y[ind] = (j+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
-                z[ind] = (k+0.5-0.4*rand()/(double)RAND_MAX)/cbrtn;
+                x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
             }
-    //gen_points(sqrtn, point);
     zsort3(n, point);
     (*data)->point = point;
     (*data)->count = n;
@@ -1004,6 +1029,8 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
 
 int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
         va_list args)
+//! Generate spatial statistics data with va_list
+//! For more info look at starsh_ssdata_new_3d
 {
     char *arg_type;
     double beta = 0.1;
@@ -1034,11 +1061,12 @@ int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
         STARSH_ERROR("Parameter n must be cube of integer");
         return 1;
     }
-    starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu, noise);
-    return 0;
+    return starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu, noise);
 }
 
 int starsh_ssdata_new_3d_el(STARSH_ssdata **data, int n, char dtype, ...)
+//! Generate spatial statistics data with ellipsis
+//! For more info look at starsh_ssdata_new_3d
 {
     va_list args;
     va_start(args, dtype);
@@ -1049,6 +1077,8 @@ int starsh_ssdata_new_3d_el(STARSH_ssdata **data, int n, char dtype, ...)
 
 int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
         va_list args)
+//! Generate spatial statistics data with va_list
+//! For more info look at starsh_ssdata_new
 {
     char *arg_type;
     double beta = 0.1;
@@ -1079,11 +1109,12 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
         STARSH_ERROR("Parameter n must be square of integer");
         return 1;
     }
-    starsh_ssdata_new(data, sqrtn, dtype, beta, nu, noise);
-    return 0;
+    return starsh_ssdata_new(data, sqrtn, dtype, beta, nu, noise);
 }
 
 int starsh_ssdata_new_el(STARSH_ssdata **data, int n, char dtype, ...)
+//! Generate spatial statistics data with ellipsis
+//! For more info look at starsh_ssdata_new
 {
     va_list args;
     va_start(args, dtype);
@@ -1107,6 +1138,7 @@ void starsh_ssdata_free(STARSH_ssdata *data)
 
 int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type,
         char dtype)
+//! Get corresponding kernel for spatial statistics problem
 {
     if(dtype != 'd')
     {
@@ -1137,6 +1169,7 @@ int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type,
 
 int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
         char dtype)
+//! Get corresponding kernel for spatial statistics problem
 {
     if(dtype != 'd')
     {
@@ -1161,6 +1194,7 @@ int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
 
 int starsh_ssdata_3d_get_kernel(STARSH_kernel *kernel, const char *type,
         char dtype)
+//! Get corresponding kernel for spatial statistics problem
 {
     if(dtype != 'd')
     {

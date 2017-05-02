@@ -9,8 +9,8 @@
 
 int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb)
-//! Double precision Multiply by dense Matrix, blr-matrix is on Left side.
-/*! Performs `B=alpha*M*A+beta*B` using OpenMP */
+//! Multiply by dense Matrix, blr-matrix is on Left side.
+/*! Performs `B=alpha*M*A+beta*B` using MPI+OpenMP */
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;
@@ -174,8 +174,8 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
 
 int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb)
-//! Double precision Multiply by dense Matrix, blr-matrix is on Left side.
-/*! Performs `B=alpha*M*A+beta*B` using OpenMP */
+//! Multiply by dense Matrix, tiled blr-matrix is on Left side.
+/*! Performs `B=alpha*M*A+beta*B` using MPI+OpenMP */
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;

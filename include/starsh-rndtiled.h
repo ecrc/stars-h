@@ -20,8 +20,14 @@ struct starsh_rndtiled
     //!< Array of noise in singular values for each tile.
 };
 
-int starsh_rndtiled_gen(STARSH_rndtiled **data, STARSH_kernel *kernel,
-        int nblocks, int block_size, double decay, double noise);
+int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
+        int block_size, double decay);
+int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
+        va_list args);
+int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...);
+
+int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, const char *type,
+        char dtype);
 
 int starsh_rndtiled_free(STARSH_rndtiled *data);
 
