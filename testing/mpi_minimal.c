@@ -13,21 +13,21 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc < 4)
+    if(argc < 6)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 3 are needed\n", argc-1);
-            printf("mpi n block_size tol\n");
+            printf("%d arguments provided, but 5 are needed\n", argc-1);
+            printf("mpi_minimal N block_size scheme maxrank tol\n");
         }
         MPI_Finalize();
         exit(0);
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
-    double tol = atof(argv[3]);
-    int maxrank = 100;
+    char *scheme = argv[3];
+    int maxrank = atoi(argv[4]);
+    double tol = atof(argv[5]);
     int oversample = 10, onfly = 0;
-    char *scheme = "mpi_rsdd";
     char dtype = 'd', symm = 'N';
     int ndim = 2, shape[2] = {N, N};
     if(mpi_rank == 0)

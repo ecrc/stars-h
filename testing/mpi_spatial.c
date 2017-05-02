@@ -20,7 +20,7 @@ int main(int argc, char **argv)
         {
             printf("%d arguments provided, but 11 are needed\n",
                     argc-1);
-            printf("spatial problem kernel beta nu N block_size scheme maxrank"
+            printf("mpi_spatial problem kernel beta nu N block_size scheme maxrank"
                     " tol check_matvec check_cg_solve\n");
         }
         MPI_Finalize();
