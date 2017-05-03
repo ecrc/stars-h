@@ -18,10 +18,12 @@ struct starsh_rndtiled
     //!< Array of singular values, which is common for all tiles.
     double *rndS;
     //!< Array of noise in singular values for each tile.
+    double add_diag;
+    //!< Value to add to each diagonal element (for positive definiteness).
 };
 
 int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
-        int block_size, double decay);
+        int block_size, double decay, double add_diag);
 int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
         va_list args);
 int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...);

@@ -16,6 +16,7 @@ static void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
     int n = data->n;
     int nblocks = data->nblocks;
     int block_size = data->block_size;
+    double add_diag = data->add_diag;
     double *U = data->U;
     double *S = data->S;
     double *buffer = result;
@@ -30,13 +31,16 @@ static void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
             double res = 0;
             for(int k = 0; k < block_size; k++)
                 res += U[ii+k*n]*U[jj+k*n]*S[k];
-            buffer[j*nrows+i] = res;
+            if(ii == jj)
+                buffer[j*nrows+i] = res+add_diag;
+            else
+                buffer[j*nrows+i] = res;
         }
     }
 }
 
 int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
-        int block_size, double decay)
+        int block_size, double decay, double add_diag)
 //! Generate random tiled matrix by a special rule
 /*! @param[out] data: Address to pointer to `STARSH_rndtiled` object.
  * @param[out] kernel: Interaction kernel.
@@ -83,6 +87,7 @@ int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
     (*data)->block_size = block_size;
     (*data)->U = U;
     (*data)->S = S;
+    (*data)->add_diag = add_diag;
     return 0;
 }
 
@@ -93,6 +98,7 @@ int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
 {
     int nb = n;
     double decay = 0;
+    double add_diag = 0;
     char *arg_type;
     if(dtype != 'd')
     {
@@ -105,13 +111,15 @@ int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
             nb = va_arg(args, int);
         else if(!strcmp(arg_type, "decay"))
             decay = va_arg(args, double);
+        else if(!strcmp(arg_type, "add_diag"))
+            add_diag = va_arg(args, double);
         else
         {
             STARSH_ERROR("Wrong parameter name %s", arg_type);
             return 1;
         }
     }
-    return starsh_rndtiled_new(data, n, dtype, nb, decay);
+    return starsh_rndtiled_new(data, n, dtype, nb, decay, add_diag);
 }
 
 int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...)

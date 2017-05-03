@@ -86,38 +86,6 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
-    info = starsh_blrm_approximate(&M, F, maxrank, oversample, 1e-3, onfly,
-            scheme);
-    if(info != 0)
-    {
-        if(mpi_rank == 0)
-            printf("Approximation was NOT computed due to error\n");
-        MPI_Finalize();
-        exit(0);
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    time1 = MPI_Wtime()-time1;
-    if(mpi_rank == 0)
-    {
-        starsh_blrf_info(F);
-        starsh_blrm_info(M);
-    }
-    if(mpi_rank == 0)
-        printf("TIME TO APPROXIMATE: %e secs\n", time1);
-    // Measure approximation error
-    MPI_Barrier(MPI_COMM_WORLD);
-    time1 = MPI_Wtime();
-    double rel_err = starsh_blrm__dfe_mpi(M);
-    MPI_Barrier(MPI_COMM_WORLD);
-    time1 = MPI_Wtime()-time1;
-    if(mpi_rank == 0)
-        printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
-                time1, rel_err);
-    // Free temporary blr-matrix
-    starsh_blrm_free_mpi(M);
-    // Approximate each admissible block
-    MPI_Barrier(MPI_COMM_WORLD);
-    time1 = MPI_Wtime();
     info = starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly,
             scheme);
     if(info != 0)
@@ -139,7 +107,7 @@ int main(int argc, char **argv)
     // Measure approximation error
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
-    rel_err = starsh_blrm__dfe_mpi(M);
+    double rel_err = starsh_blrm__dfe_mpi(M);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)

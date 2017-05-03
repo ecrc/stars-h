@@ -27,7 +27,8 @@ int main(int argc, char **argv)
     STARSH_rndtiled *data;
     STARSH_kernel kernel;
     info = starsh_application((void **)&data, &kernel, N, dtype, "rndtiled",
-            "rndtiled", "nb", block_size, "decay", decay, NULL);
+            "rndtiled", "nb", block_size, "decay", decay, "add_diag",
+            (double)N, NULL);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
