@@ -505,3 +505,76 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
     //M2->data_nbytes = data_size;
     return 0;
 }
+
+int starsh_blrm_free_mpi(STARSH_blrm *M)
+//! Free memory of a non-nested block low-rank matrix
+{
+    if(M == NULL)
+    {
+        STARSH_ERROR("invalid value of `M`");
+        return 1;
+    }
+    STARSH_blrf *F = M->format;
+    size_t lbi;
+    int info;
+    if(F->nblocks_far_local > 0)
+    {
+        if(M->alloc_type == '1')
+        {
+            free(M->alloc_U);
+            free(M->alloc_V);
+            for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
+            {
+                M->far_U[lbi]->data = NULL;
+                info = array_free(M->far_U[lbi]);
+                if(info != 0)
+                    return info;
+                M->far_V[lbi]->data = NULL;
+                info = array_free(M->far_V[lbi]);
+                if(info != 0)
+                    return info;
+            }
+        }
+        else// M->alloc_type == '2'
+        {
+            for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
+            {
+                info = array_free(M->far_U[lbi]);
+                if(info != 0)
+                    return info;
+                info = array_free(M->far_V[lbi]);
+                if(info != 0)
+                    return info;
+            }
+        }
+        free(M->far_rank);
+        free(M->far_U);
+        free(M->far_V);
+    }
+    if(F->nblocks_near_local > 0 && M->onfly == 0)
+    {
+        if(M->alloc_type == '1')
+        {
+            free(M->alloc_D);
+            for(lbi = 0; lbi < F->nblocks_near_local; lbi++)
+            {
+                M->near_D[lbi]->data = NULL;
+                info = array_free(M->near_D[lbi]);
+                if(info != 0)
+                    return info;
+            }
+        }
+        else// M->alloc_type == '2'
+        {
+            for(lbi = 0; lbi < F->nblocks_near_local; lbi++)
+            {
+                info = array_free(M->near_D[lbi]);
+                if(info != 0)
+                    return info;
+            }
+        }
+        free(M->near_D);
+    }
+    free(M);
+    return 0;
+}

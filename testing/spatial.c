@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, oversample, 1e-3, onfly, scheme);
     time1 = omp_get_wtime()-time1;
     starsh_blrf_info(F);
     starsh_blrm_info(M);
@@ -76,6 +76,21 @@ int main(int argc, char **argv)
     // Measure approximation error
     time1 = omp_get_wtime();
     double rel_err = starsh_blrm__dfe(M);
+    time1 = omp_get_wtime()-time1;
+    printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
+            time1, rel_err);
+    // Free temporary mblr-matrix
+    starsh_blrm_free(M);
+    // Approximate each admissible block
+    time1 = omp_get_wtime();
+    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    time1 = omp_get_wtime()-time1;
+    starsh_blrf_info(F);
+    starsh_blrm_info(M);
+    printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    // Measure approximation error
+    time1 = omp_get_wtime();
+    rel_err = starsh_blrm__dfe(M);
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);

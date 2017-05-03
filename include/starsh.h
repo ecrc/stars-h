@@ -365,6 +365,7 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type);
 int starsh_blrm_free(STARSH_blrm *M);
+int starsh_blrm_free_mpi(STARSH_blrm *M);
 int starsh_blrm_info(STARSH_blrm *M);
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);

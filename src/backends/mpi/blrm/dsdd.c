@@ -204,7 +204,7 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         for(lbi = 0; lbi < nblocks_false_far_local; lbi++)
         {
             lbj = false_far_local[lbi];
-            while(false_far[bi] < lbj)
+            while(bi < nblocks_false_far && false_far[bi] < lbj)
                 bi++;
             block_near_local[nblocks_near_local+lbi] = nblocks_near+bi;
         }
@@ -222,7 +222,7 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             for(bi = 0; bi < nblocks_far; bi++)
             {
                 // `false_far` must be in ascending order for this to work
-                if(false_far[bj] == bi)
+                if(bj < nblocks_false_far && false_far[bj] == bi)
                 {
                     if(nblocks_false_far_local > lbj &&
                             false_far_local[lbj] == bi)

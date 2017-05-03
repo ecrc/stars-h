@@ -216,7 +216,7 @@ int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)
         {
-            if(false_far[bj] == bi)
+            if(far_rank[bi] == -1)
                 bj++;
             else
             {
