@@ -51,6 +51,12 @@ option(PLASMA "Wrappers for PLASMA" ON)
 option(TESTING "Generate testing binaries" ON)
 option(DOCS "Build documentation in docs directory" ON)
 
+# Show STARSH warnings with debug information
+option(STARSH_WARNINGS "Show STARSH warnings with debug information" OFF)
+if(STARSH_WARNINGS)
+    add_definitions("-DSHOW_WARNINGS")
+endif()
+
 # Use STARPU backend only when compiling by gcc
 if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
     set(STARPU OFF)

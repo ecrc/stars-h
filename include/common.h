@@ -54,12 +54,16 @@
     fprintf(stderr, "\n");\
 }
 
-#define STARSH_WARNING(format, ...)\
-{\
-    fprintf(stderr, "STARSH WARNING: %s(): ", __func__);\
-    fprintf(stderr, format, ##__VA_ARGS__);\
-    fprintf(stderr, "\n");\
-}
+#ifdef SHOW_WARNINGS
+    #define STARSH_WARNING(format, ...)\
+    {\
+        fprintf(stderr, "STARSH WARNING: %s(): ", __func__);\
+        fprintf(stderr, format, ##__VA_ARGS__);\
+        fprintf(stderr, "\n");\
+    }
+#else
+    #define STARSH_WARNING(...)
+#endif
 
 #define STARSH_MALLOC(var, expr_nitems)\
 {\
