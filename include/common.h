@@ -8,6 +8,7 @@
 #include <complex.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <stdint.h>
 
 #ifdef MKL
     #include <mkl.h>
@@ -22,6 +23,9 @@
 
 #ifdef MPI
     #include <mpi.h>
+    #ifndef SIZE_MAX
+        #error "SIZE_MAX not defined"
+    #endif
     #if SIZE_MAX == UCHAR_MAX
        #define my_MPI_SIZE_T MPI_UNSIGNED_CHAR
     #elif SIZE_MAX == USHRT_MAX
