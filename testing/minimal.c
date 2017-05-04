@@ -30,8 +30,8 @@ int main(int argc, char **argv)
     STARSH_mindata *data;
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
-    starsh_application((void **)&data, &kernel, N, dtype, "minimal", NULL,
-            NULL);
+    starsh_application((void **)&data, &kernel, N, dtype, STARSH_MINIMAL, 0,
+            0);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,

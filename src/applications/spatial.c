@@ -2,6 +2,43 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 
+static void starsh_ssdata_block_exp_kernel_1d_simd(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Exponential kernel for spatial statistics problem in 1D
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel without SIMD instructions for spatial statistics
+    // Returns exp^{-r/beta}, where r is a distance between particles in 1D
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
+    double tmp, dist, beta = -data->beta;
+    double noise = data->noise;
+    // Get X coordinate
+    double *x = data->point;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = fabs(x[irow[i]]-x[icol[j]]);
+            dist = tmp/beta;
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
 static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 /*! Exponential kernel for spatial statistics problem in 1D
@@ -38,8 +75,8 @@ static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
         }
 }
 
-static void starsh_ssdata_block_exp_kernel_simd(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result)
+static void starsh_ssdata_block_exp_kernel_2d_simd(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
 /*! Exponential kernel for spatial statistics problem in 2D
  *
  * @param[in] nrows: Number of rows of corresponding array.
@@ -78,7 +115,7 @@ static void starsh_ssdata_block_exp_kernel_simd(int nrows, int ncols, int *irow,
         }
 }
 
-static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
+static void starsh_ssdata_block_exp_kernel_2d(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 /*! Exponential kernel for spatial statistics problem in 2D
  *
@@ -117,8 +154,8 @@ static void starsh_ssdata_block_exp_kernel(int nrows, int ncols, int *irow,
         }
 }
 
-static void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result)
+static void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
 /*! Exponential kernel for spatial statistics problem in 3D
  *
  * @param[in] nrows: Number of rows of corresponding array.
@@ -200,6 +237,44 @@ static void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
         }
 }
 
+static void starsh_ssdata_block_sqr_exp_kernel_1d_simd(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Square exponential kernel for spatial statistics problem in 1D
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel without SIMD instructions for spatial statistics
+    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
+    double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
+    // Get X coordinates
+    double *x = data->point;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
 static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result)
 /*! Square exponential kernel for spatial statistics problem in 1D
@@ -229,6 +304,85 @@ static void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
         {
             tmp = x[irow[i]]-x[icol[j]];
             dist = tmp*tmp;
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
+static void starsh_ssdata_block_sqr_exp_kernel_2d_simd(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Square exponential kernel for spatial statistics problem in 2D
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel for spatial statistics
+    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
+    double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
+    // Get X and Y coordinates
+    double *x = data->point, *y = x+data->count;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            tmp = y[irow[i]]-y[icol[j]];
+            dist += tmp*tmp;
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)nrows+i] = 1+noise;
+            else
+                buffer[j*(size_t)nrows+i] = exp(dist);
+        }
+}
+
+static void starsh_ssdata_block_sqr_exp_kernel_2d(int nrows, int ncols,
+        int *irow, int *icol, void *row_data, void *col_data, void *result)
+/*! Square exponential kernel for spatial statistics problem in 2D
+ *
+ * @param[in] nrows: Number of rows of corresponding array.
+ * @param[in] ncols: Number of columns of corresponding array.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data.
+ * @param[in] col_data: Pointer to physical data.
+ * @param[out] result: Where to write elements of an array.
+ */
+{
+    // Block kernel without SIMD instructions for spatial statistics
+    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
+    int i, j;
+    STARSH_ssdata *data = row_data;
+    // Read parameters beta and noise
+    double tmp, dist, beta = -2*data->beta*data->beta;
+    double noise = data->noise;
+    // Get X and Y coordinates
+    double *x = data->point, *y = x+data->count;
+    double *buffer = result;
+    // Fill column-major matrix
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
+        {
+            tmp = x[irow[i]]-x[icol[j]];
+            dist = tmp*tmp;
+            tmp = y[irow[i]]-y[icol[j]];
+            dist += tmp*tmp;
             dist = dist/beta;
             if(dist == 0)
                 buffer[j*(size_t)nrows+i] = 1+noise;
@@ -320,86 +474,48 @@ static void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
         }
 }
 
-static void starsh_ssdata_block_sqr_exp_kernel_simd(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem in 2D
- *
- * @param[in] nrows: Number of rows of corresponding array.
- * @param[in] ncols: Number of columns of corresponding array.
- * @param[in] irow: Array of row indexes.
- * @param[in] icol: Array of column indexes.
- * @param[in] row_data: Pointer to physical data.
- * @param[in] col_data: Pointer to physical data.
- * @param[out] result: Where to write elements of an array.
- */
-{
-    // Block kernel for spatial statistics
-    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    int i, j;
-    STARSH_ssdata *data = row_data;
-    // Read parameters beta and noise
-    double tmp, dist, beta = -2*data->beta*data->beta;
-    double noise = data->noise;
-    // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
-    double *buffer = result;
-    // Fill column-major matrix
-    #pragma omp simd
-    for(j = 0; j < ncols; j++)
-        for(i = 0; i < nrows; i++)
-        {
-            tmp = x[irow[i]]-x[icol[j]];
-            dist = tmp*tmp;
-            tmp = y[irow[i]]-y[icol[j]];
-            dist += tmp*tmp;
-            dist = dist/beta;
-            if(dist == 0)
-                buffer[j*(size_t)nrows+i] = 1+noise;
-            else
-                buffer[j*(size_t)nrows+i] = exp(dist);
-        }
-}
-
-static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result)
-/*! Square exponential kernel for spatial statistics problem in 2D
- *
- * @param[in] nrows: Number of rows of corresponding array.
- * @param[in] ncols: Number of columns of corresponding array.
- * @param[in] irow: Array of row indexes.
- * @param[in] icol: Array of column indexes.
- * @param[in] row_data: Pointer to physical data.
- * @param[in] col_data: Pointer to physical data.
- * @param[out] result: Where to write elements of an array.
- */
-{
-    // Block kernel without SIMD instructions for spatial statistics
-    // Returns exp^{-r^2/(2 beta^2)}, where r is a distance between particles
-    int i, j;
-    STARSH_ssdata *data = row_data;
-    // Read parameters beta and noise
-    double tmp, dist, beta = -2*data->beta*data->beta;
-    double noise = data->noise;
-    // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
-    double *buffer = result;
-    // Fill column-major matrix
-    for(j = 0; j < ncols; j++)
-        for(i = 0; i < nrows; i++)
-        {
-            tmp = x[irow[i]]-x[icol[j]];
-            dist = tmp*tmp;
-            tmp = y[irow[i]]-y[icol[j]];
-            dist += tmp*tmp;
-            dist = dist/beta;
-            if(dist == 0)
-                buffer[j*(size_t)nrows+i] = 1+noise;
-            else
-                buffer[j*(size_t)nrows+i] = exp(dist);
-        }
-}
-
 #ifdef GSL
+    static void starsh_ssdata_block_matern_kernel_1d_simd(int nrows, int ncols,
+            int *irow, int *icol, void *row_data, void *col_data, void *result)
+    /*! Matern kernel for spatial statistics problem in 1D
+     *
+     * @param[in] nrows: Number of rows of corresponding array.
+     * @param[in] ncols: Number of columns of corresponding array.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data.
+     * @param[in] col_data: Pointer to physical data.
+     * @param[out] result: Where to write elements of an array.
+     */
+    {
+        // Block kernel without SIMD instructions for spatial statistics
+        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
+        // and r is a distance between particles
+        int i, j;
+        STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
+        double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
+        double theta = sqrt(2*nu)/beta;
+        // Get X coordinates
+        double *x = data->point;
+        double *buffer = result;
+        // Fill column-major matrix
+        #pragma omp simd
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = abs(tmp);
+                dist = dist*theta;
+                if(dist == 0)
+                    buffer[j*nrows+i] = 1.0+noise;
+                else
+                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
+                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
+            }
+    }
+
     static void starsh_ssdata_block_matern_kernel_1d(int nrows, int ncols,
             int *irow, int *icol, void *row_data, void *col_data, void *result)
     /*! Matern kernel for spatial statistics problem in 1D
@@ -432,6 +548,91 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 tmp = x[irow[i]]-x[icol[j]];
                 dist = abs(tmp);
                 dist = dist*theta;
+                if(dist == 0)
+                    buffer[j*nrows+i] = 1.0+noise;
+                else
+                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
+                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
+            }
+    }
+
+    static void starsh_ssdata_block_matern_kernel_2d_simd(int nrows, int ncols,
+            int *irow, int *icol, void *row_data, void *col_data, void *result)
+    /*! Matern kernel for spatial statistics problem in 2D
+     *
+     * @param[in] nrows: Number of rows of corresponding array.
+     * @param[in] ncols: Number of columns of corresponding array.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data.
+     * @param[in] col_data: Pointer to physical data.
+     * @param[out] result: Where to write elements of an array.
+     */
+    {
+        // Block kernel with SIMD instructions for spatial statistics
+        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
+        // and r is a distance between particles
+        int i, j;
+        STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
+        double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
+        double theta = sqrt(2*nu)/beta;
+        // Get X and Y coordinates
+        double *x = data->point, *y = x+data->count;
+        double *buffer = result;
+        // Fill column-major matrix
+        #pragma omp simd
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = tmp*tmp;
+                tmp = y[irow[i]]-y[icol[j]];
+                dist += tmp*tmp;
+                dist = sqrt(dist)*theta;
+                if(dist == 0)
+                    buffer[j*nrows+i] = 1.0+noise;
+                else
+                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
+                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
+            }
+    }
+
+    static void starsh_ssdata_block_matern_kernel_2d(int nrows, int ncols,
+            int *irow, int *icol, void *row_data, void *col_data, void *result)
+    /*! Matern kernel for spatial statistics problem in 2D
+     *
+     * @param[in] nrows: Number of rows of corresponding array.
+     * @param[in] ncols: Number of columns of corresponding array.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data.
+     * @param[in] col_data: Pointer to physical data.
+     * @param[out] result: Where to write elements of an array.
+     */
+    {
+        // Block kernel without SIMD instructions for spatial statistics
+        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
+        // and r is a distance between particles
+        int i, j;
+        STARSH_ssdata *data = row_data;
+        // Read parameters beta, nu and noise
+        double tmp, dist, beta = data->beta, nu = data->nu;
+        double noise = data->noise;
+        double theta = sqrt(2*nu)/beta;
+        // Get X and Y coordinates
+        double *x = data->point, *y = x+data->count;
+        double *buffer = result;
+        // Fill column-major matrix
+        for(j = 0; j < ncols; j++)
+            for(i = 0; i < nrows; i++)
+            {
+                tmp = x[irow[i]]-x[icol[j]];
+                dist = tmp*tmp;
+                tmp = y[irow[i]]-y[icol[j]];
+                dist += tmp*tmp;
+                dist = sqrt(dist)*theta;
                 if(dist == 0)
                     buffer[j*nrows+i] = 1.0+noise;
                 else
@@ -519,91 +720,6 @@ static void starsh_ssdata_block_sqr_exp_kernel(int nrows, int ncols, int *irow,
                 tmp = y[irow[i]]-y[icol[j]];
                 dist += tmp*tmp;
                 tmp = z[irow[i]]-z[icol[j]];
-                dist += tmp*tmp;
-                dist = sqrt(dist)*theta;
-                if(dist == 0)
-                    buffer[j*nrows+i] = 1.0+noise;
-                else
-                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
-                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
-            }
-    }
-
-    static void starsh_ssdata_block_matern_kernel_simd(int nrows, int ncols,
-            int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem in 2D
-     *
-     * @param[in] nrows: Number of rows of corresponding array.
-     * @param[in] ncols: Number of columns of corresponding array.
-     * @param[in] irow: Array of row indexes.
-     * @param[in] icol: Array of column indexes.
-     * @param[in] row_data: Pointer to physical data.
-     * @param[in] col_data: Pointer to physical data.
-     * @param[out] result: Where to write elements of an array.
-     */
-    {
-        // Block kernel with SIMD instructions for spatial statistics
-        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles
-        int i, j;
-        STARSH_ssdata *data = row_data;
-        // Read parameters beta, nu and noise
-        double tmp, dist, beta = data->beta, nu = data->nu;
-        double noise = data->noise;
-        double theta = sqrt(2*nu)/beta;
-        // Get X and Y coordinates
-        double *x = data->point, *y = x+data->count;
-        double *buffer = result;
-        // Fill column-major matrix
-        #pragma omp simd
-        for(j = 0; j < ncols; j++)
-            for(i = 0; i < nrows; i++)
-            {
-                tmp = x[irow[i]]-x[icol[j]];
-                dist = tmp*tmp;
-                tmp = y[irow[i]]-y[icol[j]];
-                dist += tmp*tmp;
-                dist = sqrt(dist)*theta;
-                if(dist == 0)
-                    buffer[j*nrows+i] = 1.0+noise;
-                else
-                    buffer[j*nrows+i] = pow(2.0, 1-nu)/gsl_sf_gamma(nu)*
-                        pow(dist, nu)*gsl_sf_bessel_Knu(nu, dist);
-            }
-    }
-
-    static void starsh_ssdata_block_matern_kernel(int nrows, int ncols,
-            int *irow, int *icol, void *row_data, void *col_data, void *result)
-    /*! Matern kernel for spatial statistics problem in 2D
-     *
-     * @param[in] nrows: Number of rows of corresponding array.
-     * @param[in] ncols: Number of columns of corresponding array.
-     * @param[in] irow: Array of row indexes.
-     * @param[in] icol: Array of column indexes.
-     * @param[in] row_data: Pointer to physical data.
-     * @param[in] col_data: Pointer to physical data.
-     * @param[out] result: Where to write elements of an array.
-     */
-    {
-        // Block kernel without SIMD instructions for spatial statistics
-        // Returns 2^(1-nu)/Gamma(nu)*x^nu*K_nu(x), where x=sqrt(2*nu)*r/beta
-        // and r is a distance between particles
-        int i, j;
-        STARSH_ssdata *data = row_data;
-        // Read parameters beta, nu and noise
-        double tmp, dist, beta = data->beta, nu = data->nu;
-        double noise = data->noise;
-        double theta = sqrt(2*nu)/beta;
-        // Get X and Y coordinates
-        double *x = data->point, *y = x+data->count;
-        double *buffer = result;
-        // Fill column-major matrix
-        for(j = 0; j < ncols; j++)
-            for(i = 0; i < nrows; i++)
-            {
-                tmp = x[irow[i]]-x[icol[j]];
-                dist = tmp*tmp;
-                tmp = y[irow[i]]-y[icol[j]];
                 dist += tmp*tmp;
                 dist = sqrt(dist)*theta;
                 if(dist == 0)
@@ -795,114 +911,7 @@ static void zsort3(int n, double *points)
     }
 }
 
-static void gen_points(int n, double *points)
-//! Generate particles in 2-dimensional grid plus random noise.
-{
-    int i, j;
-    double *A = points+n*n;
-    for(i = 0; i < n; i++)
-    {
-        for(j = 0; j < n; j++)
-        {
-            points[i*n+j] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
-            A[i*n+j] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
-        }
-    }
-}
-
-int starsh_ssdata_new_1d(STARSH_ssdata **data, int n, char dtype, double beta,
-        double nu, double noise)
-//! Generate spatial statistics data.
-/*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
- * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
- *     elements will be `sqrtn^2`.
- * @param[in] beta: Parameter for kernel.
- * @return Error code.
- * */
-{
-    if(data == NULL)
-    {
-        STARSH_ERROR("invalid value of `data`");
-        return 1;
-    }
-    if(n < 0)
-    {
-        STARSH_ERROR("invalid value of `sqrtn`");
-        return 1;
-    }
-    if(beta <= 0)
-    {
-        STARSH_ERROR("invalid value iof `beta`");
-        return 1;
-    }
-    if(dtype != 'd')
-    {
-        STARSH_ERROR("Only dtype='d' is supported");
-        return 1;
-    }
-    if(noise < 0)
-    {
-        STARSH_ERROR("invalid value of `noise`");
-        return 1;
-    }
-    *data = malloc(sizeof(**data));
-    double *point;
-    STARSH_MALLOC(point, n);
-    for(int i = 0; i < n; i++)
-        point[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
-    (*data)->point = point;
-    (*data)->count = n;
-    (*data)->ndim = 1;
-    (*data)->beta = beta;
-    (*data)->nu = nu;
-    (*data)->noise = noise;
-    return 0;
-}
-
-int starsh_ssdata_new_1d_va(STARSH_ssdata **data, int n, char dtype,
-        va_list args)
-//! Generate spatial statistics data with va_list.
-//! For more info look at starsh_ssdata_new_1d
-{
-    char *arg_type;
-    double beta = 0.1;
-    double nu = 0.5;
-    double noise = 0;
-    if(dtype != 'd')
-    {
-        STARSH_ERROR("Only dtype='d' is supported");
-        return 1;
-    }
-    while((arg_type = va_arg(args, char *)) != NULL)
-    {
-        if(!strcmp(arg_type, "beta"))
-            beta = va_arg(args, double);
-        else if(!strcmp(arg_type, "nu"))
-            nu = va_arg(args, double);
-        else if(!strcmp(arg_type, "noise"))
-            noise = va_arg(args, double);
-        else
-        {
-            STARSH_ERROR("Wrong parameter name %s", arg_type);
-            return 1;
-        }
-    }
-    return starsh_ssdata_new_1d(data, n, dtype, beta, nu, noise);
-}
-
-int starsh_ssdata_new_1d_el(STARSH_ssdata **data, int n, char dtype, ...)
-//! Generate spatial statistics data with ellipsis
-//! For more info look at starsh_ssdata_new_1d
-{
-    va_list args;
-    va_start(args, dtype);
-    int info = starsh_ssdata_new_1d_va(data, n, dtype, args);
-    va_end(args);
-    return info;
-}
-
-
-int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
+int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         double beta, double nu, double noise)
 //! Generate spatial statistics data.
 /*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
@@ -917,66 +926,15 @@ int starsh_ssdata_new(STARSH_ssdata **data, int sqrtn, char dtype,
         STARSH_ERROR("invalid value of `data`");
         return 1;
     }
-    if(sqrtn < 0)
+    if(n <= 0)
     {
-        STARSH_ERROR("invalid value of `sqrtn`");
+        STARSH_ERROR("invalid value of `n`");
         return 1;
     }
-    if(beta <= 0)
+    if(ndim <= 0 || ndim > 3)
     {
-        STARSH_ERROR("invalid value iof `beta`");
-        return 1;
-    }
-    if(dtype != 'd')
-    {
-        STARSH_ERROR("Only dtype='d' is supported");
-        return 1;
-    }
-    if(noise < 0)
-    {
-        STARSH_ERROR("invalid value of `noise`");
-        return 1;
-    }
-    *data = malloc(sizeof(**data));
-    double *point;
-    int n = sqrtn*sqrtn;
-    STARSH_MALLOC(point, 2*n);
-    double *x = point, *y = x+n;
-    for(int i = 0; i < sqrtn; i++)
-        for(int j = 0; j < sqrtn; j++)
-        {
-            int ind = i*sqrtn + j;
-            x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-            y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-        }
-    zsort(n, point);
-    (*data)->point = point;
-    (*data)->count = n;
-    (*data)->ndim = 2;
-    (*data)->beta = beta;
-    (*data)->nu = nu;
-    (*data)->noise = noise;
-    return 0;
-}
-
-int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
-        double beta, double nu, double noise)
-//! Generate spatial statistics data.
-/*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
- * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
- *     elements will be `sqrtn^2`.
- * @param[in] beta: Parameter for kernel.
- * @return Error code.
- * */
-{
-    if(data == NULL)
-    {
-        STARSH_ERROR("invalid value of `data`");
-        return 1;
-    }
-    if(cbrtn < 0)
-    {
-        STARSH_ERROR("invalid value of `sqrtn`");
+        STARSH_ERROR("invalid value of `ndim` (only values 1, 2 and 3 are "
+                "supported");
         return 1;
     }
     if(beta <= 0)
@@ -996,74 +954,58 @@ int starsh_ssdata_new_3d(STARSH_ssdata **data, int cbrtn, char dtype,
     }
     *data = malloc(sizeof(**data));
     double *point;
-    int n = cbrtn*cbrtn*cbrtn;
-    STARSH_MALLOC(point, 3*n);
-    double *x = point, *y = x+n, *z = y+n;
-    for(int i = 0; i < cbrtn; i++)
-        for(int j = 0; j < cbrtn; j++)
-            for(int k = 0; k < cbrtn; k++)
+    STARSH_MALLOC(point, ndim*n);
+    if(ndim == 1)
+    {
+        for(int i = 0; i < n; i++)
+            point[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
+    }
+    else if(ndim == 2)
+    {
+        int sqrtn = sqrt(n);
+        if(sqrtn*sqrtn != n)
+        {
+            STARSH_ERROR("parameter n must be square of some integer");
+            return 1;
+        }
+        double *x = point, *y = x+n;
+        for(int i = 0; i < sqrtn; i++)
+            for(int j = 0; j < sqrtn; j++)
             {
-                int ind = (i*cbrtn + j)*cbrtn + k;
-                x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                int ind = i*sqrtn + j;
+                x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+                y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
             }
-    zsort3(n, point);
+        zsort(n, point);
+    }
+    else
+    {
+        int cbrtn = cbrt(n);
+        if(cbrtn*cbrtn*cbrtn != n)
+        {
+            STARSH_ERROR("parameter n must be cube of some integer");
+            return 1;
+        }
+        double *x = point, *y = x+n, *z = y+n;
+        for(int i = 0; i < cbrtn; i++)
+            for(int j = 0; j < cbrtn; j++)
+                for(int k = 0; k < cbrtn; k++)
+                {
+                    int ind = (i*cbrtn + j)*cbrtn + k;
+                    x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                    y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                    z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                }
+        zsort3(n, point);
+    }
+    (*data)->dtype = dtype;
     (*data)->point = point;
     (*data)->count = n;
-    (*data)->ndim = 3;
+    (*data)->ndim = ndim;
     (*data)->beta = beta;
     (*data)->nu = nu;
     (*data)->noise = noise;
     return 0;
-}
-
-int starsh_ssdata_new_3d_va(STARSH_ssdata **data, int n, char dtype,
-        va_list args)
-//! Generate spatial statistics data with va_list
-//! For more info look at starsh_ssdata_new_3d
-{
-    char *arg_type;
-    double beta = 0.1;
-    double nu = 0.5;
-    double noise = 0;
-    if(dtype != 'd')
-    {
-        STARSH_ERROR("Only dtype='d' is supported");
-        return 1;
-    }
-    while((arg_type = va_arg(args, char *)) != NULL)
-    {
-        if(!strcmp(arg_type, "beta"))
-            beta = va_arg(args, double);
-        else if(!strcmp(arg_type, "nu"))
-            nu = va_arg(args, double);
-        else if(!strcmp(arg_type, "noise"))
-            noise = va_arg(args, double);
-        else
-        {
-            STARSH_ERROR("Wrong parameter name %s", arg_type);
-            return 1;
-        }
-    }
-    int cbrtn = cbrt(n);
-    if(cbrtn*cbrtn*cbrtn != n)
-    {
-        STARSH_ERROR("Parameter n must be cube of integer");
-        return 1;
-    }
-    return starsh_ssdata_new_3d(data, cbrtn, dtype, beta, nu, noise);
-}
-
-int starsh_ssdata_new_3d_el(STARSH_ssdata **data, int n, char dtype, ...)
-//! Generate spatial statistics data with ellipsis
-//! For more info look at starsh_ssdata_new_3d
-{
-    va_list args;
-    va_start(args, dtype);
-    int info = starsh_ssdata_new_3d_va(data, n, dtype, args);
-    va_end(args);
-    return info;
 }
 
 int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
@@ -1071,7 +1013,8 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
 //! Generate spatial statistics data with va_list
 //! For more info look at starsh_ssdata_new
 {
-    char *arg_type;
+    int arg_type;
+    int ndim = 2;
     double beta = 0.1;
     double nu = 0.5;
     double noise = 0;
@@ -1080,27 +1023,28 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
         STARSH_ERROR("Only dtype='d' is supported");
         return 1;
     }
-    while((arg_type = va_arg(args, char *)) != NULL)
+    while((arg_type = va_arg(args, int)) != 0)
     {
-        if(!strcmp(arg_type, "beta"))
-            beta = va_arg(args, double);
-        else if(!strcmp(arg_type, "nu"))
-            nu = va_arg(args, double);
-        else if(!strcmp(arg_type, "noise"))
-            noise = va_arg(args, double);
-        else
+        switch(arg_type)
         {
-            STARSH_ERROR("Wrong parameter name %s", arg_type);
-            return 1;
+            case STARSH_SPATIAL_NDIM:
+                ndim = va_arg(args, int);
+                break;
+            case STARSH_SPATIAL_BETA:
+                beta = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_NU:
+                nu = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_NOISE:
+                noise = va_arg(args, double);
+                break;
+            default:
+                STARSH_ERROR("Wrong parameter type");
+                return 1;
         }
     }
-    int sqrtn = sqrt(n);
-    if(sqrtn*sqrtn != n)
-    {
-        STARSH_ERROR("Parameter n must be square of integer");
-        return 1;
-    }
-    return starsh_ssdata_new(data, sqrtn, dtype, beta, nu, noise);
+    return starsh_ssdata_new(data, n, dtype, ndim, beta, nu, noise);
 }
 
 int starsh_ssdata_new_el(STARSH_ssdata **data, int n, char dtype, ...)
@@ -1127,7 +1071,7 @@ void starsh_ssdata_free(STARSH_ssdata *data)
     free(data);
 }
 
-int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type,
+static int starsh_ssdata_get_kernel_1d(STARSH_kernel *kernel, int type,
         char dtype)
 //! Get corresponding kernel for spatial statistics problem
 {
@@ -1136,29 +1080,36 @@ int starsh_ssdata_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
         return 1;
     }
-    if(!strcmp(type, "exp"))
-        *kernel = starsh_ssdata_block_exp_kernel;
-    else if(!strcmp(type, "exp simd"))
-        *kernel = starsh_ssdata_block_exp_kernel_simd;
-    else if(!strcmp(type, "sqrexp"))
-        *kernel = starsh_ssdata_block_sqr_exp_kernel;
-    else if(!strcmp(type, "sqrexp simd"))
-        *kernel = starsh_ssdata_block_sqr_exp_kernel_simd;
-#ifdef GSL
-    else if(!strcmp(type, "Matern"))
-        *kernel = starsh_ssdata_block_matern_kernel;
-    else if(!strcmp(type, "Matern simd"))
-        *kernel = starsh_ssdata_block_matern_kernel_simd;
-#endif
-    else
+    switch(type)
     {
-        STARSH_ERROR("Wrong type of kernel");
-        return 1;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_1d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_1d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_1d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_1d_simd;
+            break;
+#ifdef GSL
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_1d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_1d_simd;
+            break;
+#endif
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return 1;
     }
     return 0;
 }
 
-int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
+static int starsh_ssdata_get_kernel_2d(STARSH_kernel *kernel, int type,
         char dtype)
 //! Get corresponding kernel for spatial statistics problem
 {
@@ -1167,23 +1118,36 @@ int starsh_ssdata_1d_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
         return 1;
     }
-    if(!strcmp(type, "exp"))
-        *kernel = starsh_ssdata_block_exp_kernel_1d;
-    else if(!strcmp(type, "sqrexp"))
-        *kernel = starsh_ssdata_block_sqr_exp_kernel_1d;
-#ifdef GSL
-    else if(!strcmp(type, "Matern"))
-        *kernel = starsh_ssdata_block_matern_kernel_1d;
-#endif
-    else
+    switch(type)
     {
-        STARSH_ERROR("Wrong type of kernel");
-        return 1;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_2d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_2d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_2d_simd;
+            break;
+#ifdef GSL
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_2d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_2d_simd;
+            break;
+#endif
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return 1;
     }
     return 0;
 }
 
-int starsh_ssdata_3d_get_kernel(STARSH_kernel *kernel, const char *type,
+static int starsh_ssdata_get_kernel_3d(STARSH_kernel *kernel, int type,
         char dtype)
 //! Get corresponding kernel for spatial statistics problem
 {
@@ -1192,25 +1156,49 @@ int starsh_ssdata_3d_get_kernel(STARSH_kernel *kernel, const char *type,
         STARSH_ERROR("Only dtype='d' is supported");
         return 1;
     }
-    if(!strcmp(type, "exp"))
-        *kernel = starsh_ssdata_block_exp_kernel_3d;
-    else if(!strcmp(type, "exp simd"))
-        *kernel = starsh_ssdata_block_exp_kernel_3d_simd;
-    else if(!strcmp(type, "sqrexp"))
-        *kernel = starsh_ssdata_block_sqr_exp_kernel_3d;
-    else if(!strcmp(type, "sqrexp simd"))
-        *kernel = starsh_ssdata_block_sqr_exp_kernel_3d_simd;
-#ifdef GSL
-    else if(!strcmp(type, "Matern"))
-        *kernel = starsh_ssdata_block_matern_kernel_3d;
-    else if(!strcmp(type, "Matern simd"))
-        *kernel = starsh_ssdata_block_matern_kernel_3d_simd;
-#endif
-    else
+    switch(type)
     {
-        STARSH_ERROR("Wrong type of kernel");
-        return 1;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_3d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_3d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_3d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqr_exp_kernel_3d_simd;
+            break;
+#ifdef GSL
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_3d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_3d_simd;
+            break;
+#endif
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return 1;
     }
     return 0;
 }
 
+int starsh_ssdata_get_kernel(STARSH_kernel *kernel, STARSH_ssdata *data,
+        int type)
+{
+    switch(data->ndim)
+    {
+        case 1:
+            return starsh_ssdata_get_kernel_1d(kernel, type, data->dtype);
+        case 2:
+            return starsh_ssdata_get_kernel_2d(kernel, type, data->dtype);
+        case 3:
+            return starsh_ssdata_get_kernel_3d(kernel, type, data->dtype);
+        default:
+            STARSH_ERROR("parameter ndim=%d is not supported (must be 1, 2 or "
+                    "3)", data->ndim);
+            return 1;
+    }
+}

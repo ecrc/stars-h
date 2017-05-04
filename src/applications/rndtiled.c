@@ -77,6 +77,7 @@ int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
         S[i] = S[i-1]*decay;
     STARSH_MALLOC(*data, 1);
     (*data)->n = n;
+    (*data)->dtype = dtype;
     (*data)->nblocks = nblocks;
     (*data)->block_size = block_size;
     (*data)->U = U;
@@ -127,21 +128,10 @@ int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...)
     return info;
 }
 
-int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, const char *type,
-        char dtype)
+int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
+        int type)
 {
-    if(dtype != 'd')
-    {
-        STARSH_ERROR("Only dtype='d' is supported");
-        return 1;
-    }
-    if(!strcmp(type, "rndtiled"))
-        *kernel = starsh_rndtiled_block_kernel;
-    else
-    {
-        STARSH_ERROR("Wrong type of kernel");
-        return 1;
-    }
+    *kernel = starsh_rndtiled_block_kernel;
     return 0;
 }
 

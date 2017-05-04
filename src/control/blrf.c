@@ -4,7 +4,7 @@
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far, int *block_far,
-        size_t nblocks_near, int *block_near, STARSH_blrf_type type)
+        size_t nblocks_near, int *block_near, enum STARSH_BLRF_TYPE type)
 //! Initialization of STARSH_blrf.
 /*! @param[out] F: Address of pointer to `STARSH_blrf` object.
  * @param[in] P: Corresponding problem.
@@ -205,7 +205,7 @@ int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
         int *block_far, size_t nblocks_near, int *block_near,
         size_t nblocks_far_local, size_t *block_far_local,
         size_t nblocks_near_local, size_t *block_near_local,
-        STARSH_blrf_type type)
+        enum STARSH_BLRF_TYPE type)
 {
     int info;
     info = starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far,

@@ -4,26 +4,23 @@
 // Add definitions for size_t and ssize_t
 #include <sys/types.h>
 
+// Add definitions for enumerated constants
+#include "starsh-constants.h"
+
 // typedef for different structures
 typedef struct array Array;
 typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
+
 // typedef for kernels
 typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
-//! Enum type to show actual block low-rank format
-typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
-    STARSH_blrf_type;
-
-//! Enum type to show type of clusterization
-typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
-    STARSH_cluster_type;
-
+//! High-level API for generating problem
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
-        const char *problem_type, const char *kernel_type, ...);
+        int problem_type, int kernel_type, ...);
 
 struct array
 //! `N`-dimensional array.
@@ -178,13 +175,14 @@ struct starsh_cluster
      * `child[child_start[i+1]]-1`inclusively are children for a
      * cluster `i`. In case of tiled clusterization `child` is
      * `NULL`.*/
-    STARSH_cluster_type type;
+    enum STARSH_CLUSTER_TYPE type;
     //!< Type of cluster (tiled or hierarchical).
 };
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARSH_cluster_type type);
+        int *parent, int *child_start, int *child,
+        enum STARSH_CLUSTER_TYPE type);
 int starsh_cluster_free(STARSH_cluster *cluster);
 int starsh_cluster_info(STARSH_cluster *cluster);
 int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
@@ -272,7 +270,7 @@ struct starsh_blrf
      * `bcol_near` from index `bcol_near_start[i]` to `bcol_near_start[i+1]-1`
      * inclusively.
      * */
-    STARSH_blrf_type type;
+    enum STARSH_BLRF_TYPE type;
     //!< Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
 
     size_t nblocks_far_local;
@@ -284,13 +282,13 @@ struct starsh_blrf
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
-        STARSH_blrf_type type);
+        enum STARSH_BLRF_TYPE type);
 int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
         size_t nblocks_far_local, size_t *block_far_local,
         size_t nblocks_near_local, size_t *block_near_local,
-        STARSH_blrf_type type);
+        enum STARSH_BLRF_TYPE type);
 int starsh_blrf_free(STARSH_blrf *F);
 int starsh_blrf_info(STARSH_blrf *F);
 int starsh_blrf_print(STARSH_blrf *F);

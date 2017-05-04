@@ -32,9 +32,10 @@ int main(int argc, char **argv)
     // Generate problem by random matrices
     STARSH_rndtiled *data;
     STARSH_kernel kernel;
-    info = starsh_application((void **)&data, &kernel, N, dtype, "rndtiled",
-            "rndtiled", "nb", block_size, "decay", decay, "add_diag",
-            (double)N, NULL);
+    info = starsh_application((void **)&data, &kernel, N, dtype,
+            STARSH_RNDTILED, 0, STARSH_RNDTILED_NB, block_size,
+            STARSH_RNDTILED_DECAY, decay, STARSH_RNDTILED_DIAG,
+            (double)N, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");

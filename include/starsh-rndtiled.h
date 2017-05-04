@@ -8,6 +8,8 @@ struct starsh_rndtiled
 {
     int n;
     //!< Number of rows of synthetic matrix.
+    char dtype;
+    //!< Precision of elements of a matrix.
     int nblocks;
     //! < Number of tiles in one dimension.
     int block_size;
@@ -22,15 +24,20 @@ struct starsh_rndtiled
     //!< Value to add to each diagonal element (for positive definiteness).
 };
 
+enum STARSH_RNDTILED_PARAM
+{
+    STARSH_RNDTILED_NB = 1,
+    STARSH_RNDTILED_DECAY = 2,
+    STARSH_RNDTILED_DIAG = 3
+};
+
 int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
         int block_size, double decay, double add_diag);
 int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
         va_list args);
 int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...);
-
-int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, const char *type,
-        char dtype);
-
+int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
+        int type);
 int starsh_rndtiled_free(STARSH_rndtiled *data);
 
 #endif // _RNDTILED_H_

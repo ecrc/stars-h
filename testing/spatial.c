@@ -16,19 +16,12 @@ int main(int argc, char **argv)
     if(argc != 12)
     {
         printf("%d arguments provided, but 11 are needed\n", argc-1);
-        printf("spatial problem kernel beta nu N block_size scheme maxrank"
+        printf("spatial ndim kernel beta nu N block_size scheme maxrank"
                 " tol check_matvec check_cg_solve\n");
         return -1;
     }
-    char *problem_type = argv[1];
-    if(strcmp(problem_type, "spatial") != 0
-            && strcmp(problem_type, "spatial3d") != 0)
-    {
-        printf("parameter problem (1st argument) must be \"spatial\" or "
-                "\"spatial3d\"\n");
-        return -1;
-    }
-    char *kernel_type = argv[2];
+    int problem_ndim = atoi(argv[1]);
+    int kernel_type = atoi(argv[2]);
     double beta = atof(argv[3]);
     double nu = atof(argv[4]);
     int N = atoi(argv[5]);
@@ -36,6 +29,7 @@ int main(int argc, char **argv)
     char *scheme = argv[7];
     int maxrank = atoi(argv[8]);
     double tol = atof(argv[9]);
+    double noise = 0;
     int check_matvec = atoi(argv[10]);
     int check_cg_solve = atoi(argv[11]);
     int oversample = 10, onfly = 0;
@@ -48,8 +42,10 @@ int main(int argc, char **argv)
     STARSH_ssdata *data;
     STARSH_kernel kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
-    info = starsh_application((void **)&data, &kernel, N, dtype, problem_type,
-            kernel_type, "beta", beta, "nu", nu, NULL);
+    info = starsh_application((void **)&data, &kernel, N, dtype,
+            STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
+            STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
+            STARSH_SPATIAL_NOISE, noise, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");

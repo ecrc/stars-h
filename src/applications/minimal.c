@@ -24,16 +24,18 @@ int starsh_mindata_new(STARSH_mindata **data, int n, char dtype)
 {
     STARSH_MALLOC(*data, 1);
     (*data)->count = n;
+    (*data)->dtype = dtype;
     return 0;
 }
 
 int starsh_mindata_new_va(STARSH_mindata **data, int n, char dtype,
         va_list args)
 {
-    char *arg_type;
-    if((arg_type = va_arg(args, char *)) != NULL)
+    int arg_type;
+    if((arg_type = va_arg(args, int)) != 0)
     {
-        STARSH_ERROR("Wrong parameter name %s", arg_type);
+        STARSH_ERROR("Wrong parameter");
+        return 1;
     }
     return starsh_mindata_new(data, n, dtype);
 }
@@ -53,8 +55,8 @@ void starsh_mindata_free(STARSH_mindata *data)
         free(data);
 }
 
-int starsh_mindata_get_kernel(STARSH_kernel *kernel, const char *type,
-        char dtype)
+int starsh_mindata_get_kernel(STARSH_kernel *kernel, STARSH_mindata *data,
+        int type)
 {
     *kernel = starsh_mindata_block_kernel;
     return 0;

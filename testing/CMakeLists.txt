@@ -38,38 +38,38 @@ add_test(NAME minimal_rsdd COMMAND minimal 2500 500 omp_rsdd 90 1e-9)
 add_test(NAME minimal_sdd COMMAND minimal 2500 500 omp_sdd 90 1e-9)
 add_test(NAME minimal_qp3 COMMAND minimal 2500 500 omp_qp3 90 1e-9)
 add_test(NAME spatial_2d_exp_rsdd COMMAND
-    spatial spatial "exp simd" 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
+    spatial 2 11 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_exp_sdd COMMAND
-    spatial spatial "exp simd" 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
+    spatial 2 11 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_exp_qp3 COMMAND
-    spatial spatial "exp simd" 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
+    spatial 2 11 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
 add_test(NAME spatial_2d_sqrexp_rsdd COMMAND
-    spatial spatial "sqrexp simd" 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
+    spatial 2 12 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_sqrexp_sdd COMMAND
-    spatial spatial "sqrexp simd" 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
+    spatial 2 12 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_sqrexp_qp3 COMMAND
-    spatial spatial "sqrexp simd" 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
+    spatial 2 12 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
 add_test(NAME spatial_2d_matern_rsdd COMMAND
-    spatial spatial "Matern simd" 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
+    spatial 2 13 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_matern_sdd COMMAND
-    spatial spatial "Matern simd" 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
+    spatial 2 13 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_matern_qp3 COMMAND
-    spatial spatial "Matern simd" 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
+    spatial 2 13 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
 add_test(NAME spatial_3d_exp_rsdd COMMAND
-    spatial spatial3d "exp simd" 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
+    spatial 3 11 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_exp_sdd COMMAND
-    spatial spatial3d "exp simd" 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
+    spatial 3 11 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_exp_qp3 COMMAND
-    spatial spatial3d "exp simd" 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
+    spatial 3 11 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
 add_test(NAME spatial_3d_sqrexp_rsdd COMMAND
-    spatial spatial3d "sqrexp simd" 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
+    spatial 3 12 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_sqrexp_sdd COMMAND
-    spatial spatial3d "sqrexp simd" 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
+    spatial 3 12 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_sqrexp_qp3 COMMAND
-    spatial spatial3d "sqrexp simd" 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
+    spatial 3 12 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
 add_test(NAME spatial_3d_matern_rsdd COMMAND
-    spatial spatial3d "Matern simd" 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
+    spatial 3 13 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_matern_sdd COMMAND
-    spatial spatial3d "Matern simd" 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
+    spatial 3 13 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_matern_qp3 COMMAND
-    spatial spatial3d "Matern simd" 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
+    spatial 3 13 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
