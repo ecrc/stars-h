@@ -1,25 +1,8 @@
 #ifndef _STARS_H_
 #define _STARS_H_
 
+// Add definitions for size_t and ssize_t
 #include <sys/types.h>
-
-#include <stdint.h>
-#include <limits.h>
-#include <mpi.h>
-
-#if SIZE_MAX == UCHAR_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_CHAR
-#elif SIZE_MAX == USHRT_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_SHORT
-#elif SIZE_MAX == UINT_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED
-#elif SIZE_MAX == ULONG_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG
-#elif SIZE_MAX == ULLONG_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG_LONG
-#else
-   #error "what is happening here?"
-#endif
 
 // typedef for different structures
 typedef struct array Array;
@@ -452,61 +435,5 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work);
 
 int cmp_size_t(const void *a, const void *b);
-
-#define STARSH_MALLOC_FAILED 1
-
-#define STARSH_ERROR(format, ...)\
-{\
-    fprintf(stderr, "STARSH ERROR: %s(): ", __func__);\
-    fprintf(stderr, format, ##__VA_ARGS__);\
-    fprintf(stderr, "\n");\
-}
-
-#define STARSH_WARNING(format, ...)\
-{\
-    fprintf(stderr, "STARSH WARNING: %s(): ", __func__);\
-    fprintf(stderr, format, ##__VA_ARGS__);\
-    fprintf(stderr, "\n");\
-}
-
-#define STARSH_MALLOC(var, expr_nitems)\
-{\
-    var = malloc(sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("line %d: malloc() failed", __LINE__);\
-        return 1;\
-    }\
-}
-
-#define STARSH_REALLOC(var, expr_nitems)\
-{\
-    var = realloc(var, sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        return 1;\
-    }\
-}
-
-#define STARSH_PMALLOC(var, expr_nitems, var_info)\
-{\
-    var = malloc(sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
-    }\
-}
-
-#define STARSH_PREALLOC(var, expr_nitems, var_info)\
-{\
-    var = realloc(var, sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
-    }\
-}
 
 #endif // _STARSH_H_

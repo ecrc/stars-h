@@ -1,9 +1,12 @@
+#ifdef MKL
+    #include <mkl.h>
+#else
+    #include <cblas.h>
+    #include <lapacke.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <string.h>
 #include <omp.h>
-#include <mkl.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
 

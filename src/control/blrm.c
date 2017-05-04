@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <mkl.h>
-#include <omp.h>
+#include "common.h"
 #include "starsh.h"
 
 

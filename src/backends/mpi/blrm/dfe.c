@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <mkl.h>
-#include <mpi.h>
+#include "common.h"
 #include "starsh.h"
 
 double starsh_blrm__dfe_mpi(STARSH_blrm *M)

@@ -25,8 +25,12 @@ if(GSL_FOUND)
     target_link_libraries(starsh PRIVATE ${GSL_LIBRARIES})
 endif(GSL_FOUND)
 if(MPI)
+    set_target_properties(starsh PROPERTIES LINK_FLAGS ${MPI_C_LINK_FLAGS})
     target_link_libraries(starsh PRIVATE ${MPI_C_LIBRARIES})
 endif(MPI)
+if(PLASMA)
+    target_link_libraries(starsh PRIVATE ${PLASMA_LIBRARIES})
+endif()
 
 # Install STARSH library
 install(TARGETS starsh

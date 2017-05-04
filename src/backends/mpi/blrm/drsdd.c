@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
-#include <omp.h>
-#include <mpi.h>
+#include "common.h"
 #include "starsh.h"
 
 int cmp_size_t(const void *a, const void *b)

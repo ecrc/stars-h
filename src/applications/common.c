@@ -1,13 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
 #include "starsh-minimal.h"
 #include "starsh-rndtiled.h"
-#include <stdarg.h>
-#include <string.h>
-#include <math.h>
 
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         const char *problem_type, const char *kernel_type, ...)

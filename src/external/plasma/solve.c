@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include <plasma.h>
 
 int solve(int n, double *A, int lda, int nrhs, double *B, int ldb,

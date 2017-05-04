@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,

@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
-#include <omp.h>
-#include <string.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,

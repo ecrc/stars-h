@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <omp.h>
+#include "common.h"
 #include "starsh.h"
 #include "starsh-minimal.h"
 

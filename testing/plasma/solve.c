@@ -1,12 +1,17 @@
+#ifdef MKL
+    #include <mkl.h>
+#else
+    #include <cblas.h>
+    #include <lapacke.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <mkl.h>
 #include <omp.h>
+#include <string.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
 #include "starsh-plasma.h"
 #include <plasma.h>
-#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -46,14 +51,14 @@ int main(int argc, char **argv)
     printf("Compute entire matrix: %e secs\n", time0);
     int nrhs = 1;
     double *b, *b_CG, *x, *x_CG, *CG_work;
-    STARSH_MALLOC(b, N*nrhs);
-    STARSH_MALLOC(b_CG, N*nrhs);
-    STARSH_MALLOC(x, N*nrhs);
-    STARSH_MALLOC(x_CG, N*nrhs);
+    b = malloc(N*nrhs*sizeof(*b));
+    b_CG = malloc(N*nrhs*sizeof(*b_CG));
+    x = malloc(N*nrhs*sizeof(*x));
+    x_CG = malloc(N*nrhs*sizeof(*x_CG));
     int iseed[4] = {0, 0, 0, 1};
     LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
     //LAPACKE_dlarnv_work(3, iseed, N, x);
-    STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
+    CG_work = malloc(3*(N+1)*nrhs*sizeof(*CG_work));
     // Init tiled cluster for tiled low-rank approximation and print info
     time0 = omp_get_wtime();
     STARSH_cluster *C;
@@ -79,13 +84,16 @@ int main(int argc, char **argv)
     memset(x, 0, N*nrhs*sizeof(double));
     //cblas_dcopy(N*nrhs, b, 1, x_CG, 1);
     time1 = omp_get_wtime();
-    int info = starsh_itersolvers__dcg_omp(M, nrhs, b, N, x_CG, N, tol, CG_work);
+    int info = starsh_itersolvers__dcg_omp(M, nrhs, b, N, x_CG, N, tol,
+            CG_work);
     double time2 = omp_get_wtime();
     printf("CG INFO: %d\n", info);
     printf("NORM OF CG SOLUTION: %.16e\n", cblas_dnrm2(N*nrhs, x_CG, 1));
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, N, nrhs, N, 1.0, A->data, N, x_CG, N, 0.0, b_CG, N);
+    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, N, nrhs, N, 1.0,
+            A->data, N, x_CG, N, 0.0, b_CG, N);
     cblas_daxpy(N*nrhs, -1.0, b, 1, b_CG, 1);
-    printf("ACCURACY OF RHS: %e\n", cblas_dnrm2(N*nrhs, b_CG, 1)/cblas_dnrm2(N*nrhs, b, 1));
+    printf("ACCURACY OF RHS: %e\n", cblas_dnrm2(N*nrhs, b_CG, 1)
+            /cblas_dnrm2(N*nrhs, b, 1));
     //for(int i = 0; i < 1000; i++)
     //    starsh_blrm__dmml_omp(M, 1, 1.0, b, N, 0.0, x, N);
     printf("TIME TO SOLVE: %e secs\n", time2-time1);
@@ -98,6 +106,7 @@ int main(int argc, char **argv)
     printf("NORM OF PLASMA SOLUTION: %.16e\n", cblas_dnrm2(N*nrhs, x, 1));
     plasma_finalize();
     cblas_daxpy(N*nrhs, -1.0, x, 1, x_CG, 1);
-    printf("ACCURACY OF SOLUTION: %e\n", cblas_dnrm2(N*nrhs, x_CG, 1)/cblas_dnrm2(N*nrhs, x, 1));
+    printf("ACCURACY OF SOLUTION: %e\n", cblas_dnrm2(N*nrhs, x_CG, 1)
+            /cblas_dnrm2(N*nrhs, x, 1));
     return 0;
 }

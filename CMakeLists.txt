@@ -29,26 +29,27 @@ project(STARS-H VERSION 1.0.0.2 LANGUAGES C)
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
 # Set build type for optimization flags
-IF(NOT CMAKE_BUILD_TYPE)
-    SET( CMAKE_BUILD_TYPE Release CACHE STRING
-         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel"
-         FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose type of build, options are: None Debug Release\
+        RelWithDebInfo MinSizeRel"
+        FORCE)
+endif()
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU" OFF)
+option(STARPU "Use StarPU" ON)
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
+option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
 
 # Set desired external libraries
 # One may use -DPLASMA=OFF to disable wrappers for PLASMA
-option(PLASMA "Wrappers for PLASMA" OFF)
+option(PLASMA "Wrappers for PLASMA" ON)
 
 # Options for examples, testing and documentation
 option(TESTING "Generate testing binaries" ON)
-option(EXAMPLES "Generate example binaries" OFF)
-option(DOCS "Build documentation in docs directory" OFF)
+option(DOCS "Build documentation in docs directory" ON)
 
 # Use STARPU backend only when compiling by gcc
 if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
@@ -152,113 +153,113 @@ if(GSL_FOUND)
     add_definitions("-DGSL")
 endif()
 
-# Find LAPACK and BLAS for tests and examples
-if(TESTING OR EXAMPLES)
-    # Enable testing
-    include(CTest)
-    enable_testing()
-    # Find BLAS
-    find_package(BLASEXT)
-    if(BLAS_FOUND)
-        # Use parallel blas for cblas
-        option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" ON)
-        if(USE_PARALLEL_BLAS AND NOT "${BLAS_PAR_LIBRARIES}" STREQUAL "")
-            message(STATUS "Using Parallel Blas")
-            set(BLAS_LIBRARIES "${BLAS_PAR_LIBRARIES}")
-        endif()
-    else()
-        message(FATAL_ERROR "BLAS library has not been found")
+# Find BLAS and set it to parallel if USE_PARALLEL_BLAS is ON
+find_package(BLASEXT)
+if(BLAS_FOUND)
+    if(USE_PARALLEL_BLAS AND NOT "${BLAS_PAR_LIBRARIES}" STREQUAL "")
+        message(STATUS "Using Parallel Blas")
+        set(BLAS_LIBRARIES "${BLAS_PAR_LIBRARIES}")
     endif()
-    # Find CBLAS
-    find_package(CBLAS COMPONENTS BLASEXT)
-    if(BLAS_FOUND)
-        if (BLAS_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
-        endif()
-        if(BLAS_LINKER_FLAGS)
-            #list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
-            set(CMAKE_EXE_LINKER_FLAGS
-                "${CMAKE_EXE_LINKER_FLAGS} ${BLAS_LINKER_FLAGS}")
-        endif()
-    else()
-        message(FATAL_ERROR "BLAS library has not been found")
-    endif()
-    if(CBLAS_FOUND)
-        include_directories(${CBLAS_INCLUDE_DIRS})
-        if(CBLAS_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
-        endif()
-    else()
-        if(ECRC_VERBOSE_FIND_PACKAGE)
-            if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
-                if (NOT CBLAS_cblas.h_DIRS)
-                    Print_Find_Header_Status(cblas cblas.h)
-                endif ()
-                if (NOT CBLAS_cblas_LIBRARY)
-                    Print_Find_Library_Status(cblas libcblas)
-                endif ()
-            endif()
-        else()
-            message(WARNING "CBLAS library has not been found and "
-                "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
-                "activate ECRC_VERBOSE_FIND_PACKAGE option "
-                "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
-                "for the detection")
-        endif()
-        message(FATAL_ERROR "A CBLAS library is required but has "
-            "not been found")
-    endif()
-    ## LAPACKE
-    find_package(LAPACKE COMPONENTS LAPACKEXT)
-    if(LAPACK_FOUND AND LAPACK_LIBRARY_DIRS)
-        # the RPATH to be used when installing
-        list(APPEND CMAKE_INSTALL_RPATH "${LAPACK_LIBRARY_DIRS}")
-    else()
-        message(FATAL_ERROR "A LAPACK library is required but has not "
-            "been found")
-    endif()
-    if(LAPACKE_FOUND)
-        include_directories(${LAPACKE_INCLUDE_DIRS})
-        if(LAPACKE_LIBRARY_DIRS)
-            # the RPATH to be used when installing
-            list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS}")
-        endif()
-        if(LAPACKE_LINKER_FLAGS)
-            set(CMAKE_EXE_LINKER_FLAGS
-                "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
-        endif()
-    else()
-        if(ECRC_VERBOSE_FIND_PACKAGE)
-            if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
-                if (NOT LAPACKE_lapacke.h_DIRS)
-                    Print_Find_Header_Status(lapacke lapacke.h)
-                endif ()
-                if (NOT LAPACKE_lapacke_LIBRARY)
-                    Print_Find_Library_Status(lapacke liblapacke)
-                endif ()
-            endif()
-        else()
-            message(WARNING "LAPACKE library has not been found and "
-                "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
-                "activate ECRC_VERBOSE_FIND_PACKAGE option "
-                "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
-                "for the detection")
-        endif()
-        message(FATAL_ERROR "A LAPACKE library is required but has not "
-            "been found")
-    endif()
+else()
+    message(FATAL_ERROR "BLAS library has not been found")
 endif()
 
+# Find CBLAS and set flags for compiler and linker
+find_package(CBLAS COMPONENTS BLASEXT)
+if(BLAS_FOUND)
+    if (BLAS_LIBRARY_DIRS)
+        # the RPATH to be used when installing
+        list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
+    endif()
+    if(BLAS_LINKER_FLAGS)
+        #list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS
+            "${CMAKE_EXE_LINKER_FLAGS} ${BLAS_LINKER_FLAGS}")
+    endif()
+else()
+    message(FATAL_ERROR "BLAS library has not been found")
+endif()
+if(CBLAS_FOUND)
+    include_directories(${CBLAS_INCLUDE_DIRS})
+    if(CBLAS_LIBRARY_DIRS)
+        # the RPATH to be used when installing
+        list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
+    endif()
+else()
+    if(ECRC_VERBOSE_FIND_PACKAGE)
+        if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
+            if (NOT CBLAS_cblas.h_DIRS)
+                Print_Find_Header_Status(cblas cblas.h)
+            endif ()
+            if (NOT CBLAS_cblas_LIBRARY)
+                Print_Find_Library_Status(cblas libcblas)
+            endif ()
+        endif()
+    else()
+        message(WARNING "CBLAS library has not been found and "
+            "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
+            "activate ECRC_VERBOSE_FIND_PACKAGE option "
+            "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
+            "for the detection")
+    endif()
+    message(FATAL_ERROR "A CBLAS library is required but has "
+        "not been found")
+endif()
+
+# Find LAPACKE and set flags for compiler and linker
+find_package(LAPACKE COMPONENTS LAPACKEXT)
+if(LAPACK_FOUND AND LAPACK_LIBRARY_DIRS)
+    # the RPATH to be used when installing
+    list(APPEND CMAKE_INSTALL_RPATH "${LAPACK_LIBRARY_DIRS}")
+else()
+    message(FATAL_ERROR "A LAPACK library is required but has not "
+        "been found")
+endif()
+if(LAPACKE_FOUND)
+    include_directories(${LAPACKE_INCLUDE_DIRS})
+    if(LAPACKE_LIBRARY_DIRS)
+        # the RPATH to be used when installing
+        list(APPEND CMAKE_INSTALL_RPATH "${LAPACKE_LIBRARY_DIRS}")
+    endif()
+    if(LAPACKE_LINKER_FLAGS)
+        set(CMAKE_EXE_LINKER_FLAGS
+            "${CMAKE_EXE_LINKER_FLAGS} ${LAPACKE_LINKER_FLAGS}")
+    endif()
+else()
+    if(ECRC_VERBOSE_FIND_PACKAGE)
+        if (LAPACKE_STANDALONE OR NOT LAPACKE_WORKS)
+            if (NOT LAPACKE_lapacke.h_DIRS)
+                Print_Find_Header_Status(lapacke lapacke.h)
+            endif ()
+            if (NOT LAPACKE_lapacke_LIBRARY)
+                Print_Find_Library_Status(lapacke liblapacke)
+            endif ()
+        endif()
+    else()
+        message(WARNING "LAPACKE library has not been found and "
+            "ECRC_VERBOSE_FIND_PACKAGE is set to OFF. Try to "
+            "activate ECRC_VERBOSE_FIND_PACKAGE option "
+            "(-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints "
+            "for the detection")
+    endif()
+    message(FATAL_ERROR "A LAPACKE library is required but has not "
+        "been found")
+endif()
+
+# Check if BLAS and LAPACK are provided by Intel
+# (use mkl.h instead of lapacke.h and cblas.h in this case)
+if(BLA_VENDOR MATCHES "Intel")
+    add_definitions("-DMKL")
+endif()
+
+# If testing option is ON
 if(TESTING)
+    include(CTest)
+    enable_testing()
     add_subdirectory("testing")
 endif()
 
-if(EXAMPLES)
-    add_subdirectory("examples")
-endif()
-
+# If docs option is ON
 if(DOCS)
     find_package(Doxygen)
     if(DOXYGEN_FOUND)
@@ -268,11 +269,10 @@ if(DOCS)
     endif()
 endif()
 
-# PKGCONFIG
+# Set parameters for PKGCONFIG
 set(PREFIX "${CMAKE_INSTALL_PREFIX}")
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
-
 
 # Collect STARS-H sources + headers
 add_subdirectory("src")

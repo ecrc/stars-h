@@ -1,15 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <math.h>
-#include <omp.h>
+#include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
-
-#ifdef GSL
-    #include <gsl/gsl_sf.h>
-#endif
 
 static void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)

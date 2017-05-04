@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <mkl.h>
-#include <mpi.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,

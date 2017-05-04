@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,

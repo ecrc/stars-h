@@ -1,12 +1,15 @@
+#ifdef MKL
+    #include <mkl.h>
+#else
+    #include <cblas.h>
+    #include <lapacke.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include <omp.h>
-#include <mkl.h>
+#include <string.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
-#include <stdarg.h>
-#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -120,9 +123,9 @@ int main(int argc, char **argv)
     {
         double *x, *y, *y_tiled;
         int nrhs = 1;
-        STARSH_MALLOC(x, N*nrhs);
-        STARSH_MALLOC(y, N*nrhs);
-        STARSH_MALLOC(y_tiled, N*nrhs);
+        x = malloc(N*nrhs*sizeof(*y));
+        y = malloc(N*nrhs*sizeof(*y));
+        y_tiled = malloc(N*nrhs*sizeof(*y_tiled));
         if(mpi_rank == 0)
         {
             int iseed[4] = {0, 0, 0, 1};
@@ -159,10 +162,10 @@ int main(int argc, char **argv)
     if(check_cg_solve == 1)
     {
         double *b, *x, *r, *CG_work;
-        STARSH_MALLOC(b, N*nrhs);
-        STARSH_MALLOC(x, N*nrhs);
-        STARSH_MALLOC(r, N*nrhs);
-        STARSH_MALLOC(CG_work, 3*(N+1)*nrhs);
+        b = malloc(N*nrhs*sizeof(*b));
+        x = malloc(N*nrhs*sizeof(*x));
+        r = malloc(N*nrhs*sizeof(*r));
+        CG_work = malloc(3*(N+1)*nrhs*sizeof(*CG_work));
         if(mpi_rank == 0)
         {
             int iseed[4] = {0, 0, 0, 1};

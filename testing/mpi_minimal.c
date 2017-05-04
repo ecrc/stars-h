@@ -1,11 +1,14 @@
+#ifdef MKL
+    #include <mkl.h>
+#else
+    #include <cblas.h>
+    #include <lapacke.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include <omp.h>
-#include <mkl.h>
 #include "starsh.h"
 #include "starsh-minimal.h"
-
 
 int main(int argc, char **argv)
 {
@@ -83,9 +86,9 @@ int main(int argc, char **argv)
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y, *y_tiled;
     int nrhs = 1;
-    STARSH_MALLOC(x, N*nrhs);
-    STARSH_MALLOC(y, N*nrhs);
-    STARSH_MALLOC(y_tiled, N*nrhs);
+    x = malloc(N*nrhs*sizeof(*x));
+    y = malloc(N*nrhs*sizeof(*y));
+    y_tiled = malloc(N*nrhs*sizeof(*y_tiled));
     if(mpi_rank == 0)
     {
         int iseed[4] = {0, 0, 0, 1};

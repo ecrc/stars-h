@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <complex.h>
-#include <string.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 int array_from_buffer(Array **A, int ndim, int *shape, char dtype,

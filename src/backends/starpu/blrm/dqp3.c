@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <starpu.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,

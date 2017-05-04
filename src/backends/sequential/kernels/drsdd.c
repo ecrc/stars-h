@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,

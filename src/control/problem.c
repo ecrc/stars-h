@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <complex.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
