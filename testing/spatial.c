@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
-    starsh_problem_info(P); 
+    starsh_problem_info(P);
     // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
     starsh_cluster_new_tiled(&C, data, N, block_size);
