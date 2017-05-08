@@ -48,6 +48,7 @@ option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
 option(PLASMA "Wrappers for PLASMA" ON)
 
 # Options for examples, testing and documentation
+option(EXAMPLES "Generate examples binaries" ON)
 option(TESTING "Generate testing binaries" ON)
 option(DOCS "Build documentation in docs directory" ON)
 
@@ -256,6 +257,11 @@ endif()
 # (use mkl.h instead of lapacke.h and cblas.h in this case)
 if(BLA_VENDOR MATCHES "Intel")
     add_definitions("-DMKL")
+endif()
+
+# If examples option is ON
+if(EXAMPLES)
+    add_subdirectory("examples")
 endif()
 
 # If testing option is ON

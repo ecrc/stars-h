@@ -20,7 +20,7 @@ if(MPI)
 endif()
 
 if(PLASMA)
-    list(APPEND tests_files "plasma/solve.c")
+    #list(APPEND tests_files "plasma/solve.c")
 endif()
 
 # Uses RUNPATH instead of RPATH

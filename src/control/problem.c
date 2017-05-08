@@ -169,7 +169,7 @@ static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
     if(A->order == 'C')
     {
         lda = A->shape[A->ndim-1];
-        #pragma omp parallel for private(dest, src, i, j)
+        //#pragma omp parallel for private(dest, src, i, j)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
@@ -181,7 +181,7 @@ static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
     else
     {
         lda = A->shape[0];
-        #pragma omp parallel for private(dest, src, i, j)
+        //#pragma omp parallel for private(dest, src, i, j)
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
