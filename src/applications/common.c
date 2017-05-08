@@ -6,6 +6,22 @@
 
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         int problem_type, int kernel_type, ...)
+//! Generates data and matrix kernel for one of predefined applications
+/*! @param[out] data: Address of pointer for structure, holding all data
+ * @param[out] kernel: matrix kernel
+ * @param[in] n: desired size of corresponding matrix
+ * @param[in] dtype: precision of each element of a matrix ('d' for double)
+ * @param[in] problem_type: possible values are of
+ *                          type enum STARSH_PROBLEM_TYPE
+ * @param[in] kernel_type: possible values are of corresponding
+ *                          type enum STARSH_*_*, where first star corresponds
+ *                          to problem name and seconds start corresponds to
+ *                          name of kernel
+ * 
+ * All other parameters go by pairs: integer, indicating what kind of parameter
+ * is following after it, with the value of parameter. This list ends with
+ * integer 0.
+ */
 {
     va_list args;
     va_start(args, kernel_type);
