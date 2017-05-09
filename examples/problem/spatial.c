@@ -47,8 +47,8 @@ int main(int argc, char **argv)
         return info;
     }
     // Init problem with given data and kernel and print short info
-    STARSH_problem *P;
-    info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
+    STARSH_problem *problem;
+    info = starsh_problem_new(&problem, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
     if(info != 0)
     {
@@ -56,6 +56,15 @@ int main(int argc, char **argv)
         exit(info);
     }
     printf("STARSH problem was succesfully generated\n");
-    starsh_problem_info(P); 
+    starsh_problem_info(problem);
+    // Compute dense matrix
+    Array *array;
+    info = starsh_problem_to_array(problem, &array);
+    if(info != 0)
+    {
+        printf("Error when computing matrix elements\n");
+        exit(info);
+    }
+    printf("Matrix was successfully computed\n");
     return 0;
 }
