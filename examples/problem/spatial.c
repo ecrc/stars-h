@@ -10,7 +10,8 @@ int main(int argc, char **argv)
     //      STARSH_SPATIAL_EXP, STARSH_SPATIAL_EXP_SIMD
     //      STARSH_SPATIAL_SQREXP, STARSH_SPATIAL_SQREXP_SIMD
     //      STARSH_SPATIAL_MATERN, STARSH_SPATIAL_MATERN_SIMD
-    int kernel_type = STARSH_SPATIAL_EXP_SIMD;
+    //      STARSH_SPATIAL_MATERN2, STARSH_SPATIAL_MATERN2_SIMD
+    int kernel_type = STARSH_SPATIAL_MATERN2_SIMD;
     // Correlation length
     double beta = 0.1;
     // Smoothing parameter for Matern kernel
