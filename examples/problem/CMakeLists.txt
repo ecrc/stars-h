@@ -1,5 +1,8 @@
 set(examples_files
     "spatial.c"
+    "rndtiled.c"
+    "minimal.c"
+    "dense.c"
     )
 
 # Uses RUNPATH instead of RPATH
@@ -7,8 +10,8 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 
 foreach(example_src ${examples_files})
     get_filename_component(example ${example_src} NAME_WE)
-    add_executable(example_approximation_${example} ${example_src})
-    target_link_libraries(example_approximation_${example} starsh)
-    set_target_properties(example_approximation_${example} PROPERTIES
+    add_executable(example_problem_${example} ${example_src})
+    target_link_libraries(example_problem_${example} starsh)
+    set_target_properties(example_problem_${example} PROPERTIES
         OUTPUT_NAME ${example})
 endforeach()

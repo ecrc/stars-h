@@ -11,14 +11,6 @@ int main(int argc, char **argv)
     char order = 'F'; // Fortran order (column-major)
     char symm = 'N'; // 'S' for symmetric problem, 'N' for nonsymmetric
     int info;
-    int maxrank = 30; // Maximum rank to be used
-    int oversample = 10; // Parameter for randomized SVD (extra random vectors)
-    double tol = 1e-3; // Error threshold
-    int onfly = 1; // Do not store dense blocks (since they are stored in data)
-    char *scheme = "omp_rsdd"; // Use OpenMP randomized SVD for
-                                     // compression
-    // Size of tile
-    int block_size = 250;
     // Allocate memory for dense matrix
     double *data = malloc(N*N*sizeof(*data));
     if(data == NULL)
@@ -45,6 +37,7 @@ int main(int argc, char **argv)
         printf("Error in creation of Array structure\n");
         exit(info);
     }
+    printf("Dense array was created succesfully\n");
     // Set up problem
     STARSH_problem *problem;
     info = starsh_problem_from_array(&problem, array, symm);
@@ -53,33 +46,7 @@ int main(int argc, char **argv)
         printf("Error in creation of problem\n");
         exit(info);
     }
-    // Set up clusterization (divide rows and columns into blocks)
-    STARSH_cluster *cluster;
-    info = starsh_cluster_new_tiled(&cluster, array, N, block_size);
-    if(info != 0)
-    {
-        printf("Error in creation of cluster\n");
-        exit(info);
-    }
-    // Set up format (divide matrix into tiles)
-    STARSH_blrf *format;
-    info = starsh_blrf_new_tiled(&format, problem, cluster, cluster, symm);
-    if(info != 0)
-    {
-        printf("Error in creation of format\n");
-        exit(info);
-    }
-    // Approximate with tile low-rank matrix
-    STARSH_blrm *matrix;
-    info = starsh_blrm_approximate(&matrix, format, maxrank, oversample, tol,
-            onfly, scheme);
-    if(info != 0)
-    {
-        printf("Error in approximation\n");
-        exit(info);
-    }
-    printf("Done with approximation!\n");
-    starsh_blrf_info(format); // Show info about format
-    starsh_blrm_info(matrix); // Show info about approximation
+    printf("STARSH problem was succesfully generated\n");
+    starsh_problem_info(problem);
     return 0;
 }

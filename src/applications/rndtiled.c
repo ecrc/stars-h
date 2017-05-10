@@ -94,24 +94,28 @@ int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
     int nb = n;
     double decay = 0;
     double add_diag = 0;
-    char *arg_type;
+    int arg_type;
     if(dtype != 'd')
     {
         STARSH_ERROR("Only dtype='d' is supported");
         return 1;
     }
-    while((arg_type = va_arg(args, char *)) != NULL)
+    while((arg_type = va_arg(args, int)) != 0)
     {
-        if(!strcmp(arg_type, "nb"))
-            nb = va_arg(args, int);
-        else if(!strcmp(arg_type, "decay"))
-            decay = va_arg(args, double);
-        else if(!strcmp(arg_type, "add_diag"))
-            add_diag = va_arg(args, double);
-        else
+        switch(arg_type)
         {
-            STARSH_ERROR("Wrong parameter name %s", arg_type);
-            return 1;
+            case STARSH_RNDTILED_NB:
+                nb = va_arg(args, int);
+                break;
+            case STARSH_RNDTILED_DECAY:
+                decay = va_arg(args, double);
+                break;
+            case STARSH_RNDTILED_DIAG:
+                add_diag = va_arg(args, double);
+                break;
+            default:
+                STARSH_ERROR("Wrong parameter name %s", arg_type);
+                return 1;
         }
     }
     return starsh_rndtiled_new(data, n, dtype, nb, decay, add_diag);
