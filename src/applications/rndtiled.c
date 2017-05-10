@@ -37,11 +37,11 @@ int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
         int block_size, double decay, double add_diag)
 //! Generate random tiled matrix by a special rule
 /*! @param[out] data: Address to pointer to `STARSH_rndtiled` object.
- * @param[out] kernel: Interaction kernel.
- * @param[in] nblocks: Number of tiles in one dimension.
+ * @param[in] n: Size of matrix.
+ * @param[in] dtype: precision ('s', 'd', 'c' or 'z').
  * @param[in] block_size: Size of tile in one dimension.
  * @param[in] decay: Decay of singular values.
- * @param[in] noise: Level of noise in singular values of tiles.
+ * @param[in] add_diag: Value to add to each diagonal element.
  * */
 {
     if(dtype != 'd')

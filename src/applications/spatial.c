@@ -1167,9 +1167,12 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         double beta, double nu, double noise)
 //! Generate spatial statistics data.
 /*! @param[out] data: Address of pointer to `STARSH_ssdata` object.
- * @param[in] sqrtn: Number of grid steps in one dimension. Total number of
- *     elements will be `sqrtn^2`.
+ * @param[in] n: Size of matrix.
+ * @param[in] dtype: Precision ('s', 'd', 'c' or 'z').
+ * @param[in] ndim: Dimensionality of spatial statisics problem.
  * @param[in] beta: Parameter for kernel.
+ * @param[in] nu: Smoothing parameter for Matern kernel.
+ * @param[in] noise: Value to add to diagonal elements.
  * @return Error code.
  * */
 {
