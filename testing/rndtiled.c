@@ -64,7 +64,8 @@ int main(int argc, char **argv)
     starsh_blrm_info(M);
     // Measure approximation error in Frobenius norm
     time0 = omp_get_wtime();
-    printf("error, measured by starsh_blrm__dfe %e\n", starsh_blrm__dfe(M));
+    printf("error, measured by starsh_blrm__dfe_omp %e\n",
+            starsh_blrm__dfe_omp(M));
     printf("TIME TO MEASURE ERROR: %e secs\n", omp_get_wtime()-time0);
     // Free block low-rank matrix
     starsh_blrm_free(M);

@@ -375,6 +375,7 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
 int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
 double starsh_blrm__dfe(STARSH_blrm *M);
+double starsh_blrm__dfe_omp(STARSH_blrm *M);
 double starsh_blrm__dfe_mpi(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 

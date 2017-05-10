@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     printf("TIME TO APPROXIMATE: %e secs\n", time1);
     // Measure approximation error
     time1 = omp_get_wtime();
-    double rel_err = starsh_blrm__dfe(M);
+    double rel_err = starsh_blrm__dfe_omp(M);
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);

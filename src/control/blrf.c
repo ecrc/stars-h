@@ -385,7 +385,7 @@ int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
             }
     }
     return starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far, 0, NULL,
-            STARSH_PLAIN);
+            STARSH_TILED);
 }
 
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
@@ -522,7 +522,7 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
                 nblocks_far_local += 1;
         }
         //nblocks_far_local = (nblocks_far+mpi_size-1-mpi_rank)/mpi_size;
-        STARSH_WARNING("(%d, %d): LOCAL BLOCKS=%zu", grid_x, grid_y, nblocks_far_local);
+        //STARSH_WARNING("(%d, %d): LOCAL BLOCKS=%zu", grid_x, grid_y, nblocks_far_local);
         STARSH_MALLOC(block_far_local, nblocks_far_local);
         for(i = 0; i < nbrows; i++)
             for(j = 0; j <= i; j++)
@@ -545,5 +545,5 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
             STARSH_ERROR("WRONG COUNT FOR LOCAL BLOCKS");
     }
     return starsh_blrf_new_mpi(F, P, symm, R, C, nblocks_far, block_far, 0,
-            NULL, nblocks_far_local, block_far_local, 0, NULL, STARSH_PLAIN);
+            NULL, nblocks_far_local, block_far_local, 0, NULL, STARSH_TILED);
 }

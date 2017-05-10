@@ -49,12 +49,22 @@ add_test(NAME spatial_2d_sqrexp_sdd COMMAND
     spatial 2 12 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_2d_sqrexp_qp3 COMMAND
     spatial 2 12 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
-add_test(NAME spatial_2d_matern_rsdd COMMAND
-    spatial 2 13 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_matern_sdd COMMAND
-    spatial 2 13 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_matern_qp3 COMMAND
-    spatial 2 13 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
+
+if(GSL_FOUND)
+    add_test(NAME spatial_2d_matern_rsdd COMMAND
+        spatial 2 13 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
+    add_test(NAME spatial_2d_matern_sdd COMMAND
+        spatial 2 13 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
+    add_test(NAME spatial_2d_matern_qp3 COMMAND
+        spatial 2 13 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
+    add_test(NAME spatial_2d_matern2_rsdd COMMAND
+        spatial 2 14 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
+    add_test(NAME spatial_2d_matern2_sdd COMMAND
+        spatial 2 14 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
+    add_test(NAME spatial_2d_matern2_qp3 COMMAND
+        spatial 2 14 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
+endif()
+
 add_test(NAME spatial_3d_exp_rsdd COMMAND
     spatial 3 11 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_exp_sdd COMMAND
@@ -67,9 +77,18 @@ add_test(NAME spatial_3d_sqrexp_sdd COMMAND
     spatial 3 12 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
 add_test(NAME spatial_3d_sqrexp_qp3 COMMAND
     spatial 3 12 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
-add_test(NAME spatial_3d_matern_rsdd COMMAND
-    spatial 3 13 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_matern_sdd COMMAND
-    spatial 3 13 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_matern_qp3 COMMAND
-    spatial 3 13 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
+
+if(GSL_FOUND)
+    add_test(NAME spatial_3d_matern_rsdd COMMAND
+        spatial 3 13 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
+    add_test(NAME spatial_3d_matern_sdd COMMAND
+        spatial 3 13 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
+    add_test(NAME spatial_3d_matern_qp3 COMMAND
+        spatial 3 13 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
+    add_test(NAME spatial_3d_matern2_rsdd COMMAND
+        spatial 3 14 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
+    add_test(NAME spatial_3d_matern2_sdd COMMAND
+        spatial 3 14 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
+    add_test(NAME spatial_3d_matern2_qp3 COMMAND
+        spatial 3 14 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
+endif()

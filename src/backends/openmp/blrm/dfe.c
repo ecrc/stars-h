@@ -1,7 +1,7 @@
 #include "common.h"
 #include "starsh.h"
 
-double starsh_blrm__dfe(STARSH_blrm *M)
+double starsh_blrm__dfe_omp(STARSH_blrm *M)
 //! Approximation error in Frobenius norm of double precision matrix.
 {
     STARSH_blrf *F = M->format;
@@ -22,9 +22,13 @@ double starsh_blrm__dfe(STARSH_blrm *M)
     double *far_block_norm = block_norm;
     double *near_block_norm = block_norm+nblocks_far;
     char symm = F->symm;
+    int info = 0;
     // Simple cycle over all far-field blocks
+    #pragma omp parallel for schedule(dynamic, 1)
     for(bi = 0; bi < nblocks_far; bi++)
     {
+        if(info != 0)
+            continue;
         // Get indexes and sizes of block row and column
         int i = F->block_far[2*bi];
         int j = F->block_far[2*bi+1];
@@ -35,7 +39,7 @@ double starsh_blrm__dfe(STARSH_blrm *M)
         // Temporary array for more precise dnrm2
         double *D, D_norm[ncols];
         size_t D_size = (size_t)nrows*(size_t)ncols;
-        STARSH_MALLOC(D, D_size);
+        STARSH_PMALLOC(D, D_size, info);
         // Get actual elements of a block
         kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                 RD, CD, D);
@@ -62,8 +66,11 @@ double starsh_blrm__dfe(STARSH_blrm *M)
             far_block_diff[bi] *= sqrt2;
         }
     }
+    if(info != 0)
+        return info;
     if(M->onfly == 0)
         // Simple cycle over all near-field blocks
+        #pragma omp parallel for schedule(dynamic, 1)
         for(bi = 0; bi < nblocks_near; bi++)
         {
             // Get indexes and sizes of corresponding block row and column
@@ -82,8 +89,11 @@ double starsh_blrm__dfe(STARSH_blrm *M)
         }
     else
         // Simple cycle over all near-field blocks
+        #pragma omp parallel for schedule(dynamic, 1)
         for(bi = 0; bi < nblocks_near; bi++)
         {
+            if(info != 0)
+                continue;
             // Get indexes and sizes of corresponding block row and column
             int i = F->block_near[2*bi];
             int j = F->block_near[2*bi+1];
@@ -91,7 +101,7 @@ double starsh_blrm__dfe(STARSH_blrm *M)
             int ncols = C->size[j];
             double *D, D_norm[ncols];
             // Allocate temporary array and fill it with elements of a block
-            STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
+            STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, D);
             // Compute norm of a block
@@ -104,6 +114,8 @@ double starsh_blrm__dfe(STARSH_blrm *M)
                 // Multiply by square root of 2 ub symmetric case
                 near_block_norm[bi] *= sqrt2;
         }
+    if(info != 0)
+        return info;
     // Get difference of initial and approximated matrices
     double diff = cblas_dnrm2(nblocks_far, far_block_diff, 1);
     // Get norm of initial matrix

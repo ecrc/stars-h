@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     starsh_blrf_info(format); // Show info about format
     starsh_blrm_info(matrix); // Show info about approximation
     // Show realtive error of approximation in Frobenius norm
-    double rel_err = starsh_blrm__dfe(matrix);
+    double rel_err = starsh_blrm__dfe_omp(matrix);
     printf("Relative error in Frobenius norm: %e\n", rel_err);
     return 0;
 }
