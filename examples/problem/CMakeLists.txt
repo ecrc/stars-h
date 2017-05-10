@@ -11,7 +11,8 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 foreach(example_src ${examples_files})
     get_filename_component(example ${example_src} NAME_WE)
     add_executable(example_problem_${example} ${example_src})
-    target_link_libraries(example_problem_${example} starsh)
+    target_link_libraries(example_problem_${example} starsh
+        ${CBLAS_LIBRARIES} ${LAPACKE_LIBRARIES} ${OpenMP_C_FLAGS})
     set_target_properties(example_problem_${example} PROPERTIES
         OUTPUT_NAME ${example})
 endforeach()
