@@ -2,7 +2,10 @@ set(examples_files)
 
 if(OPENMP)
     list(APPEND examples_files
-        "${CMAKE_CURRENT_SOURCE_DIR}/dense.c"
+        "spatial.c"
+        "rndtiled.c"
+        "minimal.c"
+        "dense.c"
     )
 endif()
 
