@@ -60,6 +60,11 @@ int main(int argc, char **argv)
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);
+    if(rel_err/tol > 10.)
+    {
+        printf("Resulting relative error is too big\n");
+        exit(1);
+    }
     // Flush STDOUT, since next step is very time consuming
     fflush(stdout);
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs

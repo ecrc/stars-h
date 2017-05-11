@@ -70,6 +70,7 @@ int main(int argc, char **argv)
     double time1 = omp_get_wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
     time1 = omp_get_wtime()-time1;
+    // Print info about updated format and approximation
     starsh_blrf_info(F);
     starsh_blrm_info(M);
     printf("TIME TO APPROXIMATE: %e secs\n", time1);
@@ -79,6 +80,11 @@ int main(int argc, char **argv)
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);
+    if(rel_err/tol > 10.)
+    {
+        printf("Resulting relative error is too big\n");
+        exit(1);
+    }
     // Flush STDOUT, since next step is very time consuming
     fflush(stdout);
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs

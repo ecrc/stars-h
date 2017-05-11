@@ -1217,7 +1217,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
     }
     else if(ndim == 2)
     {
-        int sqrtn = sqrt(n);
+        int sqrtn = floor(sqrt(n)+0.1);
         if(sqrtn*sqrtn != n)
         {
             STARSH_ERROR("parameter n must be square of some integer");
@@ -1235,7 +1235,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
     }
     else
     {
-        int cbrtn = cbrt(n);
+        int cbrtn = floor(cbrt(n)+0.1); 
         if(cbrtn*cbrtn*cbrtn != n)
         {
             STARSH_ERROR("parameter n must be cube of some integer");

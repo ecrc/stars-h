@@ -56,17 +56,24 @@ int main(int argc, char **argv)
     starsh_blrf_info(F);
     // Approximate each admissible block
     STARSH_blrm *M;
-    double time0 = omp_get_wtime();
+    double time1 = omp_get_wtime();
     starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
-    printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);
+    time1 = omp_get_wtime()-time1;
     // Print info about updated format and approximation
     starsh_blrf_info(F);
     starsh_blrm_info(M);
-    // Measure approximation error in Frobenius norm
-    time0 = omp_get_wtime();
-    printf("error, measured by starsh_blrm__dfe_omp %e\n",
-            starsh_blrm__dfe_omp(M));
-    printf("TIME TO MEASURE ERROR: %e secs\n", omp_get_wtime()-time0);
+    printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    // Measure approximation error
+    time1 = omp_get_wtime();
+    double rel_err = starsh_blrm__dfe_omp(M);
+    time1 = omp_get_wtime()-time1;
+    printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
+            time1, rel_err);
+    if(rel_err/tol > 10.)
+    {
+        printf("Resulting relative error is too big\n");
+        exit(1);
+    }
     // Free block low-rank matrix
     starsh_blrm_free(M);
     // Free block low-rank format

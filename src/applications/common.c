@@ -31,17 +31,23 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         case STARSH_MINIMAL:
             info = starsh_mindata_new_va((STARSH_mindata **)data, n, dtype,
                     args);
-            info |= starsh_mindata_get_kernel(kernel, *data, kernel_type);
+            if(info != 0)
+                return info;
+            info = starsh_mindata_get_kernel(kernel, *data, kernel_type);
             break;
         case STARSH_RNDTILED:
             info = starsh_rndtiled_new_va((STARSH_rndtiled **)data, n, dtype,
                     args);
-            info |= starsh_rndtiled_get_kernel(kernel, *data, kernel_type);
+            if(info != 0)
+                return info;
+            info = starsh_rndtiled_get_kernel(kernel, *data, kernel_type);
             break;
         case STARSH_SPATIAL:
             info = starsh_ssdata_new_va((STARSH_ssdata **)data, n, dtype,
                     args);
-            info |= starsh_ssdata_get_kernel(kernel, *data, kernel_type);
+            if(info != 0)
+                return info;
+            info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
             break;
         default:
             STARSH_ERROR("Wrong value of problem_type");
