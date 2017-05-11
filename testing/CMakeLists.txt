@@ -34,125 +34,78 @@ foreach(test_src ${tests_files})
     set_target_properties(test_${test_exe} PROPERTIES OUTPUT_NAME ${test_exe})
 endforeach()
 
-add_test(NAME minimal_rsdd COMMAND minimal 2500 500 omp_rsdd 90 1e-9)
-add_test(NAME minimal_sdd COMMAND minimal 2500 500 omp_sdd 90 1e-9)
-add_test(NAME minimal_qp3 COMMAND minimal 2500 500 omp_qp3 90 1e-9)
-add_test(NAME spatial_2d_exp_rsdd COMMAND
-    spatial 2 11 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_exp_sdd COMMAND
-    spatial 2 11 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_exp_qp3 COMMAND
-    spatial 2 11 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
-add_test(NAME spatial_2d_sqrexp_rsdd COMMAND
-    spatial 2 12 0.1 0.5 2500 500 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_sqrexp_sdd COMMAND
-    spatial 2 12 0.1 0.5 2500 500 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_2d_sqrexp_qp3 COMMAND
-    spatial 2 12 0.1 0.5 2500 500 omp_qp3 90 1e-9 1 0)
-
-if(GSL_FOUND)
-    add_test(NAME spatial_2d_matern_rsdd COMMAND
-        spatial 2 13 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
-    add_test(NAME spatial_2d_matern_sdd COMMAND
-        spatial 2 13 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
-    add_test(NAME spatial_2d_matern_qp3 COMMAND
-        spatial 2 13 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
-    add_test(NAME spatial_2d_matern2_rsdd COMMAND
-        spatial 2 14 0.1 10 2500 500 omp_rsdd 90 1e-9 1 0)
-    add_test(NAME spatial_2d_matern2_sdd COMMAND
-        spatial 2 14 0.1 10 2500 500 omp_sdd 90 1e-9 1 0)
-    add_test(NAME spatial_2d_matern2_qp3 COMMAND
-        spatial 2 14 0.1 10 2500 500 omp_qp3 90 1e-9 1 0)
+include(ProcessorCount)
+ProcessorCount(N)
+if(N EQUAL 0)
+    message(ERROR "Could not get number of processors/cores for tests")
+else()
+    message(STATUS "Number of processors/cores for tests is ${N}")
 endif()
+# NOMP is number of threads per MPI process (because we test with 4 MPI
+#   processes)
+math(EXPR NOMP ${N}/4)
 
-add_test(NAME spatial_3d_exp_rsdd COMMAND
-    spatial 3 11 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_exp_sdd COMMAND
-    spatial 3 11 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_exp_qp3 COMMAND
-    spatial 3 11 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
-add_test(NAME spatial_3d_sqrexp_rsdd COMMAND
-    spatial 3 12 0.1 0.5 2744 686 omp_rsdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_sqrexp_sdd COMMAND
-    spatial 3 12 0.1 0.5 2744 686 omp_sdd 90 1e-9 1 0)
-add_test(NAME spatial_3d_sqrexp_qp3 COMMAND
-    spatial 3 12 0.1 0.5 2744 686 omp_qp3 90 1e-9 1 0)
+# Set possible approximation schemes
+set(SCHEMES "rsdd" "sdd" "qp3")
 
-if(GSL_FOUND)
-    add_test(NAME spatial_3d_matern_rsdd COMMAND
-        spatial 3 13 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
-    add_test(NAME spatial_3d_matern_sdd COMMAND
-        spatial 3 13 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
-    add_test(NAME spatial_3d_matern_qp3 COMMAND
-        spatial 3 13 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
-    add_test(NAME spatial_3d_matern2_rsdd COMMAND
-        spatial 3 14 0.1 10 2744 686 omp_rsdd 90 1e-9 1 0)
-    add_test(NAME spatial_3d_matern2_sdd COMMAND
-        spatial 3 14 0.1 10 2744 686 omp_sdd 90 1e-9 1 0)
-    add_test(NAME spatial_3d_matern2_qp3 COMMAND
-        spatial 3 14 0.1 10 2744 686 omp_qp3 90 1e-9 1 0)
-endif()
-
-if(MPI)
-    add_test(NAME mpi_minimal_rsdd COMMAND ${MPIEXEC}
-        ./mpi_minimal 2500 500 mpi_rsdd 90 1e-9)
-    add_test(NAME mpi_minimal_sdd COMMAND ${MPIEXEC}
-        ./mpi_minimal 2500 500 mpi_sdd 90 1e-9)
-    add_test(NAME mpi_minimal_qp3 COMMAND ${MPIEXEC}
-        ./mpi_minimal 2500 500 mpi_qp3 90 1e-9)
-    add_test(NAME mpi_spatial_2d_exp_rsdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 11 0.1 0.5 2500 500 mpi_rsdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_2d_exp_sdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 11 0.1 0.5 2500 500 mpi_sdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_2d_exp_qp3 COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 11 0.1 0.5 2500 500 mpi_qp3 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_2d_sqrexp_rsdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 12 0.1 0.5 2500 500 mpi_rsdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_2d_sqrexp_sdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 12 0.1 0.5 2500 500 mpi_sdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_2d_sqrexp_qp3 COMMAND ${MPIEXEC}
-        ./mpi_spatial 2 12 0.1 0.5 2500 500 mpi_qp3 90 1e-9 1 0)
-
-    if(GSL_FOUND)
-        add_test(NAME mpi_spatial_2d_matern_rsdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 13 0.1 10 2500 500 mpi_rsdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_2d_matern_sdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 13 0.1 10 2500 500 mpi_sdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_2d_matern_qp3 COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 13 0.1 10 2500 500 mpi_qp3 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_2d_matern2_rsdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 14 0.1 10 2500 500 mpi_rsdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_2d_matern2_sdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 14 0.1 10 2500 500 mpi_sdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_2d_matern2_qp3 COMMAND ${MPIEXEC}
-            ./mpi_spatial 2 14 0.1 10 2500 500 mpi_qp3 90 1e-9 1 0)
+# Add tests for minimal example
+foreach(scheme IN ITEMS ${SCHEMES})
+    add_test(NAME minimal_${scheme} COMMAND
+        minimal 2500 500 omp_${scheme} 10 1e-9)
+        set_tests_properties(minimal_${scheme} PROPERTIES
+            ENVIRONMENT "MKL_NUM_THREADS=1")
+    if(MPI)
+        add_test(NAME mpi_minimal_${scheme} COMMAND
+            ./mpi_minimal 2500 500 mpi_${scheme} 10 1e-9)
+            set_tests_properties(mpi_minimal_${scheme} PROPERTIES
+                ENVIRONMENT "MKL_NUM_THREADS=1")
+            set_tests_properties(mpi_minimal_${scheme} PROPERTIES
+                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
     endif()
+endforeach()
 
-    add_test(NAME mpi_spatial_3d_exp_rsdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 11 0.1 0.5 2744 686 mpi_rsdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_3d_exp_sdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 11 0.1 0.5 2744 686 mpi_sdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_3d_exp_qp3 COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 11 0.1 0.5 2744 686 mpi_qp3 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_3d_sqrexp_rsdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 12 0.1 0.5 2744 686 mpi_rsdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_3d_sqrexp_sdd COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 12 0.1 0.5 2744 686 mpi_sdd 90 1e-9 1 0)
-    add_test(NAME mpi_spatial_3d_sqrexp_qp3 COMMAND ${MPIEXEC}
-        ./mpi_spatial 3 12 0.1 0.5 2744 686 mpi_qp3 90 1e-9 1 0)
-
-    if(GSL_FOUND)
-        add_test(NAME mpi_spatial_3d_matern_rsdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 13 0.1 10 2744 686 mpi_rsdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_3d_matern_sdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 13 0.1 10 2744 686 mpi_sdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_3d_matern_qp3 COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 13 0.1 10 2744 686 mpi_qp3 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_3d_matern2_rsdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 14 0.1 10 2744 686 mpi_rsdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_3d_matern2_sdd COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 14 0.1 10 2744 686 mpi_sdd 90 1e-9 1 0)
-        add_test(NAME mpi_spatial_3d_matern2_qp3 COMMAND ${MPIEXEC}
-            ./mpi_spatial 3 14 0.1 10 2744 686 mpi_qp3 90 1e-9 1 0)
-    endif()
+# Add tests for spatial statistics
+# At first decide what matrix kernels are supported
+set(KERNAMES)
+set(KERCODES)
+list(APPEND KERNAMES "exp" "sqrexp")
+list(APPEND KERCODES "11" "12")
+if(GSL_FOUND)
+    list(APPEND KERNAMES "matern" "matern2")
+    list(APPEND KERCODES "13" "14")
 endif()
+list(LENGTH KERNAMES NKERNELS)
+math(EXPR NKERNELS "${NKERNELS}-1")
+# Then cycle over all supported configurations
+foreach(scheme IN ITEMS ${SCHEMES})
+    foreach(kernel RANGE ${NKERNELS})
+        list(GET KERNAMES ${kernel} KERNAME)
+        list(GET KERCODES ${kernel} KERCODE)
+        add_test(NAME spatial_2d_${KERNAME}_${scheme} COMMAND
+            spatial 2 ${KERCODE} 0.1 10 2500 500 omp_${scheme} 90 1e-9 1 0)
+        set_tests_properties(spatial_2d_${KERNAME}_${scheme} PROPERTIES
+            ENVIRONMENT "MKL_NUM_THREADS=1")
+        add_test(NAME spatial_3d_${KERNAME}_${scheme} COMMAND
+            spatial 3 ${KERCODE} 0.1 10 3375 675 omp_${scheme} 240 1e-9 1 0)
+        set_tests_properties(spatial_3d_${KERNAME}_${scheme} PROPERTIES
+            ENVIRONMENT "MKL_NUM_THREADS=1")
+        if(MPI)
+            add_test(NAME mpi_spatial_2d_${KERNAME}_${scheme} COMMAND
+                ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                ./mpi_spatial 2 ${KERCODE} 0.1 10 2500 500 mpi_${scheme} 90
+                1e-9 1 0)
+            set_tests_properties(mpi_spatial_2d_${KERNAME}_${scheme} PROPERTIES
+                ENVIRONMENT "MKL_NUM_THREADS=1")
+            set_tests_properties(mpi_spatial_2d_${KERNAME}_${scheme} PROPERTIES
+                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
+            add_test(NAME mpi_spatial_3d_${KERNAME}_${scheme} COMMAND
+                ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                ./mpi_spatial 3 ${KERCODE} 0.1 10 3375 675 mpi_${scheme} 240
+                1e-9 1 0)
+            set_tests_properties(mpi_spatial_3d_${KERNAME}_${scheme} PROPERTIES
+                ENVIRONMENT "MKL_NUM_THREADS=1")
+            set_tests_properties(mpi_spatial_3d_${KERNAME}_${scheme} PROPERTIES
+                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
+        endif()
+    endforeach()
+endforeach()
