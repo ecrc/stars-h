@@ -198,19 +198,6 @@ int starsh_blrm_info(STARSH_blrm *M)
     return 0;
 }
 
-int starsh_blrm_info_mpi(STARSH_blrm *M)
-//! Print short info on non-nested block low-rank matrix
-{
-    if(M == NULL)
-    {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
-    }
-    printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
-            "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
-    return 0;
-}
-
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D)
 //! Get shape, rank and low-rank factors or dense representation of a block.
@@ -383,6 +370,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     return 0;
 }
 
+#ifdef MPI
 int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
@@ -573,3 +561,17 @@ int starsh_blrm_free_mpi(STARSH_blrm *M)
     free(M);
     return 0;
 }
+
+int starsh_blrm_info_mpi(STARSH_blrm *M)
+//! Print short info on non-nested block low-rank matrix
+{
+    if(M == NULL)
+    {
+        STARSH_ERROR("invalid value of `M`");
+        return 1;
+    }
+    printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
+            "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
+    return 0;
+}
+#endif // MPI

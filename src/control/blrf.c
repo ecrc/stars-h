@@ -201,23 +201,6 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
     return 0;
 }
 
-int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
-        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
-        int *block_far, size_t nblocks_near, int *block_near,
-        size_t nblocks_far_local, size_t *block_far_local,
-        size_t nblocks_near_local, size_t *block_near_local,
-        enum STARSH_BLRF_TYPE type)
-{
-    int info;
-    info = starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far,
-            nblocks_near, block_near, type);
-    (*F)->nblocks_far_local = nblocks_far_local;
-    (*F)->block_far_local = block_far_local;
-    (*F)->nblocks_near_local = nblocks_near_local;
-    (*F)->block_near_local = block_near_local;
-    return 0;
-}
-
 int starsh_blrf_free(STARSH_blrf *F)
 //! Free fields and structure of block low-rank format.
 {
@@ -432,6 +415,24 @@ int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
     return info;
 }
 
+#ifdef MPI
+int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
+        int *block_far, size_t nblocks_near, int *block_near,
+        size_t nblocks_far_local, size_t *block_far_local,
+        size_t nblocks_near_local, size_t *block_near_local,
+        enum STARSH_BLRF_TYPE type)
+{
+    int info;
+    info = starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far,
+            nblocks_near, block_near, type);
+    (*F)->nblocks_far_local = nblocks_far_local;
+    (*F)->block_far_local = block_far_local;
+    (*F)->nblocks_near_local = nblocks_near_local;
+    (*F)->block_near_local = block_near_local;
+    return 0;
+}
+
 int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
         STARSH_cluster *R, STARSH_cluster *C, char symm)
 //! Plain division of array into admissible far-field and near-field blocks.
@@ -547,3 +548,4 @@ int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
     return starsh_blrf_new_mpi(F, P, symm, R, C, nblocks_far, block_far, 0,
             NULL, nblocks_far_local, block_far_local, 0, NULL, STARSH_TILED);
 }
+#endif // MPI

@@ -66,6 +66,7 @@ int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
     return -1;
 }
 
+#ifdef MPI
 int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work)
 //! Conjugate gradient method for Tile low-rank matrix
@@ -146,3 +147,4 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
     }
     return -1;
 }
+#endif // MPI
