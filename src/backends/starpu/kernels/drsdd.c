@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
-#include <starpu.h>
+#include "common.h"
 #include "starsh.h"
 
 void starsh_kernel_drsdd_starpu(void *buffer[], void *cl_arg)

@@ -1,39 +1,58 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
-#include <stdarg.h>
-#include <string.h>
-#include <math.h>
+#include "starsh-minimal.h"
+#include "starsh-rndtiled.h"
 
-int starsh_application(void **data, STARSH_kernel *kernel, char *type, ...)
+int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
+        int problem_type, int kernel_type, ...)
+//! Generates data and matrix kernel for one of predefined applications
+/*! @param[out] data: Address of pointer for structure, holding all data
+ * @param[out] kernel: matrix kernel
+ * @param[in] n: desired size of corresponding matrix
+ * @param[in] dtype: precision of each element of a matrix ('d' for double)
+ * @param[in] problem_type: possible values are of
+ *                          type enum STARSH_PROBLEM_TYPE
+ * @param[in] kernel_type: possible values are of corresponding
+ *                          type enum STARSH_*_*, where first star corresponds
+ *                          to problem name and seconds start corresponds to
+ *                          name of kernel
+ * 
+ * All other parameters go by pairs: integer, indicating what kind of parameter
+ * is following after it, with the value of parameter. This list ends with
+ * integer 0.
+ */
 {
     va_list args;
-    va_start(args, type);
-    char *arg_type;
-    if(!strcmp(type, "spatial"))
+    va_start(args, kernel_type);
+    int info = 0;
+    switch(problem_type)
     {
-        int n = 0, sqrtn = 0;
-        double beta = 0.1;
-        arg_type = va_arg(args, char *);
-        while(arg_type != NULL)
-        {
-            if(!strcmp(arg_type, "N"))
-            {
-                n = va_arg(args, int);
-                sqrtn = sqrt(n);
-                if(sqrtn*sqrtn != n)
-                    STARSH_ERROR("Parameter \"N\" must be square integer");
-            }
-            else if(!strcmp(arg_type, "Beta"))
-            {
-                beta = va_arg(args, double);
-            }
-            arg_type = va_arg(args, char *);
-        }
-        starsh_gen_ssdata(data, kernel, sqrtn, beta);
+        case STARSH_MINIMAL:
+            info = starsh_mindata_new_va((STARSH_mindata **)data, n, dtype,
+                    args);
+            if(info != 0)
+                return info;
+            info = starsh_mindata_get_kernel(kernel, *data, kernel_type);
+            break;
+        case STARSH_RNDTILED:
+            info = starsh_rndtiled_new_va((STARSH_rndtiled **)data, n, dtype,
+                    args);
+            if(info != 0)
+                return info;
+            info = starsh_rndtiled_get_kernel(kernel, *data, kernel_type);
+            break;
+        case STARSH_SPATIAL:
+            info = starsh_ssdata_new_va((STARSH_ssdata **)data, n, dtype,
+                    args);
+            if(info != 0)
+                return info;
+            info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
+            break;
+        default:
+            STARSH_ERROR("Wrong value of problem_type");
+            return 1;
     }
     va_end(args);
-    return 0;
+    return info;
 }

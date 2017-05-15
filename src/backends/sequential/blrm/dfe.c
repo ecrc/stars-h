@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 double starsh_blrm__dfe(STARSH_blrm *M)
@@ -113,4 +110,3 @@ double starsh_blrm__dfe(STARSH_blrm *M)
     double norm = cblas_dnrm2(nblocks, block_norm, 1);
     return diff/norm;
 }
-

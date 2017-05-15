@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -216,12 +214,16 @@ int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         bj = 0;
         for(bi = 0; bi < nblocks_far; bi++)
         {
-            if(false_far[bj] == bi)
+            if(far_rank[bi] == -1)
                 bj++;
             else
             {
-                far_U[bi-bj] = far_U[bi];
-                far_V[bi-bj] = far_V[bi];
+                int shape_U[2] = {far_U[bi]->shape[0], far_rank[bi]};
+                int shape_V[2] = {far_V[bi]->shape[0], far_rank[bi]};
+                array_from_buffer(far_U+bi-bj, 2, shape_U, 'd', 'F',
+                        far_U[bi]->data);
+                array_from_buffer(far_V+bi-bj, 2, shape_V, 'd', 'F',
+                        far_V[bi]->data);
                 far_rank[bi-bj] = far_rank[bi];
             }
         }

@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh__dsvfr(int size, double *S, double tol)

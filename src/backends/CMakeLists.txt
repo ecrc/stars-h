@@ -14,4 +14,10 @@ if(OPENMP)
     list(APPEND BACKENDS_OBJECTS $<TARGET_OBJECTS:backends_openmp>)
 endif()
 
+# Add MPI code
+if(MPI)
+    add_subdirectory("mpi")
+    list(APPEND BACKENDS_OBJECTS $<TARGET_OBJECTS:backends_mpi>)
+endif()
+
 set(BACKENDS_OBJECTS ${BACKENDS_OBJECTS} PARENT_SCOPE)

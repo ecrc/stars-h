@@ -5,4 +5,5 @@ set(SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/drsdd.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dsdd.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dmml.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/dfe.c"
     PARENT_SCOPE)

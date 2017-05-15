@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mkl.h>
+#include "common.h"
 #include "starsh.h"
 
 void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
@@ -55,11 +53,13 @@ void starsh_kernel_drsdd(int nrows, int ncols, double *D, double *U, double *V,
     cblas_dgemm(CblasColMajor, CblasConjTrans, CblasNoTrans, mn2, ncols,
             nrows, 1.0, Q, nrows, D, nrows, 0.0, X, mn2);
     // Get SVD of result to reduce rank
-    LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, X, mn2, svd_S,
-            svd_U, mn2, svd_V, mn2, svdqr_work, svdqr_lwork, iwork);
+    int info = LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, X, mn2,
+            svd_S, svd_U, mn2, svd_V, mn2, svdqr_work, svdqr_lwork, iwork);
+    if(info != 0)
+        STARSH_WARNING("LAPACKE_dgesdd_work info=%d", info);
     // Get rank, corresponding to given error tolerance
     *rank = starsh__dsvfr(mn2, svd_S, tol);
-    if(*rank < mn/2 && *rank <= maxrank)
+    if(info == 0 && *rank < mn/2 && *rank <= maxrank)
     // If far-field block is low-rank
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,

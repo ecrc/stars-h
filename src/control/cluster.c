@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "common.h"
 #include "starsh.h"
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARSH_cluster_type type)
+        int *parent, int *child_start, int *child,
+        enum STARSH_CLUSTER_TYPE type)
 //! Init for STARSH_cluster instance.
 /*! @param[out] C: Address of pointer to `STARSH_cluster` object.
  * @param[in] data: Pointer structure, holding physical data.

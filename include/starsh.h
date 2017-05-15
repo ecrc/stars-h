@@ -1,7 +1,11 @@
 #ifndef _STARS_H_
 #define _STARS_H_
 
+// Add definitions for size_t and ssize_t
 #include <sys/types.h>
+
+// Add definitions for enumerated constants
+#include "starsh-constants.h"
 
 // typedef for different structures
 typedef struct array Array;
@@ -9,19 +13,14 @@ typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
+
 // typedef for kernels
 typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 
-//! Enum type to show actual block low-rank format
-typedef enum {STARSH_TILED, STARSH_H, STARSH_HODLR}
-    STARSH_blrf_type;
-
-//! Enum type to show type of clusterization
-typedef enum {STARSH_PLAIN, STARSH_HIERARCHICAL}
-    STARSH_cluster_type;
-
-int starsh_application(void **data, STARSH_kernel *kernel, char *type, ...);
+//! High-level API for generating problem
+int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
+        int problem_type, int kernel_type, ...);
 
 struct array
 //! `N`-dimensional array.
@@ -176,13 +175,14 @@ struct starsh_cluster
      * `child[child_start[i+1]]-1`inclusively are children for a
      * cluster `i`. In case of tiled clusterization `child` is
      * `NULL`.*/
-    STARSH_cluster_type type;
+    enum STARSH_CLUSTER_TYPE type;
     //!< Type of cluster (tiled or hierarchical).
 };
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
-        int *parent, int *child_start, int *child, STARSH_cluster_type type);
+        int *parent, int *child_start, int *child,
+        enum STARSH_CLUSTER_TYPE type);
 int starsh_cluster_free(STARSH_cluster *cluster);
 int starsh_cluster_info(STARSH_cluster *cluster);
 int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
@@ -270,18 +270,31 @@ struct starsh_blrf
      * `bcol_near` from index `bcol_near_start[i]` to `bcol_near_start[i+1]-1`
      * inclusively.
      * */
-    STARSH_blrf_type type;
+    enum STARSH_BLRF_TYPE type;
     //!< Type of format. Possible value is STARS_Tiled, STARS_H or STARS_HODLR.
+
+    size_t nblocks_far_local;
+    size_t nblocks_near_local;
+    size_t *block_far_local;
+    size_t *block_near_local;
 };
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
-        STARSH_blrf_type type);
+        enum STARSH_BLRF_TYPE type);
+int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
+        STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
+        int *block_far, size_t nblocks_near, int *block_near,
+        size_t nblocks_far_local, size_t *block_far_local,
+        size_t nblocks_near_local, size_t *block_near_local,
+        enum STARSH_BLRF_TYPE type);
 int starsh_blrf_free(STARSH_blrf *F);
 int starsh_blrf_info(STARSH_blrf *F);
 int starsh_blrf_print(STARSH_blrf *F);
 int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P,
+        STARSH_cluster *R, STARSH_cluster *C, char symm);
+int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
         STARSH_cluster *R, STARSH_cluster *C, char symm);
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D);
 
@@ -328,7 +341,12 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type);
+int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
+        Array **far_U, Array **far_V, int onfly,
+        Array **near_D, void *alloc_U, void *alloc_V,
+        void *alloc_D, char alloc_type);
 int starsh_blrm_free(STARSH_blrm *M);
+int starsh_blrm_free_mpi(STARSH_blrm *M);
 int starsh_blrm_info(STARSH_blrm *M);
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D);
@@ -352,7 +370,13 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb);
 int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb);
+int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
+        int lda, double beta, double *B, int ldb);
+int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
+        double *A, int lda, double beta, double *B, int ldb);
 double starsh_blrm__dfe(STARSH_blrm *M);
+double starsh_blrm__dfe_omp(STARSH_blrm *M);
+double starsh_blrm__dfe_mpi(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 
 void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
@@ -365,6 +389,9 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
 void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork);
+void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
 
@@ -391,65 +418,21 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
 
+int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
+int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly);
 
 
-int starsh_itersolvers__dcg(STARSH_blrm *M, int nrhs, double *B, int ldb,
+int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
+        double *X, int ldx, double tol, double *work);
+int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work);
 
-#define STARSH_MALLOC_FAILED 1
-
-#define STARSH_ERROR(format, ...)\
-{\
-    fprintf(stderr, "STARS ERROR: %s(): ", __func__);\
-    fprintf(stderr, format, ##__VA_ARGS__);\
-    fprintf(stderr, "\n");\
-}
-
-#define STARSH_WARNING(format, ...)\
-{\
-    fprintf(stderr, "STARS WARNING: %s(): ", __func__);\
-    fprintf(stderr, format, ##__VA_ARGS__);\
-    fprintf(stderr, "\n");\
-}
-
-#define STARSH_MALLOC(var, expr_nitems)\
-{\
-    var = malloc(sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("line %d: malloc() failed", __LINE__);\
-        return 1;\
-    }\
-}
-
-#define STARSH_REALLOC(var, expr_nitems)\
-{\
-    var = realloc(var, sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        return 1;\
-    }\
-}
-
-#define STARSH_PMALLOC(var, expr_nitems, var_info)\
-{\
-    var = malloc(sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
-    }\
-}
-
-#define STARSH_PREALLOC(var, expr_nitems, var_info)\
-{\
-    var = realloc(var, sizeof(*var)*(expr_nitems));\
-    if(!var)\
-    {\
-        STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
-    }\
-}
+int cmp_size_t(const void *a, const void *b);
 
 #endif // _STARSH_H_

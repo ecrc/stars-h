@@ -795,8 +795,10 @@ INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/index.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/blrm"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/kernels"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/omp"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/omp/blrm"\
+                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp"\
+                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp/blrm"\
+                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi"\
+                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi/blrm"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/blrm"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/kernels"\
