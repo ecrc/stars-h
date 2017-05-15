@@ -38,14 +38,14 @@ endif()
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU" ON)
+option(STARPU "Use StarPU" OFF)
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
 option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
 
 # Set desired external libraries
 # One may use -DPLASMA=OFF to disable wrappers for PLASMA
-option(PLASMA "Wrappers for PLASMA" ON)
+option(PLASMA "Wrappers for PLASMA" OFF)
 
 # Options for examples, testing and documentation
 option(EXAMPLES "Generate examples binaries" ON)
@@ -252,6 +252,7 @@ else()
     message(FATAL_ERROR "A LAPACKE library is required but has not "
         "been found")
 endif()
+list(APPEND REQUIRES ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES})
 
 # Check if BLAS and LAPACK are provided by Intel
 # (use mkl.h instead of lapacke.h and cblas.h in this case)

@@ -29,12 +29,12 @@ Possibilities of STARS-H
 This project is WIP, only few things are working right now.
 
 Operations:
-1. Approximation by TLR matrix,
-2. Multiplication of TLR matrix by dense matrix.
+1.  Approximation by TLR matrix,
+2.  Multiplication of TLR matrix by dense matrix.
 
 Backends:
-1. OpenMP,
-2. MPI.
+1.  OpenMP,
+2.  MPI.
 
 Installation
 ============
