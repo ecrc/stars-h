@@ -56,6 +56,7 @@ foreach(scheme IN ITEMS ${SCHEMES})
             ENVIRONMENT "MKL_NUM_THREADS=1")
     if(MPI)
         add_test(NAME mpi_minimal_${scheme} COMMAND
+            ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
             ./mpi_minimal 2500 500 mpi_${scheme} 10 1e-9)
             set_tests_properties(mpi_minimal_${scheme} PROPERTIES
                 ENVIRONMENT "MKL_NUM_THREADS=1")
