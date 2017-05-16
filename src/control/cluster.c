@@ -1,12 +1,26 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file cluster.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
+
+/*! @defgroup cluster
+ * @brief Clusterization routines
+ * */
 
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
         int *parent, int *child_start, int *child,
         enum STARSH_CLUSTER_TYPE type)
 //! Init for STARSH_cluster instance.
-/*! @param[out] C: Address of pointer to `STARSH_cluster` object.
+/*! @ingroup cluster
+ * @param[out] C: Address of pointer to `STARSH_cluster` object.
  * @param[in] data: Pointer structure, holding physical data.
  * @param[in] ndata: Number of discrete elements, corresponding to
  *     physical data.
@@ -49,6 +63,7 @@ int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
 
 int starsh_cluster_free(STARSH_cluster *C)
 //! Free fields and structure of the clusterization.
+//! @ingroup cluster
 {
     if(C == NULL)
     {
@@ -72,6 +87,7 @@ int starsh_cluster_free(STARSH_cluster *C)
 
 int starsh_cluster_info(STARSH_cluster *C)
 //! Print some info about clusterization.
+//! @ingroup cluster
 {
     if(C == NULL)
     {
@@ -90,6 +106,7 @@ int starsh_cluster_info(STARSH_cluster *C)
 int starsh_cluster_new_tiled(STARSH_cluster **C, void *data, int ndata,
         int block_size)
 //! Plain division of data into blocks of discrete elements.
+//! @ingroup cluster
 /*! Non-pivoted non-hierarchical clusterization. */
 {
     if(C == NULL)

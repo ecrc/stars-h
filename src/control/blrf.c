@@ -1,13 +1,26 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file blrf.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
+/*! @defgroup blrf
+ * @brief Block Low-Rank Format
+ * */
 
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,
         enum STARSH_BLRF_TYPE type)
 //! Initialization of STARSH_blrf.
-/*! @param[out] F: Address of pointer to `STARSH_blrf` object.
+/*! @ingroup blrf
+ * @param[out] F: Address of pointer to `STARSH_blrf` object.
  * @param[in] P: Corresponding problem.
  * @param[in] symm: 'S' if problem and clusterization are both symmetric, 'N'
  *     otherwise.
@@ -203,6 +216,7 @@ int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
 
 int starsh_blrf_free(STARSH_blrf *F)
 //! Free fields and structure of block low-rank format.
+//! @ingroup blrf
 {
     if(F == NULL)
     {
@@ -240,6 +254,7 @@ int starsh_blrf_free(STARSH_blrf *F)
 
 int starsh_blrf_info(STARSH_blrf *F)
 //! Print short info on format.
+//! @ingroup blrf
 {
     if(F == NULL)
     {
@@ -254,6 +269,7 @@ int starsh_blrf_info(STARSH_blrf *F)
 
 int starsh_blrf_print(STARSH_blrf *F)
 //! Print full info on format.
+//! @ingroup blrf
 {
     if(F == NULL)
     {
@@ -303,6 +319,7 @@ int starsh_blrf_print(STARSH_blrf *F)
 int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
         STARSH_cluster *C, char symm)
 //! Plain division of array into admissible far-field and near-field blocks.
+//! @ingroup blrf
 /*! Non-pivoted non-hierarchical partitioning into blocks. */
 {
     if(F == NULL)
@@ -373,6 +390,7 @@ int starsh_blrf_new_tiled(STARSH_blrf **F, STARSH_problem *P, STARSH_cluster *R,
 
 int starsh_blrf_get_block(STARSH_blrf *F, int i, int j, int *shape, void **D)
 //! Returns dense block on intersection of given block row and column.
+//! @ingroup blrf
 {
     if(F == NULL)
     {
@@ -422,6 +440,34 @@ int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
         size_t nblocks_far_local, size_t *block_far_local,
         size_t nblocks_near_local, size_t *block_near_local,
         enum STARSH_BLRF_TYPE type)
+//! Initialization of STARSH_blrf with MPI.
+/*! @ingroup blrf
+ * @param[out] F: Address of pointer to `STARSH_blrf` object.
+ * @param[in] P: Corresponding problem.
+ * @param[in] symm: 'S' if problem and clusterization are both symmetric, 'N'
+ *     otherwise.
+ * @param[in] R: Clusterization of rows into block rows.
+ * @param[in] C: Clusterization of columns into block columns.
+ * @param[in] nblocks_far: Number of admissible far-field blocks.
+ * @param[in] block_far: Array of pairs of admissible far-filed block rows
+ *     and block columns. `block_far[2*i]` is an index of block row and
+ *     `block_far[2*i+1]` is an index of block column.
+ * @param[in] nblocks_near: Number of admissible far-field blocks.
+ * @param[in] block_near: Array of pairs of admissible near-filed block rows
+ *     and block columns. `block_near[2*i]` is an index of block row and
+ *     `block_near[2*i+1]` is an index of block column.
+ * @param[in] nblocks_far_local: Number of admissible far-field blocks, stored
+ *     on current MPI node.
+ * @param[in] block_far_local: Array of global indexes of locally stored
+ *     far-field blocks.
+ * @param[in] nblocks_near_local: Number of admissible near-field blocks,
+ *     stored on current MPI node.
+ * @param[in] block_near_local: Array of global indexes of locally stored
+ *     near-field blocks.
+ * @param[in] type: Type of block low-rank format. Tiled with
+ *     `STARSH_blrf_Tiled` or hierarchical with `STARSH_blrf_H` or
+ *     `STARSH_blrf_HOLDR`.
+ * */
 {
     int info;
     info = starsh_blrf_new(F, P, symm, R, C, nblocks_far, block_far,
@@ -435,8 +481,8 @@ int starsh_blrf_new_mpi(STARSH_blrf **F, STARSH_problem *P, char symm,
 
 int starsh_blrf_new_tiled_mpi(STARSH_blrf **F, STARSH_problem *P,
         STARSH_cluster *R, STARSH_cluster *C, char symm)
-//! Plain division of array into admissible far-field and near-field blocks.
-/*! Non-pivoted non-hierarchical partitioning into blocks. */
+//! 2D block-cycling distribution of tiles over MPI nodes.
+//! @ingroup blrf
 {
     if(F == NULL)
     {

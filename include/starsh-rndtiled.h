@@ -1,3 +1,12 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file starsh-rndtiled.h
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #ifndef _RNDTILED_H_
 #define _RNDTILED_H_
 
@@ -39,5 +48,9 @@ int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...);
 int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
         int type);
 int starsh_rndtiled_free(STARSH_rndtiled *data);
+
+// KERNELS
+void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
+        int *icol, void *row_data, void *col_data, void *result);
 
 #endif // _RNDTILED_H_

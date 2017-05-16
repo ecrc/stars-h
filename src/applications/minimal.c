@@ -1,9 +1,20 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file minimal.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 #include "starsh-minimal.h"
 
-static void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
+void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
+//! Kernel for minimal problem.
+//! @ingroup applications
 {
     int i, j;
     STARSH_mindata *data = row_data;
@@ -21,6 +32,12 @@ static void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
 }
 
 int starsh_mindata_new(STARSH_mindata **data, int n, char dtype)
+//! Generate data for a minimal problem
+/*! @ingroup applications
+ * @param[out] data: Address to pointer to `STARSH_mindata` object.
+ * @param[in] n: Size of matrix.
+ * @param[in] dtype: precision ('s', 'd', 'c' or 'z').
+ * */
 {
     STARSH_MALLOC(*data, 1);
     (*data)->count = n;
@@ -30,6 +47,9 @@ int starsh_mindata_new(STARSH_mindata **data, int n, char dtype)
 
 int starsh_mindata_new_va(STARSH_mindata **data, int n, char dtype,
         va_list args)
+//! Generate minimal problem with va_list.
+//! For arguments look at starsh_mindata_new().
+//! @ingroup applications
 {
     int arg_type;
     if((arg_type = va_arg(args, int)) != 0)
@@ -41,6 +61,9 @@ int starsh_mindata_new_va(STARSH_mindata **data, int n, char dtype,
 }
 
 int starsh_mindata_new_el(STARSH_mindata **data, int n, char dtype, ...)
+//! Generate minimal problem with ellipsis.
+//! For arguments look at starsh_mindata_new().
+//! @ingroup applications
 {
     va_list args;
     va_start(args, dtype);
@@ -50,6 +73,8 @@ int starsh_mindata_new_el(STARSH_mindata **data, int n, char dtype, ...)
 }
 
 void starsh_mindata_free(STARSH_mindata *data)
+//! Free data.
+//! @ingroup applications
 {
     if(data != NULL)
         free(data);
@@ -57,6 +82,8 @@ void starsh_mindata_free(STARSH_mindata *data)
 
 int starsh_mindata_get_kernel(STARSH_kernel *kernel, STARSH_mindata *data,
         int type)
+//! Select kernel (ignores type, since there is only one kernel).
+//! @ingroup applications
 {
     *kernel = starsh_mindata_block_kernel;
     return 0;

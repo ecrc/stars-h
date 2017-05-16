@@ -1,13 +1,26 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file blrm.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
+/*! @defgroup blrm
+ * @brief Block Low-Rank Matrix
+ * */
 
 int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type)
 //! Init procedure for a non-nested block low-rank matrix.
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] far_rank: Array of ranks of far-field blocks.
  * @param[in] far_U: Array of low-rank factors `U`.
@@ -113,7 +126,8 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
 }
 
 int starsh_blrm_free(STARSH_blrm *M)
-//! Free memory of a non-nested block low-rank matrix
+//! Free memory of a non-nested block low-rank matrix.
+//! @ingroup blrm
 {
     if(M == NULL)
     {
@@ -186,7 +200,8 @@ int starsh_blrm_free(STARSH_blrm *M)
 }
 
 int starsh_blrm_info(STARSH_blrm *M)
-//! Print short info on non-nested block low-rank matrix
+//! Print short info on non-nested block low-rank matrix.
+//! @ingroup blrm
 {
     if(M == NULL)
     {
@@ -201,6 +216,7 @@ int starsh_blrm_info(STARSH_blrm *M)
 int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
         void **U, void **V, void **D)
 //! Get shape, rank and low-rank factors or dense representation of a block.
+//! @ingroup blrm
 {
     if(M == NULL)
     {
@@ -308,7 +324,8 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
 int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly, const char *scheme)
 //! Main call to get approximation in non-nested block low-rank format.
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in,out] F: Format of a matrix. May be changed on exit.
  * @param[in] maxrank: Maximum rank.
  * @param[in] oversample: Oversampling parameter for randomized SVD. Use `10`
@@ -375,8 +392,9 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,
         void *alloc_D, char alloc_type)
-//! Init procedure for a non-nested block low-rank matrix.
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+//! Init procedure for a non-nested block low-rank matrix with MPI.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] far_rank: Array of ranks of far-field blocks.
  * @param[in] far_U: Array of low-rank factors `U`.
@@ -479,18 +497,16 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
     }
     M2->nbytes = 0;
     M2->data_nbytes = 0;
-    //STARSH_WARNING("SIZE=%e MB, DATA=%e MB", size/1024./1024., data_size/1024./1024.);
     MPI_Allreduce(&size, &(M2->nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
             MPI_COMM_WORLD);
     MPI_Allreduce(&data_size, &(M2->data_nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
             MPI_COMM_WORLD);
-    //M2->nbytes = size;
-    //M2->data_nbytes = data_size;
     return 0;
 }
 
 int starsh_blrm_free_mpi(STARSH_blrm *M)
-//! Free memory of a non-nested block low-rank matrix
+//! Free memory of a non-nested block low-rank matrix.
+//! @ingroup blrm
 {
     if(M == NULL)
     {
@@ -563,7 +579,8 @@ int starsh_blrm_free_mpi(STARSH_blrm *M)
 }
 
 int starsh_blrm_info_mpi(STARSH_blrm *M)
-//! Print short info on non-nested block low-rank matrix
+//! Print short info on non-nested block low-rank matrix.
+//! @ingroup blrm
 {
     if(M == NULL)
     {

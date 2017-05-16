@@ -1,9 +1,23 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file array.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
+/*! @defgroup array
+ * @brief Routines for n-dimensional arrays
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 int array_from_buffer(Array **A, int ndim, int *shape, char dtype,
         char order, void *data)
-//! Init `A` from given buffer. Check if all parameters are good and proceed.
+//! Init `A` from given buffer.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -93,7 +107,8 @@ int array_from_buffer(Array **A, int ndim, int *shape, char dtype,
 }
 
 int array_new(Array **A, int ndim, int *shape, char dtype, char order)
-//! Init `A` with NULL buffer and then allocate it
+//! Init `A` with NULL buffer and then allocate it.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -109,6 +124,7 @@ int array_new(Array **A, int ndim, int *shape, char dtype, char order)
 
 int array_new_like(Array **A, Array *B)
 //! Init new `A` with the shape, dtype and order of `B`.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -139,7 +155,7 @@ int array_new_like(Array **A, Array *B)
 
 int array_new_copy(Array **A, Array *B, char order)
 //! Create `A` as a copy of `B` with given data layout.
-/*! or keeping layout if order == 'N' */
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -201,7 +217,8 @@ int array_new_copy(Array **A, Array *B, char order)
 }
 
 int array_free(Array *A)
-//! Free Array
+//! Free array.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -219,7 +236,8 @@ int array_free(Array *A)
 }
 
 int array_info(Array *A)
-//! Print all the data from Array structure `A`
+//! Print all the data from Array structure `A`.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -249,6 +267,7 @@ int array_info(Array *A)
 
 int array_print(Array *A)
 //! Print `A`. Different rows of `A` are printed on different output rows.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -372,6 +391,7 @@ int array_print(Array *A)
 
 int array_to_matrix(Array *A, char kind)
 //! Convert Array to 2-dimensional matrix by glueing different dimensions.
+//! @ingroup array
 /*! Convert N-dimensional `A` to 2-dimensional `A` (matrix) by
  * collapsing dimensions. This collapse can be assumed as attempt to look
  * at `A` as at a matrix with long rows (`kind` == 'R') or long columns
@@ -416,6 +436,7 @@ int array_to_matrix(Array *A, char kind)
 
 int array_trans_inplace(Array *A)
 //! Transpose `A` by changing shape, stride and order.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -442,6 +463,7 @@ int array_trans_inplace(Array *A)
 
 int array_dot(Array* A, Array *B, Array **C)
 //! GEMM for `A` and `B`.
+//! @ingroup array
 /*! Multiplication is performed by last dimension of
  * `A` and first dimension of `B`. These dimensions, data types and
  * ordering of `A` and `B` should be equal.
@@ -527,6 +549,7 @@ int array_dot(Array* A, Array *B, Array **C)
 
 int array_SVD(Array *A, Array **U, Array **S, Array **V)
 //! Compute SVD of a given 2-dimensional `A`.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -607,6 +630,7 @@ int array_SVD(Array *A, Array **U, Array **S, Array **V)
 
 int svd_get_rank(Array *S, double tol, char type, int *rank)
 //! Returns rank by given singular values `S`, tolerance and type of norm.
+//! @ingroup array
 {
     if(S == NULL)
     {
@@ -685,7 +709,8 @@ int svd_get_rank(Array *S, double tol, char type, int *rank)
 }
 
 int array_scale(Array *A, char kind, Array *S)
-//! Apply row or column scaling to A
+//! Apply row or column scaling to A.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -745,7 +770,8 @@ int array_scale(Array *A, char kind, Array *S)
 }
 
 int array_diff(Array *A, Array *B, double *result)
-//! Measure Frobenius error of approximation of `A` by `B`
+//! Measure Frobenius error of approximation of `A` by `B`.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -830,6 +856,7 @@ int array_diff(Array *A, Array *B, double *result)
 
 int array_norm(Array *A, double *result)
 //! Measure Frobenius norm of `A`.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -861,7 +888,8 @@ int array_norm(Array *A, double *result)
 }
 
 int array_convert(Array **A, Array *B, char dtype)
-//! Create `A` as a copy of `B` with different data type
+//! Create `A` as a copy of `B` with different data type.
+//! @ingroup array
 {
     if(A == NULL)
     {
@@ -1038,7 +1066,8 @@ int array_convert(Array **A, Array *B, char dtype)
 }
 
 int array_cholesky(Array *A, char uplo)
-//! Cholesky factorization for `A`
+//! Cholesky factorization for `A`.
+//! @ingroup array
 {
     if(A == NULL)
     {

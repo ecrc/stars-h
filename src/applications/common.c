@@ -1,13 +1,28 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file common.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
 #include "starsh-minimal.h"
 #include "starsh-rndtiled.h"
 
+/*! @defgroup applications
+ * @brief Set of applications
+ * */
+
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         int problem_type, int kernel_type, ...)
 //! Generates data and matrix kernel for one of predefined applications
-/*! @param[out] data: Address of pointer for structure, holding all data
+/*!
+ * @ingroup applications
+ * @param[out] data: Address of pointer for structure, holding all data
  * @param[out] kernel: matrix kernel
  * @param[in] n: desired size of corresponding matrix
  * @param[in] dtype: precision of each element of a matrix ('d' for double)
