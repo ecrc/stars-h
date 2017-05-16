@@ -1,8 +1,18 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file dca.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dca(STARSH_blrm *M, Array *A)
 //! Convert double precision block low-rank matrix to dense Array
+//! @ingroup blrm
 /*! Memory for output array must be allocated prior calling this function.
  * */
 {

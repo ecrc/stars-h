@@ -1,10 +1,20 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file drsdd2.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
 //! Approximate each tile by 2-way randomized SVD.
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
  * @param[in] oversample: Rank oversampling.

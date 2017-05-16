@@ -1,3 +1,12 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file drsdd.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
@@ -13,7 +22,8 @@ int cmp_size_t(const void *a, const void *b)
 int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly)
 //! Approximate each tile by 1-way randomized SVD.
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
  * @param[in] oversample: Rank oversampling.

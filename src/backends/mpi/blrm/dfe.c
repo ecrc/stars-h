@@ -1,8 +1,18 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file dfe.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 double starsh_blrm__dfe_mpi(STARSH_blrm *M)
 //! Approximation error in Frobenius norm of double precision matrix.
+//! @ingroup blrm
 {
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;
