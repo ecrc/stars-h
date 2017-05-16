@@ -1,7 +1,4 @@
-@page Installation
-
-Installation
-============
+@page installation Installation
 
 Installation requires **CMake** of version 3.2.3 at least. To build STARS-H,
 follow these instructions:

@@ -1,7 +1,4 @@
-@page examples
-
-Examples
-========
+@page examples Examples
 
 Directory `examples` contains 2 subfolders: `problem` and `approximation`.
 Sources in `problem` show how to generate problem (spatial statistics, minimal

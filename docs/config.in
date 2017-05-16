@@ -791,7 +791,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/index.md" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/installation.md" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/install.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/examples.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/applications" \

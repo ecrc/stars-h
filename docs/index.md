@@ -1,7 +1,6 @@
-@mainpage STARS-H documentation
+@mainpage About STARS-H
 
-What is STARS-H?
-================
+### What is STARS-H? ###
 
 STARS-H is a **parallel open-source** software, aimed at measuring performance
 of different libraries for hierarchical computations (including itself). Its
@@ -10,8 +9,7 @@ Scalability of Hierarchical computations**. Idea behind this testing is to
 provide comparison of operations in different hierarchical formats for a given
 hardware with a focus on clusters of CPUs and GPUs.
 
-Vision of STARS-H
-=================
+### Vision of STARS-H ###
 
 Main purpose of STARS-H is to serve as a connection between different synthetic
 and real problems and block-wise low-rank matrices/tensors. Such matrix/tensor
@@ -23,8 +21,7 @@ to building approximations in different formats and multiplication of matrices
 in such formats by dense matrices. This is due to another ECRC project, called
 HiCMA, aimed at performing different operations on hierarchical matrices.
 
-Possibilities of STARS-H
-========================
+### Possibilities of STARS-H ###
 
 This project is WIP, only few things are working right now.
 

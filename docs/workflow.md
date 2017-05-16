@@ -1,7 +1,4 @@
-@page workflow
-
-Workflow of STARS-H
-===================
+@page workflow Workflow of STARS-H
 
 STARS-H is meant to build hierarchical approximations of different matrices. It
 supports both dense and matrix-free matrices as input. Here we show how to use
