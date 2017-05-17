@@ -3,6 +3,8 @@
 
 // Add definitions for size_t and ssize_t
 #include <sys/types.h>
+// Add definitions for va_list
+#include <stdarg.h>
 
 // Add definitions for enumerated constants
 #include "starsh-constants.h"
