@@ -1221,7 +1221,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
     }
     if(place != 0 && place != 1)
     {
-        STARSH_ERROR("invalid value of `rand_type`");
+        STARSH_ERROR("invalid value of `place`");
         return 1;
     }
     *data = malloc(sizeof(**data));
@@ -1353,6 +1353,7 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
                 break;
             case STARSH_SPATIAL_PLACE:
                 place = va_arg(args, int);
+                break;
             default:
                 STARSH_ERROR("Wrong parameter type");
                 return 1;
