@@ -1173,7 +1173,7 @@ static void zsort3(int n, double *points)
 }
 
 int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
-        double beta, double nu, double noise)
+        double beta, double nu, double noise, int place)
 //! Generate spatial statistics data.
 /*! @ingroup applications
  * @param[out] data: Address of pointer to `STARSH_ssdata` object.
@@ -1183,6 +1183,8 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
  * @param[in] beta: Parameter for kernel.
  * @param[in] nu: Smoothing parameter for Matern kernel.
  * @param[in] noise: Value to add to diagonal elements.
+ * @param[in] place: 1 for generating rectangular grid of particles with
+ *      random shifts to grid lines, 0 for generating each particle randomly.
  * @return Error code.
  * */
 {
@@ -1217,6 +1219,11 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         STARSH_ERROR("invalid value of `noise`");
         return 1;
     }
+    if(place != 0 && place != 1)
+    {
+        STARSH_ERROR("invalid value of `rand_type`");
+        return 1;
+    }
     *data = malloc(sizeof(**data));
     double *point;
     STARSH_MALLOC(point, ndim*n);
@@ -1234,13 +1241,30 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
             return 1;
         }
         double *x = point, *y = x+n;
-        for(int i = 0; i < sqrtn; i++)
-            for(int j = 0; j < sqrtn; j++)
-            {
-                int ind = i*sqrtn + j;
-                x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-                y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-            }
+        if(place == 0)
+        {
+            for(int i = 0; i < sqrtn; i++)
+                for(int j = 0; j < sqrtn; j++)
+                {
+                    int ind = i*sqrtn + j;
+                    x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+                    y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+                }
+        }
+        else
+        {
+            for(int i = 0; i < sqrtn; i++)
+                x[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+            for(int i = 0; i < sqrtn; i++)
+                y[i*sqrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+            for(int i = 0; i < sqrtn; i++)
+                for(int j = 0; j < sqrtn; j++)
+                {
+                    int ind = i*sqrtn + j;
+                    x[ind] = x[j];
+                    y[ind] = y[i*sqrtn];
+                }
+        }
         zsort(n, point);
     }
     else
@@ -1252,15 +1276,36 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
             return 1;
         }
         double *x = point, *y = x+n, *z = y+n;
-        for(int i = 0; i < cbrtn; i++)
-            for(int j = 0; j < cbrtn; j++)
-                for(int k = 0; k < cbrtn; k++)
-                {
-                    int ind = (i*cbrtn + j)*cbrtn + k;
-                    x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                    y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                    z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                }
+        if(place == 0)
+        {
+            for(int i = 0; i < cbrtn; i++)
+                for(int j = 0; j < cbrtn; j++)
+                    for(int k = 0; k < cbrtn; k++)
+                    {
+                        int ind = (i*cbrtn + j)*cbrtn + k;
+                        x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                        y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                        z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                    }
+        }
+        else
+        {
+            for(int i = 0; i < cbrtn; i++)
+                x[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+            for(int i = 0; i < cbrtn; i++)
+                y[i*cbrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+            for(int i = 0; i < cbrtn; i++)
+                z[i*cbrtn*cbrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+            for(int i = 0; i < cbrtn; i++)
+                for(int j = 0; j < cbrtn; j++)
+                    for(int k = 0; k < cbrtn; k++)
+                    {
+                        int ind = (i*cbrtn + j)*cbrtn + k;
+                        x[ind] = x[k];
+                        y[ind] = y[j*cbrtn];
+                        z[ind] = z[i*cbrtn*cbrtn];
+                    }
+        }
         zsort3(n, point);
     }
     (*data)->dtype = dtype;
@@ -1284,6 +1329,7 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
     double beta = 0.1;
     double nu = 0.5;
     double noise = 0;
+    int place = 0;
     if(dtype != 'd')
     {
         STARSH_ERROR("Only dtype='d' is supported");
@@ -1305,12 +1351,14 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
             case STARSH_SPATIAL_NOISE:
                 noise = va_arg(args, double);
                 break;
+            case STARSH_SPATIAL_PLACE:
+                place = va_arg(args, int);
             default:
                 STARSH_ERROR("Wrong parameter type");
                 return 1;
         }
     }
-    return starsh_ssdata_new(data, n, dtype, ndim, beta, nu, noise);
+    return starsh_ssdata_new(data, n, dtype, ndim, beta, nu, noise, place);
 }
 
 int starsh_ssdata_new_el(STARSH_ssdata **data, int n, char dtype, ...)

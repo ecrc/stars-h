@@ -46,11 +46,12 @@ enum STARSH_SPATIAL_PARAM
     STARSH_SPATIAL_NDIM = 1,
     STARSH_SPATIAL_BETA = 2,
     STARSH_SPATIAL_NU = 3,
-    STARSH_SPATIAL_NOISE = 4
+    STARSH_SPATIAL_NOISE = 4,
+    STARSH_SPATIAL_PLACE = 5
 };
 
 int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
-        double beta, double nu, double noise);
+        double beta, double nu, double noise, int place);
 int starsh_ssdata_new_va(STARSH_ssdata **data, const int n, char dtype,
         va_list args);
 int starsh_ssdata_new_el(STARSH_ssdata **data, const int n, char dtype, ...);
