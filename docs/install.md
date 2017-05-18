@@ -45,7 +45,7 @@ follow these instructions:
 
 10. Add line
 
-        export PKG_CONFIG_PATH=/path/to/install:$PKG_CONFIG_PATH
+        export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
     to your bashrc file.
 
