@@ -3,5 +3,5 @@ Description: Software for Testing Accuracy, Reliability and Scalability of Hiera
 Version: @STARSH_VERSION@
 URL: http://github.com/ecrc/stars-h-dev
 Cflags: -I@INCDIR@
-Libs: -L@LIBDIR@ -lstarsh
+Libs: -L@LIBDIR@ -lstarsh @EXTRAPKGLIBS@
 Requires: @REQUIRES@

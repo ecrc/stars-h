@@ -135,6 +135,16 @@ if(MPI)
         message("MPI is NOT found, skipping it")
         set(MPI OFF)
     endif()
+    if(MPI_C_LIBRARIES)
+        # Go through the list of mpi libs and add them to
+        # EXTRAPKGLIBS, in the form of "-lnameoflibrary"
+        message( STATUS "Found MPI_C_LIBRARIES: ${MPI_C_LIBRARIES}")
+        foreach( _mpilib ${MPI_C_LIBRARIES} )
+            get_filename_component( _extralib ${_mpilib} NAME_WE )
+            string( REGEX REPLACE "^lib" " -l" _extralib ${_extralib} )
+            list( APPEND EXTRAPKGLIBS ${_extralib} )
+        endforeach()
+    endif()
 endif()
 
 # Check if PLASMA is available to build wrappers
