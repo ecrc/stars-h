@@ -5,9 +5,12 @@
  * @version 1.0.0.2
  * @author Aleksandr Mikhalev
  * @date 16 May 2017
- */
+ * */
 
-#include <stdint.h>
+#ifndef __STARSH_SPATIAL_H__
+#define __STARSH_SPATIAL_H__
+
+// Add definitions for size_t, va_list and STARSH_kernel
 #include "starsh.h"
 
 typedef struct starsh_ssdata
@@ -111,3 +114,5 @@ void starsh_ssdata_block_matern2_kernel_3d_simd(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result);
 void starsh_ssdata_block_matern2_kernel_3d(int nrows, int ncols,
         int *irow, int *icol, void *row_data, void *col_data, void *result);
+
+#endif // __STARSH_SPATIAL_H__

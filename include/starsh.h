@@ -7,11 +7,14 @@
  * @date 16 May 2017
  * */
 
-#ifndef _STARS_H_
-#define _STARS_H_
+#ifndef __STARSH_H__
+#define __STARSH_H__
 
 // Add definitions for size_t and ssize_t
 #include <sys/types.h>
+
+// Add definition for va_args
+#include <stdarg.h>
 
 // Add definitions for enumerated constants
 #include "starsh-constants.h"
@@ -479,4 +482,4 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
 
 int cmp_size_t(const void *a, const void *b);
 
-#endif // _STARSH_H_
+#endif // __STARSH_H__

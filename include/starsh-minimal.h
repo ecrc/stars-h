@@ -7,6 +7,12 @@
  * @date 16 May 2017
  * */
 
+#ifndef __STARSH_MINIMAL_H__
+#define __STARSH_MINIMAL_H__
+
+// Add definitions for size_t, va_list and STARSH_kernel
+#include "starsh.h"
+
 typedef struct starsh_mindata
 {
     size_t count;
@@ -24,3 +30,5 @@ int starsh_mindata_get_kernel(STARSH_kernel *kernel, STARSH_mindata *data,
 // KERNELS
 void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result);
+
+#endif // __STARSH_MINIMAL_H__
