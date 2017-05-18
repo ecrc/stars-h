@@ -1,9 +1,10 @@
-#ifndef _RNDTILED_H_
-#define _RNDTILED_H_
+#ifndef __STARSH_RNDTILED_H__
+#define __STARSH_RNDTILED_H__
 
-typedef struct starsh_rndtiled STARSH_rndtiled;
+// Add definitions for size_t, va_list and STARSH_kernel
+#include "starsh.h"
 
-struct starsh_rndtiled
+typedef struct starsh_rndtiled
 //! Structure for generating synthetic BLR matrices.
 {
     int n;
@@ -22,7 +23,7 @@ struct starsh_rndtiled
     //!< Array of noise in singular values for each tile.
     double add_diag;
     //!< Value to add to each diagonal element (for positive definiteness).
-};
+} STARSH_rndtiled;
 
 enum STARSH_RNDTILED_PARAM
 {
@@ -40,4 +41,4 @@ int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
         int type);
 int starsh_rndtiled_free(STARSH_rndtiled *data);
 
-#endif // _RNDTILED_H_
+#endif // __STARSH_RNDTILED_H__
