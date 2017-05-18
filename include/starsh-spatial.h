@@ -1,4 +1,7 @@
-#include <stdint.h>
+#ifndef __STARSH_SPATIAL_H__
+#define __STARSH_SPATIAL_H__
+
+// Add definitions for size_t, va_list and STARSH_kernel
 #include "starsh.h"
 
 typedef struct starsh_ssdata
@@ -48,3 +51,5 @@ int starsh_ssdata_new_el(STARSH_ssdata **data, const int n, char dtype, ...);
 int starsh_ssdata_get_kernel(STARSH_kernel *kernel, STARSH_ssdata *data,
         int type);
 void starsh_ssdata_free(STARSH_ssdata *data);
+
+#endif // __STARSH_SPATIAL_H__

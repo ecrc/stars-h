@@ -114,7 +114,7 @@ int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
                 add_diag = va_arg(args, double);
                 break;
             default:
-                STARSH_ERROR("Wrong parameter name %s", arg_type);
+                STARSH_ERROR("Wrong parameter type");
                 return 1;
         }
     }

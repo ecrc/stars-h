@@ -6,7 +6,6 @@
 #include <string.h>
 #include <math.h>
 #include <complex.h>
-#include <stdarg.h>
 #include <limits.h>
 #include <stdint.h>
 
