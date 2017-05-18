@@ -13,10 +13,6 @@
 #include "starsh-minimal.h"
 #include "starsh-rndtiled.h"
 
-/*! @defgroup applications
- * @brief Set of applications
- * */
-
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         int problem_type, int kernel_type, ...)
 //! Generates data and matrix kernel for one of predefined applications

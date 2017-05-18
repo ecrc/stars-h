@@ -10,10 +10,6 @@
 #include "common.h"
 #include "starsh.h"
 
-/*! @defgroup blrf
- * @brief Block Low-Rank Format
- * */
-
 int starsh_blrf_new(STARSH_blrf **F, STARSH_problem *P, char symm,
         STARSH_cluster *R, STARSH_cluster *C, size_t nblocks_far,
         int *block_far, size_t nblocks_near, int *block_near,

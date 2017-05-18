@@ -10,10 +10,6 @@
 #include "common.h"
 #include "starsh.h"
 
-/*! @defgroup problem
- * @brief Routines for STARSH problem
- * */
-
 int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name)

@@ -10,10 +10,6 @@
 #include "common.h"
 #include "starsh.h"
 
-/*! @defgroup cluster
- * @brief Clusterization routines
- * */
-
 int starsh_cluster_new(STARSH_cluster **C, void *data, int ndata, int *pivot,
         int nblocks, int nlevels, int *level, int *start, int *size,
         int *parent, int *child_start, int *child,

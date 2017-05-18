@@ -10,10 +10,6 @@
 #include "common.h"
 #include "starsh.h"
 
-/*! @defgroup blrm
- * @brief Block Low-Rank Matrix
- * */
-
 int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,
         Array **near_D, void *alloc_U, void *alloc_V,

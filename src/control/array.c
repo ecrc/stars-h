@@ -7,10 +7,6 @@
  * @date 16 May 2017
  * */
 
-/*! @defgroup array
- * @brief Routines for n-dimensional arrays
- * */
-
 #include "common.h"
 #include "starsh.h"
 

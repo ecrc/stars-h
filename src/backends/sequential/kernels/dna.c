@@ -1,7 +1,7 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file dna.c
+ * @file backends/sequential/kernels/dna.c
  * @version 1.0.0.2
  * @author Aleksandr Mikhalev
  * @date 16 May 2017
@@ -9,10 +9,6 @@
 
 #include "common.h"
 #include "starsh.h"
-
-/*! @defgroup approximations
- * @brief Approximation schemes for dense matrices
- * */
 
 void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,

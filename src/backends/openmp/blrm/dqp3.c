@@ -1,7 +1,7 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file dqp3.c
+ * @file backends/openmp/blrm/dqp3.c
  * @version 1.0.0.2
  * @author Aleksandr Mikhalev
  * @date 16 May 2017
