@@ -21,18 +21,32 @@ to building approximations in different formats and multiplication of matrices
 in such formats by dense matrices. This is due to another ECRC project, called
 HiCMA, aimed at performing different operations on hierarchical matrices.
 
-Possibilities of STARS-H
-========================
+Features of STARS-H
+===================
 
-This project is WIP, only few things are working right now.
+This project is WIP, with current features limited to:
 
-Operations:
-1.  Approximation by TLR matrix,
-2.  Multiplication of TLR matrix by dense matrix.
+The only supported format is Tile Low Rank (TLR):
+1.  Approximation
+2.  Multiplication of TLR matrix by dense matrix
 
 Backends:
-1.  OpenMP,
-2.  MPI.
+1.  OpenMP
+2.  MPI
+3.  StarPU (shared-memory support only)
+
+Applications:
+1.  Synthetic TLR problems 
+2.  Spatial statistics (i.e., exponential, square exponential, and 
+    Matern kernels)
+
+TODO List
+=========
+
+1.  Add support for more matrix kernels and applications 
+2.  Extend support to hardware accelerators (i.e, GPUs)
+3.  Provide full StarPU support (GPUs and distributed-memory systems)
+4.  Implement additional formats: HODLR/H/HSS/H^2
 
 Installation
 ============
@@ -82,7 +96,7 @@ follow these instructions:
 
 10. Add line
 
-        export PKG_CONFIG_PATH=/path/to/install:$PKG_CONFIG_PATH
+        export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
     to your bashrc file.
 
@@ -92,11 +106,11 @@ STARS-H.
 Examples
 ========
 
-Directory `examples` contains 2 subfolders: `problem` and `approximation`.
-Sources in `problem` show how to generate problem (spatial statistics, minimal
-or dense) and how to create STARSH\_problem instance, required for every step of
-STARSH. Examples in `approximation` are based on problem generation and have
-additional steps on approximation of corresonding matrices.
+The directory `examples` contains two subfolders: `problem` and `approximation`.
+The sources in `problem` show how to generate problems (e.g., spatial statistics, 
+minimal or dense) and how to create STARSH\_problem instance, required for every 
+step of STARS-H. The examples in `approximation` are based on problem generations 
+and have additional steps on approximation of corresponding matrices.
 
 *Important notice: approximation does not require dense matrix to be stored
-anywhere, only required matrix elements are computed when needed.*
+anywhere, only required matrix elements are computed on the fly.*

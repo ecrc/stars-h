@@ -1,5 +1,5 @@
 Installation requires **CMake** of version 3.2.3 at least. To build STARS-H,
-follow these instructions:
+please follow these instructions:
 
 1.  Get STARS-H from git repository
 
@@ -43,7 +43,7 @@ follow these instructions:
 
 10. Add line
 
-        export PKG_CONFIG_PATH=/path/to/install:$PKG_CONFIG_PATH
+        export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
     to your bashrc file.
 
