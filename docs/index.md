@@ -31,4 +31,5 @@ Operations:
 
 Backends:
 1.  OpenMP,
-2.  MPI.
+2.  MPI,
+3.  StarPU (without MPI support).
