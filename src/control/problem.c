@@ -1,3 +1,15 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/control/problem.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
@@ -5,7 +17,8 @@ int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
         char dtype, void *row_data, void *col_data, STARSH_kernel kernel,
         char *name)
 //! Init for STARSH_problem instance.
-/*! @param[out] P: Address of pointer to `STARSH_problem` object.
+/*! @ingroup problem
+ * @param[out] P: Address of pointer to `STARSH_problem` object.
  * @param[in] ndim: Dimensionality of corresponding array. Equal `2` plus
  *     dimensionality of kernel.
  * @param[in] shape: Shape of corresponding array. Subarray `shape[1:ndim-2]`
@@ -83,6 +96,7 @@ int starsh_problem_new(STARSH_problem **P, int ndim, int *shape, char symm,
 
 int starsh_problem_free(STARSH_problem *P)
 //! Free fields and structure of the problem.
+//! @ingroup problem
 {
     if(P == NULL)
     {
@@ -98,6 +112,7 @@ int starsh_problem_free(STARSH_problem *P)
 
 int starsh_problem_info(STARSH_problem *P)
 //! Print some info about problem.
+//! @ingroup problem
 {
     if(P == NULL)
     {
@@ -115,6 +130,7 @@ int starsh_problem_info(STARSH_problem *P)
 int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
         int *irow, int *icol, Array **A)
 //! Get submatrix on given rows and columns.
+//! @ingroup problem
 /*! Rows correspond to the first dimension and columns correspond to the
  * last dimension. */
 {
@@ -160,6 +176,7 @@ int starsh_problem_get_block(STARSH_problem *P, int nrows, int ncols,
 static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result)
 //! Kernel for problems, defined by dense matrices.
+//! @ingroup problem
 {
     Array *A = row_data;
     size_t esize = A->dtype_size;
@@ -194,6 +211,7 @@ static void _matrix_kernel(int nrows, int ncols, int *irow, int *icol,
 
 int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
 //! Create STARSH_problem instance, based on dense array.
+//! @ingroup problem
 {
     if(P == NULL)
     {
@@ -233,6 +251,7 @@ int starsh_problem_from_array(STARSH_problem **P, Array *A, char symm)
 
 int starsh_problem_to_array(STARSH_problem *P, Array **A)
 //! Generate dense array by a given problem.
+//! @ingroup problem
 {
     if(P == NULL)
     {

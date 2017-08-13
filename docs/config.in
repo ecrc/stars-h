@@ -187,7 +187,7 @@ SHORT_NAMES            = NO
 # description.)
 # The default value is: NO.
 
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 
 # If the QT_AUTOBRIEF tag is set to YES then doxygen will interpret the first
 # line (until the first dot) of a Qt-style comment as the brief description. If
@@ -791,6 +791,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/index.md" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/install.md" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/examples.md" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/applications" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/blrm"\
@@ -1431,7 +1434,7 @@ DISABLE_INDEX          = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 
 # The ENUM_VALUES_PER_LINE tag can be used to set the number of enum values that
 # doxygen will group on one line in the generated HTML documentation.

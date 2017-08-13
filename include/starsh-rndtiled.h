@@ -1,3 +1,15 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file include/starsh-rndtiled.h
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #ifndef __STARSH_RNDTILED_H__
 #define __STARSH_RNDTILED_H__
 
@@ -40,5 +52,9 @@ int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...);
 int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
         int type);
 int starsh_rndtiled_free(STARSH_rndtiled *data);
+
+// KERNELS
+void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
+        int *icol, void *row_data, void *col_data, void *result);
 
 #endif // __STARSH_RNDTILED_H__

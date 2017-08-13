@@ -1,3 +1,15 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file include/common.h
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #ifndef __COMMON_H__
 #define __COMMON_H__
 

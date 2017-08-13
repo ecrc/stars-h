@@ -1,3 +1,12 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file dense.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "starsh.h"
@@ -6,7 +15,7 @@ int main(int argc, char **argv)
 {
     // Matrix size
     int N = 2500;
-    int shape[2] = {N, N}; // shape of corresponding array
+    int ndim = 2, shape[2] = {N, N}; // shape of corresponding array
     char dtype = 'd'; // 'd' for double precision array
     char order = 'F'; // Fortran order (column-major)
     char symm = 'N'; // 'S' for symmetric problem, 'N' for nonsymmetric
@@ -31,7 +40,7 @@ int main(int argc, char **argv)
         }
     // Create structure array to cover double *data
     Array *array;
-    info = array_from_buffer(&array, 2, shape, dtype, order, data);
+    info = array_from_buffer(&array, ndim, shape, dtype, order, data);
     if(info != 0)
     {
         printf("Error in creation of Array structure\n");
@@ -43,7 +52,7 @@ int main(int argc, char **argv)
     info = starsh_problem_from_array(&problem, array, symm);
     if(info != 0)
     {
-        printf("Error in creation of problem\n");
+        printf("Error in generating STARS-H problem\n");
         exit(info);
     }
     printf("STARSH problem was succesfully generated\n");

@@ -52,17 +52,25 @@ set(SCHEMES "rsdd" "sdd" "qp3")
 foreach(scheme IN ITEMS ${SCHEMES})
     add_test(NAME minimal_${scheme} COMMAND
         minimal 2500 500 omp_${scheme} 10 1e-9)
-        set_tests_properties(minimal_${scheme} PROPERTIES
-            ENVIRONMENT "MKL_NUM_THREADS=1")
+    set_tests_properties(minimal_${scheme} PROPERTIES
+        ENVIRONMENT "MKL_NUM_THREADS=1")
     if(MPI)
         add_test(NAME mpi_minimal_${scheme} COMMAND
             ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
             ./mpi_minimal 2500 500 mpi_${scheme} 10 1e-9)
-            set_tests_properties(mpi_minimal_${scheme} PROPERTIES
-                ENVIRONMENT "MKL_NUM_THREADS=1")
-            set_tests_properties(mpi_minimal_${scheme} PROPERTIES
-                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
+        set_tests_properties(mpi_minimal_${scheme} PROPERTIES
+            ENVIRONMENT "MKL_NUM_THREADS=1")
+        set_tests_properties(mpi_minimal_${scheme} PROPERTIES
+            ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
     endif()
+endforeach()
+
+# Add tests for synthetic TLR matrices
+foreach(scheme IN ITEMS ${SCHEMES})
+    add_test(NAME rndtiled_${scheme} COMMAND
+        rndtiled 2500 250 0.5 100 1e-9 omp_${scheme})
+    set_tests_properties(rndtiled_${scheme} PROPERTIES
+        ENVIRONMENT "MKL_NUM_THREADS=1")
 endforeach()
 
 # Add tests for spatial statistics
