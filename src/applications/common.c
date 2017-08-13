@@ -1,3 +1,15 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/applications/common.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
@@ -7,7 +19,9 @@
 int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
         int problem_type, int kernel_type, ...)
 //! Generates data and matrix kernel for one of predefined applications
-/*! @param[out] data: Address of pointer for structure, holding all data
+/*!
+ * @ingroup applications
+ * @param[out] data: Address of pointer for structure, holding all data
  * @param[out] kernel: matrix kernel
  * @param[in] n: desired size of corresponding matrix
  * @param[in] dtype: precision of each element of a matrix ('d' for double)

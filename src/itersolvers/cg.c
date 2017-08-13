@@ -1,10 +1,27 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/itersolvers/cg.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
+
+/*! @defgroup solvers
+ * @brief Set of solvers
+ * */
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work)
 //! Conjugate gradient method for Tile low-rank matrix
-/*! @param[in] M: Tile low-rank matrix.
+/*! @ingroup solvers
+ * @param[in] M: Tile low-rank matrix.
  * @param[in] b: Right hand side.
  * @param[in] tol: Relative error threshold for residual.
  * @param[out] x: Answer.
@@ -70,7 +87,8 @@ int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
 int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work)
 //! Conjugate gradient method for Tile low-rank matrix
-/*! @param[in] M: Tile low-rank matrix.
+/*! @ingroup solvers
+ * @param[in] M: Tile low-rank matrix.
  * @param[in] b: Right hand side.
  * @param[in] tol: Relative error threshold for residual.
  * @param[out] x: Answer.

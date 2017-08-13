@@ -1,3 +1,12 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * @file rndtiled.c
+ * @version 1.0.0.2
+ * @author Aleksandr Mikhalev
+ * @date 16 May 2017
+ * */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "starsh.h"
@@ -5,7 +14,6 @@
 
 int main(int argc, char **argv)
 {
-    int problem_ndim = 2;
     // Since there is only one kernel for rndtiled, kernel_type is ignored
     int kernel_type = 0;
     // Size of desired matrix
@@ -45,10 +53,10 @@ int main(int argc, char **argv)
             kernel, "Random tile low-rank matrix");
     if(info != 0)
     {
-        printf("Error in STARSH problem\n");
+        printf("Error in generating STARS-H problem\n");
         exit(info);
     }
-    printf("STARSH problem was succesfully generated\n");
+    printf("STARS-H problem was succesfully generated\n");
     starsh_problem_info(problem);
     // Compute dense matrix
     Array *array;

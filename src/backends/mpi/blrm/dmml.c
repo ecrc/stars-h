@@ -1,9 +1,22 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/backends/mpi/blrm/dmml.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb)
 //! Multiply by dense Matrix, blr-matrix is on Left side.
+//! @ingroup blrm
 /*! Performs `B=alpha*M*A+beta*B` using MPI+OpenMP */
 {
     STARSH_blrf *F = M->format;
@@ -169,6 +182,7 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
 int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb)
 //! Multiply by dense Matrix, tiled blr-matrix is on Left side.
+//! @ingroup blrm
 /*! Performs `B=alpha*M*A+beta*B` using MPI+OpenMP */
 {
     STARSH_blrf *F = M->format;

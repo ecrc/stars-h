@@ -1,8 +1,21 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/backends/sequential/blrm/dca.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dca(STARSH_blrm *M, Array *A)
 //! Convert double precision block low-rank matrix to dense Array
+//! @ingroup blrm
 /*! Memory for output array must be allocated prior calling this function.
  * */
 {

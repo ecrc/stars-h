@@ -1,11 +1,24 @@
+/*! @copyright (c) 2017 King Abdullah University of Science and
+ *                      Technology (KAUST). All rights reserved.
+ *
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file src/applications/rndtiled.c
+ * @version 1.0.0
+ * @author Aleksandr Mikhalev
+ * @date 2017-05-21
+ * */
+
 #include "common.h"
 #include "starsh.h"
 #include "starsh-rndtiled.h"
 
-static void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
+void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
         int *icol, void *row_data, void *col_data, void *result)
 {
 //! Kernel for randomly generated tiled matrix.
+//! @ingroup applications
     STARSH_rndtiled *data = row_data;
     int n = data->n;
     int nblocks = data->nblocks;
@@ -36,7 +49,8 @@ static void starsh_rndtiled_block_kernel(int nrows, int ncols, int *irow,
 int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
         int block_size, double decay, double add_diag)
 //! Generate random tiled matrix by a special rule
-/*! @param[out] data: Address to pointer to `STARSH_rndtiled` object.
+/*! @ingroup applications
+ * @param[out] data: Address to pointer to `STARSH_rndtiled` object.
  * @param[in] n: Size of matrix.
  * @param[in] dtype: precision ('s', 'd', 'c' or 'z').
  * @param[in] block_size: Size of tile in one dimension.
@@ -88,8 +102,9 @@ int starsh_rndtiled_new(STARSH_rndtiled **data, int n, char dtype,
 
 int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
         va_list args)
-//! Generate random tiled blr-matrix with va_list
-//! For more info look at starsh_rndtiled_new
+//! Generate random tiled blr-matrix with va_list.
+//! For arguments look at starsh_rndtiled_new().
+//! @ingroup applications
 {
     int nb = n;
     double decay = 0;
@@ -122,8 +137,9 @@ int starsh_rndtiled_new_va(STARSH_rndtiled **data, int n, char dtype,
 }
 
 int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...)
-//! Generate random tiled blr-matrix with ellipsis
-//! For more info look at starsh_rndtiled_new
+//! Generate random tiled blr-matrix with ellipsis.
+//! For arguments look at starsh_rndtiled_new().
+//! @ingroup applications
 {
     va_list args;
     va_start(args, dtype);
@@ -134,13 +150,16 @@ int starsh_rndtiled_new_el(STARSH_rndtiled **data, int n, char dtype, ...)
 
 int starsh_rndtiled_get_kernel(STARSH_kernel *kernel, STARSH_rndtiled *data,
         int type)
+//! Select kernel (ignores type, since there is only one kernel).
+//! @ingroup applications
 {
     *kernel = starsh_rndtiled_block_kernel;
     return 0;
 }
 
 int starsh_rndtiled_free(STARSH_rndtiled *data)
-//! Free data
+//! Free data.
+//! @ingroup applications
 {
     free(data->U);
     free(data->S);
