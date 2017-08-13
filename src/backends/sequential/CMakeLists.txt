@@ -1,5 +1,5 @@
 set(SRC)
 add_subdirectory("blrm")
-add_subdirectory("kernels")
+add_subdirectory("dense")
 add_library(backends_sequential OBJECT ${SRC})
 target_include_directories(backends_sequential PRIVATE "${CMAKE_SOURCE_DIR}/include")

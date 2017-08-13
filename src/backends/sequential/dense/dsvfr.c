@@ -4,16 +4,16 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/sequential/kernels/dsvfr.c
+ * @file src/backends/sequential/dense/dsvfr.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
 #include "starsh.h"
 
-int starsh__dsvfr(int size, double *S, double tol)
+int starsh_dense_dsvfr(int size, double *S, double tol)
 //! Returns rank of double precision singular values.
 /*! Tries ranks `size`, `size`-1, `size`-2 and so on. May be accelerated by
  * binary search, but it requires additional temporary memory to be allocated.

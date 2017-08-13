@@ -7,7 +7,7 @@
  * @file include/starsh.h
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #ifndef __STARSH_H__
@@ -21,6 +21,22 @@
 
 // Add definitions for enumerated constants
 #include "starsh-constants.h"
+
+// Structure for STARS-H parameters
+struct starsh_params
+{
+    enum STARSH_BACKEND backend;
+    enum STARSH_LRENGINE lrengine;
+    int rsvd_oversample;
+};
+
+// Runtime parameters of STARS-H
+struct starsh_params starsh_params;
+
+// Init functions for STARS-H
+int starsh_init();
+int starsh_set_backend(const char *string);
+int starsh_set_lrengine(const char *string);
 
 // typedef for different structures
 typedef struct array Array;
@@ -406,6 +422,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @brief Approximation schemes for dense matrices
  * */
 
+int starsh_blrm_lrengine();
 int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh_blrm__dqp3(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -415,7 +432,7 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 int starsh_blrm__drsdd2(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
-int starsh__dsvfr(int size, double *S, double tol);
+int starsh_dense_dsvfr(int size, double *S, double tol);
 int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb);
 int starsh_blrm__dmml_omp(STARSH_blrm *M, int nrhs, double alpha, double *A,
@@ -429,6 +446,13 @@ double starsh_blrm__dfe_omp(STARSH_blrm *M);
 double starsh_blrm__dfe_mpi(STARSH_blrm *M);
 int starsh_blrm__dca(STARSH_blrm *M, Array *A);
 
+//! Type for low-rank approximations of a dense double-precision matrix
+typedef void STARSH_dense_dlr(int nrows, int ncols, double *D, double *U,
+        double *V, int *rank, int maxrank, double tol, double *work,
+        int lwork, int *iwork);
+STARSH_dense_dlr *starsh_dense_dlr, starsh_dense_dlrsdd, starsh_dense_dlrrsdd,
+        starsh_dense_dlrrsdd2, starsh_dense_dlrqp3, starsh_dense_dlrna;
+/*
 void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
@@ -444,6 +468,7 @@ void starsh_kernel_dqp3(int nrows, int ncols, double *D, double *U, double *V,
 void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork);
+*/
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);

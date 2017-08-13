@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file minimal.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file examples/approximation/minimal.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #include <stdio.h>
@@ -32,6 +35,8 @@ int main(int argc, char **argv)
     // Size of tile
     int block_size = 250;
     srand(0);
+    // Init STARS-H
+    starsh_init();
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
     STARSH_kernel kernel;

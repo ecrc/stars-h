@@ -7,7 +7,7 @@
  * @file src/backends/openmp/blrm/dqp3.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
@@ -114,8 +114,8 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        starsh_kernel_dqp3(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
-                far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
+        starsh_dense_dlrqp3(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
+                far_rank+bi, maxrank, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
         free(work);

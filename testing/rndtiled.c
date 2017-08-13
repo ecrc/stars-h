@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file rndtiled.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file testing/rndtiled.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #ifdef MKL
@@ -38,6 +41,8 @@ int main(int argc, char **argv)
     char symm = 'N', dtype = 'd';
     int shape[2] = {N, N};
     int info;
+    // Init STARS-H
+    starsh_init();
     // Generate problem by random matrices
     STARSH_rndtiled *data;
     STARSH_kernel kernel;

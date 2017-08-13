@@ -7,7 +7,7 @@
  * @file src/backends/mpi/blrm/dqp3.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
@@ -136,8 +136,8 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
         double time1 = omp_get_wtime();
-        starsh_kernel_dqp3(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
+        starsh_dense_dlrqp3(nrows, ncols, D, far_U[lbi]->data,
+                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
                 lwork, iwork);
         double time2 = omp_get_wtime();
         #pragma omp critical

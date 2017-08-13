@@ -10,6 +10,10 @@ src_files = glob("../src/*.c")
 src_files.extend(glob("../src/*/*.c"))
 src_files.extend(glob("../src/*/*/*.c"))
 src_files.extend(glob("../src/*/*/*/*.c"))
+src_files.extend(glob("../testing/*.c"))
+src_files.extend(glob("../testing/*/*.c"))
+src_files.extend(glob("../examples/*.c"))
+src_files.extend(glob("../examples/*/*.c"))
 
 h_files = glob("../include/*.h")
 

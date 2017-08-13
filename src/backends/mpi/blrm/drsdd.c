@@ -7,7 +7,7 @@
  * @file src/backends/mpi/blrm/drsdd.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
@@ -143,8 +143,8 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
         double time1 = omp_get_wtime();
-        starsh_kernel_drsdd(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
+        starsh_dense_dlrrsdd(nrows, ncols, D, far_U[lbi]->data,
+                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
                 lwork, iwork);
         double time2 = omp_get_wtime();
         #pragma omp critical

@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file dense.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file examples/approximation/dense.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #include <stdio.h>
@@ -54,6 +57,8 @@ int main(int argc, char **argv)
         printf("Error in creation of Array structure\n");
         exit(info);
     }
+    // Init STARS-H
+    starsh_init();
     // Set up problem
     STARSH_problem *problem;
     info = starsh_problem_from_array(&problem, array, symm);

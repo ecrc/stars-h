@@ -4,17 +4,17 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/sequential/kernels/drsdd2.c
+ * @file src/backends/sequential/dense/drsdd2.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
 #include "starsh.h"
 
-void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, int oversample, double tol, double *work,
+void starsh_dense_dlrrsdd2(int nrows, int ncols, double *D, double *U,
+        double *V, int *rank, int maxrank, double tol, double *work,
         int lwork, int *iwork)
 //! 2-way randomized SVD approximation of a dense double precision matrix.
 /*! @ingroup approximations
@@ -25,7 +25,6 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
  * @param[out] V: Pointer to low-rank factor `V`.
  * @param[out] rank: Address of rank variable.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error for approximation.
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
@@ -35,6 +34,7 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
  * singular values. Less accurate, than 1-way randomized SVD.
  * */
 {
+    int oversample = starsh_params.rsvd_oversample;
     int mn = nrows < ncols ? nrows : ncols;
     int mn2 = maxrank+oversample;
     if(mn2 > mn)
@@ -88,7 +88,7 @@ void starsh_kernel_drsdd2(int nrows, int ncols, double *D, double *U, double *V,
     LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, mn2, R, mn2, svd_S,
             svd_U, mn2, svd_V, mn2, svdqr_work, svdqr_lwork, iwork);
     // Get rank, corresponding to given error tolerance
-    *rank = starsh__dsvfr(mn2, svd_S, tol);
+    *rank = starsh_dense_dsvfr(mn2, svd_S, tol);
     if(*rank < mn/2 && *rank <= maxrank)
     // If far-field block is low-rank
     {
