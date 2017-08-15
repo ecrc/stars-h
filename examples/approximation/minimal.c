@@ -79,8 +79,8 @@ int main(int argc, char **argv)
     }
     // Approximate with tile low-rank matrix
     STARSH_blrm *matrix;
-    info = starsh_blrm_approximate(&matrix, format, maxrank, oversample, tol,
-            onfly, scheme);
+    info = starsh_blrm_approximate(&matrix, format, maxrank, tol,
+            onfly);
     if(info != 0)
     {
         printf("Error in approximation\n");

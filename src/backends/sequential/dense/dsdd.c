@@ -31,7 +31,6 @@ void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U,
  * @param[in] iwork: Temporary integer array.
  * */
 {
-    printf("DSDD\n");
     int mn = nrows < ncols ? nrows : ncols;
     size_t svd_lwork = (4*(size_t)mn+7)*mn;
     double *svd_U, *svd_S, *svd_V, *svd_work;

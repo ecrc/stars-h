@@ -119,7 +119,6 @@ int starsh_blrm__drsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        fprintf(stderr, "BEFORE\n");
         starsh_dense_dlrrsdd(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
                 far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays

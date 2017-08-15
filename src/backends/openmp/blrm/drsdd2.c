@@ -14,7 +14,7 @@
 #include "starsh.h"
 
 int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile by 2-way randomized SVD.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -25,6 +25,7 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @param[in] onfly: Whether not to store dense blocks.
  * */
 {
+    printf("IN %s\n", __func__);
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
@@ -41,6 +42,7 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     size_t bi, bj = 0;
+    const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -114,7 +116,7 @@ int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
         starsh_dense_dlrrsdd2(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
-                far_rank+bi, maxrank, tol, work, lwork, iwork);
+                far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);
         free(work);

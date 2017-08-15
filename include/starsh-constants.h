@@ -16,32 +16,34 @@
 //! Enum for backend types
 enum STARSH_BACKEND
 {
-    STARSH_BACKEND_SEQUENTIAL = 1,
+    STARSH_BACKEND_NOTSUPPORTED = -1,
+    //!< Error, backend is not supported
+    STARSH_BACKEND_SEQUENTIAL = 0,
     //!< Sequential
-    STARSH_BACKEND_OMP = 2,
+    STARSH_BACKEND_OPENMP = 1,
     //!< OpenMP
-    STARSH_BACKEND_MPI = 3,
+    STARSH_BACKEND_MPI = 2,
     //!< MPI
-    STARSH_BACKEND_MPIOMP = 4,
+    STARSH_BACKEND_MPI_OPENMP = 3,
     //!< Hybrid MPI + OpenMP
-    STARSH_BACKEND_STARPU = 5,
+    STARSH_BACKEND_STARPU = 4,
     //!< StarPU (without MPI)
-    STARSH_BACKEND_STARPUMPI = 6,
+    STARSH_BACKEND_MPI_STARPU = 5
     //!< StarPU (with MPI)
 };
 
 //! Enum for low-rank engine (approximation technique)
 enum STARSH_LRENGINE
 {
-    STARSH_LRENGINE_SVD = 1,
+    STARSH_LRENGINE_SVD = 0,
     //!< Usual Singular Values Decomposition
-    STARSH_LRENGINE_DCSVD = 2,
+    STARSH_LRENGINE_DCSVD = 1,
     //!< Divide-and-Conquer SVD
-    STARSH_LRENGINE_RRQR = 3,
+    STARSH_LRENGINE_RRQR = 2,
     //!< Rank-Revealing QR
-    STARSH_LRENGINE_RSVD = 4,
+    STARSH_LRENGINE_RSVD = 3,
     //!< Randomized SVD
-    STARSH_LRENGINE_CROSS = 5,
+    STARSH_LRENGINE_CROSS = 4,
     //!< Cross approximation
 };
 

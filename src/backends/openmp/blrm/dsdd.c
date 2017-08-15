@@ -14,7 +14,7 @@
 #include "starsh.h"
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile by divide-and-conquer SVD (GESDD function).
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -25,6 +25,7 @@ int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @param[in] onfly: Whether not to store dense blocks.
  * */
 {
+    printf("IN %s\n", __func__);
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;

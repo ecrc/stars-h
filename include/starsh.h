@@ -482,13 +482,13 @@ void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
 
 
 int starsh_blrm__dsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly);
+        double tol, int onfly);
 int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly);
+        double tol, int onfly);
 int starsh_blrm__drsdd_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly);
+        double tol, int onfly);
 int starsh_blrm__drsdd2_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly);
+        double tol, int onfly);
 
 void starsh_kernel_dsdd_starpu(void *buffers[], void *cl_arg);
 void starsh_kernel_drsdd_starpu(void *buffers[], void *cl_arg);
