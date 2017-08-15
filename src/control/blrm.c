@@ -320,8 +320,9 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
     return info;
 }
 
-int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly, const char *scheme)
+STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
+//int (*starsh_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+//        double tol, int onfly) = NULL;
 //! Main call to get approximation in non-nested block low-rank format.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -337,6 +338,9 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  *     `starpu_rsdd2`, 
  * @return Error code.
  * */
+/*
+int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+        int oversample, double tol, int onfly, const char *scheme)
 {
     if(strcmp(scheme, "sdd") == 0)
         starsh_blrm__dsdd(M, F, maxrank, oversample, tol, onfly);
@@ -385,7 +389,7 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     }
     return 0;
 }
-
+*/
 #ifdef MPI
 int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
         Array **far_U, Array **far_V, int onfly,

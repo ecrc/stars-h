@@ -14,8 +14,8 @@
 #include "starsh.h"
 
 void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
-        double *V, int *rank, int maxrank, double tol, double *work,
-        int lwork, int *iwork)
+        double *V, int *rank, int maxrank, int oversample, double tol,
+        double *work, int lwork, int *iwork)
 //! Rank-revealing QR approximation of a dense double precision matrix.
 /*! @ingroup approximations
  * @param[in] nrows: Number of rows of a matrix.
@@ -25,13 +25,13 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
  * @param[out] V: Pointer to low-rank factor `V`.
  * @param[out] rank: Address of rank variable.
  * @param[in] maxrank: Maximum possible rank.
+ * @param[in] oversample: 
  * @param[in] tol: Relative error for approximation.
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
  * */
 {
-    int oversample = starsh_params.rsvd_oversample;
     int mn = nrows < ncols ? nrows : ncols;
     int mn2 = maxrank+oversample;
     if(mn2 > mn)

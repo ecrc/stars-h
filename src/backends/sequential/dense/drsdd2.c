@@ -14,7 +14,7 @@
 #include "starsh.h"
 
 void starsh_dense_dlrrsdd2(int nrows, int ncols, double *D, double *U,
-        double *V, int *rank, int maxrank, double tol, double *work,
+        double *V, int *rank, int maxrank, int oversample, double tol, double *work,
         int lwork, int *iwork)
 //! 2-way randomized SVD approximation of a dense double precision matrix.
 /*! @ingroup approximations
@@ -34,7 +34,6 @@ void starsh_dense_dlrrsdd2(int nrows, int ncols, double *D, double *U,
  * singular values. Less accurate, than 1-way randomized SVD.
  * */
 {
-    int oversample = starsh_params.rsvd_oversample;
     int mn = nrows < ncols ? nrows : ncols;
     int mn2 = maxrank+oversample;
     if(mn2 > mn)

@@ -13,12 +13,15 @@
 #include "common.h"
 #include "starsh.h"
 
+struct starsh_params starsh_params;
+const struct starsh_params starsh_params_default = {};
+
 // Array of backends (string, enum constant and function pointer)
 struct
 {
     const char *string;
     enum STARSH_BACKEND backend;
-} static backend[] =
+} const backend[] =
 {
     {"SEQUENTIAL", STARSH_BACKEND_SEQUENTIAL},
     {"OMP", STARSH_BACKEND_OMP},
@@ -28,16 +31,15 @@ struct
     {"STARPUMPI", STARSH_BACKEND_STARPUMPI}
 };
 
-static int backend_num = 6;
-static int backend_default = 3;
+const int backend_num = sizeof(backend)/sizeof(backend[0]);
+const int backend_default = 3;
 
 // Array of low-rank engines (string, enum constant and function pointer)
 struct
 {
     const char *string;
     enum STARSH_LRENGINE lrengine;
-    
-} static lrengine[] =
+} const lrengine[] =
 {
     {"SVD", STARSH_LRENGINE_SVD},
     {"DCSVD", STARSH_LRENGINE_DCSVD},
@@ -46,17 +48,33 @@ struct
     {"CROSS", STARSH_LRENGINE_CROSS},
 };
 
-static int lrengine_num = 5;
-static int lrengine_default = 3;
+const int lrengine_num = sizeof(lrengine)/sizeof(lrengine[0]);
+const int lrengine_default = 3;
+
+STARSH_blrm_approximate *(approximate_funcs[6][5]) =
+{
+    // Funcs for SEQUENTIAL
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd},
+    // Funcs for OMP
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd},
+    // Funcs for MPI
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd},
+    // Funcs for MPIOMP
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd},
+    // Funcs for STARPU
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd},
+    // Funcs for STARPUMPI
+    {starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3, starsh_blrm__drsdd, starsh_blrm__drsdd}
+};
 
 int starsh_init()
 {
-    const char *STARSH_BACKEND = "STARSH_BACKEND";
-    const char *STARSH_LRENGINE = "STARSH_LRENGINE";
+    const char *str_backend = "STARSH_BACKEND";
+    const char *str_lrengine = "STARSH_LRENGINE";
     int info = 0;
-    info |= starsh_set_backend(getenv(STARSH_BACKEND));
-    info |= starsh_set_lrengine(getenv(STARSH_LRENGINE));
-    starsh_params.rsvd_oversample = 10;
+    info |= starsh_set_backend(getenv(str_backend));
+    info |= starsh_set_lrengine(getenv(str_lrengine));
+    starsh_params.oversample = 10;
     return info;
 }
 
