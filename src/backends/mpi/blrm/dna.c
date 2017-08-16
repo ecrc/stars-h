@@ -14,7 +14,7 @@
 #include "starsh.h"
 
 int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Simply compute matrix without any approximation.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.

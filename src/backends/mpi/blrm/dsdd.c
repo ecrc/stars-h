@@ -14,13 +14,12 @@
 #include "starsh.h"
 
 int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile by GESDD.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
  * */
@@ -113,9 +112,6 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                     "approximation may be much higher, than demanded");
         }
         int mn = nrows < ncols ? nrows : ncols;
-        int mn2 = maxrank+oversample;
-        if(mn2 > mn)
-            mn2 = mn;
         // Get size of temporary arrays
         size_t lmn = mn, lwork = (4*lmn+8+nrows+ncols)*lmn, liwork = 8*lmn;
         double *D, *work;

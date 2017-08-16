@@ -23,13 +23,12 @@ int cmp_size_t(const void *a, const void *b)
 }
 
 int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile by 1-way randomized SVD.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
  * */
@@ -60,6 +59,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     size_t lbi, lbj, bi, bj = 0;
     double drsdd_time = 0, kernel_time = 0;
     int BAD_TILE = 0;
+    const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -144,7 +144,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 RD, CD, D);
         double time1 = omp_get_wtime();
         starsh_dense_dlrrsdd(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
+                far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
                 lwork, iwork);
         double time2 = omp_get_wtime();
         #pragma omp critical

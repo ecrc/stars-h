@@ -14,7 +14,7 @@
 #include "starsh.h"
 
 int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile by rank-revealing QR.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -51,6 +51,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     size_t lbi, lbj, bi, bj = 0;
     double drsdd_time = 0, kernel_time = 0;
     int BAD_TILE = 0;
+    const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -137,7 +138,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 RD, CD, D);
         double time1 = omp_get_wtime();
         starsh_dense_dlrqp3(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
+                far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
                 lwork, iwork);
         double time2 = omp_get_wtime();
         #pragma omp critical

@@ -426,11 +426,11 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
 
 typedef int (STARSH_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F,
         int maxrank, double tol, int onfly);
-STARSH_blrm_approximate *starsh_blrm_approximate,
-                        starsh_blrm__dsdd,
-                        starsh_blrm__drsdd,
-                        starsh_blrm__drsdd2,
-                        starsh_blrm__dqp3;
+STARSH_blrm_approximate *starsh_blrm_approximate;
+STARSH_blrm_approximate starsh_blrm__dsdd, starsh_blrm__drsdd,
+    starsh_blrm__drsdd2, starsh_blrm__dqp3, starsh_blrm__dna;
+STARSH_blrm_approximate starsh_blrm__dsdd_mpi, starsh_blrm__drsdd_mpi,
+    starsh_blrm__dqp3_mpi, starsh_blrm__dna_mpi;
 
 /*
 int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -504,6 +504,7 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 
 
+/*
 int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh_blrm__dsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
@@ -512,7 +513,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
 int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         int oversample, double tol, int onfly);
-
+*/
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
         double *X, int ldx, double tol, double *work);
