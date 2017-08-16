@@ -29,13 +29,13 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc != 12)
+    if(argc != 11)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 11 are needed\n",
+            printf("%d arguments provided, but 10 are needed\n",
                     argc-1);
-            printf("mpi_spatial ndim kernel beta nu N block_size scheme "
+            printf("mpi_spatial ndim kernel beta nu N block_size "
                     "maxrank tol check_matvec check_cg_solve\n");
         }
         MPI_Finalize();
@@ -47,13 +47,12 @@ int main(int argc, char **argv)
     double nu = atof(argv[4]);
     int N = atoi(argv[5]);
     int block_size = atoi(argv[6]);
-    char *scheme = argv[7];
-    int maxrank = atoi(argv[8]);
-    double tol = atof(argv[9]);
+    int maxrank = atoi(argv[7]);
+    double tol = atof(argv[8]);
     double noise = 0;
-    int check_matvec = atoi(argv[10]);
-    int check_cg_solve = atoi(argv[11]);
-    int oversample = 10, onfly = 0;
+    int check_matvec = atoi(argv[9]);
+    int check_cg_solve = atoi(argv[10]);
+    int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
     int nrhs = 1;
@@ -97,8 +96,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
-    info = starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly,
-            scheme);
+    info = starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     if(info != 0)
     {
         if(mpi_rank == 0)

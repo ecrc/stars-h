@@ -24,16 +24,15 @@
 
 int main(int argc, char **argv)
 {
-    if(argc < 6)
+    if(argc < 5)
     {
-        printf("%d arguments provided, but 5 are needed\n", argc-1);
-        printf("minimal N block_size scheme maxrank tol\n");
+        printf("%d arguments provided, but 4 are needed\n", argc-1);
+        printf("minimal N block_size maxrank tol\n");
         return -1;
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
-    char *scheme = argv[3];
-    int maxrank = atoi(argv[4]);
-    double tol = atof(argv[5]);
+    int maxrank = atoi(argv[3]);
+    double tol = atof(argv[4]);
     int oversample = 10, onfly = 0;
     char dtype = 'd', symm = 'N';
     int ndim = 2, shape[2] = {N, N};
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     time1 = omp_get_wtime()-time1;
     starsh_blrf_info(F);
     starsh_blrm_info(M);

@@ -22,7 +22,7 @@
 // Add definitions for enumerated constants
 #include "starsh-constants.h"
 
-// Structure for STARS-H parameters
+//! Structure for STARS-H parameters
 struct starsh_params
 {
     enum STARSH_BACKEND backend;
@@ -30,22 +30,22 @@ struct starsh_params
     int oversample;
 };
 
-// Runtime parameters of STARS-H
+//! Runtime parameters of STARS-H
 extern struct starsh_params starsh_params;
 
-// Init functions for STARS-H
+//! Init functions for STARS-H
 int starsh_init();
 int starsh_set_backend(const char *string);
 int starsh_set_lrengine(const char *string);
 
-// typedef for different structures
+//! typedef for different structures
 typedef struct array Array;
 typedef struct starsh_problem STARSH_problem;
 typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
 
-// typedef for kernels
+//! typedef for kernels
 typedef void (*STARSH_kernel)(int nrows, int ncols, int *irow, int *icol,
         void *row_data, void *col_data, void *result);
 

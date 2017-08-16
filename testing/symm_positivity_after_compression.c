@@ -40,10 +40,9 @@ int main(int argc, char **argv)
     char *scheme = argv[7];
     */
     int sqrtn = 100, block_size = 1000;
-    int maxrank = 100, oversample = 10;
+    int maxrank = 100;
     double tol = 1e-9, beta = 0.1;
     double nu = 0.0;
-    char *scheme = "omp_rsdd";
     int onfly = 0;
     int N = sqrtn*sqrtn;
     // Setting random seed
@@ -73,7 +72,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARSH_blrm *M;
     double time0 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);
     // Print info about updated format and approximation
     starsh_blrf_info(F);

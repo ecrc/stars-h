@@ -37,9 +37,8 @@ int main(int argc, char **argv)
     char *kernel_type = argv[3];
     double beta = 0.1;
     double nu = 0.5;
-    int maxrank = 100, oversample = 10, onfly = 0;
+    int maxrank = 100, onfly = 0;
     double tol = 1e-12;
-    char *scheme = "omp_rsdd";
     int N = sqrtn*sqrtn;
     char symm = 'S', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
@@ -85,7 +84,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARSH_blrm *M;
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     time1 = omp_get_wtime()-time1;
     starsh_blrf_info(F);
     starsh_blrm_info(M);

@@ -13,9 +13,10 @@
 #include "common.h"
 #include "starsh.h"
 
+//! Parameters of STARS-H
 struct starsh_params starsh_params;
 
-// Set number of backends and default one
+//! Set number of backends and default one
 #define BACKEND_NUM 6
 #define BACKEND_DEFAULT STARSH_BACKEND_SEQUENTIAL
 #ifdef OPENMP
@@ -31,7 +32,7 @@ struct starsh_params starsh_params;
     #define BACKEND_DEFAULT STARSH_BACKEND_MPI_OPENMP
 #endif
 
-// Array of backends, each presented by string and enum value
+//! Array of backends, each presented by string and enum value
 struct
 {
     const char *string;
@@ -66,10 +67,10 @@ struct
 #endif
 };
 
-// Set number of low-rank engines and default one
+//! Set number of low-rank engines and default one
 #define LRENGINE_NUM 5
 #define LRENGINE_DEFAULT STARSH_LRENGINE_RSVD
-// Array of low-rank engines, presented by string and enum value
+//! Array of low-rank engines, presented by string and enum value
 struct
 {
     const char *string;
@@ -83,47 +84,52 @@ struct
     {"CROSS", STARSH_LRENGINE_CROSS},
 };
 
-// Array of approximation functions for NOTSUPPORTED backend (NULL pointers
-// instead of real functions)
+//! Array of approximation functions for NOTSUPPORTED backend
 static STARSH_blrm_approximate *(dlr_none[LRENGINE_NUM]) = {};
 
-// Array of approximation functions for SEQUENTIAL backend
+//! Array of approximation functions for SEQUENTIAL backend
 static STARSH_blrm_approximate *(dlr_seq[LRENGINE_NUM]) =
 {
     starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3,
     starsh_blrm__drsdd, starsh_blrm__drsdd
 };
 
-// Array of approximation functions for OMP backend
+//! Array of approximation functions for OMP backend
 static STARSH_blrm_approximate *(dlr_omp[LRENGINE_NUM]) =
 {
     starsh_blrm__dsdd_omp, starsh_blrm__dsdd_omp, starsh_blrm__dqp3_omp,
     starsh_blrm__drsdd_omp, starsh_blrm__drsdd_omp
 };
 
-// Array of approximation functions, depending on backend
+//! Array of approximation functions, depending on backend
 static STARSH_blrm_approximate *(*dlr[BACKEND_NUM]) =
 {
     dlr_seq, dlr_omp, dlr_none, dlr_none, dlr_none, dlr_none
 };
 
-
 int starsh_init()
+//! Initialize backend and low-rank engine to be used
 {
     const char *str_backend = "STARSH_BACKEND";
     const char *str_lrengine = "STARSH_LRENGINE";
-    starsh_params.oversample = 10;
-    starsh_params.backend = STARSH_BACKEND_OPENMP;
-    starsh_params.lrengine = STARSH_LRENGINE_RSVD;
+    const static struct starsh_params starsh_params_default =
+    {
+        BACKEND_DEFAULT, LRENGINE_DEFAULT, 10
+    };
+    //starsh_params.oversample = 10;
+    //starsh_params.backend = STARSH_BACKEND_OPENMP;
+    //starsh_params.lrengine = STARSH_LRENGINE_RSVD;
+    starsh_params = starsh_params_default;
     int info = 0, i;
     info |= starsh_set_backend(getenv(str_backend));
     info |= starsh_set_lrengine(getenv(str_lrengine));
-    for(i = 0; i < BACKEND_NUM; i++)
-        printf("%s=%d\n", backend[i].string, backend[i].backend);
     return info;
 }
 
 int starsh_set_backend(const char *string)
+//! Set backend (MPI or OpenMP or other scheduler) for computations
+/*! @param[in] string: name of backend to use
+ * */
 {
     int i, selected = -1;
     if(string == NULL)
@@ -144,8 +150,15 @@ int starsh_set_backend(const char *string)
     if(selected == -1)
     {
         selected = BACKEND_DEFAULT;
-        fprintf(stderr, "Environment variable STARSH_BACKEND=%s is not "
-                "supported, using default backend (%s)\n",
+        fprintf(stderr, "Environment variable STARSH_BACKEND=%s is invalid, "
+                "using default backend (%s)\n",
+                string, backend[selected].string);
+    }
+    else if(backend[selected].backend == STARSH_BACKEND_NOTSUPPORTED)
+    {
+        selected = BACKEND_DEFAULT;
+        fprintf(stderr, "Backend %s (environment variable STARSH_BACKEND) "
+                "is not supported, using default backend (%s)\n",
                 string, backend[selected].string);
     }
     starsh_params.backend = backend[selected].backend;
@@ -156,6 +169,9 @@ int starsh_set_backend(const char *string)
 }
 
 int starsh_set_lrengine(const char *string)
+//! Set low-rank engine (SVD, Randomized SVD or Cross) for computations
+/*! @param[in] string: name of low-rank engine to use
+ * */
 {
     int i, selected = -1;
     if(string == NULL)
@@ -176,8 +192,8 @@ int starsh_set_lrengine(const char *string)
     if(selected == -1)
     {
         selected = LRENGINE_DEFAULT;
-        fprintf(stderr, "Environment variable STARSH_LRENGINE=%s is not "
-                "supported, using default low-rank engine (%s)\n",
+        fprintf(stderr, "Environment variable STARSH_LRENGINE=%s is invalid, "
+                "using default low-rank engine (%s)\n",
                 string, lrengine[selected].string);
     }
     starsh_params.lrengine = lrengine[selected].lrengine;
