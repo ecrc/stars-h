@@ -7,14 +7,14 @@
  * @file src/backends/openmp/blrm/dqp3.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
 #include "starsh.h"
 
 int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+        double tol, int onfly)
 //! Approximate each tile of BLR matrix with RRQR (GEQP3 function).
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -25,6 +25,7 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @param[in] onfly: Whether not to store dense blocks.
  * */
 {
+    printf("IN %s\n", __func__);
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
@@ -41,6 +42,7 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     size_t bi, bj = 0;
+    const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -114,7 +116,7 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
-        starsh_kernel_dqp3(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
+        starsh_dense_dlrqp3(nrows, ncols, D, far_U[bi]->data, far_V[bi]->data,
                 far_rank+bi, maxrank, oversample, tol, work, lwork, iwork);
         // Free temporary arrays
         free(D);

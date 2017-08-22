@@ -4,17 +4,17 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/sequential/kernels/dna.c
+ * @file src/backends/sequential/dense/dna.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
 #include "starsh.h"
 
-void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, int oversample, double tol, double *work,
+void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
+        int *rank, int maxrank, double tol, double *work,
         int lwork, int *iwork)
 //! Fake approximation schemes, that returns rank=-1.
 /*! @ingroup approximations
@@ -25,7 +25,6 @@ void starsh_kernel_dna(int nrows, int ncols, double *D, double *U, double *V,
  * @param[out] V: Pointer to low-rank factor `V`.
  * @param[out] rank: Address of rank variable.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error for approximation.
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.

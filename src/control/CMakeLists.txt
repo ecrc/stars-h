@@ -4,4 +4,5 @@ set(STARSH_SRC "${CMAKE_CURRENT_SOURCE_DIR}/cluster.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/blrm.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/array.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/problem.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/init.c"
     "${STARSH_SRC}" PARENT_SCOPE)

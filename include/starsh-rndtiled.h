@@ -7,7 +7,7 @@
  * @file include/starsh-rndtiled.h
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #ifndef __STARSH_RNDTILED_H__

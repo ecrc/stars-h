@@ -7,11 +7,45 @@
  * @file include/starsh-constants.h
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #ifndef __STARSH_CONSTANTS_H__
 #define __STARSH_CONSTANTS_H__
+
+//! Enum for backend types
+enum STARSH_BACKEND
+{
+    STARSH_BACKEND_NOTSUPPORTED = -1,
+    //!< Error, backend is not supported
+    STARSH_BACKEND_SEQUENTIAL = 0,
+    //!< Sequential
+    STARSH_BACKEND_OPENMP = 1,
+    //!< OpenMP
+    STARSH_BACKEND_MPI = 2,
+    //!< MPI
+    STARSH_BACKEND_MPI_OPENMP = 3,
+    //!< Hybrid MPI + OpenMP
+    STARSH_BACKEND_STARPU = 4,
+    //!< StarPU (without MPI)
+    STARSH_BACKEND_MPI_STARPU = 5
+    //!< StarPU (with MPI)
+};
+
+//! Enum for low-rank engine (approximation technique)
+enum STARSH_LRENGINE
+{
+    STARSH_LRENGINE_SVD = 0,
+    //!< Usual Singular Values Decomposition
+    STARSH_LRENGINE_DCSVD = 1,
+    //!< Divide-and-Conquer SVD
+    STARSH_LRENGINE_RRQR = 2,
+    //!< Rank-Revealing QR
+    STARSH_LRENGINE_RSVD = 3,
+    //!< Randomized SVD
+    STARSH_LRENGINE_CROSS = 4,
+    //!< Cross approximation
+};
 
 //! Enum for error codes
 enum STARSH_ERRNO

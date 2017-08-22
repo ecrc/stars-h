@@ -4,17 +4,17 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/sequential/kernels/dsdd.c
+ * @file src/backends/sequential/dense/dsdd.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-05-21
+ * @date 2017-08-13
  * */
 
 #include "common.h"
 #include "starsh.h"
 
-void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, int oversample, double tol, double *work,
+void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U,
+        double *V, int *rank, int maxrank, double tol, double *work,
         int lwork, int *iwork)
 //! DGESDD approximation of a dense double precision matrix.
 /*! @ingroup approximations
@@ -25,14 +25,12 @@ void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
  * @param[out] V: Pointer to low-rank factor `V`.
  * @param[out] rank: Address of rank variable.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Ignored.
  * @param[in] tol: Relative error for approximation.
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
  * */
 {
-    (void)oversample;
     int mn = nrows < ncols ? nrows : ncols;
     size_t svd_lwork = (4*(size_t)mn+7)*mn;
     double *svd_U, *svd_S, *svd_V, *svd_work;
@@ -44,7 +42,7 @@ void starsh_kernel_dsdd(int nrows, int ncols, double *D, double *U, double *V,
     LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', nrows, ncols, D, nrows,
             svd_S, svd_U, nrows, svd_V, mn, svd_work, svd_lwork, iwork);
     // Get rank, corresponding to given error tolerance
-    *rank = starsh__dsvfr(mn, svd_S, tol);
+    *rank = starsh_dense_dsvfr(mn, svd_S, tol);
     if(*rank < mn/2 && *rank <= maxrank)
     // If far-field block is low-rank
     {

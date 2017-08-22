@@ -45,32 +45,40 @@ endif()
 #   processes)
 math(EXPR NOMP ${N}/4)
 
-# Set possible approximation schemes
-set(SCHEMES "rsdd" "sdd" "qp3")
+# Set possible approximation lrengines
+set(LRENGINES "SVD" "RRQR" "RSVD")
 
 # Add tests for minimal example
-foreach(scheme IN ITEMS ${SCHEMES})
-    add_test(NAME minimal_${scheme} COMMAND
-        minimal 2500 500 omp_${scheme} 10 1e-9)
-    set_tests_properties(minimal_${scheme} PROPERTIES
-        ENVIRONMENT "MKL_NUM_THREADS=1")
+foreach(lrengine IN ITEMS ${LRENGINES})
+    add_test(NAME minimal_${lrengine} COMMAND
+        minimal 2500 500 10 1e-9)
+    set(test_env "MKL_NUM_THREADS=1"
+        "STARSH_BACKEND=OPENMP"
+        "STARSH_LRENGINE=${lrengine}")
+    set_tests_properties(minimal_${lrengine} PROPERTIES
+        ENVIRONMENT "${test_env}")
     if(MPI)
-        add_test(NAME mpi_minimal_${scheme} COMMAND
+        add_test(NAME mpi_minimal_${lrengine} COMMAND
             ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-            ./mpi_minimal 2500 500 mpi_${scheme} 10 1e-9)
-        set_tests_properties(mpi_minimal_${scheme} PROPERTIES
-            ENVIRONMENT "MKL_NUM_THREADS=1")
-        set_tests_properties(mpi_minimal_${scheme} PROPERTIES
-            ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
+            ./mpi_minimal 2500 500 10 1e-9)
+        set(test_env "MKL_NUM_THREADS=1"
+            "OMP_NUM_THREADS=${NOMP}"
+            "STARSH_BACKEND=MPI_OPENMP"
+            "STARSH_LRENGINE=${lrengine}")
+        set_tests_properties(mpi_minimal_${lrengine} PROPERTIES
+            ENVIRONMENT "${test_env}")
     endif()
 endforeach()
 
 # Add tests for synthetic TLR matrices
-foreach(scheme IN ITEMS ${SCHEMES})
-    add_test(NAME rndtiled_${scheme} COMMAND
-        rndtiled 2500 250 0.5 100 1e-9 omp_${scheme})
-    set_tests_properties(rndtiled_${scheme} PROPERTIES
-        ENVIRONMENT "MKL_NUM_THREADS=1")
+foreach(lrengine IN ITEMS ${LRENGINES})
+    add_test(NAME rndtiled_${lrengine} COMMAND
+        rndtiled 2500 250 0.5 100 1e-9)
+    set(test_env "MKL_NUM_THREADS=1"
+        "STARSH_BACKEND=OPENMP"
+        "STARSH_LRENGINE=${lrengine}")
+    set_tests_properties(rndtiled_${lrengine} PROPERTIES
+        ENVIRONMENT "${test_env}")
 endforeach()
 
 # Add tests for spatial statistics
@@ -86,35 +94,36 @@ endif()
 list(LENGTH KERNAMES NKERNELS)
 math(EXPR NKERNELS "${NKERNELS}-1")
 # Then cycle over all supported configurations
-foreach(scheme IN ITEMS ${SCHEMES})
+foreach(lrengine IN ITEMS ${LRENGINES})
     foreach(kernel RANGE ${NKERNELS})
         list(GET KERNAMES ${kernel} KERNAME)
         list(GET KERCODES ${kernel} KERCODE)
-        add_test(NAME spatial_2d_${KERNAME}_${scheme} COMMAND
-            spatial 2 ${KERCODE} 0.1 10 2500 500 omp_${scheme} 90 1e-9 1 0)
-        set_tests_properties(spatial_2d_${KERNAME}_${scheme} PROPERTIES
-            ENVIRONMENT "MKL_NUM_THREADS=1")
-        add_test(NAME spatial_3d_${KERNAME}_${scheme} COMMAND
-            spatial 3 ${KERCODE} 0.1 10 3375 675 omp_${scheme} 240 1e-9 1 0)
-        set_tests_properties(spatial_3d_${KERNAME}_${scheme} PROPERTIES
-            ENVIRONMENT "MKL_NUM_THREADS=1")
+        add_test(NAME spatial_2d_${KERNAME}_${lrengine} COMMAND
+            spatial 2 ${KERCODE} 0.1 10 2500 500 90 1e-9 1 0)
+        set(test_env "MKL_NUM_THREADS=1"
+            "STARSH_BACKEND=OPENMP"
+            "STARSH_LRENGINE=${lrengine}")
+        set_tests_properties(spatial_2d_${KERNAME}_${lrengine} PROPERTIES
+            ENVIRONMENT "${test_env}")
+        add_test(NAME spatial_3d_${KERNAME}_${lrengine} COMMAND
+            spatial 3 ${KERCODE} 0.1 10 3375 675 240 1e-9 1 0)
+        set_tests_properties(spatial_3d_${KERNAME}_${lrengine} PROPERTIES
+            ENVIRONMENT "${test_env}")
         if(MPI)
-            add_test(NAME mpi_spatial_2d_${KERNAME}_${scheme} COMMAND
+            add_test(NAME mpi_spatial_2d_${KERNAME}_${lrengine} COMMAND
                 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-                ./mpi_spatial 2 ${KERCODE} 0.1 10 2500 500 mpi_${scheme} 90
-                1e-9 1 0)
-            set_tests_properties(mpi_spatial_2d_${KERNAME}_${scheme} PROPERTIES
-                ENVIRONMENT "MKL_NUM_THREADS=1")
-            set_tests_properties(mpi_spatial_2d_${KERNAME}_${scheme} PROPERTIES
-                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
-            add_test(NAME mpi_spatial_3d_${KERNAME}_${scheme} COMMAND
+                ./mpi_spatial 2 ${KERCODE} 0.1 10 2500 500 90 1e-9 1 0)
+            set(test_env "MKL_NUM_THREADS=1"
+                "OMP_NUM_THREADS=${NOMP}"
+                "STARSH_BACKEND=MPI_OPENMP"
+                "STARSH_LRENGINE=${lrengine}")
+            set_tests_properties(mpi_spatial_2d_${KERNAME}_${lrengine} PROPERTIES
+                ENVIRONMENT "${test_env}")
+            add_test(NAME mpi_spatial_3d_${KERNAME}_${lrengine} COMMAND
                 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-                ./mpi_spatial 3 ${KERCODE} 0.1 10 3375 675 mpi_${scheme} 240
-                1e-9 1 0)
-            set_tests_properties(mpi_spatial_3d_${KERNAME}_${scheme} PROPERTIES
-                ENVIRONMENT "MKL_NUM_THREADS=1")
-            set_tests_properties(mpi_spatial_3d_${KERNAME}_${scheme} PROPERTIES
-                ENVIRONMENT "OMP_NUM_THREADS=${NOMP}")
+                ./mpi_spatial 3 ${KERCODE} 0.1 10 3375 675 240 1e-9 1 0)
+            set_tests_properties(mpi_spatial_3d_${KERNAME}_${lrengine} PROPERTIES
+                ENVIRONMENT "${test_env}")
         endif()
     endforeach()
 endforeach()

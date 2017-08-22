@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file mpi_minimal.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file testing/mpi_minimal.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #ifdef MKL
@@ -25,25 +28,26 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc < 6)
+    if(argc < 5)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 5 are needed\n", argc-1);
-            printf("mpi_minimal N block_size scheme maxrank tol\n");
+            printf("%d arguments provided, but 4 are needed\n", argc-1);
+            printf("mpi_minimal N block_size maxrank tol\n");
         }
         MPI_Finalize();
         exit(0);
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
-    char *scheme = argv[3];
-    int maxrank = atoi(argv[4]);
-    double tol = atof(argv[5]);
+    int maxrank = atoi(argv[3]);
+    double tol = atof(argv[4]);
     int oversample = 10, onfly = 0;
     char dtype = 'd', symm = 'N';
     int ndim = 2, shape[2] = {N, N};
     if(mpi_rank == 0)
         printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
+    // Init STARS-H
+    starsh_init();
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
     STARSH_kernel kernel;
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)

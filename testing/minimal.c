@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file minimal.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file testing/minimal.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #ifdef MKL
@@ -21,20 +24,21 @@
 
 int main(int argc, char **argv)
 {
-    if(argc < 6)
+    if(argc < 5)
     {
-        printf("%d arguments provided, but 5 are needed\n", argc-1);
-        printf("minimal N block_size scheme maxrank tol\n");
+        printf("%d arguments provided, but 4 are needed\n", argc-1);
+        printf("minimal N block_size maxrank tol\n");
         return -1;
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
-    char *scheme = argv[3];
-    int maxrank = atoi(argv[4]);
-    double tol = atof(argv[5]);
+    int maxrank = atoi(argv[3]);
+    double tol = atof(argv[4]);
     int oversample = 10, onfly = 0;
     char dtype = 'd', symm = 'N';
     int ndim = 2, shape[2] = {N, N};
     printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
+    // Init STARS-H
+    starsh_init();
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
     STARSH_kernel kernel;
@@ -58,7 +62,7 @@ int main(int argc, char **argv)
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     time1 = omp_get_wtime()-time1;
     starsh_blrf_info(F);
     starsh_blrm_info(M);

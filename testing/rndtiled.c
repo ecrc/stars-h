@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file rndtiled.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file testing/rndtiled.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #ifdef MKL
@@ -21,10 +24,10 @@
 
 int main(int argc, char **argv)
 {
-    if(argc != 7)
+    if(argc != 6)
     {
-        printf("%d arguments provided, but 6 are needed\n", argc-1);
-        printf("rndtiled N NB decay maxrank tol scheme\n");
+        printf("%d arguments provided, but 5 are needed\n", argc-1);
+        printf("rndtiled N NB decay maxrank tol\n");
         return -1;
     }
     int N = atoi(argv[1]);
@@ -32,12 +35,12 @@ int main(int argc, char **argv)
     double decay = atof(argv[3]);
     int maxrank = atoi(argv[4]);
     double tol = atof(argv[5]);
-    char *scheme = argv[6];
-    int oversample = 10;
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int shape[2] = {N, N};
     int info;
+    // Init STARS-H
+    starsh_init();
     // Generate problem by random matrices
     STARSH_rndtiled *data;
     STARSH_kernel kernel;
@@ -66,7 +69,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARSH_blrm *M;
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     time1 = omp_get_wtime()-time1;
     // Print info about updated format and approximation
     starsh_blrf_info(F);

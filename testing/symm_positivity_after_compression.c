@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file symm_positivity_after_compression.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file testing/symm_positivity_after_compression.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #ifdef MKL
@@ -37,14 +40,15 @@ int main(int argc, char **argv)
     char *scheme = argv[7];
     */
     int sqrtn = 100, block_size = 1000;
-    int maxrank = 100, oversample = 10;
+    int maxrank = 100;
     double tol = 1e-9, beta = 0.1;
     double nu = 0.0;
-    char *scheme = "omp_rsdd";
     int onfly = 0;
     int N = sqrtn*sqrtn;
     // Setting random seed
     srand(100);
+    // Init STARS-H
+    starsh_init();
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
@@ -68,7 +72,7 @@ int main(int argc, char **argv)
     // Approximate each admissible block
     STARSH_blrm *M;
     double time0 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, oversample, tol, onfly, scheme);
+    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     printf("TIME TO APPROXIMATE: %e secs\n", omp_get_wtime()-time0);
     // Print info about updated format and approximation
     starsh_blrf_info(F);

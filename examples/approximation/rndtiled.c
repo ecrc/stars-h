@@ -1,10 +1,13 @@
 /*! @copyright (c) 2017 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
- * @file rndtiled.c
- * @version 1.0.0.2
+ * STARS-H is a software package, provided by King Abdullah
+ *             University of Science and Technology (KAUST)
+ *
+ * @file examples/approximation/rndtiled.c
+ * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 16 May 2017
+ * @date 2017-08-13
  * */
 
 #include <stdio.h>
@@ -33,9 +36,9 @@ int main(int argc, char **argv)
     int oversample = 10; // Parameter for randomized SVD (extra random vectors)
     double tol = 1e-3; // Error threshold
     int onfly = 0; // Do not store dense blocks (since they are stored in data)
-    char *scheme = "omp_rsdd"; // Use OpenMP randomized SVD for
-                                     // compression
     srand(0);
+    // Init STARS-H
+    starsh_init();
     // Generate data for spatial statistics problem
     STARSH_rndtiled *data;
     STARSH_kernel kernel;
@@ -83,8 +86,8 @@ int main(int argc, char **argv)
     }
     // Approximate with tile low-rank matrix
     STARSH_blrm *matrix;
-    info = starsh_blrm_approximate(&matrix, format, maxrank, oversample, tol,
-            onfly, scheme);
+    info = starsh_blrm_approximate(&matrix, format, maxrank, tol,
+            onfly);
     if(info != 0)
     {
         printf("Error in approximation\n");
