@@ -1,4 +1,4 @@
-#!/bin/bash -xel
+#!/bin/bash -el
 
 # The -x flags indicates to echo all commands, thus knowing exactly what is being executed.
 # The -e flags indicates to halt on error, so no more processing of this script will be done
