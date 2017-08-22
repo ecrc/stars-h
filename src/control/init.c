@@ -10,122 +10,25 @@
  * @date 2017-08-13
  * */
 
-#include "common.h"
 #include "starsh.h"
-
-//! Parameters of STARS-H
-struct starsh_params starsh_params;
-
-//! Set number of backends and default one
-#define BACKEND_NUM 6
-#define BACKEND_DEFAULT STARSH_BACKEND_SEQUENTIAL
-#ifdef OPENMP
-    #undef BACKEND_DEFAULT
-    #define BACKEND_DEFAULT STARSH_BACKEND_OPENMP
-#endif
-#ifdef MPI
-    #undef BACKEND_DEFAULT
-    #define BACKEND_DEFAULT STARSH_BACKEND_MPI
-#endif
-#if defined(OPENMP) && defined(MPI)
-    #undef BACKEND_DEFAULT
-    #define BACKEND_DEFAULT STARSH_BACKEND_MPI_OPENMP
-#endif
-
-//! Array of backends, each presented by string and enum value
-struct
-{
-    const char *string;
-    enum STARSH_BACKEND backend;
-} const backend[BACKEND_NUM] =
-{
-    {"SEQUENTIAL", STARSH_BACKEND_SEQUENTIAL},
-#ifdef OPENMP
-    {"OPENMP", STARSH_BACKEND_OPENMP},
-#else
-    {"OPENMP", STARSH_BACKEND_NOTSUPPORTED},
-#endif
-#ifdef MPI
-    {"MPI", STARSH_BACKEND_MPI},
-#else
-    {"MPI", STARSH_BACKEND_NOTSUPPORTED},
-#endif
-#if defined(OPENMP) && defined(MPI)
-    {"MPI_OPENMP", STARSH_BACKEND_MPI_OPENMP},
-#else
-    {"MPI_OPENMP", STARSH_BACKEND_NOTSUPPORTED},
-#endif
-#ifdef STARPU
-    {"STARPU", STARSH_BACKEND_STARPU},
-#else
-    {"STARPU", STARSH_BACKEND_NOTSUPPORTED},
-#endif
-#if defined(STARPU) && defined(MPI)
-    {"MPI_STARPU", STARSH_BACKEND_MPI_STARPU},
-#else
-    {"MPI_STARPU", STARSH_BACKEND_NOTSUPPORTED},
-#endif
-};
-
-//! Set number of low-rank engines and default one
-#define LRENGINE_NUM 5
-#define LRENGINE_DEFAULT STARSH_LRENGINE_RSVD
-//! Array of low-rank engines, presented by string and enum value
-struct
-{
-    const char *string;
-    enum STARSH_LRENGINE lrengine;
-} const lrengine[LRENGINE_NUM] =
-{
-    {"SVD", STARSH_LRENGINE_SVD},
-    {"DCSVD", STARSH_LRENGINE_DCSVD},
-    {"RRQR", STARSH_LRENGINE_RRQR},
-    {"RSVD", STARSH_LRENGINE_RSVD},
-    {"CROSS", STARSH_LRENGINE_CROSS},
-};
-
-//! Array of approximation functions for NOTSUPPORTED backend
-static STARSH_blrm_approximate *(dlr_none[LRENGINE_NUM]) = {};
-
-//! Array of approximation functions for SEQUENTIAL backend
-static STARSH_blrm_approximate *(dlr_seq[LRENGINE_NUM]) =
-{
-    starsh_blrm__dsdd, starsh_blrm__dsdd, starsh_blrm__dqp3,
-    starsh_blrm__drsdd, starsh_blrm__drsdd
-};
-
-//! Array of approximation functions for OMP backend
-static STARSH_blrm_approximate *(dlr_omp[LRENGINE_NUM]) =
-{
-    starsh_blrm__dsdd_omp, starsh_blrm__dsdd_omp, starsh_blrm__dqp3_omp,
-    starsh_blrm__drsdd_omp, starsh_blrm__drsdd_omp
-};
-
-//! Array of approximation functions for MPI and MPI_OPENMP backends
-static STARSH_blrm_approximate *(dlr_mpi[LRENGINE_NUM]) =
-{
-    starsh_blrm__dsdd_mpi, starsh_blrm__dsdd_mpi, starsh_blrm__dqp3_mpi,
-    starsh_blrm__drsdd_mpi, starsh_blrm__drsdd_mpi
-};
-
-//! Array of approximation functions, depending on backend
-static STARSH_blrm_approximate *(*dlr[BACKEND_NUM]) =
-{
-    dlr_seq, dlr_omp, dlr_mpi, dlr_mpi, dlr_none, dlr_none
-};
+#include "common.h"
+#include "control/init.h"
 
 int starsh_init()
 //! Initialize backend and low-rank engine to be used
+/*! Reads environment variables and sets up backend (etc. MPI) and low-rank
+ * engine (etc. SVD).
+ * Environment variables
+ * ---------------------
+ *  STARSH_BACKEND: SEQUENTIAL, MPI (pure MPI), OPENMP (pure OpenMP) or
+ *  MPI_OPENMP (hybrid MPI with OpenMP)
+ *
+ *  STARSH_LRENGINE: DCSVD (divide-and-conquer SVD), RRQR (LAPACK *geqp3) or
+ *  RSVD(randomized SVD)
+ * */
 {
     const char *str_backend = "STARSH_BACKEND";
     const char *str_lrengine = "STARSH_LRENGINE";
-    const static struct starsh_params starsh_params_default =
-    {
-        BACKEND_DEFAULT, LRENGINE_DEFAULT, 10
-    };
-    //starsh_params.oversample = 10;
-    //starsh_params.backend = STARSH_BACKEND_OPENMP;
-    //starsh_params.lrengine = STARSH_LRENGINE_RSVD;
     starsh_params = starsh_params_default;
     int info = 0, i;
     info |= starsh_set_backend(getenv(str_backend));
@@ -135,7 +38,8 @@ int starsh_init()
 
 int starsh_set_backend(const char *string)
 //! Set backend (MPI or OpenMP or other scheduler) for computations
-/*! @param[in] string: name of backend to use
+/*! @param[in] string: Name of backend to use. Possible values:
+ * "SEQUENTIAL", "OPENMP", "MPI", "MPI_OPENMP"
  * */
 {
     int i, selected = -1;
@@ -177,7 +81,8 @@ int starsh_set_backend(const char *string)
 
 int starsh_set_lrengine(const char *string)
 //! Set low-rank engine (SVD, Randomized SVD or Cross) for computations
-/*! @param[in] string: name of low-rank engine to use
+/*! @param[in] string: Name of low-rank engine to use. Possible values:
+ * "SVD", "DCSVD", "RRQR", "RSVD", "CROSS"
  * */
 {
     int i, selected = -1;
