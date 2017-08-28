@@ -56,7 +56,8 @@ enum STARSH_ERRNO
 {
     STARSH_SUCCESS = 0,
     MALLOC_ERROR = 1,
-    STARSH_UNKNOWN_ERROR = -1
+    STARSH_UNKNOWN_ERROR = -1,
+    STARSH_WRONG_PARAMETER
 };
 
 //! Enum for problem types

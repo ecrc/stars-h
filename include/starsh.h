@@ -37,6 +37,7 @@ extern struct starsh_params starsh_params;
 int starsh_init();
 int starsh_set_backend(const char *string);
 int starsh_set_lrengine(const char *string);
+int starsh_set_oversample(const char *string);
 
 //! typedef for different structures
 typedef struct array Array;

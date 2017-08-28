@@ -119,7 +119,7 @@ int starsh_set_lrengine(const char *string)
     {
         fprintf(stderr, "Environment variable STARSH_LRENGINE=%s is invalid\n",
                 string);
-        return STARSH_WRONG_PARAMETER
+        return STARSH_WRONG_PARAMETER;
     }
     starsh_params.lrengine = lrengine[selected].lrengine;
     fprintf(stderr, "Selected low-rank engine is %s\n",
@@ -149,6 +149,7 @@ int starsh_set_oversample(const char *string)
                 "invalid\n", string);
         return STARSH_WRONG_PARAMETER;
     }
+    fprintf(stderr, "Selected oversample size %d\n", value);
     starsh_params.oversample = value;
     return STARSH_SUCCESS;
 }
