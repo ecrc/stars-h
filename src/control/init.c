@@ -25,15 +25,32 @@ int starsh_init()
  *
  *  STARSH_LRENGINE: DCSVD (divide-and-conquer SVD), RRQR (LAPACK *geqp3) or
  *  RSVD(randomized SVD)
+ *
+ *  STARSH_OVERSAMPLE: Number of oversampling vectors for randomized SVD and
+ *  RRQR
  * */
 {
     const char *str_backend = "STARSH_BACKEND";
     const char *str_lrengine = "STARSH_LRENGINE";
-    starsh_params = starsh_params_default;
+    const char *str_oversample = "STARSH_OVERSAMPLE";
+    //starsh_params = starsh_params_default;
     int info = 0, i;
-    info |= starsh_set_backend(getenv(str_backend));
-    info |= starsh_set_lrengine(getenv(str_lrengine));
-    return info;
+    // Set backend by STARSH_BACKEND
+    info = starsh_set_backend(getenv(str_backend));
+    // If attempt to use user-defined value fails, then use default one
+    if(info != STARSH_SUCCESS)
+        starsh_set_backend(NULL);
+    // Set low-rank engine by STARSH_LRENGINE
+    info = starsh_set_lrengine(getenv(str_lrengine));
+    // If attempt to use user-defined value fails, then use default one
+    if(info != STARSH_SUCCESS)
+        starsh_set_lrengine(NULL);
+    // Set oversampling size by STARSH_OVERSAMPLE
+    info = starsh_set_oversample(getenv(str_oversample));
+    // If attempt to use user-defined value fails, then use default one
+    if(info != STARSH_SUCCESS)
+        starsh_set_oversample(NULL);
+    return STARSH_SUCCESS;
 }
 
 int starsh_set_backend(const char *string)
@@ -45,7 +62,7 @@ int starsh_set_backend(const char *string)
     int i, selected = -1;
     if(string == NULL)
     {
-        selected = BACKEND_DEFAULT;
+        selected = starsh_params_default.backend;
     }
     else
     {
@@ -60,23 +77,20 @@ int starsh_set_backend(const char *string)
     }
     if(selected == -1)
     {
-        selected = BACKEND_DEFAULT;
-        fprintf(stderr, "Environment variable STARSH_BACKEND=%s is invalid, "
-                "using default backend (%s)\n",
-                string, backend[selected].string);
+        fprintf(stderr, "Environment variable STARSH_BACKEND=%s is invalid\n",
+                string);
+        return STARSH_WRONG_PARAMETER;
     }
-    else if(backend[selected].backend == STARSH_BACKEND_NOTSUPPORTED)
+    if(backend[selected].backend == STARSH_BACKEND_NOTSUPPORTED)
     {
-        selected = BACKEND_DEFAULT;
-        fprintf(stderr, "Backend %s (environment variable STARSH_BACKEND) "
-                "is not supported, using default backend (%s)\n",
-                string, backend[selected].string);
+        fprintf(stderr, "Specified backend %s is not supported\n", string);
+        return STARSH_WRONG_PARAMETER;
     }
     starsh_params.backend = backend[selected].backend;
     fprintf(stderr, "Selected backend is %s\n", backend[selected].string);
     starsh_blrm_approximate = dlr[starsh_params.backend][
         starsh_params.lrengine];
-    return 0;
+    return STARSH_SUCCESS;
 }
 
 int starsh_set_lrengine(const char *string)
@@ -88,7 +102,7 @@ int starsh_set_lrengine(const char *string)
     int i, selected = -1;
     if(string == NULL)
     {
-        selected = LRENGINE_DEFAULT;
+        selected = starsh_params_default.lrengine;
     }
     else
     {
@@ -103,15 +117,38 @@ int starsh_set_lrengine(const char *string)
     }
     if(selected == -1)
     {
-        selected = LRENGINE_DEFAULT;
-        fprintf(stderr, "Environment variable STARSH_LRENGINE=%s is invalid, "
-                "using default low-rank engine (%s)\n",
-                string, lrengine[selected].string);
+        fprintf(stderr, "Environment variable STARSH_LRENGINE=%s is invalid\n",
+                string);
+        return STARSH_WRONG_PARAMETER
     }
     starsh_params.lrengine = lrengine[selected].lrengine;
     fprintf(stderr, "Selected low-rank engine is %s\n",
             lrengine[selected].string);
     starsh_blrm_approximate = dlr[starsh_params.backend][
         starsh_params.lrengine];
-    return 0;
+    return STARSH_SUCCESS;
+}
+
+int starsh_set_oversample(const char *string)
+//! Set oversampling size for randomized SVD and RRQR
+/*! @param[in] string: number of oversampling vectors. Default value is 10
+ * */
+{
+    int value;
+    if(string == NULL)
+    {
+        value = starsh_params_default.oversample;
+    }
+    else
+    {
+        value = atoi(string);
+    }
+    if(value <= 0)
+    {
+        fprintf(stderr, "Environment variable STARSH_OVERSAMPLE=%s is "
+                "invalid\n", string);
+        return STARSH_WRONG_PARAMETER;
+    }
+    starsh_params.oversample = value;
+    return STARSH_SUCCESS;
 }
