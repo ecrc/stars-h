@@ -27,5 +27,11 @@ pipeline {
                                 archiveArtifacts allowEmptyArchive: true, artifacts: 'build/install-dir/starsh.tgz'
                         }
                 }
+                stage ('docs') {
+                        steps {
+                                sh "cd $WORKSPACE/build && make docs"
+                                publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
+                        }
+                }
         }
 }
