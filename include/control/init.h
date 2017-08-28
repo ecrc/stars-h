@@ -79,7 +79,11 @@ struct
 };
 
 //! Parameters of STARS-H
-struct starsh_params starsh_params;
+struct starsh_params starsh_params =
+{
+    STARSH_BACKEND_NOTSELECTED, STARSH_LRENGINE_NOTSELECTED, -1
+};
+
 const static struct starsh_params starsh_params_default =
 {
     BACKEND_DEFAULT, LRENGINE_DEFAULT, 10

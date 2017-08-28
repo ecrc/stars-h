@@ -16,6 +16,8 @@
 //! Enum for backend types
 enum STARSH_BACKEND
 {
+    STARSH_BACKEND_NOTSELECTED = -2,
+    //!< Backend has not been yet selected
     STARSH_BACKEND_NOTSUPPORTED = -1,
     //!< Error, backend is not supported
     STARSH_BACKEND_SEQUENTIAL = 0,
@@ -35,6 +37,10 @@ enum STARSH_BACKEND
 //! Enum for low-rank engine (approximation technique)
 enum STARSH_LRENGINE
 {
+    STARSH_LRENGINE_NOTSELECTED = -2,
+    //!< Engine has not been yet selected
+    STARSH_LRENGINE_NOTSUPPORTED = -1,
+    //!< Error, engine is not supported
     STARSH_LRENGINE_SVD = 0,
     //!< Usual Singular Values Decomposition
     STARSH_LRENGINE_DCSVD = 1,
@@ -52,7 +58,8 @@ enum STARSH_ERRNO
 {
     STARSH_SUCCESS = 0,
     MALLOC_ERROR = 1,
-    STARSH_UNKNOWN_ERROR = -1
+    STARSH_UNKNOWN_ERROR = -1,
+    STARSH_WRONG_PARAMETER
 };
 
 //! Enum for problem types
