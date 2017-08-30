@@ -7,7 +7,7 @@
  * @file examples/problem/spatial.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #include <stdio.h>
@@ -35,13 +35,16 @@ int main(int argc, char **argv)
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
+    enum STARSH_PARTICLES_PLACEMENT place = STARSH_PARTICLES_UNIFORM;
+    // Possible values can be found in documentation for enum
+    // STARSH_PARTICLES_PLACEMENT
     int info;
     srand(0);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
     // STARSH_SPATIAL for spatial statistics problem
-    // kernel_type is enum type, for possible values llok into starsh-spatial.h
+    // kernel_type is enum type, for possible values look into starsh-spatial.h
     // STARSH_SATIAL_NDIM to indicate next parameter shows dimensionality of
     //   spatial statistics problem
     // STARSH_SPATIAL_BETA to indicate next parameter is correlation length
@@ -52,7 +55,7 @@ int main(int argc, char **argv)
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, 0);
+            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
     if(info != 0)
     {
         printf("wrong parameters for spatial statistics problem\n");

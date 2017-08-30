@@ -7,7 +7,7 @@
  * @file examples/approximation/minimal.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #include <stdio.h>

@@ -7,7 +7,7 @@
  * @file testing/spatial.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #ifdef MKL
@@ -25,27 +25,30 @@
 
 int main(int argc, char **argv)
 {
-    if(argc != 11)
+    if(argc != 12)
     {
-        printf("%d arguments provided, but 10 are needed\n", argc-1);
-        printf("spatial ndim kernel beta nu N block_size maxrank"
+        printf("%d arguments provided, but 11 are needed\n", argc-1);
+        printf("spatial ndim placement kernel beta nu N block_size maxrank"
                 " tol check_matvec check_cg_solve\n");
         return -1;
     }
     int problem_ndim = atoi(argv[1]);
-    int kernel_type = atoi(argv[2]);
-    double beta = atof(argv[3]);
-    double nu = atof(argv[4]);
-    int N = atoi(argv[5]);
-    int block_size = atoi(argv[6]);
-    int maxrank = atoi(argv[7]);
-    double tol = atof(argv[8]);
+    int place = atoi(argv[2]);
+    int kernel_type = atoi(argv[3]);
+    double beta = atof(argv[4]);
+    double nu = atof(argv[5]);
+    int N = atoi(argv[6]);
+    int block_size = atoi(argv[7]);
+    int maxrank = atoi(argv[8]);
+    double tol = atof(argv[9]);
     double noise = 0;
-    int check_matvec = atoi(argv[9]);
-    int check_cg_solve = atoi(argv[10]);
+    int check_matvec = atoi(argv[10]);
+    int check_cg_solve = atoi(argv[11]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
+    // Possible values can be found in documentation for enum
+    // STARSH_PARTICLES_PLACEMENT
     int nrhs = 1;
     int info;
     srand(0);
@@ -58,7 +61,7 @@ int main(int argc, char **argv)
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, 0);
+            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");

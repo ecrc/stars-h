@@ -3,7 +3,11 @@ set(examples_files
     "rndtiled.c"
     "minimal.c"
     "dense.c"
+    "particles.c"
     )
+
+file(COPY "particles.txt"
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Uses RUNPATH instead of RPATH
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")

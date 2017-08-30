@@ -794,6 +794,7 @@ INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/index.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/install.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/examples.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/apps.md" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/applications" \
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential"\
                          "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/blrm"\

@@ -7,7 +7,7 @@
  * @file include/starsh-spatial.h
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #ifndef __STARSH_SPATIAL_H__
@@ -15,18 +15,14 @@
 
 // Add definitions for size_t, va_list and STARSH_kernel
 #include "starsh.h"
+#include "starsh-particles.h"
 
 typedef struct starsh_ssdata
 //! Structure for Spatial Statistics problems.
 {
-    size_t count;
-    //!< Number of spatial points.
-    int ndim;
-    //!< Dimensionality of the problem.
+    STARSH_particles particles;
     char dtype;
     //!< Precision of each matrix element (double, single etc)
-    double *point;
-    //!< Coordinates of spatial points.
     double beta;
     //!< Characteristical length of covariance. Notes as l in some papers.
     double nu;
@@ -53,7 +49,7 @@ enum STARSH_SPATIAL_PARAM
     STARSH_SPATIAL_BETA = 2,
     STARSH_SPATIAL_NU = 3,
     STARSH_SPATIAL_NOISE = 4,
-    STARSH_SPATIAL_PLACE = 5
+    STARSH_SPATIAL_PLACE = 5,
 };
 
 int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,

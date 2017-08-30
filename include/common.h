@@ -7,7 +7,7 @@
  * @file include/common.h
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #ifndef __COMMON_H__
@@ -60,8 +60,6 @@
     #include <gsl/gsl_sf.h>
 #endif
 
-#define STARSH_MALLOC_FAILED 1
-
 #define STARSH_ERROR(format, ...)\
 {\
     fprintf(stderr, "STARSH ERROR: %s(): ", __func__);\
@@ -86,7 +84,7 @@
     if(!var)\
     {\
         STARSH_ERROR("line %d: malloc() failed", __LINE__);\
-        return 1;\
+        return STARSH_MALLOC_ERROR;\
     }\
 }
 
@@ -96,7 +94,7 @@
     if(!var)\
     {\
         STARSH_ERROR("malloc() failed");\
-        return 1;\
+        return STARSH_MALLOC_ERROR;\
     }\
 }
 
@@ -106,7 +104,7 @@
     if(!var)\
     {\
         STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
+        var_info = STARSH_MALLOC_ERROR;\
     }\
 }
 
@@ -116,7 +114,7 @@
     if(!var)\
     {\
         STARSH_ERROR("malloc() failed");\
-        var_info = 1;\
+        var_info = STARSH_MALLOC_ERROR;\
     }\
 }
 

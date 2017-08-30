@@ -7,7 +7,7 @@
  * @file src/backends/openmp/blrm/dqp3.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #include "common.h"
@@ -25,7 +25,6 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @param[in] onfly: Whether not to store dense blocks.
  * */
 {
-    printf("IN %s\n", __func__);
     STARSH_problem *P = F->problem;
     STARSH_kernel kernel = P->kernel;
     size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;

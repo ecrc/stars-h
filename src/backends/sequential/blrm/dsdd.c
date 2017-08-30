@@ -7,7 +7,7 @@
  * @file src/backends/sequential/blrm/dsdd.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #include "common.h"
@@ -80,6 +80,7 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     }
     // Work variables
     int info;
+    printf("BEFORE CYCLE\n");
     // Simple cycle over all far-field admissible blocks
     for(bi = 0; bi < nblocks_far; bi++)
     {

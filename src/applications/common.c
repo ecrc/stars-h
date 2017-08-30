@@ -7,7 +7,7 @@
  * @file src/applications/common.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #include "common.h"
@@ -62,10 +62,12 @@ int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
             if(info != 0)
                 return info;
             info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
+            if(info != 0)
+                return info;
             break;
         default:
             STARSH_ERROR("Wrong value of problem_type");
-            return 1;
+            return STARSH_WRONG_PARAMETER;
     }
     va_end(args);
     return info;

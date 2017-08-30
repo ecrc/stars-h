@@ -7,7 +7,7 @@
  * @file testing/mpi_spatial.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  * */
 
 #ifdef MKL
@@ -29,32 +29,35 @@ int main(int argc, char **argv)
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    if(argc != 11)
+    if(argc != 12)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 10 are needed\n",
+            printf("%d arguments provided, but 11 are needed\n",
                     argc-1);
-            printf("mpi_spatial ndim kernel beta nu N block_size "
+            printf("mpi_spatial ndim placement kernel beta nu N block_size "
                     "maxrank tol check_matvec check_cg_solve\n");
         }
         MPI_Finalize();
         exit(0);
     }
     int problem_ndim = atoi(argv[1]);
-    int kernel_type = atoi(argv[2]);
-    double beta = atof(argv[3]);
-    double nu = atof(argv[4]);
-    int N = atoi(argv[5]);
-    int block_size = atoi(argv[6]);
-    int maxrank = atoi(argv[7]);
-    double tol = atof(argv[8]);
+    int place = atoi(argv[2]);
+    int kernel_type = atoi(argv[3]);
+    double beta = atof(argv[4]);
+    double nu = atof(argv[5]);
+    int N = atoi(argv[6]);
+    int block_size = atoi(argv[7]);
+    int maxrank = atoi(argv[8]);
+    double tol = atof(argv[9]);
     double noise = 0;
-    int check_matvec = atoi(argv[9]);
-    int check_cg_solve = atoi(argv[10]);
+    int check_matvec = atoi(argv[10]);
+    int check_cg_solve = atoi(argv[11]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2, shape[2] = {N, N};
+    // Possible values can be found in documentation for enum
+    // STARSH_PARTICLES_PLACEMENT
     int nrhs = 1;
     int info;
     srand(0);
@@ -67,7 +70,8 @@ int main(int argc, char **argv)
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, 0);
+            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+    //starsh_particles_write_to_file_pointer_ascii(&data->particles, stdout);
     if(info != 0)
     {
         if(mpi_rank == 0)
@@ -130,6 +134,7 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
+    /*
     if(rel_err/tol > 10.)
         exit(1);
     // Flush STDOUT, since next step is very time consuming
@@ -204,6 +209,7 @@ int main(int argc, char **argv)
                     "RHS=%e\n", info, time1, norm_res/norm_rhs);
         }
     }
+    */
     MPI_Finalize();
     return 0;
 }

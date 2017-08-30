@@ -7,7 +7,7 @@
  * @file src/applications/spatial.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-13
+ * @date 2017-08-22
  */
 
 #include "common.h"
@@ -35,7 +35,7 @@ void starsh_ssdata_block_exp_kernel_1d_simd(int nrows, int ncols,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X coordinate
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -72,7 +72,7 @@ void starsh_ssdata_block_exp_kernel_1d(int nrows, int ncols, int *irow,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X coordinate
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -108,7 +108,8 @@ void starsh_ssdata_block_exp_kernel_2d_simd(int nrows, int ncols,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -148,7 +149,8 @@ void starsh_ssdata_block_exp_kernel_2d(int nrows, int ncols, int *irow,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -187,7 +189,8 @@ void starsh_ssdata_block_exp_kernel_3d_simd(int nrows, int ncols,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -229,7 +232,8 @@ void starsh_ssdata_block_exp_kernel_3d(int nrows, int ncols, int *irow,
     double tmp, dist, beta = -data->beta;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -270,7 +274,7 @@ void starsh_ssdata_block_sqr_exp_kernel_1d_simd(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -308,7 +312,7 @@ void starsh_ssdata_block_sqr_exp_kernel_1d(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -345,7 +349,8 @@ void starsh_ssdata_block_sqr_exp_kernel_2d_simd(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -385,7 +390,8 @@ void starsh_ssdata_block_sqr_exp_kernel_2d(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -424,7 +430,8 @@ void starsh_ssdata_block_sqr_exp_kernel_3d_simd(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -466,7 +473,8 @@ void starsh_ssdata_block_sqr_exp_kernel_3d(int nrows, int ncols,
     double tmp, dist, beta = -2*data->beta*data->beta;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -510,7 +518,7 @@ void starsh_ssdata_block_matern_kernel_1d_simd(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -551,7 +559,7 @@ void starsh_ssdata_block_matern_kernel_1d(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -591,7 +599,8 @@ void starsh_ssdata_block_matern_kernel_2d_simd(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -634,7 +643,8 @@ void starsh_ssdata_block_matern_kernel_2d(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -676,7 +686,8 @@ void starsh_ssdata_block_matern_kernel_3d_simd(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -721,7 +732,8 @@ void starsh_ssdata_block_matern_kernel_3d(int nrows, int ncols,
     double noise = data->noise;
     double theta = sqrt(2*nu)/beta;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -765,7 +777,7 @@ void starsh_ssdata_block_matern2_kernel_1d_simd(int nrows,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -805,7 +817,7 @@ void starsh_ssdata_block_matern2_kernel_1d(int nrows, int ncols,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X coordinates
-    double *x = data->point;
+    double *x = data->particles.point;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -845,7 +857,8 @@ void starsh_ssdata_block_matern2_kernel_2d_simd(int nrows,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -887,7 +900,8 @@ void starsh_ssdata_block_matern2_kernel_2d(int nrows, int ncols,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X and Y coordinates
-    double *x = data->point, *y = x+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -929,7 +943,8 @@ void starsh_ssdata_block_matern2_kernel_3d_simd(int nrows,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     #pragma omp simd
@@ -973,7 +988,8 @@ void starsh_ssdata_block_matern2_kernel_3d(int nrows, int ncols,
     double tmp, dist, beta = data->beta, nu = data->nu;
     double noise = data->noise;
     // Get X, Y and Z coordinates
-    double *x = data->point, *y = x+data->count, *z = y+data->count;
+    size_t count = data->particles.count;
+    double *x = data->particles.point, *y = x+count, *z = y+count;
     double *buffer = result;
     // Fill column-major matrix
     for(j = 0; j < ncols; j++)
@@ -995,185 +1011,6 @@ void starsh_ssdata_block_matern2_kernel_3d(int nrows, int ncols,
 }
 #endif
 
-static uint32_t Part1By1(uint32_t x)
-//! Spread lower bits of input
-{
-  x &= 0x0000ffff;
-  // x = ---- ---- ---- ---- fedc ba98 7654 3210
-  x = (x ^ (x <<  8)) & 0x00ff00ff;
-  // x = ---- ---- fedc ba98 ---- ---- 7654 3210
-  x = (x ^ (x <<  4)) & 0x0f0f0f0f;
-  // x = ---- fedc ---- ba98 ---- 7654 ---- 3210
-  x = (x ^ (x <<  2)) & 0x33333333;
-  // x = --fe --dc --ba --98 --76 --54 --32 --10
-  x = (x ^ (x <<  1)) & 0x55555555;
-  // x = -f-e -d-c -b-a -9-8 -7-6 -5-4 -3-2 -1-0
-  return x;
-}
-
-static uint32_t Compact1By1(uint32_t x)
-//! Collect every second bit into lower part of input
-{
-  x &= 0x55555555;
-  // x = -f-e -d-c -b-a -9-8 -7-6 -5-4 -3-2 -1-0
-  x = (x ^ (x >>  1)) & 0x33333333;
-  // x = --fe --dc --ba --98 --76 --54 --32 --10
-  x = (x ^ (x >>  2)) & 0x0f0f0f0f;
-  // x = ---- fedc ---- ba98 ---- 7654 ---- 3210
-  x = (x ^ (x >>  4)) & 0x00ff00ff;
-  // x = ---- ---- fedc ba98 ---- ---- 7654 3210
-  x = (x ^ (x >>  8)) & 0x0000ffff;
-  // x = ---- ---- ---- ---- fedc ba98 7654 3210
-  return x;
-}
-
-static uint64_t Part1By3(uint64_t x)
-//! Spread lower bits of input
-{
-    x &= 0x000000000000ffff;
-    // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
-    x = (x ^ (x << 24)) & 0x000000ff000000ff;
-    // x = ---- ---- ---- ---- ---- ---- fedc ba98 ---- ---- ---- ---- ---- ---- 7654 3210
-    x = (x ^ (x << 12)) & 0x000f000f000f000f;
-    // x = ---- ---- ---- fedc ---- ---- ---- ba98 ---- ---- ---- 7654 ---- ---- ---- 3210
-    x = (x ^ (x << 6)) & 0x0303030303030303;
-    // x = ---- --fe ---- --dc ---- --ba ---- --98 ---- --76 ---- --54 ---- --32 ---- --10
-    x = (x ^ (x << 3)) & 0x1111111111111111;
-    // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
-    return x;
-}
-
-static uint64_t Compact1By3(uint64_t x)
-//! Collect every 4-th bit into lower part of input
-{
-    x &= 0x1111111111111111;
-    // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
-    x = (x ^ (x >> 3)) & 0x0303030303030303;
-    // x = ---- --fe ---- --dc ---- --ba ---- --98 ---- --76 ---- --54 ---- --32 ---- --10
-    x = (x ^ (x >> 6)) & 0x000f000f000f000f;
-    // x = ---- ---- ---- fedc ---- ---- ---- ba98 ---- ---- ---- 7654 ---- ---- ---- 3210
-    x = (x ^ (x >> 12)) & 0x000000ff000000ff;
-    // x = ---- ---- ---- ---- ---- ---- fedc ba98 ---- ---- ---- ---- ---- ---- 7654 3210
-    x = (x ^ (x >> 24)) & 0x000000000000ffff;
-    // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
-    return x;
-}
-
-static uint32_t EncodeMorton2(uint32_t x, uint32_t y)
-//! Encode two inputs into one
-{
-    return (Part1By1(y) << 1) + Part1By1(x);
-}
-
-static uint64_t EncodeMorton3(uint64_t x, uint64_t y, uint64_t z)
-//! Encode 3 inputs into one
-{
-    return (Part1By3(z) << 2) + (Part1By3(y) << 1) + Part1By3(x);
-}
-
-static uint32_t DecodeMorton2X(uint32_t code)
-//! Decode first input
-{
-    return Compact1By1(code >> 0);
-}
-
-static uint32_t DecodeMorton2Y(uint32_t code)
-//! Decode second input
-{
-    return Compact1By1(code >> 1);
-}
-
-static uint64_t DecodeMorton3X(uint64_t code)
-//! Decode first input
-{
-    return Compact1By3(code >> 0);
-}
-
-static uint64_t DecodeMorton3Y(uint64_t code)
-//! Decode second input
-{
-    return Compact1By3(code >> 1);
-}
-
-static uint64_t DecodeMorton3Z(uint64_t code)
-//! Decode third input
-{
-    return Compact1By3(code >> 2);
-}
-
-static int compare_uint32(const void *a, const void *b)
-//! Compare two uint32_t
-{
-    uint32_t _a = *(uint32_t *)a;
-    uint32_t _b = *(uint32_t *)b;
-    if(_a < _b) return -1;
-    if(_a == _b) return 0;
-    return 1;
-}
-
-static int compare_uint64(const void *a, const void *b)
-//! Compare two uint64_t
-{
-    uint64_t _a = *(uint64_t *)a;
-    uint64_t _b = *(uint64_t *)b;
-    if(_a < _b) return -1;
-    if(_a == _b) return 0;
-    return 1;
-}
-
-static void zsort(int n, double *points)
-//! Sort in Morton order (input points must be in [0;1]x[0;1] square])
-{
-    // Some sorting, required by spatial statistics code
-    int i;
-    uint16_t x, y;
-    uint32_t z[n];
-    // Encode data into vector z
-    for(i = 0; i < n; i++)
-    {
-        x = (uint16_t)(points[i]*(double)UINT16_MAX +.5);
-        y = (uint16_t)(points[i+n]*(double)UINT16_MAX +.5);
-        //printf("%f %f -> %u %u\n", points[i], points[i+n], x, y);
-        z[i] = EncodeMorton2(x, y);
-    }
-    // Sort vector z
-    qsort(z, n, sizeof(uint32_t), compare_uint32);
-    // Decode data from vector z
-    for(i = 0; i < n; i++)
-    {
-        x = DecodeMorton2X(z[i]);
-        y = DecodeMorton2Y(z[i]);
-        points[i] = (double)x/(double)UINT16_MAX;
-        points[i+n] = (double)y/(double)UINT16_MAX;
-        //printf("%lu (%u %u) -> %f %f\n", z[i], x, y, points[i], points[i+n]);
-    }
-}
-
-static void zsort3(int n, double *points)
-//! Sort in Morton order for 3D
-{
-    // Some sorting, required by spatial statistics code
-    int i;
-    uint16_t x, y, z;
-    uint64_t Z[n];
-    // Encode data into vector Z
-    for(i = 0; i < n; i++)
-    {
-        x = (uint16_t)(points[i]*(double)UINT16_MAX + 0.5);
-        y = (uint16_t)(points[i+n]*(double)UINT16_MAX + 0.5);
-        z = (uint16_t)(points[i+2*n]*(double)UINT16_MAX + 0.5);
-        Z[i] = EncodeMorton3(x, y, z);
-    }
-    // Sort Z
-    qsort(Z, n, sizeof(uint64_t), compare_uint64);
-    // Decode data from vector Z
-    for(i = 0; i < n; i++)
-    {
-        points[i] = (double)DecodeMorton3X(Z[i])/(double)UINT16_MAX;
-        points[i+n] = (double)DecodeMorton3Y(Z[i])/(double)UINT16_MAX;
-        points[i+2*n] = (double)DecodeMorton3Z(Z[i])/(double)UINT16_MAX;
-    }
-}
 
 int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         double beta, double nu, double noise, int place)
@@ -1201,12 +1038,6 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         STARSH_ERROR("invalid value of `n`");
         return 1;
     }
-    if(ndim <= 0 || ndim > 3)
-    {
-        STARSH_ERROR("invalid value of `ndim` (only values 1, 2 and 3 are "
-                "supported");
-        return 1;
-    }
     if(beta <= 0)
     {
         STARSH_ERROR("invalid value of `beta`");
@@ -1222,99 +1053,18 @@ int starsh_ssdata_new(STARSH_ssdata **data, int n, char dtype, int ndim,
         STARSH_ERROR("invalid value of `noise`");
         return 1;
     }
-    if(place != 0 && place != 1)
+    int info;
+    STARSH_particles *particles;
+    info = starsh_particles_generate(&particles, n, ndim, place);
+    if(info != 0)
     {
-        STARSH_ERROR("invalid value of `place`");
-        return 1;
+        fprintf(stderr, "INFO=%d\n", info);
+        return info;
     }
-    *data = malloc(sizeof(**data));
-    double *point;
-    STARSH_MALLOC(point, ndim*n);
-    if(ndim == 1)
-    {
-        for(int i = 0; i < n; i++)
-            point[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/n;
-    }
-    else if(ndim == 2)
-    {
-        int sqrtn = floor(sqrt(n)+0.1);
-        if(sqrtn*sqrtn != n)
-        {
-            STARSH_ERROR("parameter n must be square of some integer");
-            return 1;
-        }
-        double *x = point, *y = x+n;
-        if(place == 0)
-        {
-            for(int i = 0; i < sqrtn; i++)
-                for(int j = 0; j < sqrtn; j++)
-                {
-                    int ind = i*sqrtn + j;
-                    x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-                    y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-                }
-        }
-        else
-        {
-            for(int i = 0; i < sqrtn; i++)
-                x[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-            for(int i = 0; i < sqrtn; i++)
-                y[i*sqrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
-            for(int i = 0; i < sqrtn; i++)
-                for(int j = 0; j < sqrtn; j++)
-                {
-                    int ind = i*sqrtn + j;
-                    x[ind] = x[j];
-                    y[ind] = y[i*sqrtn];
-                }
-        }
-        zsort(n, point);
-    }
-    else
-    {
-        int cbrtn = floor(cbrt(n)+0.1); 
-        if(cbrtn*cbrtn*cbrtn != n)
-        {
-            STARSH_ERROR("parameter n must be cube of some integer");
-            return 1;
-        }
-        double *x = point, *y = x+n, *z = y+n;
-        if(place == 0)
-        {
-            for(int i = 0; i < cbrtn; i++)
-                for(int j = 0; j < cbrtn; j++)
-                    for(int k = 0; k < cbrtn; k++)
-                    {
-                        int ind = (i*cbrtn + j)*cbrtn + k;
-                        x[ind] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                        y[ind] = (j+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                        z[ind] = (k+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-                    }
-        }
-        else
-        {
-            for(int i = 0; i < cbrtn; i++)
-                x[i] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-            for(int i = 0; i < cbrtn; i++)
-                y[i*cbrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-            for(int i = 0; i < cbrtn; i++)
-                z[i*cbrtn*cbrtn] = (i+0.5-0.4+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
-            for(int i = 0; i < cbrtn; i++)
-                for(int j = 0; j < cbrtn; j++)
-                    for(int k = 0; k < cbrtn; k++)
-                    {
-                        int ind = (i*cbrtn + j)*cbrtn + k;
-                        x[ind] = x[k];
-                        y[ind] = y[j*cbrtn];
-                        z[ind] = z[i*cbrtn*cbrtn];
-                    }
-        }
-        zsort3(n, point);
-    }
+    STARSH_MALLOC(*data, 1);
+    (*data)->particles = *particles;
+    free(particles);
     (*data)->dtype = dtype;
-    (*data)->point = point;
-    (*data)->count = n;
-    (*data)->ndim = ndim;
     (*data)->beta = beta;
     (*data)->nu = nu;
     (*data)->noise = noise;
@@ -1328,11 +1078,13 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
 //! @ingroup applications
 {
     int arg_type;
+    // Set default values
     int ndim = 2;
     double beta = 0.1;
     double nu = 0.5;
     double noise = 0;
-    int place = 0;
+    int place = STARSH_PARTICLES_UNIFORM;
+    int info;
     if(dtype != 'd')
     {
         STARSH_ERROR("Only dtype='d' is supported");
@@ -1359,10 +1111,11 @@ int starsh_ssdata_new_va(STARSH_ssdata **data, int n, char dtype,
                 break;
             default:
                 STARSH_ERROR("Wrong parameter type");
-                return 1;
+                return STARSH_WRONG_PARAMETER;
         }
     }
-    return starsh_ssdata_new(data, n, dtype, ndim, beta, nu, noise, place);
+    info = starsh_ssdata_new(data, n, dtype, ndim, beta, nu, noise, place);
+    return info;
 }
 
 int starsh_ssdata_new_el(STARSH_ssdata **data, int n, char dtype, ...)
@@ -1381,14 +1134,7 @@ void starsh_ssdata_free(STARSH_ssdata *data)
 //! Free data.
 //! @ingroup applications
 {
-    if(data == NULL)
-    {
-        fprintf(stderr, "Data for spatial statistics problem was not "
-                "generated\n");
-        return;
-    }
-    free(data->point);
-    free(data);
+    starsh_particles_free(&data->particles);
 }
 
 static int starsh_ssdata_get_kernel_1d(STARSH_kernel *kernel, int type,
@@ -1531,7 +1277,7 @@ int starsh_ssdata_get_kernel(STARSH_kernel *kernel, STARSH_ssdata *data,
 //! Get corresponding kernel for spatial statistics problem.
 //! @ingroup applications
 {
-    switch(data->ndim)
+    switch(data->particles.ndim)
     {
         case 1:
             return starsh_ssdata_get_kernel_1d(kernel, type, data->dtype);
@@ -1541,7 +1287,7 @@ int starsh_ssdata_get_kernel(STARSH_kernel *kernel, STARSH_ssdata *data,
             return starsh_ssdata_get_kernel_3d(kernel, type, data->dtype);
         default:
             STARSH_ERROR("parameter ndim=%d is not supported (must be 1, 2 or "
-                    "3)", data->ndim);
+                    "3)", data->particles.ndim);
             return 1;
     }
 }
