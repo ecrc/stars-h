@@ -5,6 +5,7 @@ set(STARSH_PUB_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-rndtiled.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-minimal.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-constants.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-particles.h"
 )
 
 install(FILES ${STARSH_PUB_HDR} DESTINATION ${INCDIR})

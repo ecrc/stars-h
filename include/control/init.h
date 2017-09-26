@@ -99,18 +99,22 @@ static STARSH_blrm_approximate *(dlr_seq[LRENGINE_NUM]) =
     starsh_blrm__drsdd, starsh_blrm__drsdd
 };
 
-//! Array of approximation functions for OMP backend
+//! Array of approximation functions for OPENMP backend
 static STARSH_blrm_approximate *(dlr_omp[LRENGINE_NUM]) =
 {
+    #ifdef OPENMP
     starsh_blrm__dsdd_omp, starsh_blrm__dsdd_omp, starsh_blrm__dqp3_omp,
     starsh_blrm__drsdd_omp, starsh_blrm__drsdd_omp
+    #endif
 };
 
 //! Array of approximation functions for MPI and MPI_OPENMP backends
 static STARSH_blrm_approximate *(dlr_mpi[LRENGINE_NUM]) =
 {
+    #ifdef MPI
     starsh_blrm__dsdd_mpi, starsh_blrm__dsdd_mpi, starsh_blrm__dqp3_mpi,
     starsh_blrm__drsdd_mpi, starsh_blrm__drsdd_mpi
+    #endif
 };
 
 //! Array of approximation functions, depending on backend

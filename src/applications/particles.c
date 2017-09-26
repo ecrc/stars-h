@@ -945,7 +945,6 @@ static int radix_sort(uint32_t *data, size_t count, int ndim, size_t *order)
 //! Auxiliary sorting function for Z-sort
 {
     size_t *tmp_order;
-    printf("COUNT=%zu\n", count);
     STARSH_MALLOC(tmp_order, count);
     radix_sort_recursive(data, count, ndim, order, tmp_order, ndim-1, 31, 0,
             count-1);

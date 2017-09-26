@@ -44,9 +44,13 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         MPI_Bcast(A+i*lda, ncols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     double *temp_D, *temp_B;
     int num_threads;
+#ifdef OPENMP
     #pragma omp parallel
     #pragma omp master
     num_threads = omp_get_num_threads();
+#else
+    num_threads = 1;
+#endif
     if(M->onfly == 0)
     {
         STARSH_MALLOC(temp_D, num_threads*nrhs*maxrank);
@@ -59,7 +63,11 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
     // Setting temp_B=beta*B for master thread of root node and B=0 otherwise
     #pragma omp parallel
     {
+#ifdef OPENMP
         double *out = temp_B+omp_get_thread_num()*nrhs*nrows;
+#else
+        double *out = temp_B;
+#endif
         for(int j = 0; j < nrhs*nrows; j++)
             out[j] = 0.;
     }
@@ -86,8 +94,13 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
         // Get pointers to data buffers
         double *U = M->far_U[lbi]->data, *V = M->far_V[lbi]->data;
         int info = 0;
+#ifdef OPENMP
         double *D = temp_D+omp_get_thread_num()*nrhs*maxrank;
         double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+        double *D = temp_D;
+        double *out = temp_B;
+#endif
         // Multiply low-rank matrix in U*V^T format by a dense matrix
         cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
                 ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
@@ -116,8 +129,13 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
             int nrows = R->size[i];
             int ncols = C->size[j];
             int info = 0;
+#ifdef OPENMP
             double *D = temp_D+omp_get_thread_num()*maxnb*maxnb;
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+            double *D = temp_D;
+            double *out = temp_B;
+#endif
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i],
                     C->pivot+C->start[j], RD, CD, D);
@@ -146,7 +164,11 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *M, int nrhs, double alpha, double *A,
             int ncols = C->size[j];
             // Get pointers to data buffers
             double *D = M->near_D[lbi]->data;
+#ifdef OPENMP
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+            double *out = temp_B;
+#endif
             // Multiply 2 dense matrices
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
@@ -309,9 +331,13 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     //    MPI_Bcast(A+i*lda, ncols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     double *temp_D, *temp_B;
     int num_threads;
+#ifdef OPENMP
     #pragma omp parallel
     #pragma omp master
     num_threads = omp_get_num_threads();
+#else
+    num_threads = 1;
+#endif
     if(M->onfly == 0)
     {
         STARSH_MALLOC(temp_D, num_threads*nrhs*maxrank);
@@ -326,7 +352,11 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
     // Setting temp_B=beta*B for master thread of root node and B=0 otherwise
     #pragma omp parallel
     {
+#ifdef OPENMP
         double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+        double *out = temp_B;
+#endif
         for(int j = 0; j < nrhs*ldout; j++)
             out[j] = 0.;
     }
@@ -364,8 +394,13 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
         // Get pointers to data buffers
         double *U = M->far_U[lbi]->data, *V = M->far_V[lbi]->data;
         int info = 0;
+#ifdef OPENMP
         double *D = temp_D+omp_get_thread_num()*nrhs*maxrank;
         double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+        double *D = temp_D;
+        double *out = temp_B;
+#endif
         // Multiply low-rank matrix in U*V^T format by a dense matrix
         //cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, rank, nrhs,
         //        ncols, 1.0, V, ncols, A+C->start[j], lda, 0.0, D, rank);
@@ -389,8 +424,13 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
             int nrows = R->size[i];
             int ncols = C->size[j];
             int info = 0;
+#ifdef OPENMP
             double *D = temp_D+omp_get_thread_num()*maxnb*maxnb;
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+            double *D = temp_D;
+            double *out = temp_B;
+#endif
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i],
                     C->pivot+C->start[j], RD, CD, D);
@@ -415,7 +455,11 @@ int starsh_blrm__dmml_mpi_tiled(STARSH_blrm *M, int nrhs, double alpha,
             int ncols = C->size[j];
             // Get pointers to data buffers
             double *D = M->near_D[lbi]->data;
+#ifdef OPENMP
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
+#else
+            double *out = temp_B;
+#endif
             // Multiply 2 dense matrices
             //cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
             //        nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,

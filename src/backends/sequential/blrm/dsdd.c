@@ -80,7 +80,6 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     }
     // Work variables
     int info;
-    printf("BEFORE CYCLE\n");
     // Simple cycle over all far-field admissible blocks
     for(bi = 0; bi < nblocks_far; bi++)
     {
@@ -223,8 +222,12 @@ int starsh_blrm__dsdd(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 bj++;
             else
             {
-                far_U[bi-bj] = far_U[bi];
-                far_V[bi-bj] = far_V[bi];
+                int shape_U[2] = {far_U[bi]->shape[0], far_rank[bi]};
+                int shape_V[2] = {far_V[bi]->shape[0], far_rank[bi]};
+                array_from_buffer(far_U+bi-bj, 2, shape_U, 'd', 'F',
+                        far_U[bi]->data);
+                array_from_buffer(far_V+bi-bj, 2, shape_V, 'd', 'F',
+                        far_V[bi]->data);
                 far_rank[bi-bj] = far_rank[bi];
             }
         }

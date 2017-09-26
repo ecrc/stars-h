@@ -139,19 +139,25 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_PMALLOC(iwork, liwork, info);
         STARSH_PMALLOC(work, lwork, info);
         // Compute elements of a block
+#ifdef OPENMP
         double time0 = omp_get_wtime();
+#endif
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
                 RD, CD, D);
+#ifdef OPENMP
         double time1 = omp_get_wtime();
+#endif
         starsh_dense_dlrrsdd(nrows, ncols, D, far_U[lbi]->data,
                 far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
                 lwork, iwork);
+#ifdef OPENMP
         double time2 = omp_get_wtime();
         #pragma omp critical
         {
             drsdd_time += time2-time1;
             kernel_time += time1-time0;
         }
+#endif
         // Free temporary arrays
         free(D);
         free(work);
@@ -323,12 +329,16 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 //offset_D += near_D[lbi]->size;
             }
             array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
+#ifdef OPENMP
             double time0 = omp_get_wtime();
+#endif
             kernel(nrows, ncols, RC->pivot+RC->start[i],
                     CC->pivot+CC->start[j], RD, CD, D);
+#ifdef OPENMP
             double time1 = omp_get_wtime();
             #pragma omp critical
             kernel_time += time1-time0;
+#endif
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false
@@ -377,6 +387,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(false_far_local);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
+#ifdef OPENMP
     double mpi_drsdd_time = 0, mpi_kernel_time = 0;
     MPI_Reduce(&drsdd_time, &mpi_drsdd_time, 1, MPI_DOUBLE, MPI_SUM, 0,
             MPI_COMM_WORLD);
@@ -387,6 +398,7 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
         STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
     }
+#endif
     return starsh_blrm_new_mpi(M, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
