@@ -90,7 +90,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(ECRC_CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
 list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 include(EcrcInit)
+include(GenPkgConfig)
 include(FindPkgConfig)
 find_package(PkgConfig QUIET)
 
@@ -119,7 +121,7 @@ if(STARPU)
         include_directories(${STARPU_INCLUDE_DIRS})
         link_directories(${STARPU_LIBRARY_DIRS})
         add_definitions("-DSTARPU")
-        list(APPEND REQUIRES ${STARPU_LIBRARIES})
+        #list(APPEND REQUIRES ${STARPU_LIBRARIES})
     else()
         message("StarPU is NOT found, skipping it")
         set(STARPU OFF)
@@ -154,7 +156,7 @@ if(PLASMA)
         include_directories(${PLASMA_INCLUDE_DIRS})
         link_directories(${PLASMA_LIBRARY_DIRS})
         add_definitions("-DPLASMA")
-        list(APPEND REQUIRES ${PLASMA_LIBRARIES})
+        #list(APPEND REQUIRES ${PLASMA_LIBRARIES})
         message(STATUS "PLASMA ${PLASMA_VERSION} found")
     else()
         message("PLASMA is NOT found, skipping it")
@@ -262,7 +264,7 @@ else()
     message(FATAL_ERROR "A LAPACKE library is required but has not "
         "been found")
 endif()
-list(APPEND REQUIRES ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES})
+#list(APPEND REQUIRES ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES})
 
 # Check if BLAS and LAPACK are provided by Intel
 # (use mkl.h instead of lapacke.h and cblas.h in this case)
@@ -302,9 +304,10 @@ add_subdirectory("src")
 add_subdirectory("include")
 
 #Install Pkg-config file
-set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
-string(REPLACE ";" "," REQUIRES "${REQUIRES}")
-configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
-install(FILES "${CMAKE_BINARY_DIR}/starsh.pc"
-    DESTINATION "${PKG_CONFIG_DIR}")
+generate_pkgconfig_file()
+#set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
+#string(REPLACE ";" "," REQUIRES "${REQUIRES}")
+#configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
+#    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
+#install(FILES "${CMAKE_BINARY_DIR}/starsh.pc"
+#    DESTINATION "${PKG_CONFIG_DIR}")
