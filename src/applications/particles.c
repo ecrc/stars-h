@@ -15,9 +15,87 @@
 #include "applications/particles.h"
 #include "common.h"
 
+int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim)
+//! Allocate memory for @ref STARSH_particles object.
+/*! Array `(*data)->point` is stored in a special way: `x_1 x_2 ... x_count y_1
+ * y_2 ... y_count z_1 z_2 ...`.
+ * This functions only allocates memory for particles without setting
+ * coordinates to any value.
+ * Do not forget to sort particles by starsh_particles_zsort_inplace() to take
+ * advantage of low-rank submatrices.
+ *
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Number of particles.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_init(), starsh_particles_free(),
+ *      starsh_particles_generate(), starsh_particles_read_from_file(),
+ *      starsh_particles_zsort_inplace().
+ * @ingroup app-particles
+ * */
+{
+    if(data == NULL)
+    {
+        STARSH_ERROR("invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
+    }
+    if(ndim <= 0)
+    {
+        STARSH_ERROR("invalid value of `ndim`");
+        return STARSH_WRONG_PARAMETER;
+    }
+    STARSH_particles *tmp;
+    STARSH_MALLOC(tmp, 1);
+    tmp->count = count;
+    tmp->ndim = ndim;
+    STARSH_MALLOC(tmp->point, count*ndim);
+    return STARSH_SUCCESS;
+}
+
+int starsh_particles_init(STARSH_particles **data, STARSH_int count, int ndim,
+        double *point)
+//! Initialize @ref STARSH_particles object by given data.
+/*! Array `point` should be stored in a special way: `x_1 x_2 ... x_count y_1
+ * y_2 ... y_count z_1 z_2 ...`.
+ * This function does not allocate memory for coordinates and uses provided
+ * pointer `point`. Do not free memory of `point` until you finish using
+ * returned @ref STARSH_particles object.
+ * Do not forget to sort particles by starsh_particles_zsort_inplace() to take
+ * advantage of low-rank submatrices.
+ *
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Number of particles.
+ * @param[in] ndim: Dimensionality of space.
+ * @param[in] point: Pointer to array of coordinates of particles.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_new(), starsh_particles_free(),
+ *      starsh_particles_generate(), starsh_particles_read_from_file(),
+ *      starsh_particles_zsort_inplace().
+ * @ingroup app-particles
+ * */
+{
+    if(data == NULL)
+    {
+        STARSH_ERROR("invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
+    }
+    if(ndim <= 0)
+    {
+        STARSH_ERROR("invalid value of `ndim`");
+        return STARSH_WRONG_PARAMETER;
+    }
+    STARSH_particles *tmp;
+    STARSH_MALLOC(tmp, 1);
+    tmp->count = count;
+    tmp->ndim = ndim;
+    tmp->point = point;
+    return STARSH_SUCCESS;
+}
+
 void starsh_particles_free(STARSH_particles *data)
-//! Free memory of STARSH_particles object, pointer itself is also freed
-/*! @ingroup applications
+//! Free memory of @ref STARSH_particles object.
+/*! @sa starsh_particles_init(), starsh_particles_new().
+ * @ingroup app-particles
  * */
 {
     if(data != NULL)
@@ -28,25 +106,23 @@ void starsh_particles_free(STARSH_particles *data)
     }
 }
 
-int starsh_particles_generate(STARSH_particles **data, size_t count, int ndim,
-        enum STARSH_PARTICLES_PLACEMENT ptype)
-//! Generate STARSH_particles with required distribution of particles
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to generate
- * @param[in] count: Amount of particles to generate
- * @param[in] ndim: Dimensionality of space
- * @param[in] ptype: How to place particles. Possible values are
- *  STARSH_PARTICLES_RAND, STARSH_PARTICLES_UNIFORM, STARSH_PARTICLES_RANDGRID,
- *  STARSH_PARTICLES_QUASIUNIFORM1, STARSH_PARTICLES_QUASIUNIFORM2,
- *  STARSH_PARTICLES_OBSOLETE1, STARSH_PARTICLES_OBSOLETE2
- *
- * For more details, take a look at special generation functions
- * starsh_particles_generate_rand(), starsh_particles_generate_uniform(),
- * starsh_particles_generate_randgrid(),
- * starsh_particles_generate_quasiuniform1(),
- * starsh_particles_generate_quasiuniform2(),
- * starsh_particles_generate_obsolete1(),
- * starsh_particles_generate_obsolete2()
+int starsh_particles_generate(STARSH_particles **data, STARSH_int count,
+        int ndim, enum STARSH_PARTICLES_PLACEMENT ptype)
+//! Generate @ref STARSH_particles with required distribution.
+/*! @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @param[in] ptype: How to place particles. For more info look at
+ *      @ref STARSH_PARTICLES_PLACEMENT.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate_rand(),
+ *      starsh_particles_generate_uniform(),
+ *      starsh_particles_generate_randgrid(),
+ *      starsh_particles_generate_quasiuniform1(),
+ *      starsh_particles_generate_quasiuniform2(),
+ *      starsh_particles_generate_obsolete1(),
+ *      starsh_particles_generate_obsolete2().
+ * @ingroup app-particles
  * */
 {
     int info = STARSH_SUCCESS;
@@ -89,16 +165,18 @@ int starsh_particles_generate(STARSH_particles **data, size_t count, int ndim,
     return info;
 }
 
-int starsh_particles_generate_rand(STARSH_particles **data, size_t count,
+int starsh_particles_generate_rand(STARSH_particles **data, STARSH_int count,
         int ndim)
-//! Generate particles with [0,1] uniform random distribution
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to generate
- * @param[in] count: Amount of particles to generate
- * @param[in] ndim: Dimensionality of space
+//! Generate particles with [0,1] uniform random distribution.
+/*! @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate().
+ * @ingroup app-particles
  * */
 {
-    size_t i;
+    STARSH_int i;
     STARSH_MALLOC(*data, 1);
     (*data)->count = count;
     (*data)->ndim = ndim;
@@ -113,35 +191,20 @@ int starsh_particles_generate_rand(STARSH_particles **data, size_t count,
     return STARSH_SUCCESS;
 }
 
-/* Need to implement randn function for normal distribution
-int starsh_particles_generate_randn(STARSH_particles **data, size_t count,
-        int ndim)
-{
-    size_t i;
-    STARSH_MALLOC(*data, 1);
-    (*data)->count = count;
-    (*data)->ndim = ndim;
-    double *point;
-    size_t nelem = count*ndim;
-    STARSH_MALLOC(point, nelem);
-    (*data)->point = point;
-    starsh_particles_zsort_inplace(*data);
-    return STARSH_SUCCESS;
-}
-*/
-
-int starsh_particles_generate_randgrid(STARSH_particles **data, size_t count,
-        int ndim)
-//! Generate a grid on randomly distributed grid coordinates
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to generate
- * @param[in] count: Amount of particles to generate
- * @param[in] ndim: Dimensionality of space
- * 
- * Minimal grid, containing all `count` particles, is selected
+int starsh_particles_generate_randgrid(STARSH_particles **data,
+        STARSH_int count, int ndim)
+//! Generate a grid on randomly distributed grid coordinates.
+/*! Minimal grid, containing all `count` particles, is selected.
+ *
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, side, total;
+    STARSH_int i, j, side, total;
     double *point, *ptr, val;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -160,7 +223,7 @@ int starsh_particles_generate_randgrid(STARSH_particles **data, size_t count,
     // Generate grid coordinates randomly
     for(i = 0; i < ncoords; i++)
         coord[i] = (double)rand()/RAND_MAX;
-    size_t *pivot;
+    STARSH_int *pivot;
     STARSH_MALLOC(pivot, ndim);
     // Store coordinates inside a grid as a set of integers
     for(i = 0; i < ndim; i++)
@@ -194,35 +257,20 @@ int starsh_particles_generate_randgrid(STARSH_particles **data, size_t count,
     return STARSH_SUCCESS;
 }
 
-/* Need to implement randn function for normal distribution
-int starsh_particles_generate_randngrid(STARSH_particles **data, size_t count,
-        int ndim)
-{
-    size_t i;
-    STARSH_MALLOC(*data, 1);
-    (*data)->count = count;
-    (*data)->ndim = ndim;
-    double *point;
-    size_t nelem = count*ndim;
-    STARSH_MALLOC(point, nelem);
-    (*data)->point = point;
-    starsh_particles_zsort_inplace(*data);
-    return STARSH_SUCCESS;
-}
-i*/
-
-int starsh_particles_generate_uniform(STARSH_particles **data, size_t count,
-        int ndim)
-//! Generate a uniform grid of particles
-/*! @ingroup applications
- * @param[out] data: pointer to pointer to STARSH_particles to generate
- * @param[in] count: amount of particles to generate
- * @param[in] ndim: dimensionality of space
+int starsh_particles_generate_uniform(STARSH_particles **data,
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles.
+/*! Minimal grid, containing all of `count` particles, is selected.
  *
- * Minimal grid, containing all of `count` particles, is selected
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, side, total;
+    STARSH_int i, j, side, total;
     double *point, *ptr, val;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -247,7 +295,7 @@ int starsh_particles_generate_uniform(STARSH_particles **data, size_t count,
         for(j = 0; j < ndim; j++)
             coord[j*side+i] = val;
     }
-    size_t *pivot;
+    STARSH_int *pivot;
     STARSH_MALLOC(pivot, ndim);
     // Store coordinates inside a grid as a set of integers
     for(i = 0; i < ndim; i++)
@@ -282,17 +330,19 @@ int starsh_particles_generate_uniform(STARSH_particles **data, size_t count,
 }
 
 int starsh_particles_generate_quasiuniform1(STARSH_particles **data,
-        size_t count, int ndim)
-//! Generate a uniform grid of particles with random shift of each particle
-/*! @ingroup applications
- * @param[out] data: pointer to pointer to STARSH_particles to generate
- * @param[in] count: amount of particles to generate
- * @param[in] ndim: dimensionality of space
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles with random shift of each particle.
+/*! Minimal grid, containing all of `count` particles, is selected.
  *
- * Minimal grid, containing all of `count` particles, is selected
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, side, total;
+    STARSH_int i, j, side, total;
     double *point, *ptr, val;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -315,7 +365,7 @@ int starsh_particles_generate_quasiuniform1(STARSH_particles **data,
         for(j = 0; j < ndim; j++)
         coord[j*side+i] = val;
     }
-    size_t *pivot;
+    STARSH_int *pivot;
     STARSH_MALLOC(pivot, ndim);
     // Store coordinates inside a grid as a set of integers
     for(i = 0; i < ndim; i++)
@@ -352,17 +402,19 @@ int starsh_particles_generate_quasiuniform1(STARSH_particles **data,
 }
 
 int starsh_particles_generate_quasiuniform2(STARSH_particles **data,
-        size_t count, int ndim)
-//! Generate a uniform grid of particles with random shift of grid coordinates
-/*! @ingroup applications
- * @param[out] data: pointer to pointer to STARSH_particles to generate
- * @param[in] count: amount of particles to generate
- * @param[in] ndim: dimensionality of space
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles with random shift of grid coordinates.
+/*! Minimal grid, containing all of `count` particles, is selected.
  *
- * Minimal grid, containing all of `count` particles, is selected
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, side, total;
+    STARSH_int i, j, side, total;
     double *point, *ptr, val;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -387,7 +439,7 @@ int starsh_particles_generate_quasiuniform2(STARSH_particles **data,
         for(j = 0; j < ndim; j++)
         coord[j*side+i] = val+add+mult*rand();
     }
-    size_t *pivot;
+    STARSH_int *pivot;
     STARSH_MALLOC(pivot, ndim);
     // Store coordinates inside a grid as a set of integers
     for(i = 0; i < ndim; i++)
@@ -421,23 +473,25 @@ int starsh_particles_generate_quasiuniform2(STARSH_particles **data,
     return STARSH_SUCCESS;
 }
 
-static void zsort(int n, double *points);
-static void zsort3(int n, double *points);
+static void zsort(STARSH_int n, double *points);
+static void zsort3(STARSH_int n, double *points);
 
-int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
-        int ndim)
-//! Generate a uniform grid of particles with random shift of each particle
-/*! @ingroup applications
- * @param[out] data: pointer to pointer to STARSH_particles to generate
- * @param[in] count: amount of particles to generate
- * @param[in] ndim: dimensionality of space
+int starsh_particles_generate_obsolete1(STARSH_particles **data,
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles with random shift of each particle.
+/*! Similar to starsh_particles_generate_quasiuniform1(), but works only for
+ * 1D, 2D and 3D. Parameter `count` must be square of integer if `ndim`=2 and
+ * cube if integer if `ndim`=3.
  *
- * Similar to starsh_particles_generate_quasiuniform1(), but works only for 1D,
- * 2D and 3D. Parameter `count` must be square of integer if `ndim`=2 and cube
- * if integer if `ndim`=3.
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate(), starsh_particles_generate_quasiuniform1().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, k;
+    STARSH_int i, j, k;
     double *point;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -448,7 +502,7 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
     }
     else if(ndim == 2)
     {
-        size_t sqrtn = floor(sqrt(count)+0.1);
+        STARSH_int sqrtn = floor(sqrt(count)+0.1);
         if(sqrtn*sqrtn != count)
         {
             STARSH_ERROR("parameter `count` must be square of some integer");
@@ -458,7 +512,7 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
         for(i = 0; i < sqrtn; i++)
             for(j = 0; j < sqrtn; j++)
             {
-                size_t ind = i*sqrtn + j;
+                STARSH_int ind = i*sqrtn + j;
                 x[ind] = (i+0.1+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
                 y[ind] = (j+0.1+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
             }
@@ -466,7 +520,7 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
     }
     else
     {
-        size_t cbrtn = floor(cbrt(count)+0.1); 
+        STARSH_int cbrtn = floor(cbrt(count)+0.1); 
         if(cbrtn*cbrtn*cbrtn != count)
         {
             STARSH_ERROR("parameter `count` must be cube of some integer");
@@ -477,7 +531,7 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
             for(j = 0; j < cbrtn; j++)
                 for(k = 0; k < cbrtn; k++)
                 {
-                    size_t ind = (i*cbrtn + j)*cbrtn + k;
+                    STARSH_int ind = (i*cbrtn + j)*cbrtn + k;
                     x[ind] = (i+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
                     y[ind] = (j+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
                     z[ind] = (k+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
@@ -491,20 +545,22 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data, size_t count,
     return STARSH_SUCCESS;
 }
 
-int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
-        int ndim)
-//! Generate a uniform grid of particles with random shift of grid coordinates
-/*! @ingroup applications
- * @param[out] data: pointer to pointer to STARSH_particles to generate
- * @param[in] count: amount of particles to generate
- * @param[in] ndim: dimensionality of space
+int starsh_particles_generate_obsolete2(STARSH_particles **data,
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles with random shift of grid coordinates.
+/*! Similar to starsh_particles_generate_quasiuniform2(), but works only for
+ * 1D, 2D and 3D. Parameter `count` must be square of integer if `ndim`=2 and
+ * cube if integer if `ndim`=3.
  *
- * Similar to starsh_particles_generate_quasiuniform2(), but works only for 1D,
- * 2D and 3D. Parameter `count` must be square of integer if `ndim`=2 and cube
- * if integer if `ndim`=3.
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate(), starsh_particles_generate_quasiuniform2().
+ * @ingroup app-particles
  * */
 {
-    size_t i, j, k;
+    STARSH_int i, j, k;
     double *point;
     size_t nelem = count*ndim;
     STARSH_MALLOC(point, nelem);
@@ -515,7 +571,7 @@ int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
     }
     else if(ndim == 2)
     {
-        size_t sqrtn = floor(sqrt(count)+0.1);
+        STARSH_int sqrtn = floor(sqrt(count)+0.1);
         if(sqrtn*sqrtn != count)
         {
             STARSH_ERROR("parameter `count` must be square of some integer");
@@ -529,7 +585,7 @@ int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
         for(i = 0; i < sqrtn; i++)
             for(j = 0; j < sqrtn; j++)
             {
-                size_t ind = i*sqrtn + j;
+                STARSH_int ind = i*sqrtn + j;
                 x[ind] = x[j];
                 y[ind] = y[i*sqrtn];
             }
@@ -537,7 +593,7 @@ int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
     }
     else
     {
-        size_t cbrtn = floor(cbrt(count)+0.1); 
+        STARSH_int cbrtn = floor(cbrt(count)+0.1); 
         if(cbrtn*cbrtn*cbrtn != count)
         {
             STARSH_ERROR("parameter `count` must be cube of some integer");
@@ -554,7 +610,7 @@ int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
             for(j = 0; j < cbrtn; j++)
                 for(k = 0; k < cbrtn; k++)
                 {
-                    size_t ind = (i*cbrtn + j)*cbrtn + k;
+                    STARSH_int ind = (i*cbrtn + j)*cbrtn + k;
                     x[ind] = x[k];
                     y[ind] = y[j*cbrtn];
                     z[ind] = z[i*cbrtn*cbrtn];
@@ -570,12 +626,16 @@ int starsh_particles_generate_obsolete2(STARSH_particles **data, size_t count,
 
 int starsh_particles_read_from_file(STARSH_particles **data, const char *fname,
         const enum STARSH_FILE_TYPE ftype)
-//! Read configuration of STARSH_particles from file
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to read from file
- * @param[in] fname: Name of file to read from
- * @param[in] ftype: Choose file type: ASCII or binary. Possible values are
- *  STARSH_ASCII and STARSH_BINARY
+//! Read @ref STARSH_particles object from file.
+/*! @param[out] data: Address to pointer to @ref STARSH_particles object.
+ * @param[in] fname: Name of file to read from.
+ * @param[in] ftype: File type. Look at @ref STARSH_FILE_TYPE for more info.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_read_from_file_pointer(),
+ *      starsh_particles_read_from_file_pointer_ascii(),
+ *      starsh_particles_read_from_file_pointer_binary(),
+ *      starsh_particles_write_to_file().
+ * @ingroup app-particles
  * */
 {
     FILE *fp;
@@ -603,14 +663,18 @@ int starsh_particles_read_from_file(STARSH_particles **data, const char *fname,
 
 int starsh_particles_read_from_file_pointer(STARSH_particles **data,
         FILE *fp, const enum STARSH_FILE_TYPE ftype)
-//! Read configuration of STARSH_particles from file pointer
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to read from file
- * @param[in] fp: File pointer to read from, must be open before
- * @param[in] ftype: Choose file type: ASCII or binary. Possible values are
- *  STARSH_ASCII and STARSH_BINARY
+//! Read @ref STARSH_particles object from file pointer.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to read from, must be open before reading.
+ * @param[in] ftype: File type. Look at @ref STARSH_FILE_TYPE for more info.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_read_from_file(),
+ *      starsh_particles_read_from_file_pointer_ascii(),
+ *      starsh_particles_read_from_file_pointer_binary(),
+ *      starsh_particles_write_to_file().
+ * @ingroup app-particles
  * */
 {
     switch(ftype)
@@ -626,16 +690,21 @@ int starsh_particles_read_from_file_pointer(STARSH_particles **data,
 
 int starsh_particles_read_from_file_pointer_ascii(STARSH_particles **data,
         FILE *fp)
-//! Read configuration of STARSH_particles from file pointer in ASCII format
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to read from file
- * @param[in] fp: File pointer to read from, must be open before
+//! Read @ref STARSH_particles object from file pointer in ASCII format.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to read from, must be open before reading.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_read_from_file(),
+ *      starsh_particles_read_from_file_pointer(),
+ *      starsh_particles_read_from_file_pointer_binary(),
+ *      starsh_particles_write_to_file().
+ * @ingroup app-particles
  * */
 {
     int info, ndim;
-    size_t count, i, j;
+    STARSH_int count, i, j;
     double *point, *ptr1, *ptr2;
     info = fscanf(fp, "count=%zu, ndim=%d", &count, &ndim);
     if(info != 2)
@@ -675,16 +744,21 @@ int starsh_particles_read_from_file_pointer_ascii(STARSH_particles **data,
 
 int starsh_particles_read_from_file_pointer_binary(STARSH_particles **data,
         FILE *fp)
-//! Read configuration of STARSH_particles from file pointer in binary format
-/*! @ingroup applications
- * @param[out] data: Pointer to pointer to STARSH_particles to read from file
- * @param[in] fp: File pointer to read from, must be open before
+//! Read @ref STARSH_particles object from file pointer in binary format.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to read from, must be open before reading.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_read_from_file(),
+ *      starsh_particles_read_from_file_pointer(),
+ *      starsh_particles_read_from_file_pointer_ascii(),
+ *      starsh_particles_write_to_file().
+ * @ingroup app-particles
  * */
 {
-    int ndim;
-    size_t count, nmemb, info;
+    int ndim, info;
+    STARSH_int count, nmemb;
     double *point;
     info = fread(&count, sizeof(count), 1, fp);
     if(info != 1)
@@ -711,12 +785,16 @@ int starsh_particles_read_from_file_pointer_binary(STARSH_particles **data,
 
 int starsh_particles_write_to_file(const STARSH_particles *data,
         const char *fname, const enum STARSH_FILE_TYPE ftype)
-//! Write configuration of STARSH_particles to file
-/*! @ingroup applications
- * @param[out] data: Pointer to data to write to file
- * @param[in] fname: Name of file to write to
- * @param[in] ftype: Choose file type: ASCII or binary. Possible values are
- *  STARSH_ASCII and STARSH_BINARY
+//! Write @ref STARSH_particles object to file.
+/*! @param[out] data: Pointer to @ref STARSH_particles object.
+ * @param[in] fname: Name of file to write to.
+ * @param[in] ftype: File type. Look at @ref STARSH_FILE_TYPE for more info.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_write_to_file_pointer(),
+ *      starsh_particles_write_to_file_pointer_ascii(),
+ *      starsh_particles_write_to_file_pointer_binary(),
+ *      starsh_particles_read_from_file().
+ * @ingroup app-particles
  * */
 {
     FILE *fp;
@@ -744,14 +822,18 @@ int starsh_particles_write_to_file(const STARSH_particles *data,
 
 int starsh_particles_write_to_file_pointer(const STARSH_particles *data,
         FILE *fp, const enum STARSH_FILE_TYPE ftype)
-//! Write configuration of STARSH_particles to file pointer
-/*! @ingroup applications
- * @param[out] data: Pointer to data to write to file
- * @param[in] fp: File pointer to write to, must be open before
- * @param[in] ftype: Choose file type: ASCII or binary. Possible values are
- *  STARSH_ASCII and STARSH_BINARY
+//! Write @ref STARSH_particles object to file pointer.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to write to, must be open before writing.
+ * @param[in] ftype: File type. Look at @ref STARSH_FILE_TYPE for more info.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_write_to_file(),
+ *      starsh_particles_write_to_file_pointer_ascii(),
+ *      starsh_particles_write_to_file_pointer_binary(),
+ *      starsh_particles_read_from_file().
+ * @ingroup app-particles
  * */
 {
     switch(ftype)
@@ -767,16 +849,21 @@ int starsh_particles_write_to_file_pointer(const STARSH_particles *data,
 
 int starsh_particles_write_to_file_pointer_ascii(const STARSH_particles *data,
         FILE *fp)
-//! Write configuration of STARSH_particles to file pointer in ASCII format
-/*! @ingroup applications
- * @param[out] data: Pointer to data to write to file
- * @param[in] fp: File pointer to write to, must be open before
+//! Write @ref STARSH_particles object to file pointer in ASCII format.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to write to, must be open before writing.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_write_to_file(),
+ *      starsh_particles_write_to_file_pointer(),
+ *      starsh_particles_write_to_file_pointer_binary(),
+ *      starsh_particles_read_from_file().
+ * @ingroup app-particles
  * */
 {
     int info, ndim = data->ndim;
-    size_t count = data->count, i, j;
+    STARSH_int count = data->count, i, j;
     double *point = data->point, *ptr1, *ptr2;
     info = fprintf(fp, "count=%zu, ndim=%d\n", count, ndim);
     if(info < 0)
@@ -809,16 +896,21 @@ int starsh_particles_write_to_file_pointer_ascii(const STARSH_particles *data,
 
 int starsh_particles_write_to_file_pointer_binary(const STARSH_particles *data,
         FILE *fp)
-//! Write configuration of STARSH_particles to file pointer in binary format
-/*! @ingroup applications
- * @param[out] data: Pointer to data to write to file
- * @param[in] fp: File pointer to write to, must be open before
+//! Write @ref STARSH_particles object to file pointer in binary format.
+/*! After finishing, file pointer `fp` will still be open.
  *
- * After finishing, file pointer `fp` will still be open
+ * @param[out] data: Pointer to @ref STARSH_particles object.
+ * @param[in] fp: File pointer to write to, must be open before writing.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_write_to_file(),
+ *      starsh_particles_write_to_file_pointer(),
+ *      starsh_particles_write_to_file_pointer_ascii(),
+ *      starsh_particles_read_from_file().
+ * @ingroup app-particles
  * */
 {
-    int ndim = data->ndim;
-    size_t count = data->count, nmemb, info;
+    int ndim = data->ndim, info;
+    STARSH_int count = data->count, nmemb;
     double *point = data->point;
     info = fwrite(&count, sizeof(count), 1, fp);
     if(info != 1)
@@ -833,50 +925,18 @@ int starsh_particles_write_to_file_pointer_binary(const STARSH_particles *data,
     return STARSH_SUCCESS;
 }
 
-/*
-static int qsort_dimension(double *data, size_t count, int ndim, int sdim,
-        size_t lo, size_t hi)
-//! Inplace sort of particles by given dimension
-/*! @param[in] data: Pointer to array of coordinates of particles
- * @param[in] count: Amount of particles
- * @param[in] ndim: Dimensionality of space
- * @param[in] sdim: Sorting dimension
- * @param[in] lo: First element to sort
- * @param[in] hi: Last element to sort
- * /
-{
-    size_t i, j;
-    int k;
-    double *sort_data = data+count*sdim;
-    if(lo < hi)
-    {
-        pivot = sort_data[lo];
-        while(1)
-        {
-            while(sort_data[i] < pivot)
-                i++;
-            i--;
-            while(sort_data[j] > pivot)
-                j--;
-            j++;
-            if(i >= j)
-            {
-                p = ;
-                break;
-            }
-            for(
-        }
-    }
-    return STARSH_SUCCESS;
-}
-*/
-
 int starsh_particles_zsort_inplace(STARSH_particles *data)
-//! Sort particles in Z-order (Morton order)
+//! Sort particles in Z-order (Morton order).
+/*! This function must be used after initializing @ref STARSH_particles with
+ * your own data by starsh_particles_init() or starsh_particles_new().
+ *
+ * @sa starsh_particles_init(), starsh_particles_new().
+ * @ingroup app-particles
+ * */
 {
     int i;
-    size_t j, new_j, tmp_j;
-    size_t count = data->count;
+    STARSH_int j, new_j, tmp_j;
+    STARSH_int count = data->count;
     int ndim = data->ndim;
     int info;
     double *point = data->point;
@@ -916,7 +976,7 @@ int starsh_particles_zsort_inplace(STARSH_particles *data)
     // Now uint_ptr1 contains initial coordinates, rescaled to range
     // [0, UINT32_MAX] and converted to uint32_t type to use special radix sort
     // Prepare indexes to store sort order
-    size_t *order;
+    STARSH_int *order;
     STARSH_MALLOC(order, count);
     for(j = 0; j < count; j++)
         order[j] = j;
@@ -941,10 +1001,12 @@ int starsh_particles_zsort_inplace(STARSH_particles *data)
     return STARSH_SUCCESS;
 }
 
-static int radix_sort(uint32_t *data, size_t count, int ndim, size_t *order)
-//! Auxiliary sorting function for Z-sort
+static int radix_sort(uint32_t *data, STARSH_int count, int ndim,
+        STARSH_int *order)
+// Auxiliary sorting function for starsh_particles_zsort_inpace().
+// This function is static not to be visible outside this module.
 {
-    size_t *tmp_order;
+    STARSH_int *tmp_order;
     STARSH_MALLOC(tmp_order, count);
     radix_sort_recursive(data, count, ndim, order, tmp_order, ndim-1, 31, 0,
             count-1);
@@ -952,12 +1014,13 @@ static int radix_sort(uint32_t *data, size_t count, int ndim, size_t *order)
     return STARSH_SUCCESS;
 }
 
-static void radix_sort_recursive(uint32_t *data, size_t count, int ndim,
-        size_t *order, size_t *tmp_order, int sdim, int sbit,
-        size_t lo, size_t hi)
-//! Hierarchical radix sort to get Z-order of particles
+static void radix_sort_recursive(uint32_t *data, STARSH_int count, int ndim,
+        STARSH_int *order, STARSH_int *tmp_order, int sdim, int sbit,
+        STARSH_int lo, STARSH_int hi)
+// Hierarchical radix sort to get Z-order of particles.
+// This function is static not to be visible outside this module.
 {
-    size_t i, lo_last = lo, hi_last = hi;
+    STARSH_int i, lo_last = lo, hi_last = hi;
     uint32_t *sdata = data+sdim*count;
     uint32_t check = 1 << sbit;
     for(i = lo; i <= hi; i++)
@@ -1014,7 +1077,7 @@ static void radix_sort_recursive(uint32_t *data, size_t count, int ndim,
 
 
 static uint32_t Part1By1(uint32_t x)
-//! Spread lower bits of input
+// Spread lower bits of input
 {
   x &= 0x0000ffff;
   // x = ---- ---- ---- ---- fedc ba98 7654 3210
@@ -1030,7 +1093,7 @@ static uint32_t Part1By1(uint32_t x)
 }
 
 static uint32_t Compact1By1(uint32_t x)
-//! Collect every second bit into lower part of input
+// Collect every second bit into lower part of input
 {
   x &= 0x55555555;
   // x = -f-e -d-c -b-a -9-8 -7-6 -5-4 -3-2 -1-0
@@ -1046,7 +1109,7 @@ static uint32_t Compact1By1(uint32_t x)
 }
 
 static uint64_t Part1By3(uint64_t x)
-//! Spread lower bits of input
+// Spread lower bits of input
 {
     x &= 0x000000000000ffff;
     // x = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
@@ -1062,7 +1125,7 @@ static uint64_t Part1By3(uint64_t x)
 }
 
 static uint64_t Compact1By3(uint64_t x)
-//! Collect every 4-th bit into lower part of input
+// Collect every 4-th bit into lower part of input
 {
     x &= 0x1111111111111111;
     // x = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
@@ -1078,49 +1141,49 @@ static uint64_t Compact1By3(uint64_t x)
 }
 
 static uint32_t EncodeMorton2(uint32_t x, uint32_t y)
-//! Encode two inputs into one
+// Encode two inputs into one
 {
     return (Part1By1(y) << 1) + Part1By1(x);
 }
 
 static uint64_t EncodeMorton3(uint64_t x, uint64_t y, uint64_t z)
-//! Encode 3 inputs into one
+// Encode 3 inputs into one
 {
     return (Part1By3(z) << 2) + (Part1By3(y) << 1) + Part1By3(x);
 }
 
 static uint32_t DecodeMorton2X(uint32_t code)
-//! Decode first input
+// Decode first input
 {
     return Compact1By1(code >> 0);
 }
 
 static uint32_t DecodeMorton2Y(uint32_t code)
-//! Decode second input
+// Decode second input
 {
     return Compact1By1(code >> 1);
 }
 
 static uint64_t DecodeMorton3X(uint64_t code)
-//! Decode first input
+// Decode first input
 {
     return Compact1By3(code >> 0);
 }
 
 static uint64_t DecodeMorton3Y(uint64_t code)
-//! Decode second input
+// Decode second input
 {
     return Compact1By3(code >> 1);
 }
 
 static uint64_t DecodeMorton3Z(uint64_t code)
-//! Decode third input
+// Decode third input
 {
     return Compact1By3(code >> 2);
 }
 
 static int compare_uint32(const void *a, const void *b)
-//! Compare two uint32_t
+// Compare two uint32_t
 {
     uint32_t _a = *(uint32_t *)a;
     uint32_t _b = *(uint32_t *)b;
@@ -1130,7 +1193,7 @@ static int compare_uint32(const void *a, const void *b)
 }
 
 static int compare_uint64(const void *a, const void *b)
-//! Compare two uint64_t
+// Compare two uint64_t
 {
     uint64_t _a = *(uint64_t *)a;
     uint64_t _b = *(uint64_t *)b;
@@ -1139,8 +1202,8 @@ static int compare_uint64(const void *a, const void *b)
     return 1;
 }
 
-static void zsort(int n, double *points)
-//! Sort in Morton order (input points must be in [0;1]x[0;1] square])
+static void zsort(STARSH_int n, double *points)
+// Sort in Morton order (input points must be in [0;1]x[0;1] square])
 {
     // Some sorting, required by spatial statistics code
     int i;
@@ -1167,8 +1230,8 @@ static void zsort(int n, double *points)
     }
 }
 
-static void zsort3(int n, double *points)
-//! Sort in Morton order for 3D
+static void zsort3(STARSH_int n, double *points)
+// Sort in Morton order for 3D
 {
     // Some sorting, required by spatial statistics code
     int i;

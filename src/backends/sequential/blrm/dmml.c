@@ -10,42 +10,59 @@
  * @date 2017-08-22
  * */
 
-#include "common.h"
 #include "starsh.h"
+#include "common.h"
 
-int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
+int starsh_blrm__dmml(STARSH_blrm *matrix, int nrhs, double alpha, double *A,
         int lda, double beta, double *B, int ldb)
-//! Double precision Multiply by dense Matrix, blr-matrix is on Left side.
-//! @ingroup blrm
-/*! Performs `B=alpha*M*A+beta*B` */
+//! Multiply blr-matrix by dense matrix.
+/*! Performs `C=alpha*A*B+beta*C` with @ref STARSH_blrm `A` and dense matrices
+ * `B` and `C`. All the integer types are int, since they are used in BLAS
+ * calls.
+ *
+ * @param[in] matrix: Pointer to @ref STARSH_blrm object.
+ * @param[in] nrhs: Number of right hand sides.
+ * @param[in] alpha: Scalar mutliplier.
+ * @param[in] A: Dense matrix, right havd side.
+ * @param[in] lda: Leading dimension of `A`.
+ * @param[in] beta: Scalar multiplier.
+ * @param[in] B: Resulting dense matrix.
+ * @param[in] ldb: Leading dimension of B.
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup blrm
+ * */
 {
+    STARSH_blrm *M = matrix;
     STARSH_blrf *F = M->format;
     STARSH_problem *P = F->problem;
-    STARSH_kernel kernel = P->kernel;
-    int nrows = P->shape[0];
-    int ncols = P->shape[P->ndim-1];
+    STARSH_kernel *kernel = P->kernel;
+    STARSH_int nrows = P->shape[0];
+    STARSH_int ncols = P->shape[P->ndim-1];
     // Shorcuts to information about clusters
-    STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
+    STARSH_cluster *R = F->row_cluster;
+    STARSH_cluster *C = F->col_cluster;
     void *RD = R->data, *CD = C->data;
     // Number of far-field and near-field blocks
-    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near, bi;
+    STARSH_int nblocks_far = F->nblocks_far;
+    STARSH_int nblocks_near = F->nblocks_near;
+    STARSH_int bi;
     char symm = F->symm;
     // Setting B = beta*B
     if(beta == 0.)
-        for(int i = 0; i < nrhs; i++)
-            for(int j = 0; j < nrows; j++)
+        for(size_t i = 0; i < nrhs; i++)
+            for(size_t j = 0; j < nrows; j++)
                 B[i*ldb+j] = 0.;
     else
-        for(int i = 0; i < nrhs; i++)
-            for(int j = 0; j < nrows; j++)
+        for(size_t i = 0; i < nrhs; i++)
+            for(size_t j = 0; j < nrows; j++)
                 B[i*ldb+j] *= beta;
     // Simple cycle over all far-field admissible blocks
     for(bi = 0; bi < nblocks_far; bi++)
     {
         // Get indexes of corresponding block row and block column
-        int i = F->block_far[2*bi];
-        int j = F->block_far[2*bi+1];
-        // Get sizes and rank
+        STARSH_int i = F->block_far[2*bi];
+        STARSH_int j = F->block_far[2*bi+1];
+        // Get sizes and rank in int type due to BLAS calls
         int nrows = R->size[i];
         int ncols = C->size[j];
         int rank = M->far_rank[bi];
@@ -75,14 +92,15 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
         for(bi = 0; bi < nblocks_near; bi++)
         {
             // Get indexes and sizes of corresponding block row and column
-            int i = F->block_near[2*bi];
-            int j = F->block_near[2*bi+1];
+            STARSH_int i = F->block_near[2*bi];
+            STARSH_int j = F->block_near[2*bi+1];
+            // Get sizes in int type due to BLAS calls
             int nrows = R->size[i];
             int ncols = C->size[j];
             // Get pointers to data buffers
             double *D;
             // Allocate temporary buffer
-            STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
+            STARSH_MALLOC(D, (size_t)nrows*ncols);
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
                     RD, CD, D);
@@ -94,8 +112,8 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
             {
                 // Repeat in case of symmetric matrix
                 cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
-                        ncols, nrhs, nrows, alpha, D, nrows, A+R->start[i], lda,
-                        1.0, B+C->start[j], ldb);
+                        ncols, nrhs, nrows, alpha, D, nrows, A+R->start[i],
+                        lda, 1.0, B+C->start[j], ldb);
             }
             free(D);
         }
@@ -104,8 +122,9 @@ int starsh_blrm__dmml(STARSH_blrm *M, int nrhs, double alpha, double *A,
         for(bi = 0; bi < nblocks_near; bi++)
         {
             // Get indexes and sizes of corresponding block row and column
-            int i = F->block_near[2*bi];
-            int j = F->block_near[2*bi+1];
+            STARSH_int i = F->block_near[2*bi];
+            STARSH_int j = F->block_near[2*bi+1];
+            // Get sizes in int type due to BLAS calls
             int nrows = R->size[i];
             int ncols = C->size[j];
             // Get pointers to data buffers

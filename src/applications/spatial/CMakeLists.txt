@@ -23,7 +23,7 @@ if(GSL_FOUND)
     list(APPEND generated_files ${generated_files2})
 endif()
 
-message("${generated_files}")
+#message("${generated_files}")
 set(STARSH_SRC
     ${generated_files}
     ${STARSH_SRC} PARENT_SCOPE)

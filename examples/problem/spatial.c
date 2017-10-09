@@ -34,7 +34,8 @@ int main(int argc, char **argv)
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     enum STARSH_PARTICLES_PLACEMENT place = STARSH_PARTICLES_UNIFORM;
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
@@ -42,7 +43,7 @@ int main(int argc, char **argv)
     srand(0);
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     // STARSH_SPATIAL for spatial statistics problem
     // kernel_type is enum type, for possible values look into starsh-spatial.h
     // STARSH_SATIAL_NDIM to indicate next parameter shows dimensionality of

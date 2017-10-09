@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     }
     // Set up clusterization (divide rows and columns into blocks)
     STARSH_cluster *cluster;
-    info = starsh_cluster_new_tiled(&cluster, array, N, block_size);
+    info = starsh_cluster_new_plain(&cluster, array, N, block_size);
     if(info != 0)
     {
         printf("Error in creation of cluster\n");
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     }
     // Set up format (divide matrix into tiles)
     STARSH_blrf *format;
-    info = starsh_blrf_new_tiled(&format, problem, cluster, cluster, symm);
+    info = starsh_blrf_new_tlr(&format, problem, symm, cluster, cluster);
     if(info != 0)
     {
         printf("Error in creation of format\n");

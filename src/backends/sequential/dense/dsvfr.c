@@ -17,11 +17,12 @@ int starsh_dense_dsvfr(int size, double *S, double tol)
 //! Returns rank of double precision singular values.
 /*! Tries ranks `size`, `size`-1, `size`-2 and so on. May be accelerated by
  * binary search, but it requires additional temporary memory to be allocated.
- * @ingroup approximations
+ *
  * @param[in] size: Number of singular values.
  * @param[in] S: Array of singular values.
  * @param[in] tol: Relative error tolerance.
  * @return rank in terms of relative error in Frobenius norm.
+ * @ingroup approximations
  * */
 {
     int i;

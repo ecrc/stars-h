@@ -1,4 +1,5 @@
-static int radix_sort(uint32_t *data, size_t count, int ndim, size_t *order);
-static void radix_sort_recursive(uint32_t *data, size_t count, int ndim,
-        size_t *order, size_t *tmp_order, int sdim, int sbit,
-        size_t lo, size_t hi);
+static int radix_sort(uint32_t *data, STARSH_int count, int ndim,
+        STARSH_int *order);
+static void radix_sort_recursive(uint32_t *data, STARSH_int count, int ndim,
+        STARSH_int *order, STARSH_int *tmp_order, int sdim, int sbit,
+        STARSH_int lo, STARSH_int hi);

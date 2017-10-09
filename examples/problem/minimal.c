@@ -17,18 +17,19 @@
 
 int main(int argc, char **argv)
 {
-    // Since there is only one kernel for minimal, kernel_type is ignored
-    int kernel_type = 0;
+    // Since there is only one kernel for minimal example
+    int kernel_type = STARSH_MINIMAL_KERNEL1;
     // Size of desired matrix
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     int info;
     srand(0);
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     // STARSH_MINIMAL for random tile low-rank matrix
     // minimal problem does not have any parameters
     // 0 at the end to indicate end of arguments

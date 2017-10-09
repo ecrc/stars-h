@@ -12,7 +12,7 @@ if(OPENMP)
     list(APPEND tests_files
     "minimal.c"
     "spatial.c"
-    "rndtiled.c"
+    "randtlr.c"
     )
 endif()
 
@@ -86,12 +86,12 @@ endif()
 # performance
 if(OPENMP)
     foreach(lrengine IN ITEMS ${LRENGINES})
-        add_test(NAME rndtiled_${lrengine} COMMAND
-            rndtiled 2500 250 0.5 100 1e-9)
+        add_test(NAME randtlr_${lrengine} COMMAND
+            randtlr 2500 250 0.5 100 1e-9)
         set(test_env "MKL_NUM_THREADS=1"
             "STARSH_BACKEND=OPENMP"
             "STARSH_LRENGINE=${lrengine}")
-        set_tests_properties(rndtiled_${lrengine} PROPERTIES
+        set_tests_properties(randtlr_${lrengine} PROPERTIES
             ENVIRONMENT "${test_env}")
     endforeach()
 endif()

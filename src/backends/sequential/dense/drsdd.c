@@ -16,8 +16,10 @@
 void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, double *U,
         double *V, int *rank, int maxrank, int oversample, double tol,
         double *work, int lwork, int *iwork)
-//! 1-way randomized SVD approximation of a dense double precision matrix.
-/*! @ingroup approximations
+//! Randomized SVD approximation of a dense double precision matrix.
+/*! This function calls LAPACK and BLAS routines, so integer types are int
+ * instead of @ref STARSH_int.
+ *
  * @param[in] nrows: Number of rows of a matrix.
  * @param[in] ncols: Number of columns of a matrix.
  * @param[in,out] D: Pointer to dense matrix.
@@ -30,13 +32,12 @@ void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, double *U,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
- *
- * Uses 1-way randomized SVD algorithm. Works only with fast decay of
- * singular values.
+ * @ingroup approximations
  * */
 {
     int mn = nrows < ncols ? nrows : ncols;
     int mn2 = maxrank+oversample;
+    int i;
     if(mn2 > mn)
         mn2 = mn;
     //size_t svdqr_lwork = (4*mn2+7)*mn2;
@@ -49,8 +50,8 @@ void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, double *U,
     svd_S = svd_U+(size_t)mn2*mn2;
     tau = svd_S;
     svd_V = svd_S+mn2;
-    svdqr_work = svd_V+(size_t)ncols*mn2;
-    int svdqr_lwork = lwork-mn2*(2*ncols+nrows+mn2+1);
+    svdqr_work = svd_V+ncols*mn2;
+    int svdqr_lwork = lwork-(size_t)mn2*(2*ncols+nrows+mn2+1);
     int iseed[4] = {0, 0, 0, 1};
     // Generate random matrix X
     LAPACKE_dlarnv_work(3, iseed, nrows*mn2, X);
@@ -77,7 +78,7 @@ void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, double *U,
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
                 mn2, 1.0, Q, nrows, svd_U, mn2, 0.0, U, nrows);
-        for(size_t i = 0; i < *rank; i++)
+        for(i = 0; i < *rank; i++)
         {
             cblas_dcopy(ncols, svd_V+i, mn2, V+i*ncols, 1);
             cblas_dscal(ncols, svd_S[i], V+i*ncols, 1);

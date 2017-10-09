@@ -27,8 +27,9 @@
 #define ndim @NDIM
 #endif
 
-void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
-        int *irow, int *icol, void *row_data, void *col_data, void *result)
+void starsh_ssdata_block_matern_kernel_@NDIMd(STARSH_int nrows,
+        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
+        void *col_data, void *result)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -48,7 +49,6 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
  * row_data (\ref STARSH_ssdata object). No memory is allocated in this
  * function!
  *
- * @ingroup applications
  * @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
  * @param[in] irow: Array of row indexes.
@@ -56,9 +56,15 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
  * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @sa starsh_ssdata_block_matern_kernel_1d(),
+ *      starsh_ssdata_block_matern_kernel_2d(),
+ *      starsh_ssdata_block_matern_kernel_3d(),
+ *      starsh_ssdata_block_matern_kernel_4d(),
+ *      starsh_ssdata_block_matern_kernel_nd().
+ * @ingroup app-spatial-kernels
  * */
 {
-    int i, j, k;
+    STARSH_int i, j, k;
     STARSH_ssdata *data1 = row_data;
     STARSH_ssdata *data2 = col_data;
     double tmp, dist;
@@ -74,8 +80,8 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
     double sigma = data1->sigma;
     sigma *= sigma;
     // Get coordinates
-    size_t count1 = data1->particles.count;
-    size_t count2 = data2->particles.count;
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
@@ -110,8 +116,9 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
     }
 }
 
-void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
-        int *irow, int *icol, void *row_data, void *col_data, void *result)
+void starsh_ssdata_block_matern_kernel_@NDIMd_simd(STARSH_int nrows,
+        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
+        void *col_data, void *result)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -133,7 +140,6 @@ void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
  *
  * Uses SIMD instructions.
  *
- * @ingroup applications
  * @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
  * @param[in] irow: Array of row indexes.
@@ -141,9 +147,15 @@ void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
  * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @sa starsh_ssdata_block_matern_kernel_1d(),
+ *      starsh_ssdata_block_matern_kernel_2d_simd(),
+ *      starsh_ssdata_block_matern_kernel_3d_simd(),
+ *      starsh_ssdata_block_matern_kernel_4d_simd(),
+ *      starsh_ssdata_block_matern_kernel_nd_simd().
+ * @ingroup app-spatial-kernels
  * */
 {
-    int i, j, k;
+    STARSH_int i, j, k;
     STARSH_ssdata *data1 = row_data;
     STARSH_ssdata *data2 = col_data;
     double tmp, dist;
@@ -159,8 +171,8 @@ void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
     double sigma = data1->sigma;
     sigma *= sigma;
     // Get coordinates
-    size_t count1 = data1->particles.count;
-    size_t count2 = data2->particles.count;
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;

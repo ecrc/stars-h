@@ -13,14 +13,13 @@
 #include "common.h"
 #include "starsh.h"
 
-int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
-        Array **far_U, Array **far_V, int onfly,
-        Array **near_D, void *alloc_U, void *alloc_V,
-        void *alloc_D, char alloc_type)
-//! Init procedure for a non-nested block low-rank matrix.
-/*! @ingroup blrm
- * @param[out] M: Address of pointer to `STARSH_blrm` object.
- * @param[in] F: Block low-rank format.
+int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
+        Array **far_U, Array **far_V, int onfly, Array **near_D, void *alloc_U,
+        void *alloc_V, void *alloc_D, char alloc_type)
+//! Init @ref STARSH_blrm object.
+/*! 
+ * @param[out] matrix: Address of pointer to @ref STARSH_blrm object.
+ * @param[in] format: Pointer to @ref STARSH_blrf object.
  * @param[in] far_rank: Array of ranks of far-field blocks.
  * @param[in] far_U: Array of low-rank factors `U`.
  * @param[in] far_V: Array of low-rank factors `V`.
@@ -31,79 +30,82 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
  * @param[in] alloc_D: Pointer to big buffer for all `near_D`.
  * @param[in] alloc_type: Type of memory allocation. `1` if big buffers
  *     are used.
- * @return Error code.
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup blrm
  * */
 {
-    if(M == NULL)
+    if(matrix == NULL)
     {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
+        STARSH_ERROR("invalid value of `matrix`");
+        return STARSH_WRONG_PARAMETER;
     }
-    if(F == NULL)
+    if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `F`");
-        return 1;
+        STARSH_ERROR("invalid value of `format`");
+        return STARSH_WRONG_PARAMETER;
     }
+    STARSH_blrf *F = format;
     if(far_rank == NULL && F->nblocks_far > 0)
     {
         STARSH_ERROR("invalid value of `far_rank`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(far_U == NULL && F->nblocks_far > 0)
     {
         STARSH_ERROR("invalid value of `far_U`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(far_V == NULL && F->nblocks_far > 0)
     {
         STARSH_ERROR("invalid value of `far_V`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(onfly != 0 && onfly != 1)
     {
         STARSH_ERROR("invalid value of `onfly`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(near_D == NULL && F->nblocks_near > 0 && onfly == 0)
     {
         STARSH_ERROR("invalid value of `near_D`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_type != '1' && alloc_type != '2')
     {
         STARSH_ERROR("invalid value of `alloc_type`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_U == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_U`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_V == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_V`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_D == NULL && F->nblocks_near > 0 && alloc_type == '1' &&
             onfly == 0)
     {
         STARSH_ERROR("invalid value of `alloc_D`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
-    STARSH_MALLOC(*M, 1);
-    STARSH_blrm *M2 = *M;
-    M2->format = F;
-    M2->far_rank = far_rank;
-    M2->far_U = far_U;
-    M2->far_V = far_V;
-    M2->onfly = onfly;
-    M2->near_D = near_D;
-    M2->alloc_U = alloc_U;
-    M2->alloc_V = alloc_V;
-    M2->alloc_D = alloc_D;
-    M2->alloc_type = alloc_type;
-    size_t bi, data_size = 0, size = 0;
-    size += sizeof(*M2);
+    STARSH_blrm *M;
+    STARSH_MALLOC(M, 1);
+    *matrix = M;
+    M->format = F;
+    M->far_rank = far_rank;
+    M->far_U = far_U;
+    M->far_V = far_V;
+    M->onfly = onfly;
+    M->near_D = near_D;
+    M->alloc_U = alloc_U;
+    M->alloc_V = alloc_V;
+    M->alloc_D = alloc_D;
+    M->alloc_type = alloc_type;
+    STARSH_int bi, data_size = 0, size = 0;
+    size += sizeof(*M);
     size += F->nblocks_far*(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
     for(bi = 0; bi < F->nblocks_far; bi++)
     {
@@ -119,22 +121,20 @@ int starsh_blrm_new(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
             data_size += near_D[bi]->data_nbytes;
         }
     }
-    M2->nbytes = size;
-    M2->data_nbytes = data_size;
-    return 0;
+    M->nbytes = size;
+    M->data_nbytes = data_size;
+    return STARSH_SUCCESS;
 }
 
-int starsh_blrm_free(STARSH_blrm *M)
+void starsh_blrm_free(STARSH_blrm *matrix)
 //! Free memory of a non-nested block low-rank matrix.
 //! @ingroup blrm
 {
+    STARSH_blrm *M = matrix;
     if(M == NULL)
-    {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
-    }
+        return;
     STARSH_blrf *F = M->format;
-    size_t bi;
+    STARSH_int bi;
     int info;
     if(F->nblocks_far > 0)
     {
@@ -145,25 +145,17 @@ int starsh_blrm_free(STARSH_blrm *M)
             for(bi = 0; bi < F->nblocks_far; bi++)
             {
                 M->far_U[bi]->data = NULL;
-                info = array_free(M->far_U[bi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_U[bi]);
                 M->far_V[bi]->data = NULL;
-                info = array_free(M->far_V[bi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_V[bi]);
             }
         }
         else// M->alloc_type == '2'
         {
             for(bi = 0; bi < F->nblocks_far; bi++)
             {
-                info = array_free(M->far_U[bi]);
-                if(info != 0)
-                    return info;
-                info = array_free(M->far_V[bi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_U[bi]);
+                array_free(M->far_V[bi]);
             }
         }
         free(M->far_rank);
@@ -178,102 +170,110 @@ int starsh_blrm_free(STARSH_blrm *M)
             for(bi = 0; bi < F->nblocks_near; bi++)
             {
                 M->near_D[bi]->data = NULL;
-                info = array_free(M->near_D[bi]);
-                if(info != 0)
-                    return info;
+                array_free(M->near_D[bi]);
             }
         }
         else// M->alloc_type == '2'
         {
             for(bi = 0; bi < F->nblocks_near; bi++)
             {
-                info = array_free(M->near_D[bi]);
-                if(info != 0)
-                    return info;
+                array_free(M->near_D[bi]);
             }
         }
         free(M->near_D);
     }
     free(M);
-    return 0;
 }
 
-int starsh_blrm_info(STARSH_blrm *M)
+void starsh_blrm_info(STARSH_blrm *matrix)
 //! Print short info on non-nested block low-rank matrix.
 //! @ingroup blrm
 {
+    STARSH_blrm *M = matrix;
     if(M == NULL)
-    {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
-    }
+        return;
     printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
             "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
-    return 0;
 }
 
-int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
-        void **U, void **V, void **D)
+int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
+        int *shape, int *rank, void **U, void **V, void **D)
 //! Get shape, rank and low-rank factors or dense representation of a block.
-//! @ingroup blrm
+/*! If block is admissible and low-rank, then its low-rank factors are returned
+ * and `D` is NULL (since dense block is not stored). If block is admissible
+ * and not low-rank, then its dense version is returned and `U` and `V` are
+ * NULL. If block is NOT admissible, then it is computed and returned as dense.
+ *
+ * @param[in] matrix: Pointer to @ref STARSH_blrm object.
+ * @param[in] i: Index of block row.
+ * @param[in] j: Index of block column.
+ * @param[out] shape: Shape of corresponding block.
+ * @param[out] rank: Rank of corresponding block.
+ * @param[out] U: Low-rank factor U.
+ * @param[out] V: Low-rank factor V.
+ * @param[out] D: Dense block.
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup blrm
+ * */
 {
+    STARSH_blrm *M = matrix;
     if(M == NULL)
     {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
+        STARSH_ERROR("invalid value of `matrix`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(shape == NULL)
     {
         STARSH_ERROR("invalid value of `shape`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(rank == NULL)
     {
         STARSH_ERROR("invalid value of `rank`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(U == NULL)
     {
         STARSH_ERROR("invalid value of `U`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(V == NULL)
     {
         STARSH_ERROR("invalid value of `V`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(D == NULL)
     {
         STARSH_ERROR("invalid value of `D`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrf *F = M->format;
     if(i < 0 || i >= F->nbrows)
     {
         STARSH_ERROR("invalid value of `i`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(j < 0 || j >= F->nbcols)
     {
         STARSH_ERROR("invalid value of `j`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     STARSH_problem *P = F->problem;
     if(P->ndim != 2)
     {
         STARSH_ERROR("only scalar kernels are supported");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     int onfly = M->onfly;
     STARSH_cluster *R = F->row_cluster, *C = F->col_cluster;
-    int nrows = R->size[i], ncols = C->size[j], info = 0;
+    STARSH_int nrows = R->size[i], ncols = C->size[j], info = 0;
     shape[0] = nrows;
     shape[1] = ncols;
     *rank = nrows < ncols ? nrows : ncols;
     *U = NULL;
     *V = NULL;
     *D = NULL;
-    size_t bi = -1, k;
+    STARSH_int bi = -1, k;
     if(F->nblocks_far > 0)
     {
         k = F->brow_far_start[i];
@@ -321,7 +321,7 @@ int starsh_blrm_get_block(STARSH_blrm *M, int i, int j, int *shape, int *rank,
 }
 
 STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
-//int (*starsh_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
+//int (*starsh_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F, STARSH_int maxrank,
 //        double tol, int onfly) = NULL;
 //! Main call to get approximation in non-nested block low-rank format.
 /*! @ingroup blrm
@@ -339,8 +339,8 @@ STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
  * @return Error code.
  * */
 /*
-int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly, const char *scheme)
+int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, STARSH_int maxrank,
+        STARSH_int oversample, double tol, int onfly, const char *scheme)
 {
     if(strcmp(scheme, "sdd") == 0)
         starsh_blrm__dsdd(M, F, maxrank, oversample, tol, onfly);
@@ -391,14 +391,13 @@ int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
 }
 */
 #ifdef MPI
-int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
-        Array **far_U, Array **far_V, int onfly,
-        Array **near_D, void *alloc_U, void *alloc_V,
-        void *alloc_D, char alloc_type)
-//! Init procedure for a non-nested block low-rank matrix with MPI.
-/*! @ingroup blrm
- * @param[out] M: Address of pointer to `STARSH_blrm` object.
- * @param[in] F: Block low-rank format.
+int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int *far_rank, Array **far_U, Array **far_V, int onfly, Array **near_D,
+        void *alloc_U, void *alloc_V, void *alloc_D, char alloc_type)
+//! Init @ref STARSH_blrm object.
+/*! 
+ * @param[out] matrix: Address of pointer to @ref STARSH_blrm object.
+ * @param[in] format: Pointer to @ref STARSH_blrf object.
  * @param[in] far_rank: Array of ranks of far-field blocks.
  * @param[in] far_U: Array of low-rank factors `U`.
  * @param[in] far_V: Array of low-rank factors `V`.
@@ -409,79 +408,83 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
  * @param[in] alloc_D: Pointer to big buffer for all `near_D`.
  * @param[in] alloc_type: Type of memory allocation. `1` if big buffers
  *     are used.
- * @return Error code.
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup blrm
  * */
 {
-    if(M == NULL)
+    if(matrix == NULL)
     {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
+        STARSH_ERROR("invalid value of `matrix`");
+        return STARSH_WRONG_PARAMETER;
     }
+    STARSH_blrf *F = format;
     if(F == NULL)
     {
-        STARSH_ERROR("invalid value of `F`");
-        return 1;
+        STARSH_ERROR("invalid value of `format`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(far_rank == NULL && F->nblocks_far_local > 0)
     {
         STARSH_ERROR("invalid value of `far_rank`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(far_U == NULL && F->nblocks_far_local > 0)
     {
         STARSH_ERROR("invalid value of `far_U`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(far_V == NULL && F->nblocks_far_local > 0)
     {
         STARSH_ERROR("invalid value of `far_V`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(onfly != 0 && onfly != 1)
     {
         STARSH_ERROR("invalid value of `onfly`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(near_D == NULL && F->nblocks_near_local > 0 && onfly == 0)
     {
         STARSH_ERROR("invalid value of `near_D`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_type != '1' && alloc_type != '2')
     {
         STARSH_ERROR("invalid value of `alloc_type`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_U == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_U`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_V == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
     {
         STARSH_ERROR("invalid value of `alloc_V`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
     if(alloc_D == NULL && F->nblocks_near_local > 0 && alloc_type == '1' &&
             onfly == 0)
     {
         STARSH_ERROR("invalid value of `alloc_D`");
-        return 1;
+        return STARSH_WRONG_PARAMETER;
     }
-    STARSH_MALLOC(*M, 1);
-    STARSH_blrm *M2 = *M;
-    M2->format = F;
-    M2->far_rank = far_rank;
-    M2->far_U = far_U;
-    M2->far_V = far_V;
-    M2->onfly = onfly;
-    M2->near_D = near_D;
-    M2->alloc_U = alloc_U;
-    M2->alloc_V = alloc_V;
-    M2->alloc_D = alloc_D;
-    M2->alloc_type = alloc_type;
-    size_t lbi, bi, data_size = 0, size = 0;
-    size += sizeof(*M2);
+    STARSH_blrm *M;
+    STARSH_MALLOC(M, 1);
+    *matrix = M;
+    M->format = F;
+    M->far_rank = far_rank;
+    M->far_U = far_U;
+    M->far_V = far_V;
+    M->onfly = onfly;
+    M->near_D = near_D;
+    M->alloc_U = alloc_U;
+    M->alloc_V = alloc_V;
+    M->alloc_D = alloc_D;
+    M->alloc_type = alloc_type;
+    STARSH_int lbi, bi;
+    size_t data_size = 0, size = 0;
+    size += sizeof(*M);
     size += F->nblocks_far_local
         *(sizeof(*far_rank)+sizeof(*far_U)+sizeof(*far_V));
     for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
@@ -498,26 +501,24 @@ int starsh_blrm_new_mpi(STARSH_blrm **M, STARSH_blrf *F, int *far_rank,
             data_size += near_D[lbi]->data_nbytes;
         }
     }
-    M2->nbytes = 0;
-    M2->data_nbytes = 0;
-    MPI_Allreduce(&size, &(M2->nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
+    M->nbytes = 0;
+    M->data_nbytes = 0;
+    MPI_Allreduce(&size, &(M->nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
             MPI_COMM_WORLD);
-    MPI_Allreduce(&data_size, &(M2->data_nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
+    MPI_Allreduce(&data_size, &(M->data_nbytes), 1, my_MPI_SIZE_T, MPI_SUM,
             MPI_COMM_WORLD);
-    return 0;
+    return STARSH_SUCCESS;
 }
 
-int starsh_blrm_free_mpi(STARSH_blrm *M)
+void starsh_blrm_free_mpi(STARSH_blrm *matrix)
 //! Free memory of a non-nested block low-rank matrix.
 //! @ingroup blrm
 {
+    STARSH_blrm *M = matrix;
     if(M == NULL)
-    {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
-    }
+        return;
     STARSH_blrf *F = M->format;
-    size_t lbi;
+    STARSH_int lbi;
     int info;
     if(F->nblocks_far_local > 0)
     {
@@ -528,25 +529,17 @@ int starsh_blrm_free_mpi(STARSH_blrm *M)
             for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
             {
                 M->far_U[lbi]->data = NULL;
-                info = array_free(M->far_U[lbi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_U[lbi]);
                 M->far_V[lbi]->data = NULL;
-                info = array_free(M->far_V[lbi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_V[lbi]);
             }
         }
         else// M->alloc_type == '2'
         {
             for(lbi = 0; lbi < F->nblocks_far_local; lbi++)
             {
-                info = array_free(M->far_U[lbi]);
-                if(info != 0)
-                    return info;
-                info = array_free(M->far_V[lbi]);
-                if(info != 0)
-                    return info;
+                array_free(M->far_U[lbi]);
+                array_free(M->far_V[lbi]);
             }
         }
         free(M->far_rank);
@@ -561,37 +554,30 @@ int starsh_blrm_free_mpi(STARSH_blrm *M)
             for(lbi = 0; lbi < F->nblocks_near_local; lbi++)
             {
                 M->near_D[lbi]->data = NULL;
-                info = array_free(M->near_D[lbi]);
-                if(info != 0)
-                    return info;
+                array_free(M->near_D[lbi]);
             }
         }
         else// M->alloc_type == '2'
         {
             for(lbi = 0; lbi < F->nblocks_near_local; lbi++)
             {
-                info = array_free(M->near_D[lbi]);
-                if(info != 0)
-                    return info;
+                array_free(M->near_D[lbi]);
             }
         }
         free(M->near_D);
     }
     free(M);
-    return 0;
 }
 
-int starsh_blrm_info_mpi(STARSH_blrm *M)
+void starsh_blrm_info_mpi(STARSH_blrm *matrix)
 //! Print short info on non-nested block low-rank matrix.
 //! @ingroup blrm
 {
+    STARSH_blrm *M = matrix;
     if(M == NULL)
-    {
-        STARSH_ERROR("invalid value of `M`");
-        return 1;
-    }
+        return;
     printf("<STARSH_blrm at %p, %d onfly, allocation type '%c', %f MB memory "
             "footprint>\n", M, M->onfly, M->alloc_type, M->nbytes/1024./1024.);
-    return 0;
+    return;
 }
 #endif // MPI

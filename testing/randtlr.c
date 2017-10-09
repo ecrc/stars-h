@@ -20,14 +20,14 @@
 #include <stdlib.h>
 #include <omp.h>
 #include "starsh.h"
-#include "starsh-rndtiled.h"
+#include "starsh-randtlr.h"
 
 int main(int argc, char **argv)
 {
     if(argc != 6)
     {
         printf("%d arguments provided, but 5 are needed\n", argc-1);
-        printf("rndtiled N NB decay maxrank tol\n");
+        printf("randtlr N NB decay maxrank tol\n");
         return -1;
     }
     int N = atoi(argv[1]);
@@ -37,17 +37,17 @@ int main(int argc, char **argv)
     double tol = atof(argv[5]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
-    int shape[2] = {N, N};
+    STARSH_int shape[2] = {N, N};
     int info;
     // Init STARS-H
     starsh_init();
     // Generate problem by random matrices
-    STARSH_rndtiled *data;
-    STARSH_kernel kernel;
+    STARSH_randtlr *data;
+    STARSH_kernel *kernel;
     info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_RNDTILED, 0, STARSH_RNDTILED_NB, block_size,
-            STARSH_RNDTILED_DECAY, decay, STARSH_RNDTILED_DIAG,
-            (double)N, 0);
+            STARSH_RANDTLR, STARSH_RANDTLR_KERNEL1,
+            STARSH_RANDTLR_NB, block_size,
+            STARSH_RANDTLR_DECAY, decay, STARSH_RANDTLR_DIAG, (double)N, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
@@ -58,13 +58,13 @@ int main(int argc, char **argv)
     starsh_problem_new(&P, 2, shape, symm, dtype, data, data, kernel,
             "Randomly generated tiled blr-matrix");
     starsh_problem_info(P);
-    // Init tiled cluster for tiled low-rank approximation and print info
+    // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, N, block_size);
+    starsh_cluster_new_plain(&C, data, N, block_size);
     starsh_cluster_info(C);
-    // Init tiled division into admissible blocks and print short info
+    // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
-    starsh_blrf_new_tiled(&F, P, C, C, symm);
+    starsh_blrf_new_tlr(&F, P, symm, C, C);
     starsh_blrf_info(F);
     // Approximate each admissible block
     STARSH_blrm *M;
@@ -95,6 +95,6 @@ int main(int argc, char **argv)
     // Free STARS_Problem instance
     starsh_problem_free(P);
     // Free randomly generated data
-    starsh_rndtiled_free(data);
+    starsh_randtlr_free(data);
     return 0;
 }

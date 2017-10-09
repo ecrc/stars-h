@@ -61,13 +61,13 @@ int main(int argc, char **argv)
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
     starsh_problem_info(P);
-    // Init tiled cluster for tiled low-rank approximation and print info
+    // Init plain cluster and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, N, block_size);
+    starsh_cluster_new_plain(&C, data, N, block_size);
     starsh_cluster_info(C);
-    // Init tiled division into admissible blocks and print short info
+    // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
-    starsh_blrf_new_tiled(&F, P, C, C, symm);
+    starsh_blrf_new_tlr(&F, P, C, C, symm);
     starsh_blrf_info(F);
     // Approximate each admissible block
     STARSH_blrm *M;

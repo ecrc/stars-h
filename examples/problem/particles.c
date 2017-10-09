@@ -22,7 +22,8 @@ int main(int argc, char **argv)
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     int info;
     // Generate data for spatial statistics problem
     STARSH_particles *data;
@@ -30,14 +31,14 @@ int main(int argc, char **argv)
             STARSH_ASCII);
     if(info != STARSH_SUCCESS)
     {
-        printf("INFO=%d\n", info);
+        printf("INFO=%d while reading\n", info);
         return info;
     }
     info = starsh_particles_write_to_file_pointer(data, stdout,
             STARSH_ASCII); 
     if(info != STARSH_SUCCESS)
     {
-        printf("INFO=%d\n", info);
+        printf("INFO=%d while writing\n", info);
         return info;
     }
     starsh_particles_free(data);

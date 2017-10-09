@@ -14,10 +14,12 @@
 #include "starsh.h"
 
 void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, double tol, double *work,
-        int lwork, int *iwork)
-//! Fake approximation schemes, that returns rank=-1.
-/*! @ingroup approximations
+        int *rank, int maxrank, double tol, double *work, int lwork,
+        int *iwork)
+//! Fake approximation schemes, that returns `rank=-1`.
+/*! This function calls LAPACK and BLAS routines, so integer types are int
+ * instead of @ref STARSH_int.
+ *
  * @param[in] nrows: Number of rows of a matrix.
  * @param[in] ncols: Number of columns of a matrix.
  * @param[in,out] D: Pointer to dense matrix.
@@ -29,6 +31,7 @@ void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
+ * @ingroup approximations
  * */
 {
     *rank = -1;

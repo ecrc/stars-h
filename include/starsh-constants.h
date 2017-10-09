@@ -79,8 +79,8 @@ enum STARSH_PROBLEM_TYPE
 {
     STARSH_MINIMAL = 1,
     //!< Minimal working example
-    STARSH_RNDTILED = 2,
-    //!< Random tile-low rank matrix
+    STARSH_RANDTLR = 2,
+    //!< Synthetic random TLR matrix
     STARSH_SPATIAL = 3
     //!< Geospatial statistics
 };
@@ -88,8 +88,8 @@ enum STARSH_PROBLEM_TYPE
 //! Enum type to show actual block low-rank format
 enum STARSH_BLRF_TYPE
 {
-    STARSH_TILED = 1,
-    //!< Tile low-rank format
+    STARSH_TLR = 1,
+    //!< TLR format
     //STARSH_H = 2,
     ////!< H format
     //STARSH_HODLR = 3
@@ -112,29 +112,6 @@ enum STARSH_FILE_TYPE
     //!< ASCII file
     STARSH_BINARY = 2
     //!< Binary file
-};
-
-//! Enum type to select placement of particles for STARSH_particles
-enum STARSH_PARTICLES_PLACEMENT
-{
-    STARSH_PARTICLES_RAND = 1,
-    //!< Uniform random distribution in [0,1] range
-    //STARSH_PARTICLES_RANDN = 2,
-    ////!< Normal random distribution with mean=0 and variance=1
-    STARSH_PARTICLES_UNIFORM = 3,
-    //!< Uniform in [0,1] grid
-    STARSH_PARTICLES_RANDGRID = 4,
-    //!< Grid, based on uniform in [0,1] distribution of coordinates
-    //STARSH_PARTICLES_RANDNGRID = 5,
-    ////!< Grid, based on normal (0,1) ditribution of coordinates
-    STARSH_PARTICLES_QUASIUNIFORM1 = 6,
-    //!< Uniform in [0,1] grid, but each particle is slightly shifted
-    STARSH_PARTICLES_QUASIUNIFORM2 = 7,
-    //!< Uniform in [0,1] grid, but each grid coordinate is slightly shifted
-    STARSH_PARTICLES_OBSOLETE1 = -1,
-    //!< Old version of STARSH_PARTICLES_QUASIUNIFORM1 (keep for compatibility)
-    STARSH_PARTICLES_OBSOLETE2 = -2,
-    //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (keep for compatibility)
 };
 
 #endif // __STARSH_CONSTANTS_H__

@@ -15,19 +15,23 @@
 #include "control/init.h"
 
 int starsh_init()
-//! Initialize backend and low-rank engine to be used
+//! Initialize backend and low-rank engine to be used.
 /*! Reads environment variables and sets up backend (etc. MPI) and low-rank
  * engine (etc. SVD).
+ *
  * Environment variables
  * ---------------------
  *  STARSH_BACKEND: SEQUENTIAL, MPI (pure MPI), OPENMP (pure OpenMP) or
- *  MPI_OPENMP (hybrid MPI with OpenMP)
+ *  MPI_OPENMP (hybrid MPI with OpenMP).
  *
- *  STARSH_LRENGINE: DCSVD (divide-and-conquer SVD), RRQR (LAPACK *geqp3) or
- *  RSVD(randomized SVD)
+ *  STARSH_LRENGINE: SVD (divide-and-conquer SVD), RRQR (LAPACK *geqp3) or
+ *  RSVD (randomized SVD).
  *
  *  STARSH_OVERSAMPLE: Number of oversampling vectors for randomized SVD and
- *  RRQR
+ *  RRQR.
+ *
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_set_backend(), starsh_set_lrengine().
  * */
 {
     const char *str_backend = "STARSH_BACKEND";
@@ -54,9 +58,11 @@ int starsh_init()
 }
 
 int starsh_set_backend(const char *string)
-//! Set backend (MPI or OpenMP or other scheduler) for computations
-/*! @param[in] string: Name of backend to use. Possible values:
- * "SEQUENTIAL", "OPENMP", "MPI", "MPI_OPENMP"
+//! Set backend (MPI or OpenMP or other scheduler) for computations.
+/*! @param[in] string: Environment variable and value, encoded in a string.
+ *      Example: "STARSH_BACKEND=SEQUENTIAL".
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_init(), starsh_set_lrengine().
  * */
 {
     int i, selected = -1;
@@ -94,9 +100,11 @@ int starsh_set_backend(const char *string)
 }
 
 int starsh_set_lrengine(const char *string)
-//! Set low-rank engine (SVD, Randomized SVD or Cross) for computations
-/*! @param[in] string: Name of low-rank engine to use. Possible values:
- * "SVD", "DCSVD", "RRQR", "RSVD", "CROSS"
+//! Set low-rank engine (SVD, Randomized SVD or Cross) for computations.
+/*! @param[in] string: Environment variable and value, encoded in a string.
+ *      Example: "STARSH_LRENGINE=SVD".
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_init(), starsh_set_backends().
  * */
 {
     int i, selected = -1;
@@ -130,8 +138,11 @@ int starsh_set_lrengine(const char *string)
 }
 
 int starsh_set_oversample(const char *string)
-//! Set oversampling size for randomized SVD and RRQR
-/*! @param[in] string: number of oversampling vectors. Default value is 10
+//! Set oversampling size for randomized SVD and RRQR.
+/*! @param[in] string: Environment variable and value, encoded in a string.
+ *      Example: "STARSH_OVERSAMPLE=10".
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_init().
  * */
 {
     int value;

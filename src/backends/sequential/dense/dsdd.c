@@ -16,8 +16,10 @@
 void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U,
         double *V, int *rank, int maxrank, double tol, double *work,
         int lwork, int *iwork)
-//! DGESDD approximation of a dense double precision matrix.
-/*! @ingroup approximations
+//! SVD approximation of a dense double precision matrix.
+/*! This function calls LAPACK and BLAS routines, so integer types are int
+ * instead of @ref STARSH_int.
+ *
  * @param[in] nrows: Number of rows of a matrix.
  * @param[in] ncols: Number of columns of a matrix.
  * @param[in,out] D: Pointer to dense matrix.
@@ -29,10 +31,12 @@ void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
+ * @ingroup approximations
  * */
 {
     int mn = nrows < ncols ? nrows : ncols;
-    size_t svd_lwork = (4*(size_t)mn+7)*mn;
+    int i;
+    int svd_lwork = (4*mn+7)*mn;
     double *svd_U, *svd_S, *svd_V, *svd_work;
     svd_U = work;
     svd_S = svd_U+(size_t)nrows*mn;
@@ -46,7 +50,7 @@ void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U,
     if(*rank < mn/2 && *rank <= maxrank)
     // If far-field block is low-rank
     {
-        for(size_t i = 0; i < *rank; i++)
+        for(i = 0; i < *rank; i++)
         {
             cblas_dcopy(nrows, svd_U+i*nrows, 1, U+i*nrows, 1);
             cblas_dcopy(ncols, svd_V+i, mn, V+i*ncols, 1);

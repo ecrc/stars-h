@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/approximation/rndtiled.c
+ * @file examples/approximation/randtlr.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -13,13 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "starsh.h"
-#include "starsh-rndtiled.h"
+#include "starsh-randtlr.h"
 
 int main(int argc, char **argv)
 {
     int problem_ndim = 2;
-    // Since there is only one kernel for rndtiled, kernel_type is ignored
-    int kernel_type = 0;
+    // Since there is only one kernel for STARSH_randtlr
+    int kernel_type = STARSH_RANDTLR_KERNEL1;
     // Size of desired matrix
     int N = 2500;
     // Size of tile for tile low-rank random matrix
@@ -30,28 +30,28 @@ int main(int argc, char **argv)
     double diag = N;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     int info;
     int maxrank = 30; // Maximum rank to be used
-    int oversample = 10; // Parameter for randomized SVD (extra random vectors)
     double tol = 1e-3; // Error threshold
     int onfly = 0; // Do not store dense blocks (since they are stored in data)
     srand(0);
     // Init STARS-H
     starsh_init();
     // Generate data for spatial statistics problem
-    STARSH_rndtiled *data;
-    STARSH_kernel kernel;
-    // STARSH_RNDTILED for random tile low-rank matrix
-    // STARSH_RNDTILED_NB to indicate next parameter shows size of tile
-    // STARSH_RNDTILED_DECAY to indicate next parameter is decay of singular
+    STARSH_randtlr *data;
+    STARSH_kernel *kernel;
+    // STARSH_RANDTLR for random tile low-rank matrix
+    // STARSH_RANDTLR_NB to indicate next parameter shows size of tile
+    // STARSH_RANDTLR_DECAY to indicate next parameter is decay of singular
     //   values
-    // STARSH_RNDTILED_DIAG to indicate next parameter is addition for diagonal
+    // STARSH_RANDTLR_DIAG to indicate next parameter is addition for diagonal
     //   elements
     // 0 at the end to indicate end of arguments
     info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_RNDTILED, kernel_type, STARSH_RNDTILED_NB, block_size,
-            STARSH_RNDTILED_DECAY, decay, STARSH_RNDTILED_DIAG, diag, 0);
+            STARSH_RANDTLR, kernel_type, STARSH_RANDTLR_NB, block_size,
+            STARSH_RANDTLR_DECAY, decay, STARSH_RANDTLR_DIAG, diag, 0);
     if(info != 0)
     {
         printf("wrong parameters for random tile low-rank matrix\n");
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     starsh_problem_info(problem);
     // Set up clusterization (divide rows and columns into blocks)
     STARSH_cluster *cluster;
-    info = starsh_cluster_new_tiled(&cluster, data, N, block_size);
+    info = starsh_cluster_new_plain(&cluster, data, N, block_size);
     if(info != 0)
     {
         printf("Error in creation of cluster\n");
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     }
     // Set up format (divide matrix into tiles)
     STARSH_blrf *format;
-    info = starsh_blrf_new_tiled(&format, problem, cluster, cluster, symm);
+    info = starsh_blrf_new_tlr(&format, problem, symm, cluster, cluster);
     if(info != 0)
     {
         printf("Error in creation of format\n");

@@ -46,7 +46,8 @@ int main(int argc, char **argv)
     int check_cg_solve = atoi(argv[11]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
     int nrhs = 1;
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
     starsh_init();
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
@@ -72,15 +73,14 @@ int main(int argc, char **argv)
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
     starsh_problem_info(P);
-    // Init tiled cluster for tiled low-rank approximation and print info
+    // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, N, block_size);
+    starsh_cluster_new_plain(&C, data, N, block_size);
     starsh_cluster_info(C);
-    // Init tiled division into admissible blocks and print short info
+    // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    //starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
-    starsh_blrf_new_tiled(&F, P, C, C, symm);
+    starsh_blrf_new_tlr(&F, P, symm, C, C);
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
@@ -106,15 +106,15 @@ int main(int argc, char **argv)
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     if(check_matvec == 1)
     {
-        double *x, *y, *y_tiled;
+        double *x, *y, *y_tlr;
         int nrhs = 1;
         x = malloc(N*nrhs*sizeof(*x));
         y = malloc(N*nrhs*sizeof(*y));
-        y_tiled = malloc(N*nrhs*sizeof(*y_tiled));
+        y_tlr = malloc(N*nrhs*sizeof(*y_tlr));
         int iseed[4] = {0, 0, 0, 1};
         LAPACKE_dlarnv_work(3, iseed, N*nrhs, x);
         cblas_dscal(N*nrhs, 0.0, y, 1);
-        cblas_dscal(N*nrhs, 0.0, y_tiled, 1);
+        cblas_dscal(N*nrhs, 0.0, y_tlr, 1);
         time1 = omp_get_wtime();
         for(int i = 0; i < 10; i++)
             starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);

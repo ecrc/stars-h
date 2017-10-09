@@ -19,7 +19,7 @@
 
 int main(int argc, char **argv)
 {
-    int problem_ndim = 3;
+    int problem_ndim = 2;
     // Possible values for kernel_type are:
     //      STARSH_SPATIAL_EXP, STARSH_SPATIAL_EXP_SIMD
     //      STARSH_SPATIAL_SQREXP, STARSH_SPATIAL_SQREXP_SIMD
@@ -33,12 +33,13 @@ int main(int argc, char **argv)
     // Set level of noise
     double noise = 1e-4;
     // Set variance of covariance kernel
-    double sigma = 0;
+    double sigma = 1.0;
     // Size of desired matrix
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     enum STARSH_PARTICLES_PLACEMENT place = STARSH_PARTICLES_UNIFORM;
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
     starsh_set_backend("OPENMP");
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     // STARSH_SPATIAL for spatial statistics problem
     // kernel_type is enum type, for possible values llok into starsh-spatial.h
     // STARSH_SATIAL_NDIM to indicate next parameter shows dimensionality of
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
     printf("TIME FOR SUBMATRIX: %f seconds\n", time0);
     // Set up clusterization (divide rows and columns into blocks)
     STARSH_cluster *cluster;
-    info = starsh_cluster_new_tiled(&cluster, data, N, block_size);
+    info = starsh_cluster_new_plain(&cluster, data, N, block_size);
     if(info != 0)
     {
         printf("Error in creation of cluster\n");
@@ -101,7 +102,7 @@ int main(int argc, char **argv)
     }
     // Set up format (divide matrix into tiles)
     STARSH_blrf *format;
-    info = starsh_blrf_new_tiled(&format, problem, cluster, cluster, symm);
+    info = starsh_blrf_new_tlr(&format, problem, symm, cluster, cluster);
     if(info != 0)
     {
         printf("Error in creation of format\n");

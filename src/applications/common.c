@@ -14,55 +14,60 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 #include "starsh-minimal.h"
-#include "starsh-rndtiled.h"
+#include "starsh-randtlr.h"
 
-int starsh_application(void **data, STARSH_kernel *kernel, int n, char dtype,
-        int problem_type, int kernel_type, ...)
-//! Generates data and matrix kernel for one of predefined applications
-/*!
+int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
+        char dtype, int problem_type, int kernel_type, ...)
+//! Generates data and matrix kernel for one of predefined applications.
+/*! All parameters in `...` go by pairs: integer, indicating what kind of
+ * parameter is following after it, with the value of parameter. This list ends
+ * with integer 0. Parameter `dtype` is ignored as of now, but it is here to
+ * support different precisions.
+ *
+ * @param[out] data: Address of pointer for structure, holding all data.
+ * @param[out] kernel: @ref STARSH_kernel function.
+ * @param[in] count: Desired size of corresponding matrix.
+ * @param[in] dtype: Precision of each element of a matrix ('d' for double).
+ * @param[in] problem_type: Type of problem.
+ * @param[in] kernel_type: Type of kernel, depends on problem.
+ * @sa starsh_ssdata_generate(), starsh_ssdata_get_kernel(),
+ *      starsh_randtlr_generate(), starsh_randtlr_get_kernel().
  * @ingroup applications
- * @param[out] data: Address of pointer for structure, holding all data
- * @param[out] kernel: matrix kernel
- * @param[in] n: desired size of corresponding matrix
- * @param[in] dtype: precision of each element of a matrix ('d' for double)
- * @param[in] problem_type: possible values are of
- *                          type enum STARSH_PROBLEM_TYPE
- * @param[in] kernel_type: possible values are of corresponding
- *                          type enum STARSH_*_*, where first star corresponds
- *                          to problem name and seconds start corresponds to
- *                          name of kernel
- * 
- * All other parameters go by pairs: integer, indicating what kind of parameter
- * is following after it, with the value of parameter. This list ends with
- * integer 0.
  */
 {
     va_list args;
     va_start(args, kernel_type);
-    int info = 0;
+    int info = STARSH_SUCCESS;
     switch(problem_type)
     {
         case STARSH_MINIMAL:
-            info = starsh_mindata_new_va((STARSH_mindata **)data, n, dtype,
-                    args);
-            if(info != 0)
+            // Minimal example simply does not support any parameters. So, if
+            // there are any, throw error.
+            if(va_arg(args, int) != 0)
+                return STARSH_WRONG_PARAMETER;
+            info = starsh_mindata_new((STARSH_mindata **)data, count, dtype);
+            if(info != STARSH_SUCCESS)
                 return info;
             info = starsh_mindata_get_kernel(kernel, *data, kernel_type);
             break;
-        case STARSH_RNDTILED:
-            info = starsh_rndtiled_new_va((STARSH_rndtiled **)data, n, dtype,
+        case STARSH_RANDTLR:
+            // Since random TLR matrix supports only double precision, dtype
+            // is ignored
+            info = starsh_randtlr_generate_va((STARSH_randtlr **)data, count,
                     args);
-            if(info != 0)
+            if(info != STARSH_SUCCESS)
                 return info;
-            info = starsh_rndtiled_get_kernel(kernel, *data, kernel_type);
+            info = starsh_randtlr_get_kernel(kernel, *data, kernel_type);
             break;
         case STARSH_SPATIAL:
-            info = starsh_ssdata_new_va((STARSH_ssdata **)data, n, dtype,
+            // Since Spatial statistics supports only double precision, dtype
+            // is ignored
+            info = starsh_ssdata_generate_va((STARSH_ssdata **)data, count,
                     args);
-            if(info != 0)
+            if(info != STARSH_SUCCESS)
                 return info;
             info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
-            if(info != 0)
+            if(info != STARSH_SUCCESS)
                 return info;
             break;
         default:

@@ -13,26 +13,51 @@
 #ifndef __STARSH_MINIMAL_H__
 #define __STARSH_MINIMAL_H__
 
+/*! @defgroup app-mindata Minimal working example
+ * @brief Minimal working example
+ *
+ * @ref STARSH_mindata contains only size of matrix and very simple kernel.
+ * This example is intended to make it easy to understand how STARS-H works.
+ *
+ * @ingroup applications
+ * */
+
 // Add definitions for size_t, va_list and STARSH_kernel
 #include "starsh.h"
 
 typedef struct starsh_mindata
-//! Minimal example for better understanding of how to deal with STARS-H.
+//! Structure for minimal example.
+/*! Main difference of this structure against others is that it does not
+ * have any useful field except `count` (size of matrix). This limits possible
+ * problem to those, where kernel depends @e only on row and column index.
+ *
+ * @ingroup app-mindata
+ * */
 {
-    size_t count;
+    STARSH_int count;
+    //!< Size of matrix.
     char dtype;
+    //!< Type of matrix entry (ignored).
 } STARSH_mindata;
 
-int starsh_mindata_new(STARSH_mindata **data, int n, char dtype);
-int starsh_mindata_new_va(STARSH_mindata **data, int n, char dtype,
-        va_list args);
-int starsh_mindata_new_el(STARSH_mindata **data, int n, char dtype, ...);
+enum STARSH_MINIMAL_KERNEL
+//! List of built-in kernels for starsh_mindata_get_kernel().
+/*! There is only one kernel right now, this structure is to support future
+ * methods to generate synthetic matrices.
+ *
+ * @ingroup app-mindata
+ * */
+{
+    STARSH_MINIMAL_KERNEL1 = 1,
+    //!< The only kernel.
+};
+
+int starsh_mindata_new(STARSH_mindata **data, STARSH_int n, char dtype);
 void starsh_mindata_free(STARSH_mindata *data);
-int starsh_mindata_get_kernel(STARSH_kernel *kernel, STARSH_mindata *data,
-        int type);
+int starsh_mindata_get_kernel(STARSH_kernel **kernel, STARSH_mindata *data,
+        enum STARSH_MINIMAL_KERNEL type);
 
 // KERNELS
-void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result);
+STARSH_kernel starsh_mindata_block_kernel;
 
 #endif // __STARSH_MINIMAL_H__

@@ -18,13 +18,14 @@
 int main(int argc, char **argv)
 {
     int problem_ndim = 2;
-    // Since there is only one kernel for minimal, kernel_type is ignored
-    int kernel_type = 0;
+    // Since there is only one kernel for minimal example
+    int kernel_type = STARSH_MINIMAL_KERNEL1;
     // Size of desired matrix
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     int info;
     int maxrank = 30; // Maximum rank to be used
     int oversample = 10; // Parameter for randomized SVD (extra random vectors)
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
     starsh_init();
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     // STARSH_MINIMAL for random tile low-rank matrix
     // minimal problem does not have any parameters
     // 0 at the end to indicate end of arguments
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
     starsh_problem_info(problem);
     // Set up clusterization (divide rows and columns into blocks)
     STARSH_cluster *cluster;
-    info = starsh_cluster_new_tiled(&cluster, data, N, block_size);
+    info = starsh_cluster_new_plain(&cluster, data, N, block_size);
     if(info != 0)
     {
         printf("Error in creation of cluster\n");
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
     }
     // Set up format (divide matrix into tiles)
     STARSH_blrf *format;
-    info = starsh_blrf_new_tiled(&format, problem, cluster, cluster, symm);
+    info = starsh_blrf_new_tlr(&format, problem, symm, cluster, cluster);
     if(info != 0)
     {
         printf("Error in creation of format\n");

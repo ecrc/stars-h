@@ -14,18 +14,27 @@
 #include "starsh.h"
 #include "starsh-minimal.h"
 
-void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
-        int *icol, void *row_data, void *col_data, void *result)
-//! Kernel for minimal problem.
-//! @ingroup applications
+void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result)
+//! The only kernel for @ref STARSH_mindata object.
+/*! @param[in] nrows: Number of rows of \f$ A \f$.
+ * @param[in] ncols: Number of columns of \f$ A \f$.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data (@ref STARSH_mindata object).
+ * @param[in] col_data: Pointer to physical data (@ref STARSH_mindata object).
+ * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @ingroup app-minimal
+ * */
 {
-    int i, j;
+    STARSH_int i, j;
     STARSH_mindata *data = row_data;
-    int n = data->count;
+    STARSH_int n = data->count;
     double *buffer = result;
     //#pragma omp simd
-    for(int j = 0; j < ncols; j++)
-        for(int i = 0; i < nrows; i++)
+    for(j = 0; j < ncols; j++)
+        for(i = 0; i < nrows; i++)
         {
             if(irow[i] == icol[j])
                 buffer[j*nrows+i] = n+1;
@@ -34,45 +43,19 @@ void starsh_mindata_block_kernel(int nrows, int ncols, int *irow,
         }
 }
 
-int starsh_mindata_new(STARSH_mindata **data, int n, char dtype)
-//! Generate data for a minimal problem
-/*! @ingroup applications
- * @param[out] data: Address to pointer to `STARSH_mindata` object.
- * @param[in] n: Size of matrix.
+int starsh_mindata_new(STARSH_mindata **data, STARSH_int count, char dtype)
+//! Create container for minimal working example.
+/*! @param[out] data: Address of pointer to @ref STARSH_mindata object.
+ * @param[in] count: Size of matrix.
  * @param[in] dtype: precision ('s', 'd', 'c' or 'z').
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup app-minimal
  * */
 {
     STARSH_MALLOC(*data, 1);
-    (*data)->count = n;
+    (*data)->count = count;
     (*data)->dtype = dtype;
-    return 0;
-}
-
-int starsh_mindata_new_va(STARSH_mindata **data, int n, char dtype,
-        va_list args)
-//! Generate minimal problem with va_list.
-//! For arguments look at starsh_mindata_new().
-//! @ingroup applications
-{
-    int arg_type;
-    if((arg_type = va_arg(args, int)) != 0)
-    {
-        STARSH_ERROR("Wrong parameter");
-        return 1;
-    }
-    return starsh_mindata_new(data, n, dtype);
-}
-
-int starsh_mindata_new_el(STARSH_mindata **data, int n, char dtype, ...)
-//! Generate minimal problem with ellipsis.
-//! For arguments look at starsh_mindata_new().
-//! @ingroup applications
-{
-    va_list args;
-    va_start(args, dtype);
-    int info = starsh_mindata_new_va(data, n, dtype, args);
-    va_end(args);
-    return info;
+    return STARSH_SUCCESS;
 }
 
 void starsh_mindata_free(STARSH_mindata *data)
@@ -83,11 +66,29 @@ void starsh_mindata_free(STARSH_mindata *data)
         free(data);
 }
 
-int starsh_mindata_get_kernel(STARSH_kernel *kernel, STARSH_mindata *data,
-        int type)
-//! Select kernel (ignores type, since there is only one kernel).
-//! @ingroup applications
+int starsh_mindata_get_kernel(STARSH_kernel **kernel, STARSH_mindata *data,
+        enum STARSH_MINIMAL_KERNEL type)
+//! Get kernel for minimal working example.
+/*! Kernel can be selected with this call or manually. Currently, there is only
+ * one kernel for @STARSH_mindata problem.
+ *
+ * @param[out] kernel: Address of @ref STARSH_kernel function.
+ * @param[in] data: Pointer to @ref STARSH_mindata object.
+ * @param[in] type: Type of kernel. For more info look at @ref
+ *      STARSH_MINIMAL_KERNEL.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_mindata_block_kernel().
+ * @ingroup app-minimal
+ * */
 {
-    *kernel = starsh_mindata_block_kernel;
-    return 0;
+    switch(type)
+    {
+        case STARSH_MINIMAL_KERNEL1:
+            *kernel = starsh_mindata_block_kernel;
+            break;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
+    }
+    return STARSH_SUCCESS;
 }

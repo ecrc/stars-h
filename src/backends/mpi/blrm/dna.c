@@ -13,8 +13,8 @@
 #include "common.h"
 #include "starsh.h"
 
-int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        double tol, int onfly)
+int starsh_blrm__dna_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly)
 //! Simply compute matrix without any approximation.
 /*! @ingroup blrm
  * @param[out] M: Address of pointer to `STARSH_blrm` object.
@@ -25,30 +25,33 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
  * @param[in] onfly: Whether not to store dense blocks.
  * */
 {
+    STARSH_blrf *F = format;
     STARSH_problem *P = F->problem;
-    STARSH_kernel kernel = P->kernel;
-    size_t nblocks_far = F->nblocks_far;
-    size_t nblocks_near = F->nblocks_near;
-    size_t nblocks_far_local = F->nblocks_far_local;
-    size_t nblocks_near_local = F->nblocks_near_local;
+    STARSH_kernel *kernel = P->kernel;
+    STARSH_int nblocks_far = F->nblocks_far;
+    STARSH_int nblocks_near = F->nblocks_near;
+    STARSH_int nblocks_far_local = F->nblocks_far_local;
+    STARSH_int nblocks_near_local = F->nblocks_near_local;
     // Shortcuts to information about clusters
-    STARSH_cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    STARSH_cluster *RC = F->row_cluster;
+    STARSH_cluster *CC = F->col_cluster;
     void *RD = RC->data, *CD = CC->data;
     // Following values default to given block low-rank format F, but they are
     // changed when there are false far-field blocks.
-    size_t new_nblocks_far = F->nblocks_far;
-    size_t new_nblocks_near = F->nblocks_near;
-    size_t new_nblocks_far_local = F->nblocks_far_local;
-    size_t new_nblocks_near_local = F->nblocks_near_local;
-    int *block_far = F->block_far, *block_near = F->block_near;
-    size_t *block_far_local = F->block_far_local;
-    size_t *block_near_local = F->block_near_local;
+    STARSH_int new_nblocks_far = F->nblocks_far;
+    STARSH_int new_nblocks_near = F->nblocks_near;
+    STARSH_int new_nblocks_far_local = F->nblocks_far_local;
+    STARSH_int new_nblocks_near_local = F->nblocks_near_local;
+    STARSH_int *block_far = F->block_far;
+    STARSH_int *block_near = F->block_near;
+    STARSH_int *block_far_local = F->block_far_local;
+    STARSH_int *block_near_local = F->block_near_local;
     // Places to store low-rank factors, dense blocks and ranks
     Array **far_U = NULL, **far_V = NULL, **near_D = NULL;
     int *far_rank = NULL;
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
-    size_t lbi, lbj, bi, bj = 0;
+    STARSH_int lbi, lbj, bi, bj = 0;
     double drsdd_time = 0, kernel_time = 0;
     int BAD_TILE = 0;
     // Init buffers to store low-rank factors of far-field blocks if needed
@@ -61,10 +64,10 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Simple cycle over all far-field blocks
         for(lbi = 0; lbi < nblocks_far_local; lbi++)
         {
-            size_t bi = block_far_local[lbi];
+            STARSH_int bi = block_far_local[lbi];
             // Get indexes of corresponding block row and block column
-            int i = block_far[2*bi];
-            int j = block_far[2*bi+1];
+            STARSH_int i = block_far[2*bi];
+            STARSH_int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_U += RC->size[i];
             size_V += CC->size[j];
@@ -75,10 +78,10 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_MALLOC(alloc_V, size_V);
         for(lbi = 0; lbi < nblocks_far_local; lbi++)
         {
-            size_t bi = block_far_local[lbi];
+            STARSH_int bi = block_far_local[lbi];
             // Get indexes of corresponding block row and block column
-            int i = block_far[2*bi];
-            int j = block_far[2*bi+1];
+            STARSH_int i = block_far[2*bi];
+            STARSH_int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
             int shape_U[] = {nrows, maxrank};
@@ -155,8 +158,8 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
     }
     */
     // Get number of false far-field blocks
-    size_t nblocks_false_far_local = 0;
-    size_t *false_far_local = NULL;
+    STARSH_int nblocks_false_far_local = 0;
+    STARSH_int *false_far_local = NULL;
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
         if(far_rank[lbi] == -1)
             nblocks_false_far_local++;
@@ -171,8 +174,8 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
                 false_far_local[lbj++] = block_far_local[lbi];
     }
     // Sync list of all false far-field blocks
-    size_t nblocks_false_far = 0;
-    int int_nblocks_false_far_local = nblocks_false_far_local;
+    STARSH_int nblocks_false_far = 0;
+    STARSH_int int_nblocks_false_far_local = nblocks_false_far_local;
     int *mpi_recvcount, *mpi_offset;
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
@@ -215,7 +218,7 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         #pragma omp parallel for schedule(static)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
-            size_t bj = false_far[bi];
+            STARSH_int bj = false_far[bi];
             block_near[2*(bi+nblocks_near)] = F->block_far[2*bj];
             block_near[2*(bi+nblocks_near)+1] = F->block_far[2*bj+1];
         }
@@ -266,9 +269,9 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         }
         // Update format by creating new format
         STARSH_blrf *F2;
-        info = starsh_blrf_new_mpi(&F2, P, F->symm, RC, CC, new_nblocks_far,
-                block_far, new_nblocks_near, block_near,
-                new_nblocks_far_local, block_far_local,
+        info = starsh_blrf_new_from_coo_mpi(&F2, P, F->symm, RC, CC,
+                new_nblocks_far, block_far, new_nblocks_far_local,
+                block_far_local, new_nblocks_near, block_near,
                 new_nblocks_near_local, block_near_local, F->type);
         // Swap internal data of formats and free unnecessary data
         STARSH_blrf tmp_blrf = *F;
@@ -276,9 +279,7 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         *F2 = tmp_blrf;
         if(mpi_rank == 0)
             STARSH_WARNING("`F` was modified due to false far-field blocks");
-        info = starsh_blrf_free(F2);
-        if(info != 0)
-            return info;
+        starsh_blrf_free(F2);
     }
     // Compute near-field blocks if needed
     if(onfly == 0 && new_nblocks_near > 0)
@@ -288,10 +289,10 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Simple cycle over all near-field blocks
         for(lbi = 0; lbi < new_nblocks_near_local; lbi++)
         {
-            size_t bi = block_near_local[lbi];
+            STARSH_int bi = block_near_local[lbi];
             // Get indexes of corresponding block row and block column
-            int i = block_near[2*bi];
-            int j = block_near[2*bi+1];
+            STARSH_int i = block_near[2*bi];
+            STARSH_int j = block_near[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i];
             size_t ncols = CC->size[j];
@@ -303,10 +304,10 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         #pragma omp parallel for schedule(dynamic, 1)
         for(lbi = 0; lbi < new_nblocks_near_local; lbi++)
         {
-            size_t bi = block_near_local[lbi];
+            STARSH_int bi = block_near_local[lbi];
             // Get indexes of corresponding block row and block column
-            int i = block_near[2*bi];
-            int j = block_near[2*bi+1];
+            STARSH_int i = block_near[2*bi];
+            STARSH_int j = block_near[2*bi+1];
             // Get corresponding sizes and minimum of them
             int nrows = RC->size[i];
             int ncols = CC->size[j];
@@ -390,6 +391,6 @@ int starsh_blrm__dna_mpi(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
     }
 #endif
-    return starsh_blrm_new_mpi(M, F, far_rank, far_U, far_V, onfly, near_D,
-            alloc_U, alloc_V, alloc_D, '1');
+    return starsh_blrm_new_mpi(matrix, F, far_rank, far_U, far_V, onfly,
+            near_D, alloc_U, alloc_V, alloc_D, '1');
 }

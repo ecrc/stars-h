@@ -55,7 +55,8 @@ int main(int argc, char **argv)
     int check_cg_solve = atoi(argv[11]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
     int nrhs = 1;
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
     starsh_init();
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
@@ -85,16 +86,15 @@ int main(int argc, char **argv)
             kernel, "Spatial Statistics example");
     if(mpi_rank == 0)
         starsh_problem_info(P); 
-    // Init tiled cluster for tiled low-rank approximation and print info
+    // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, N, block_size);
+    starsh_cluster_new_plain(&C, data, N, block_size);
     if(mpi_rank == 0)
         starsh_cluster_info(C);
-    // Init tiled division into admissible blocks and print short info
+    // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    //starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
-    starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
+    starsh_blrf_new_tlr_mpi(&F, P, symm, C, C);
     if(mpi_rank == 0)
         starsh_blrf_info(F);
     // Approximate each admissible block

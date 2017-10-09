@@ -17,17 +17,22 @@
  * @brief Set of solvers
  * */
 
-int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
-        double *X, int ldx, double tol, double *work)
-//! Conjugate gradient method for Tile low-rank matrix
-/*! @ingroup solvers
- * @param[in] M: Tile low-rank matrix.
- * @param[in] b: Right hand side.
+int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
+        int ldb, double *X, int ldx, double tol, double *work)
+//! Conjugate gradient method for @ref STARSH_blrm object.
+/*! @param[in] matrix: Block-wise low-rank matrix.
+ * @param[in] nrhs: Number of right havd sides.
+ * @param[in] B: Right hand side.
+ * @param[in] ldb: Leading dimension of `B`.
+ * @param[in,out] X: Initial solution as input, total solution as output.
+ * @param[in] ldx: Leading dimension of `X`.
  * @param[in] tol: Relative error threshold for residual.
- * @param[out] x: Answer.
- * @param work: Temporary array of size `3*n`.
+ * @param[out] work: Temporary array of size `3*n`.
+ * @return Number of iterations or -1 if not converged.
+ * @ingroup solvers
  * */
 {
+    STARSH_blrm *M = matrix;
     int n = M->format->problem->shape[0];
     double *R = work;
     double *P = R+n*nrhs;
@@ -84,17 +89,22 @@ int starsh_itersolvers__dcg_omp(STARSH_blrm *M, int nrhs, double *B, int ldb,
 }
 
 #ifdef MPI
-int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
-        double *X, int ldx, double tol, double *work)
-//! Conjugate gradient method for Tile low-rank matrix
-/*! @ingroup solvers
- * @param[in] M: Tile low-rank matrix.
- * @param[in] b: Right hand side.
+int starsh_itersolvers__dcg_mpi(STARSH_blrm *matrix, int nrhs, double *B,
+        int ldb, double *X, int ldx, double tol, double *work)
+//! Conjugate gradient method for @ref STARSH_blrm object on MPI nodes.
+/*! @param[in] matrix: Block-wise low-rank matrix.
+ * @param[in] nrhs: Number of right havd sides.
+ * @param[in] B: Right hand side.
+ * @param[in] ldb: Leading dimension of `B`.
+ * @param[in,out] X: Initial solution as input, total solution as output.
+ * @param[in] ldx: Leading dimension of `X`.
  * @param[in] tol: Relative error threshold for residual.
- * @param[out] x: Answer.
- * @param work: Temporary array of size `3*n`.
+ * @param[out] work: Temporary array of size `3*n`.
+ * @return Number of iterations or -1 if not converged.
+ * @ingroup solvers
  * */
 {
+    STARSH_blrm *M = matrix;
     int n = M->format->problem->shape[0];
     double *R = work;
     double *P = R+n*nrhs;
@@ -107,7 +117,7 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    starsh_blrm__dmml_mpi_tiled(M, nrhs, -1.0, X, ldx, 0.0, R, n);
+    starsh_blrm__dmml_mpi_tlr(M, nrhs, -1.0, X, ldx, 0.0, R, n);
     if(mpi_rank == 0)
     {
         for(i = 0; i < nrhs; i++)
@@ -124,7 +134,7 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *M, int nrhs, double *B, int ldb,
     //printf("rsold=%e\n", rsold);
     for(i = 0; i < n; i++)
     {
-        starsh_blrm__dmml_mpi_tiled(M, nrhs, 1.0, P, n, 0.0, next_P, n);
+        starsh_blrm__dmml_mpi_tlr(M, nrhs, 1.0, P, n, 0.0, next_P, n);
         if(mpi_rank == 0)
         {
             for(int j = 0; j < nrhs; j++)

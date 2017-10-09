@@ -35,30 +35,30 @@ int main(int argc, char **argv)
     double tol = atof(argv[4]);
     int oversample = 10, onfly = 0;
     char dtype = 'd', symm = 'N';
-    int ndim = 2, shape[2] = {N, N};
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
     // Init STARS-H
     starsh_init();
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
-    STARSH_kernel kernel;
+    STARSH_kernel *kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
-    starsh_application((void **)&data, &kernel, N, dtype, STARSH_MINIMAL, 0,
-            0);
+    starsh_application((void **)&data, &kernel, N, dtype, STARSH_MINIMAL,
+            STARSH_MINIMAL_KERNEL1, 0);
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Minimal example");
     starsh_problem_info(P);
-    // Init tiled cluster for tiled low-rank approximation and print info
+    // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_tiled(&C, data, N, block_size);
+    starsh_cluster_new_plain(&C, data, N, block_size);
     starsh_cluster_info(C);
-    // Init tiled division into admissible blocks and print short info
+    // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    //starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
-    starsh_blrf_new_tiled(&F, P, C, C, symm);
+    starsh_blrf_new_tlr(&F, P, symm, C, C);
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();

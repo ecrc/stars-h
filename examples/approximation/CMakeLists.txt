@@ -3,7 +3,7 @@ set(examples_files)
 if(OPENMP)
     list(APPEND examples_files
         "spatial.c"
-        "rndtiled.c"
+        "randtlr.c"
         "minimal.c"
         "dense.c"
     )

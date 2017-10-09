@@ -1,6 +1,6 @@
 set(examples_files
     "spatial.c"
-    "rndtiled.c"
+    "randtlr.c"
     "minimal.c"
     "dense.c"
     "particles.c"

@@ -10,14 +10,16 @@
  * @date 2017-08-22
  * */
 
-#include "common.h"
 #include "starsh.h"
+#include "common.h"
 
-void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
-        double *V, int *rank, int maxrank, int oversample, double tol,
-        double *work, int lwork, int *iwork)
+void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
+        int *rank, int maxrank, int oversample, double tol, double *work,
+        int lwork, int *iwork)
 //! Rank-revealing QR approximation of a dense double precision matrix.
-/*! @ingroup approximations
+/*! This function calls LAPACK and BLAS routines, so integer types are int
+ * instead of @ref STARSH_int.
+ *
  * @param[in] nrows: Number of rows of a matrix.
  * @param[in] ncols: Number of columns of a matrix.
  * @param[in,out] D: Pointer to dense matrix.
@@ -30,13 +32,15 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
+ * @ingroup approximations
  * */
 {
     int mn = nrows < ncols ? nrows : ncols;
     int mn2 = maxrank+oversample;
+    int i, j, k, l;
     if(mn2 > mn)
         mn2 = mn;
-    size_t svdqr_lwork = (4*(size_t)mn2+7)*mn2;
+    int svdqr_lwork = (4*mn2+7)*mn2;
     if(svdqr_lwork < 3*ncols+1)
         svdqr_lwork = 3*ncols+1;
     double *R, *tau, *svd_U, *svd_S, *svd_V, *svdqr_work;
@@ -47,19 +51,19 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
     svd_V = svd_S+mn2;
     svdqr_work = svd_V+(size_t)ncols*mn2;
     // Set pivots for GEQP3 to zeros
-    for(int i = 0; i < ncols; i++)
+    for(i = 0; i < ncols; i++)
         iwork[i] = 0;
     // Call GEQP3
     LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, nrows, ncols, D, nrows, iwork,
             tau, svdqr_work, svdqr_lwork);
     // Copy R factor to V
-    for(size_t i = 0; i < ncols; i++)
+    for(i = 0; i < ncols; i++)
     {
-        size_t j = iwork[i]-1;
-        size_t k = i < mn2 ? i+1 : mn2;
-        cblas_dcopy(k, D+i*nrows, 1, R+j*mn2, 1);
-        for(size_t l = k; l < mn2; l++)
-            R[j*mn2+l] = 0.;
+        j = iwork[i]-1;
+        k = i < mn2 ? i+1 : mn2;
+        cblas_dcopy(k, D+i*(size_t)nrows, 1, R+j*(size_t)mn2, 1);
+        for(l = k; l < mn2; l++)
+            R[j*(size_t)mn2+l] = 0.;
     }
     // Get factor Q
     LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, D, nrows, tau,
@@ -74,7 +78,7 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U,
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
                 mn2, 1.0, D, nrows, svd_U, mn2, 0.0, U, nrows);
-        for(size_t i = 0; i < *rank; i++)
+        for(i = 0; i < *rank; i++)
         {
             cblas_dcopy(ncols, svd_V+i, mn2, V+i*ncols, 1);
             cblas_dscal(ncols, svd_S[i], V+i*ncols, 1);
