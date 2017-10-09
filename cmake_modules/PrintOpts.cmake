@@ -24,7 +24,7 @@
 #  @date 22-08-2017
 #
 ###
-set(dep_message "\nConfiguration of HiCMA:\n"
+set(dep_message "\nConfiguration of STARS-H:\n"
         "       Compiler: C .........: ${CMAKE_C_COMPILER} (${CMAKE_C_COMPILER_ID})\n"
 #        "       Compiler: Fortran ...: ${CMAKE_Fortran_COMPILER} (${CMAKE_Fortran_COMPILER_ID})\n"
 )
