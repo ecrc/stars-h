@@ -303,6 +303,12 @@ set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
 add_subdirectory("src")
 add_subdirectory("include")
 
+###############################################################################
+# Print Options #
+#################
+get_directory_property( STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+include(PrintOpts)
+
 #Install Pkg-config file
 generate_pkgconfig_file()
 #set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
