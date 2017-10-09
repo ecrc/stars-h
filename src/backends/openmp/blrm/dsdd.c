@@ -109,7 +109,7 @@ int starsh_blrm__dsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
         STARSH_PMALLOC(iwork, liwork, info);
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D);
+                RD, CD, D, nrows);
         starsh_dense_dlrsdd(nrows, ncols, D, nrows, far_U[bi]->data, nrows,
                 far_V[bi]->data, ncols, far_rank+bi, maxrank, tol, work, lwork,
                 iwork);
@@ -222,7 +222,7 @@ int starsh_blrm__dsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
                 offset_D += near_D[bi]->size;
             }
             kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+                    CC->pivot+CC->start[j], RD, CD, D, nrows);
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false

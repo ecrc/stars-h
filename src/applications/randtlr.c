@@ -16,7 +16,7 @@
 
 void starsh_randtlr_block_kernel(STARSH_int nrows, STARSH_int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result)
+        void *result, STARSH_int ld)
 //! The only kernel for @ref STARSH_randtlr object.
 /*! @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
@@ -25,6 +25,7 @@ void starsh_randtlr_block_kernel(STARSH_int nrows, STARSH_int ncols,
  * @param[in] row_data: Pointer to physical data (@ref STARSH_randtlr object).
  * @param[in] col_data: Pointer to physical data (@ref STARSH_randtlr object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
  * @ingroup app-randtlr
  * */
 {
@@ -48,9 +49,9 @@ void starsh_randtlr_block_kernel(STARSH_int nrows, STARSH_int ncols,
             for(STARSH_int k = 0; k < block_size; k++)
                 res += U[ii+k*count]*U[jj+k*count]*S[k];
             if(ii == jj)
-                buffer[j*nrows+i] = res+diag;
+                buffer[j*(size_t)ld+i] = res+diag;
             else
-                buffer[j*nrows+i] = res;
+                buffer[j*(size_t)ld+i] = res;
         }
     }
 }

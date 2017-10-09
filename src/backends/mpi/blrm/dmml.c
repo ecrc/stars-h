@@ -153,7 +153,7 @@ int starsh_blrm__dmml_mpi(STARSH_blrm *matrix, int nrhs, double alpha,
 #endif
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i],
-                    C->pivot+C->start[j], RD, CD, D);
+                    C->pivot+C->start[j], RD, CD, D, nrows);
             // Multiply 2 dense matrices
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
@@ -468,7 +468,7 @@ int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
 #endif
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i],
-                    C->pivot+C->start[j], RD, CD, D);
+                    C->pivot+C->start[j], RD, CD, D, nrows);
             // Multiply 2 dense matrices
             //cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
             //        nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,
@@ -564,8 +564,8 @@ int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
                     displs[j] = displs[j-1]+recvcounts[j-1];
                 for(int j = 0; j < nrhs; j++)
                     MPI_Gatherv(src+j*(size_t)ldout, maxnb, MPI_DOUBLE,
-                            recv+j*(size_t)ldb, recvcounts, displs, MPI_DOUBLE, 0,
-                            mpi_leadingy);
+                            recv+j*(size_t)ldb, recvcounts, displs, MPI_DOUBLE,
+                            0, mpi_leadingy);
             }
             else
             {

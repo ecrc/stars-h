@@ -120,7 +120,7 @@ int starsh_blrm__dqp3(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
         STARSH_PMALLOC(work, lwork, info);
         // Compute elements of a block
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D);
+                RD, CD, D, nrows);
         starsh_dense_dlrqp3(nrows, ncols, D, nrows, far_U[bi]->data, nrows,
                 far_V[bi]->data, ncols, far_rank+bi, maxrank, oversample, tol,
                 work, lwork, iwork);
@@ -226,7 +226,7 @@ int starsh_blrm__dqp3(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
             array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
             offset_D += near_D[bi]->size;
             kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+                    CC->pivot+CC->start[j], RD, CD, D, nrows);
         }
     }
     // Change sizes of far_rank, far_U and far_V if there were false

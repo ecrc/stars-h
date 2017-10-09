@@ -127,7 +127,7 @@ int starsh_blrm__dmml_omp(STARSH_blrm *matrix, int nrhs, double alpha,
             double *out = temp_B+omp_get_thread_num()*nrhs*ldout;
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i],
-                    C->pivot+C->start[j], RD, CD, D);
+                    C->pivot+C->start[j], RD, CD, D, nrows);
             // Multiply 2 dense matrices
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,

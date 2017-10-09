@@ -29,7 +29,7 @@
 
 void starsh_ssdata_block_matern2_kernel_@NDIMd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result)
+        void *col_data, void *result, STARSH_int ld)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -56,6 +56,7 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd(STARSH_int nrows,
  * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
  * @sa starsh_ssdata_block_matern2_kernel_1d(),
  *      starsh_ssdata_block_matern2_kernel_2d(),
  *      starsh_ssdata_block_matern2_kernel_3d(),
@@ -106,9 +107,9 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd(STARSH_int nrows,
             }
             dist = sqrt(dist)/beta;
             if(dist == 0)
-                buffer[j*(size_t)nrows+i] = sigma+noise;
+                buffer[j*(size_t)ld+i] = sigma+noise;
             else
-                buffer[j*(size_t)nrows+i] = sigma*pow(2.0, 1.0-nu)/
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
                         gsl_sf_gamma(nu)*pow(dist, nu)*
                         gsl_sf_bessel_Knu(nu, dist);
         }
@@ -117,7 +118,7 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd(STARSH_int nrows,
 
 void starsh_ssdata_block_matern2_kernel_@NDIMd_simd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result)
+        void *col_data, void *result, STARSH_int ld)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -146,6 +147,7 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd_simd(STARSH_int nrows,
  * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
  * @sa starsh_ssdata_block_matern2_kernel_1d_simd(),
  *      starsh_ssdata_block_matern2_kernel_2d_simd(),
  *      starsh_ssdata_block_matern2_kernel_3d_simd(),
@@ -196,9 +198,9 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd_simd(STARSH_int nrows,
             }
             dist = sqrt(dist)/beta;
             if(dist == 0)
-                buffer[j*(size_t)nrows+i] = sigma+noise;
+                buffer[j*(size_t)ld+i] = sigma+noise;
             else
-                buffer[j*(size_t)nrows+i] = sigma*pow(2.0, 1.0-nu)/
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
                         gsl_sf_gamma(nu)*pow(dist, nu)*
                         gsl_sf_bessel_Knu(nu, dist);
         }

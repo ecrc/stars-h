@@ -52,7 +52,7 @@ typedef struct starsh_blrm STARSH_blrm;
 //! typedef for kernels
 typedef void (STARSH_kernel)(STARSH_int nrows, STARSH_int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result);
+        void *result, STARSH_int ld);
 
 /*! @defgroup applications Applications
  * @brief Set of applications

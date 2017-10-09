@@ -182,13 +182,13 @@ int starsh_problem_get_block(STARSH_problem *problem, STARSH_int nrows,
     if(info != 0)
         return info;
     problem->kernel(nrows, ncols, irow, icol, problem->row_data,
-            problem->col_data, (*A)->data);
+            problem->col_data, (*A)->data, nrows);
     return STARSH_SUCCESS;
 }
 
 static void _matrix_kernel(STARSH_int nrows, STARSH_int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result)
+        void *result, STARSH_int ld)
 //! Kernel for problems, defined by dense matrices.
 //! @ingroup problem
 {
@@ -205,7 +205,7 @@ static void _matrix_kernel(STARSH_int nrows, STARSH_int ncols,
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
-                dest = j*(size_t)nrows+i;
+                dest = j*(size_t)ld+i;
                 src = irow[i]*lda+icol[j];
                 memcpy(result+dest*esize, A->data+src*esize, esize);
             }
@@ -217,7 +217,7 @@ static void _matrix_kernel(STARSH_int nrows, STARSH_int ncols,
         for(i = 0; i < nrows; i++)
             for(j = 0; j < ncols; j++)
             {
-                dest = j*(size_t)nrows+i;
+                dest = j*(size_t)ld+i;
                 src = icol[j]*lda+irow[i];
                 memcpy(result+dest*esize, A->data+src*esize, esize);
             }

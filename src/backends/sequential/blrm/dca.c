@@ -62,7 +62,7 @@ int starsh_blrm__dca(STARSH_blrm *matrix, Array *A)
         {
             STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
             P->kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+                    CC->pivot+CC->start[j], RD, CD, D, nrows);
         }
         for(int k = 0; k < ncols; k++)
             cblas_dcopy(nrows, D+k*nrows, 1, B+k*lda, 1);

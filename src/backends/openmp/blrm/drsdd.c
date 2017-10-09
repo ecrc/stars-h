@@ -128,7 +128,7 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
         // Compute elements of a block
         double time0 = omp_get_wtime();
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D);
+                RD, CD, D, nrows);
         double time1 = omp_get_wtime();
         starsh_dense_dlrrsdd(nrows, ncols, D, nrows, far_U[bi]->data, nrows,
                 far_V[bi]->data, ncols, far_rank+bi, maxrank, oversample, tol,
@@ -249,7 +249,7 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
             }
             double time0 = omp_get_wtime();
             kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+                    CC->pivot+CC->start[j], RD, CD, D, nrows);
             double time1 = omp_get_wtime();
             #pragma omp critical
             kernel_time += time1-time0;
@@ -301,8 +301,8 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
         free(false_far);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
-    STARSH_WARNING("DRSDD kernel total time: %e secs", drsdd_time);
-    STARSH_WARNING("MATRIX kernel total time: %e secs", kernel_time);
+    //STARSH_WARNING("DRSDD kernel total time: %e secs", drsdd_time);
+    //STARSH_WARNING("MATRIX kernel total time: %e secs", kernel_time);
     return starsh_blrm_new(matrix, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
