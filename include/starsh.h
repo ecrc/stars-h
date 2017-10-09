@@ -497,15 +497,15 @@ int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
 //STARSH_dense_dlr *starsh_dense_dlr, starsh_dense_dlrsdd, starsh_dense_dlrrsdd,
 //        starsh_dense_dlrrsdd2, starsh_dense_dlrqp3, starsh_dense_dlrna;
 
-void starsh_dense_dlrsdd(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, double tol, double *work, int lwork,
-        int *iwork);
-void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, double *U,
-        double *V, int *rank, int maxrank, int oversample, double tol,
+void starsh_dense_dlrsdd(int nrows, int ncols, double *D, int ldD, double *U,
+        int ldU, double *V, int ldV, int *rank, int maxrank, double tol,
         double *work, int lwork, int *iwork);
-void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, int oversample, double tol, double *work,
-        int lwork, int *iwork);
+void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, int ldD, double *U,
+        int ldU, double *V, int ldV, int *rank, int maxrank, int oversample,
+        double tol, double *work, int lwork, int *iwork);
+void starsh_dense_dlrqp3(int nrows, int ncols, double *D, int ldD, double *U,
+        int ldU, double *V, int ldV, int *rank, int maxrank, int oversample,
+        double tol, double *work, int lwork, int *iwork);
 void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, double tol, double *work, int lwork,
         int *iwork);

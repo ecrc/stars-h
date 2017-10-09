@@ -13,9 +13,9 @@
 #include "starsh.h"
 #include "common.h"
 
-void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
-        int *rank, int maxrank, int oversample, double tol, double *work,
-        int lwork, int *iwork)
+void starsh_dense_dlrqp3(int nrows, int ncols, double *D, int ldD, double *U,
+        int ldU, double *V, int ldV, int *rank, int maxrank, int oversample,
+        double tol, double *work, int lwork, int *iwork)
 //! Rank-revealing QR approximation of a dense double precision matrix.
 /*! This function calls LAPACK and BLAS routines, so integer types are int
  * instead of @ref STARSH_int.
@@ -23,8 +23,11 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
  * @param[in] nrows: Number of rows of a matrix.
  * @param[in] ncols: Number of columns of a matrix.
  * @param[in,out] D: Pointer to dense matrix.
+ * @param[in] ldD: leading dimensions of `D`.
  * @param[out] U: Pointer to low-rank factor `U`.
+ * @param[in] ldU: leading dimensions of `U`.
  * @param[out] V: Pointer to low-rank factor `V`.
+ * @param[in] ldV: leading dimensions of `V`.
  * @param[out] rank: Address of rank variable.
  * @param[in] maxrank: Maximum possible rank.
  * @param[in] oversample: 
@@ -54,19 +57,19 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
     for(i = 0; i < ncols; i++)
         iwork[i] = 0;
     // Call GEQP3
-    LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, nrows, ncols, D, nrows, iwork,
+    LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, nrows, ncols, D, ldD, iwork,
             tau, svdqr_work, svdqr_lwork);
     // Copy R factor to V
     for(i = 0; i < ncols; i++)
     {
         j = iwork[i]-1;
         k = i < mn2 ? i+1 : mn2;
-        cblas_dcopy(k, D+i*(size_t)nrows, 1, R+j*(size_t)mn2, 1);
+        cblas_dcopy(k, D+i*(size_t)ldD, 1, R+j*(size_t)mn2, 1);
         for(l = k; l < mn2; l++)
             R[j*(size_t)mn2+l] = 0.;
     }
     // Get factor Q
-    LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, D, nrows, tau,
+    LAPACKE_dorgqr_work(LAPACK_COL_MAJOR, nrows, mn2, mn2, D, ldD, tau,
             svdqr_work, svdqr_lwork);
     // Get SVD of corresponding matrix to reduce rank
     LAPACKE_dgesdd_work(LAPACK_COL_MAJOR, 'S', mn2, ncols, R, mn2, svd_S,
@@ -77,11 +80,11 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, double *U, double *V,
     // If far-field block is low-rank
     {
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, *rank,
-                mn2, 1.0, D, nrows, svd_U, mn2, 0.0, U, nrows);
+                mn2, 1.0, D, ldD, svd_U, mn2, 0.0, U, ldU);
         for(i = 0; i < *rank; i++)
         {
-            cblas_dcopy(ncols, svd_V+i, mn2, V+i*ncols, 1);
-            cblas_dscal(ncols, svd_S[i], V+i*ncols, 1);
+            cblas_dcopy(ncols, svd_V+i, mn2, V+i*(size_t)ldV, 1);
+            cblas_dscal(ncols, svd_S[i], V+i*(size_t)ldV, 1);
         }
     }
     else

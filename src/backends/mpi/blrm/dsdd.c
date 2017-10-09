@@ -135,8 +135,8 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
 #ifdef OPENMP
         double time1 = omp_get_wtime();
 #endif
-        starsh_dense_dlrsdd(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
+        starsh_dense_dlrsdd(nrows, ncols, D, nrows, far_U[lbi]->data, nrows,
+                far_V[lbi]->data, ncols, far_rank+lbi, maxrank, tol, work,
                 lwork, iwork);
 #ifdef OPENMP
         double time2 = omp_get_wtime();
