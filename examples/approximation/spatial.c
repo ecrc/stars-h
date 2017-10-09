@@ -10,6 +10,8 @@
  * @date 2017-08-22
  * */
 
+#include <omp.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "starsh.h"
@@ -17,19 +19,21 @@
 
 int main(int argc, char **argv)
 {
-    int problem_ndim = 2;
+    int problem_ndim = 3;
     // Possible values for kernel_type are:
     //      STARSH_SPATIAL_EXP, STARSH_SPATIAL_EXP_SIMD
     //      STARSH_SPATIAL_SQREXP, STARSH_SPATIAL_SQREXP_SIMD
     //      STARSH_SPATIAL_MATERN, STARSH_SPATIAL_MATERN_SIMD
     //      STARSH_SPATIAL_MATERN2, STARSH_SPATIAL_MATERN2_SIMD
-    int kernel_type = STARSH_SPATIAL_MATERN2_SIMD;
+    int kernel_type = STARSH_SPATIAL_EXP_SIMD;
     // Correlation length
     double beta = 0.1;
     // Smoothing parameter for Matern kernel
     double nu = 0.5;
     // Set level of noise
-    double noise = 0;
+    double noise = 1e-4;
+    // Set variance of covariance kernel
+    double sigma = 0;
     // Size of desired matrix
     int N = 2500;
     // 'N' for nonsymmetric matrix and 'd' for double precision
@@ -47,6 +51,7 @@ int main(int argc, char **argv)
     srand(0);
     // Init STARS-H
     starsh_init();
+    starsh_set_backend("OPENMP");
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel kernel;
@@ -62,7 +67,9 @@ int main(int argc, char **argv)
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place,
+            STARSH_SPATIAL_SIGMA, sigma, 0);
+    //kernel = starsh_ssdata_block_exp_kernel_nd_simd;
     if(info != 0)
     {
         printf("wrong parameters for spatial statistics problem\n");
@@ -79,6 +86,11 @@ int main(int argc, char **argv)
     }
     printf("STARSH problem was succesfully generated\n");
     starsh_problem_info(problem);
+    Array *array;
+    double time0 = omp_get_wtime();
+    info = starsh_problem_to_array(problem, &array);
+    time0 = omp_get_wtime()-time0;
+    printf("TIME FOR SUBMATRIX: %f seconds\n", time0);
     // Set up clusterization (divide rows and columns into blocks)
     STARSH_cluster *cluster;
     info = starsh_cluster_new_tiled(&cluster, data, N, block_size);

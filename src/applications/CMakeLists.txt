@@ -1,4 +1,6 @@
 # set the values of the variable in the parent scope
+add_subdirectory("spatial")
+
 set(STARSH_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/common.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/spatial.c"
