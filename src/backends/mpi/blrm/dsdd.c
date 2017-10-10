@@ -131,12 +131,12 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         double time0 = omp_get_wtime();
 #endif
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D);
+                RD, CD, D, nrows);
 #ifdef OPENMP
         double time1 = omp_get_wtime();
 #endif
-        starsh_dense_dlrsdd(nrows, ncols, D, far_U[lbi]->data,
-                far_V[lbi]->data, far_rank+lbi, maxrank, tol, work,
+        starsh_dense_dlrsdd(nrows, ncols, D, nrows, far_U[lbi]->data, nrows,
+                far_V[lbi]->data, ncols, far_rank+lbi, maxrank, tol, work,
                 lwork, iwork);
 #ifdef OPENMP
         double time2 = omp_get_wtime();
@@ -319,7 +319,7 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             double time0 = omp_get_wtime();
 #endif
             kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+                    CC->pivot+CC->start[j], RD, CD, D, nrows);
 #ifdef OPENMP
             double time1 = omp_get_wtime();
             #pragma omp critical
@@ -381,8 +381,8 @@ int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             MPI_COMM_WORLD);
     if(mpi_rank == 0)
     {
-        STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
-        STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
+        //STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
+        //STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
     }
 #endif
     return starsh_blrm_new_mpi(matrix, F, far_rank, far_U, far_V, onfly,

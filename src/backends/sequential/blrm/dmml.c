@@ -103,7 +103,7 @@ int starsh_blrm__dmml(STARSH_blrm *matrix, int nrhs, double alpha, double *A,
             STARSH_MALLOC(D, (size_t)nrows*ncols);
             // Fill temporary buffer with elements of corresponding block
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-                    RD, CD, D);
+                    RD, CD, D, nrows);
             // Multiply 2 dense matrices
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows,
                     nrhs, ncols, alpha, D, nrows, A+C->start[j], lda, 1.0,

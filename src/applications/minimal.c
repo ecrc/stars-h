@@ -16,7 +16,7 @@
 
 void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result)
+        void *result, STARSH_int ld)
 //! The only kernel for @ref STARSH_mindata object.
 /*! @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
@@ -25,6 +25,7 @@ void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
  * @param[in] row_data: Pointer to physical data (@ref STARSH_mindata object).
  * @param[in] col_data: Pointer to physical data (@ref STARSH_mindata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
  * @ingroup app-minimal
  * */
 {
@@ -37,9 +38,9 @@ void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
         for(i = 0; i < nrows; i++)
         {
             if(irow[i] == icol[j])
-                buffer[j*nrows+i] = n+1;
+                buffer[j*(size_t)ld+i] = n+1;
             else
-                buffer[j*nrows+i] = 1.0;
+                buffer[j*(size_t)ld+i] = 1.0;
         }
 }
 

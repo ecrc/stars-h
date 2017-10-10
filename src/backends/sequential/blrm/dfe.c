@@ -60,7 +60,7 @@ double starsh_blrm__dfe(STARSH_blrm *matrix)
         STARSH_MALLOC(D, D_size);
         // Get actual elements of a block
         kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-                RD, CD, D);
+                RD, CD, D, nrows);
         // Get Frobenius norm of a block
         for(STARSH_int k = 0; k < ncols; k++)
             D_norm[k] = cblas_dnrm2(nrows, D+k*(size_t)nrows, 1);
@@ -115,7 +115,7 @@ double starsh_blrm__dfe(STARSH_blrm *matrix)
             // Allocate temporary array and fill it with elements of a block
             STARSH_MALLOC(D, (size_t)nrows*(size_t)ncols);
             kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-                    RD, CD, D);
+                    RD, CD, D, nrows);
             // Compute norm of a block
             for(STARSH_int k = 0; k < ncols; k++)
                 D_norm[k] = cblas_dnrm2(nrows, D+k*(size_t)nrows, 1);

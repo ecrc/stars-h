@@ -520,7 +520,7 @@ int starsh_blrf_get_block(STARSH_blrf *format, STARSH_int i, STARSH_int j,
     shape[1] = ncols;
     STARSH_MALLOC(*D, P->entry_size*(size_t)nrows*(size_t)ncols);
     P->kernel(nrows, ncols, R->pivot+R->start[i], C->pivot+C->start[j],
-            P->row_data, P->col_data, *D);
+            P->row_data, P->col_data, *D, nrows);
     return info;
 }
 
