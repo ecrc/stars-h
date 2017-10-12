@@ -4,8 +4,10 @@
 #                          of Tennessee Research Foundation.
 #                          All rights reserved.
 # @copyright (c) 2012-2016 Inria. All rights reserved.
-# @copyright (c) 2012-2014, 2016 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria, Univ. Bordeaux. All rights reserved.
-# @copyright (c) 2017, King Abdullah University of Science and Technology. All rights reserved.
+# @copyright (c) 2012-2014, 2016 Bordeaux INP, CNRS (LaBRI UMR 5800),
+#                       Inria, Univ. Bordeaux. All rights reserved.
+# @copyright (c) 2017, King Abdullah University of Science and Technology.
+#                                                   All rights reserved.
 #
 ###
 #
@@ -25,10 +27,12 @@
 #
 ###
 set(dep_message "\nConfiguration of STARS-H:\n"
-        "       Compiler: C .........: ${CMAKE_C_COMPILER} (${CMAKE_C_COMPILER_ID})\n"
-#        "       Compiler: Fortran ...: ${CMAKE_Fortran_COMPILER} (${CMAKE_Fortran_COMPILER_ID})\n"
+        "       Compiler: C .........: ${CMAKE_C_COMPILER} "
+        "(${CMAKE_C_COMPILER_ID})\n"
+#        "       Compiler: Fortran ...: ${CMAKE_Fortran_COMPILER} "
+#        "(${CMAKE_Fortran_COMPILER_ID})\n"
 )
-if(STARSH_USE_MPI)
+if(MPI)
   set(dep_message "${dep_message}"
   "       Compiler: MPI .......: ${MPI_C_COMPILER}\n"
   "       compiler flags ......: ${MPI_C_COMPILE_FLAGS}\n")
@@ -44,35 +48,36 @@ set(dep_message "${dep_message}"
 "       LDFlags (executable).: ${CMAKE_EXE_LINKER_FLAGS}\n"
 "\n"
 "       Implementation paradigm\n"
-"       CUDA ................: ${STARSH_USE_CUDA}\n"
-"       MPI .................: ${STARSH_USE_MPI}\n"
+#"       CUDA ................: ${STARSH_USE_CUDA}\n"
+"       MPI .................: ${MPI}\n"
 "\n"
 "       Runtime specific\n"
-"       QUARK ...............: ${STARSH_SCHED_QUARK} ${QUARK_DIR_FOUND}\n"
-"       StarPU ..............: ${STARSH_SCHED_STARPU} ${STARPU_DIR_FOUND}\n"
+#"       QUARK ...............: ${STARSH_SCHED_QUARK} ${QUARK_DIR_FOUND}\n"
+"       StarPU ..............: ${STARPU} ${STARPU_DIR_FOUND}\n"
 "\n"
 "       Kernels specific\n"
 "       BLAS ................: ${BLAS_VENDOR_FOUND} [${BLAS_LIBRARIES}]\n"
 "       LAPACK...............: ${LAPACK_VENDOR_FOUND} [${LAPACK_LIBRARIES}]\n"
-"\n"
-"       Chameleon ...........: ${CHAMELEON_DIR_FOUND}\n"
-"       STARS-H .............: ${STARSH_DIR_FOUND}\n"
-"\n"
-"       Trace ...............: ${STARSH_ENABLE_TRACING}\n"
-"       Simulation mode .....: ${STARSH_SIMULATION}\n"
+#"\n"
+#"       Chameleon ...........: ${CHAMELEON_DIR_FOUND}\n"
+#"       STARS-H .............: ${STARSH_DIR_FOUND}\n"
+#"\n"
+#"       Trace ...............: ${STARSH_ENABLE_TRACING}\n"
+#"       Simulation mode .....: ${STARSH_SIMULATION}\n"
 "\n"
 "       Binaries to build\n"
-"       documentation ........: ${STARSH_ENABLE_DOCS}\n"
-"       example ..............: ${STARSH_ENABLE_EXAMPLE}\n"
-"       testing ..............: ${STARSH_ENABLE_TESTING}\n"
-"       timing ...............: ${STARSH_ENABLE_TIMING}\n"
+"       documentation ........: ${DOCS}\n"
+"       example ..............: ${EXAMPLES}\n"
+"       testing ..............: ${TESTING}\n"
+#"       timing ...............: ${STARSH_ENABLE_TIMING}\n"
 "\n"
 "       STARSH dependencies :\n")
 foreach (_dep ${STARSH_DEP})
     set(dep_message "${dep_message}"
     "                                 ${_dep}\n")
 endforeach ()
-string(REGEX REPLACE ";" " " STARSH_DEFINITIONS_LIST "${HICMA_DEFINITIONS_LIST}")
+string(REGEX REPLACE ";" " " STARSH_DEFINITIONS_LIST
+    "${STARSH_DEFINITIONS_LIST}")
 set(dep_message "${dep_message}"
 "\n"
 "       Definitions: ${STARSH_DEFINITIONS_LIST}\n")
@@ -87,4 +92,4 @@ message(STATUS "Configuration is done - A summary of the current configuration"
 "\n   has been written in ${CMAKE_CURRENT_BINARY_DIR}/config.log")
 # installation
 # ------------
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.log DESTINATION share/hicma)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.log DESTINATION share/starsh)
