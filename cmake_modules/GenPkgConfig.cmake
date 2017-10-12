@@ -80,9 +80,6 @@ ENDMACRO(CLEAN_LIB_LIST)
 ###
 MACRO(GENERATE_PKGCONFIG_FILE)
 
-    message(STATUS "******************** GENERATE_PKGCONFIG_FILE ")
-
-
   # The link flags specific to this package and any required libraries
   # that don't support PkgConfig
   set(STARSH_PKGCONFIG_LIBS "-lstarsh")
@@ -100,7 +97,6 @@ MACRO(GENERATE_PKGCONFIG_FILE)
 
   if(STARPU_FOUND)
 
-      message("*************")
       list(APPEND STARSH_PKGCONFIG_LIBS -lstarpu)
 	if ( STARSH_USE_MPI )
 	  list(APPEND STARSH_PKGCONFIG_REQUIRED_PRIVATE libstarpumpi)
@@ -114,8 +110,6 @@ MACRO(GENERATE_PKGCONFIG_FILE)
 	  )
   #  list(APPEND STARSH_PKGCONFIG_REQUIRED_PRIVATE hwloc)
 
-  message("************* ${STARSH_PKGCONFIG_REQUIRED}    **")
-   
   # Define required package
   # -----------------------
   CLEAN_LIB_LIST(STARSH)
