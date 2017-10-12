@@ -15,6 +15,7 @@
 #include "starsh-spatial.h"
 #include "starsh-minimal.h"
 #include "starsh-randtlr.h"
+#include "starsh-cauchy.h"
 
 int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
         char dtype, int problem_type, int kernel_type, ...)
@@ -67,6 +68,14 @@ int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
             if(info != STARSH_SUCCESS)
                 return info;
             info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
+            if(info != STARSH_SUCCESS)
+                return info;
+            break;
+        case STARSH_CAUCHY:
+            info = starsh_cauchy_new_va((STARSH_cauchy **)data, count, args);
+            if(info != STARSH_SUCCESS)
+                return info;
+            info = starsh_cauchy_get_kernel(kernel, *data, kernel_type);
             if(info != STARSH_SUCCESS)
                 return info;
             break;

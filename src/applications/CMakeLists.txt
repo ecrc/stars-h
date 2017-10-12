@@ -7,4 +7,5 @@ set(STARSH_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/randtlr.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/minimal.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/particles.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cauchy.c"
     ${STARSH_SRC} PARENT_SCOPE)

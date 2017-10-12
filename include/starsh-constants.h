@@ -81,8 +81,10 @@ enum STARSH_PROBLEM_TYPE
     //!< Minimal working example
     STARSH_RANDTLR = 2,
     //!< Synthetic random TLR matrix
-    STARSH_SPATIAL = 3
+    STARSH_SPATIAL = 3,
     //!< Geospatial statistics
+    STARSH_CAUCHY = 4,
+    //!< Cauchy matrix
 };
 
 //! Enum type to show actual block low-rank format

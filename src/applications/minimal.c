@@ -61,7 +61,7 @@ int starsh_mindata_new(STARSH_mindata **data, STARSH_int count, char dtype)
 
 void starsh_mindata_free(STARSH_mindata *data)
 //! Free data.
-//! @ingroup applications
+//! @ingroup app-minimal
 {
     if(data != NULL)
         free(data);
