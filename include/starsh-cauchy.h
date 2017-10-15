@@ -71,4 +71,4 @@ int starsh_cauchy_get_kernel(STARSH_kernel **kernel, STARSH_cauchy *data,
 // KERNELS
 STARSH_kernel starsh_cauchy_block_kernel;
 
-#endif // __STARSH_MINIMAL_H__
+#endif // __STARSH_CAUCHY_H__

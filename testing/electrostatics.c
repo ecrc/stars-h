@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file testing/spatial.c
+ * @file testing/electrostatics.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -21,15 +21,15 @@
 #include <omp.h>
 #include <string.h>
 #include "starsh.h"
-#include "starsh-spatial.h"
+#include "starsh-electrostatics.h"
 
 int main(int argc, char **argv)
 {
-    if(argc != 12)
+    if(argc != 9)
     {
-        printf("%d arguments provided, but 11 are needed\n", argc-1);
-        printf("spatial ndim placement kernel beta nu N block_size maxrank"
-                " tol check_matvec check_cg_solve\n");
+        printf("%d arguments provided, but 8 are needed\n", argc-1);
+        printf("electrostatics ndim placement kernel N block_size maxrank"
+                " tol check_matvec\n");
         return -1;
     }
     int problem_ndim = atoi(argv[1]);
@@ -37,15 +37,11 @@ int main(int argc, char **argv)
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
     int kernel_type = atoi(argv[3]);
-    double beta = atof(argv[4]);
-    double nu = atof(argv[5]);
-    int N = atoi(argv[6]);
-    int block_size = atoi(argv[7]);
-    int maxrank = atoi(argv[8]);
-    double tol = atof(argv[9]);
-    double noise = 0;
-    int check_matvec = atoi(argv[10]);
-    int check_cg_solve = atoi(argv[11]);
+    int N = atoi(argv[4]);
+    int block_size = atoi(argv[5]);
+    int maxrank = atoi(argv[6]);
+    double tol = atof(argv[7]);
+    int check_matvec = atoi(argv[8]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2;
@@ -55,14 +51,14 @@ int main(int argc, char **argv)
     srand(0);
     // Init STARS-H
     starsh_init();
-    // Generate data for spatial statistics problem
-    STARSH_ssdata *data;
+    // Generate data for electrostatics problem
+    STARSH_esdata *data;
     STARSH_kernel *kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
-            STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_ELECTROSTATICS, kernel_type,
+            STARSH_ELECTROSTATICS_NDIM, problem_ndim,
+            STARSH_ELECTROSTATICS_PLACE, place, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
@@ -71,7 +67,7 @@ int main(int argc, char **argv)
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
-            kernel, "Spatial Statistics example");
+            kernel, "Electrostatics example");
     starsh_problem_info(P);
     // Init plain clusterization and print info
     STARSH_cluster *C;
@@ -120,29 +116,6 @@ int main(int argc, char **argv)
             starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);
         time1 = omp_get_wtime()-time1;
         printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
-    }
-    // Measure time for 10 BLRM and TLR matvecs and then solve with CG, initial
-    // solution x=0, b is RHS and r is residual
-    if(check_cg_solve == 1)
-    {
-        double *b, *x, *r, *CG_work;
-        b = malloc(N*nrhs*sizeof(*b));
-        x = malloc(N*nrhs*sizeof(*x));
-        r = malloc(N*nrhs*sizeof(*r));
-        CG_work = malloc(3*(N+1)*nrhs*sizeof(*CG_work));
-        int iseed[4] = {0, 0, 0, 1};
-        LAPACKE_dlarnv_work(3, iseed, N*nrhs, b);
-        // Solve with CG
-        time1 = omp_get_wtime();
-        int info = starsh_itersolvers__dcg_omp(M, nrhs, b, N, x, N, tol,
-                CG_work);
-        time1 = omp_get_wtime()-time1;
-        starsh_blrm__dmml(M, nrhs, -1.0, x, N, 0.0, r, N);
-        cblas_daxpy(N, 1.0, b, 1, r, 1);
-        double norm_rhs = cblas_dnrm2(N, b, 1);
-        double norm_res = cblas_dnrm2(N, r, 1);
-        printf("CG INFO=%d\nCG TIME=%f secs\nCG RELATIVE ERROR IN "
-                "RHS=%e\n", info, time1, norm_res/norm_rhs);
     }
     return 0;
 }

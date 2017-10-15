@@ -13,6 +13,7 @@ if(OPENMP)
     "minimal.c"
     "cauchy.c"
     "spatial.c"
+    "electrostatics.c"
     "randtlr.c"
     )
 endif()
@@ -21,6 +22,7 @@ if(MPI)
     list(APPEND tests_files
     "mpi_minimal.c"
     "mpi_spatial.c"
+    #"mpi_electrostatics.c"
     )
 endif()
 
@@ -178,6 +180,79 @@ if(OPENMP)
                         mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
                         PROPERTIES ENVIRONMENT "${test_env}")
                 endif()
+            endforeach()
+        endforeach()
+    endforeach()
+endif()
+
+# Add tests for electrostatics
+# Check if OPENMP is supported, since we use omp_get_wtime function to measure
+# performance
+if(OPENMP)
+    # At first decide what matrix kernels are supported
+    set(KERNAMES)
+    set(KERCODES)
+    list(APPEND KERNAMES "coulomb_potential")
+    list(APPEND KERCODES "2")
+    list(LENGTH KERNAMES NKERNELS)
+    math(EXPR NKERNELS "${NKERNELS}-1")
+
+    # Set possible generation schemes for particles
+    set(PLACENAMES "rand" "uniform" "randgrid" "quasiuniform1" "quasiuniform2"
+        "obsolete1" "obsolete2")
+    set(PLACEMENTS "1" "3" "4" "6" "7" "-1" "-2")
+    list(LENGTH PLACEMENTS NPLACES)
+    math(EXPR NPLACES "${NPLACES}-1")
+
+    # Then cycle over all supported configurations for electrostatics tests
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        foreach(kernel RANGE ${NKERNELS})
+            foreach(place RANGE ${NPLACES})
+                list(GET KERNAMES ${kernel} KERNAME)
+                list(GET KERCODES ${kernel} KERCODE)
+                list(GET PLACEMENTS ${place} placement)
+                list(GET PLACENAMES ${place} placename)
+                add_test(NAME
+                    electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND electrostatics 2 ${placement} ${KERCODE} 2500 500
+                    90 1e-9 1)
+                set(test_env "MKL_NUM_THREADS=1"
+                    "STARSH_BACKEND=OPENMP"
+                    "STARSH_LRENGINE=${lrengine}")
+                set_tests_properties(
+                    electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                add_test(NAME
+                    electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND electrostatics 3 ${placement} ${KERCODE} 3375 675
+                    240 1e-9 1)
+                set_tests_properties(
+                    electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                #[[
+                if(MPI)
+                    add_test(NAME
+                        mpi_spatial_2d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                        ./mpi_spatial 2 ${placement} ${KERCODE} 0.1 10 2500 500 90
+                        1e-9 1 0)
+                    set(test_env "MKL_NUM_THREADS=1"
+                        "OMP_NUM_THREADS=${NOMP}"
+                        "STARSH_BACKEND=MPI_OPENMP"
+                        "STARSH_LRENGINE=${lrengine}")
+                    set_tests_properties(
+                        mpi_spatial_2d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                    add_test(NAME
+                        mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                        ./mpi_spatial 3 ${placement} ${KERCODE} 0.1 10 3375 675 240
+                        1e-9 1 0)
+                    set_tests_properties(
+                        mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                endif()
+                #]]
             endforeach()
         endforeach()
     endforeach()

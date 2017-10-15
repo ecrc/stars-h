@@ -85,6 +85,8 @@ enum STARSH_PROBLEM_TYPE
     //!< Geospatial statistics
     STARSH_CAUCHY = 4,
     //!< Cauchy matrix
+    STARSH_ELECTROSTATICS = 5,
+    //!< Electrostatics problem
 };
 
 //! Enum type to show actual block low-rank format

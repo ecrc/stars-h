@@ -361,7 +361,7 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
 #endif
         default:
             STARSH_ERROR("Wrong type of kernel");
-            return STARSH_WRONG_PARAMETER;;
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
