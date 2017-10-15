@@ -18,7 +18,7 @@ void starsh_cauchy_block_kernel(STARSH_int nrows, STARSH_int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, STARSH_int ld)
 //! The Cauchy kernel for @ref STARSH_cauchy object.
-/*! Each non-diagonal element is generated as
+/*! Each off-diagonal element is generated as
  * \f[
  *      A_{ij} = \frac{1}{x_i-y_j},
  * \f]

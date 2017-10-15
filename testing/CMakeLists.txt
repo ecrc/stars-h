@@ -11,6 +11,7 @@ file(COPY "particles.txt"
 if(OPENMP)
     list(APPEND tests_files
     "minimal.c"
+    "cauchy.c"
     "spatial.c"
     "randtlr.c"
     )
@@ -78,6 +79,21 @@ if(OPENMP)
             set_tests_properties(mpi_minimal_${lrengine} PROPERTIES
                 ENVIRONMENT "${test_env}")
         endif()
+    endforeach()
+endif()
+
+# Add tests for Cauchy matrices
+# Check if OPENMP is supported, since we use omp_get_wtime function to measure
+# performance
+if(OPENMP)
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        add_test(NAME cauchy_${lrengine} COMMAND
+            cauchy 2500 250 100 1e-9)
+        set(test_env "MKL_NUM_THREADS=1"
+            "STARSH_BACKEND=OPENMP"
+            "STARSH_LRENGINE=${lrengine}")
+        set_tests_properties(cauchy_${lrengine} PROPERTIES
+            ENVIRONMENT "${test_env}")
     endforeach()
 endif()
 
