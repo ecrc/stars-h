@@ -12,7 +12,7 @@
  * will be replace by proposed values. If you want to use this file outside
  * STARS-H, simply do substitutions yourself.
  *
- * @file src/applications/spatial/kernel_coulomb_potential.c
+ * @file src/applications/electrostatics/kernel_coulomb_potential.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
