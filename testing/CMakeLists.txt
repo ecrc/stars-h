@@ -21,6 +21,7 @@ endif()
 if(MPI)
     list(APPEND tests_files
     "mpi_minimal.c"
+    "mpi_cauchy.c"
     "mpi_spatial.c"
     "mpi_electrostatics.c"
     )
@@ -96,6 +97,17 @@ if(OPENMP)
             "STARSH_LRENGINE=${lrengine}")
         set_tests_properties(cauchy_${lrengine} PROPERTIES
             ENVIRONMENT "${test_env}")
+        if(MPI)
+            add_test(NAME mpi_cauchy_${lrengine} COMMAND
+                ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                ./mpi_cauchy 2500 500 10 1e-9)
+            set(test_env "MKL_NUM_THREADS=1"
+                "OMP_NUM_THREADS=${NOMP}"
+                "STARSH_BACKEND=MPI_OPENMP"
+                "STARSH_LRENGINE=${lrengine}")
+            set_tests_properties(mpi_minimal_${lrengine} PROPERTIES
+                ENVIRONMENT "${test_env}")
+        endif()
     endforeach()
 endif()
 
