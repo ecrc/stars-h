@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/mpi/blrm/dqp3.c
+ * @file src/backends/mpi/blrm/dna.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -13,18 +13,16 @@
 #include "common.h"
 #include "starsh.h"
 
-int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+int starsh_blrm__dna_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly)
-//! Approximate each tile of BLR matrix with RRQR (GEQP3 function).
-/*!
- * @param[out] matrix: Address of pointer to @ref STARSH_blrm object.
- * @param[in] format: Block low-rank format.
+//! Simply compute matrix without any approximation.
+/*! @ingroup blrm
+ * @param[out] M: Address of pointer to `STARSH_blrm` object.
+ * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
  * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
- * @return Error code @ref STARSH_ERRNO.
- * @ingroup blrm
  * */
 {
     STARSH_blrf *F = format;
@@ -55,7 +53,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     STARSH_int lbi, lbj, bi, bj = 0;
     double drsdd_time = 0, kernel_time = 0;
-    const int oversample = starsh_params.oversample;
+    int BAD_TILE = 0;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
     {
@@ -100,60 +98,65 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
+    // Since this is fake low-rank approximation, every tile is dense
+    #pragma omp parallel for schedule(static)
+    for(lbi = 0; lbi < nblocks_far_local; lbi++)
+        far_rank[lbi] = -1;
+    /*
     #pragma omp parallel for schedule(dynamic, 1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
     {
-        STARSH_int bi = block_far_local[lbi];
+        size_t bi = block_far_local[lbi];
         // Get indexes of corresponding block row and block column
-        STARSH_int i = block_far[2*bi];
-        STARSH_int j = block_far[2*bi+1];
+        int i = block_far[2*bi];
+        int j = block_far[2*bi+1];
         // Get corresponding sizes and minimum of them
         int nrows = RC->size[i];
         int ncols = CC->size[j];
+        if(nrows != ncols && BAD_TILE == 0)
+        {
+            #pragma omp critical
+            BAD_TILE = 1;
+            STARSH_WARNING("This was only tested on square tiles, error of "
+                    "approximation may be much higher, than demanded");
+        }
         int mn = nrows < ncols ? nrows : ncols;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)
             mn2 = mn;
         // Get size of temporary arrays
-        int lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
+        size_t lwork = ncols, lwork_sdd = (4*mn2+7)*mn2;
         if(lwork_sdd > lwork)
             lwork = lwork_sdd;
-        lwork += (size_t)mn2*(2*ncols+mn2+1)+mn;
-        int liwork = ncols, liwork_sdd = 8*mn2;
-        if(liwork_sdd > liwork)
-            liwork = liwork_sdd;
+        lwork += (size_t)mn2*(2*ncols+nrows+mn2+1);
+        size_t liwork = 8*mn2;
         double *D, *work;
         int *iwork;
         int info;
         // Allocate temporary arrays
         STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        STARSH_PMALLOC(iwork, liwork, info);
-        STARSH_PMALLOC(work, lwork, info);
+        //STARSH_PMALLOC(iwork, liwork, info);
+        //STARSH_PMALLOC(work, lwork, info);
         // Compute elements of a block
-#ifdef OPENMP
         double time0 = omp_get_wtime();
-#endif
         kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D, nrows);
-#ifdef OPENMP
+                RD, CD, D);
         double time1 = omp_get_wtime();
-#endif
-        starsh_dense_dlrqp3(nrows, ncols, D, nrows, far_U[lbi]->data, nrows,
-                far_V[lbi]->data, ncols, far_rank+lbi, maxrank, oversample,
-                tol, work, lwork, iwork);
-#ifdef OPENMP
+        starsh_kernel_dna(nrows, ncols, D, far_U[lbi]->data,
+                far_V[lbi]->data, far_rank+lbi, maxrank, oversample, tol, work,
+                lwork, iwork);
         double time2 = omp_get_wtime();
         #pragma omp critical
         {
             drsdd_time += time2-time1;
             kernel_time += time1-time0;
         }
-#endif
         // Free temporary arrays
         free(D);
-        free(work);
-        free(iwork);
+        //free(work);
+        //free(iwork);
     }
+    */
     // Get number of false far-field blocks
     STARSH_int nblocks_false_far_local = 0;
     STARSH_int *false_far_local = NULL;
@@ -172,7 +175,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     }
     // Sync list of all false far-field blocks
     STARSH_int nblocks_false_far = 0;
-    int int_nblocks_false_far_local = nblocks_false_far_local;
+    STARSH_int int_nblocks_false_far_local = nblocks_false_far_local;
     int *mpi_recvcount, *mpi_offset;
     int mpi_size, mpi_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
@@ -186,7 +189,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     mpi_offset[0] = 0;
     for(bi = 1; bi < mpi_size; bi++)
         mpi_offset[bi] = mpi_offset[bi-1]+mpi_recvcount[bi-1];
-    STARSH_int *false_far = NULL;
+    size_t *false_far = NULL;
     if(nblocks_false_far > 0)
         STARSH_MALLOC(false_far, nblocks_false_far);
     MPI_Allgatherv(false_far_local, nblocks_false_far_local, my_MPI_SIZE_T,
@@ -223,7 +226,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         for(lbi = 0; lbi < nblocks_false_far_local; lbi++)
         {
             lbj = false_far_local[lbi];
-            while(bi < nblocks_false_far && false_far[bi] < lbj)
+            while(false_far[bi] < lbj)
                 bi++;
             block_near_local[nblocks_near_local+lbi] = nblocks_near+bi;
         }
@@ -241,7 +244,7 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             for(bi = 0; bi < nblocks_far; bi++)
             {
                 // `false_far` must be in ascending order for this to work
-                if(bj < nblocks_false_far && false_far[bj] == bi)
+                if(false_far[bj] == bi)
                 {
                     if(nblocks_false_far_local > lbj &&
                             false_far_local[lbj] == bi)

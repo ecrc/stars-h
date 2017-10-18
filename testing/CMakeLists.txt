@@ -10,17 +10,31 @@ file(COPY "particles.txt"
 
 if(OPENMP)
     list(APPEND tests_files
-    "minimal.c"
-    "spatial.c"
-    "randtlr.c"
-    )
+        "minimal.c"
+        "spatial.c"
+        "randtlr.c"
+        )
 endif()
 
 if(MPI)
     list(APPEND tests_files
-    "mpi_minimal.c"
-    "mpi_spatial.c"
-    )
+        "mpi_minimal.c"
+        "mpi_spatial.c"
+        )
+endif()
+
+if(STARPU)
+    list(APPEND tests_files
+        "starpu_minimal.c"
+        "starpu_spatial.c"
+        )
+endif()
+
+if(MPI AND STARPU)
+    list(APPEND tests_files
+        "mpi_starpu_minimal.c"
+        "mpi_starpu_spatial.c"
+        )
 endif()
 
 if(PLASMA)
@@ -35,6 +49,9 @@ foreach(test_src ${tests_files})
     add_executable(test_${test_exe} ${test_src})
     target_link_libraries(test_${test_exe} starsh ${CBLAS_LIBRARIES}
         ${LAPACKE_LIBRARIES} ${OpenMP_C_FLAGS})
+    if(test_src MATCHES "starpu_*")
+        target_link_libraries(test_${test_exe} ${STARPU_LIBRARIES})
+    endif()
     set_target_properties(test_${test_exe} PROPERTIES OUTPUT_NAME ${test_exe})
 endforeach()
 
@@ -78,6 +95,28 @@ if(OPENMP)
             set_tests_properties(mpi_minimal_${lrengine} PROPERTIES
                 ENVIRONMENT "${test_env}")
         endif()
+        if(STARPU)
+            add_test(NAME starpu_minimal_${lrengine} COMMAND
+                starpu_minimal 2500 500 10 1e-9)
+            set(test_env "MKL_NUM_THREADS=1"
+                "OMP_NUM_THREADS=1"
+                "STARSH_BACKEND=STARPU"
+                "STARSH_LRENGINE=${lrengine}")
+            set_tests_properties(starpu_minimal_${lrengine} PROPERTIES
+                ENVIRONMENT "${test_env}")
+        endif()
+    endforeach()
+endif()
+if(MPI AND STARPU)
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        add_test(NAME mpi_starpu_minimal_${lrengine} COMMAND
+            mpi_starpu_minimal 2500 500 10 1e-9)
+        set(test_env "MKL_NUM_THREADS=1"
+            "OMP_NUM_THREADS=1"
+            "STARSH_BACKEND=MPI_STARPU"
+            "STARSH_LRENGINE=${lrengine}")
+        set_tests_properties(mpi_starpu_minimal_${lrengine} PROPERTIES
+            ENVIRONMENT "${test_env}")
     endforeach()
 endif()
 
@@ -97,28 +136,27 @@ if(OPENMP)
 endif()
 
 # Add tests for spatial statistics
+# At first decide what matrix kernels are supported
+set(KERNAMES)
+set(KERCODES)
+list(APPEND KERNAMES "exp" "sqrexp")
+list(APPEND KERCODES "11" "12")
+if(GSL_FOUND)
+    list(APPEND KERNAMES "matern" "matern2")
+    list(APPEND KERCODES "13" "14")
+endif()
+list(LENGTH KERNAMES NKERNELS)
+math(EXPR NKERNELS "${NKERNELS}-1")
+
+# Set possible generation schemes for particles
+set(PLACENAMES "rand" "uniform" "randgrid" "quasiuniform1" "quasiuniform2"
+    "obsolete1" "obsolete2")
+set(PLACEMENTS "1" "3" "4" "6" "7" "-1" "-2")
+list(LENGTH PLACEMENTS NPLACES)
+math(EXPR NPLACES "${NPLACES}-1")
 # Check if OPENMP is supported, since we use omp_get_wtime function to measure
 # performance
 if(OPENMP)
-    # At first decide what matrix kernels are supported
-    set(KERNAMES)
-    set(KERCODES)
-    list(APPEND KERNAMES "exp" "sqrexp")
-    list(APPEND KERCODES "11" "12")
-    if(GSL_FOUND)
-        list(APPEND KERNAMES "matern" "matern2")
-        list(APPEND KERCODES "13" "14")
-    endif()
-    list(LENGTH KERNAMES NKERNELS)
-    math(EXPR NKERNELS "${NKERNELS}-1")
-
-    # Set possible generation schemes for particles
-    set(PLACENAMES "rand" "uniform" "randgrid" "quasiuniform1" "quasiuniform2"
-        "obsolete1" "obsolete2")
-    set(PLACEMENTS "1" "3" "4" "6" "7" "-1" "-2")
-    list(LENGTH PLACEMENTS NPLACES)
-    math(EXPR NPLACES "${NPLACES}-1")
-
     # Then cycle over all supported configurations for spatial statistics tests
     foreach(lrengine IN ITEMS ${LRENGINES})
         foreach(kernel RANGE ${NKERNELS})
@@ -162,6 +200,40 @@ if(OPENMP)
                         mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
                         PROPERTIES ENVIRONMENT "${test_env}")
                 endif()
+            endforeach()
+        endforeach()
+    endforeach()
+endif()
+# Check if MPI and STARPU are supported
+if(MPI AND STARPU)
+    # Then cycle over all supported configurations for spatial statistics tests
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        foreach(kernel RANGE ${NKERNELS})
+            foreach(place RANGE ${NPLACES})
+                list(GET KERNAMES ${kernel} KERNAME)
+                list(GET KERCODES ${kernel} KERCODE)
+                list(GET PLACEMENTS ${place} placement)
+                list(GET PLACENAMES ${place} placename)
+                add_test(NAME
+                    mpi_starpu_spatial_2d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                    ./mpi_starpu_spatial 2 ${placement} ${KERCODE} 0.1 10 2500
+                    500 90 1e-9 1 0)
+                set(test_env "MKL_NUM_THREADS=1"
+                    "OMP_NUM_THREADS=${NOMP}"
+                    "STARSH_BACKEND=MPI_STARPU"
+                    "STARSH_LRENGINE=${lrengine}")
+                set_tests_properties(
+                    mpi_starpu_spatial_2d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                add_test(NAME
+                    mpi_starpu_spatial_3d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                    ./mpi_starpu_spatial 3 ${placement} ${KERCODE} 0.1 10 3375
+                    675 240 1e-9 1 0)
+                set_tests_properties(
+                    mpi_starpu_spatial_3d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
             endforeach()
         endforeach()
     endforeach()

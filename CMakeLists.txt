@@ -38,7 +38,7 @@ endif()
 
 # Set desired backends
 # One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU" OFF)
+option(STARPU "Use StarPU" ON)
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
 option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
@@ -56,11 +56,6 @@ option(DOCS "Build documentation in docs directory" ON)
 option(STARSH_WARNINGS "Show STARSH warnings with debug information" OFF)
 if(STARSH_WARNINGS)
     add_definitions("-DSHOW_WARNINGS")
-endif()
-
-# Use STARPU backend only when compiling by gcc
-if(NOT ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
-    set(STARPU OFF)
 endif()
 
 # Workaround for C99 standard for Intel compiler
@@ -95,9 +90,6 @@ include(EcrcInit)
 include(GenPkgConfig)
 include(FindPkgConfig)
 find_package(PkgConfig QUIET)
-
-# init requirements
-set(REQUIRES)
 
 # Set path to header files of STARS-H
 include_directories("${CMAKE_SOURCE_DIR}/include")
@@ -306,7 +298,8 @@ add_subdirectory("include")
 ###############################################################################
 # Print Options #
 #################
-get_directory_property( STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMPILE_DEFINITIONS )
 include(PrintOpts)
 
 #Install Pkg-config file

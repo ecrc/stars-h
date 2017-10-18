@@ -117,9 +117,29 @@ static STARSH_blrm_approximate *(dlr_mpi[LRENGINE_NUM]) =
     #endif
 };
 
+//! Array of approximation functions for STARPU backend
+static STARSH_blrm_approximate *(dlr_starpu[LRENGINE_NUM]) =
+{
+    #ifdef STARPU
+    starsh_blrm__dsdd_starpu, starsh_blrm__dsdd_starpu,
+    starsh_blrm__dqp3_starpu, starsh_blrm__drsdd_starpu,
+    starsh_blrm__drsdd_starpu
+    #endif
+};
+
+//! Array of approximation functions for MPI_STARPU backend
+static STARSH_blrm_approximate *(dlr_starpu_mpi[LRENGINE_NUM]) =
+{
+    #if defined(STARPU) && defined(MPI)
+    starsh_blrm__dsdd_mpi_starpu, starsh_blrm__dsdd_mpi_starpu,
+    starsh_blrm__dqp3_mpi_starpu, starsh_blrm__drsdd_mpi_starpu,
+    starsh_blrm__drsdd_mpi_starpu
+    #endif
+};
+
 //! Array of approximation functions, depending on backend
 static STARSH_blrm_approximate *(*dlr[BACKEND_NUM]) =
 {
-    dlr_seq, dlr_omp, dlr_mpi, dlr_mpi, dlr_none, dlr_none
+    dlr_seq, dlr_omp, dlr_mpi, dlr_mpi, dlr_starpu, dlr_starpu_mpi
 };
 

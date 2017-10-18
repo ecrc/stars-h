@@ -1,15 +1,3 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
- *                      Technology (KAUST). All rights reserved.
- *
- * STARS-H is a software package, provided by King Abdullah
- *             University of Science and Technology (KAUST)
- *
- * @file testing/spatial.c
- * @version 1.0.0
- * @author Aleksandr Mikhalev
- * @date 2017-08-22
- * */
-
 #ifdef MKL
     #include <mkl.h>
 #else
@@ -20,6 +8,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <string.h>
+#include <starpu.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
 
@@ -28,28 +17,26 @@ int main(int argc, char **argv)
     if(argc != 12)
     {
         printf("%d arguments provided, but 11 are needed\n", argc-1);
-        printf("spatial ndim placement kernel beta nu N block_size maxrank"
+        printf("starpu_spatial ndim kernel beta nu N block_size scheme maxrank"
                 " tol check_matvec check_cg_solve\n");
         return 1;
     }
     int problem_ndim = atoi(argv[1]);
-    int place = atoi(argv[2]);
-    int kernel_type = atoi(argv[3]);
-    double beta = atof(argv[4]);
-    double nu = atof(argv[5]);
-    int N = atoi(argv[6]);
-    int block_size = atoi(argv[7]);
+    int kernel_type = atoi(argv[2]);
+    double beta = atof(argv[3]);
+    double nu = atof(argv[4]);
+    int N = atoi(argv[5]);
+    int block_size = atoi(argv[6]);
+    char *scheme = argv[7];
     int maxrank = atoi(argv[8]);
     double tol = atof(argv[9]);
     double noise = 0;
     int check_matvec = atoi(argv[10]);
     int check_cg_solve = atoi(argv[11]);
-    int onfly = 0;
+    int oversample = 10, onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2;
     STARSH_int shape[2] = {N, N};
-    // Possible values can be found in documentation for enum
-    // STARSH_PARTICLES_PLACEMENT
     int nrhs = 1;
     int info;
     srand(0);
@@ -62,7 +49,7 @@ int main(int argc, char **argv)
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_SPATIAL_NOISE, noise, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
@@ -73,19 +60,24 @@ int main(int argc, char **argv)
     starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Spatial Statistics example");
     starsh_problem_info(P);
-    // Init plain clusterization and print info
+    // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
     starsh_cluster_new_plain(&C, data, N, block_size);
     starsh_cluster_info(C);
-    // Init tlr division into admissible blocks and print short info
+    // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
+    //starsh_blrf_new_tiled_mpi(&F, P, C, C, symm);
     starsh_blrf_new_tlr(&F, P, symm, C, C);
     starsh_blrf_info(F);
+    // Init StarPU
+    (void)starpu_init(NULL);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
     starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
     time1 = omp_get_wtime()-time1;
+    // Deinit StarPU
+    starpu_shutdown();
     // Print info about updated format and approximation
     starsh_blrf_info(F);
     starsh_blrm_info(M);
@@ -106,15 +98,15 @@ int main(int argc, char **argv)
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     if(check_matvec == 1)
     {
-        double *x, *y, *y_tlr;
+        double *x, *y, *y_tiled;
         int nrhs = 1;
         x = malloc(N*nrhs*sizeof(*x));
         y = malloc(N*nrhs*sizeof(*y));
-        y_tlr = malloc(N*nrhs*sizeof(*y_tlr));
+        y_tiled = malloc(N*nrhs*sizeof(*y_tiled));
         int iseed[4] = {0, 0, 0, 1};
         LAPACKE_dlarnv_work(3, iseed, N*nrhs, x);
         cblas_dscal(N*nrhs, 0.0, y, 1);
-        cblas_dscal(N*nrhs, 0.0, y_tlr, 1);
+        cblas_dscal(N*nrhs, 0.0, y_tiled, 1);
         time1 = omp_get_wtime();
         for(int i = 0; i < 10; i++)
             starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);

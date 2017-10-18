@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file src/backends/mpi/blrm/dqp3.c
+ * @file src/backends/mpi_starpu/blrm/dqp3.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -13,7 +13,7 @@
 #include "common.h"
 #include "starsh.h"
 
-int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly)
 //! Approximate each tile of BLR matrix with RRQR (GEQP3 function).
 /*!
@@ -54,7 +54,26 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     STARSH_int lbi, lbj, bi, bj = 0;
-    double drsdd_time = 0, kernel_time = 0;
+    struct starpu_codelet codelet =
+    {
+        .cpu_funcs = {starsh_dense_dlrqp3_starpu},
+        .nbuffers = 6,
+        .modes = {STARPU_R, STARPU_W, STARPU_W, STARPU_W, STARPU_SCRATCH,
+            STARPU_SCRATCH}
+    };
+    struct starpu_codelet codelet2 =
+    {
+        .cpu_funcs = {starsh_dense_kernel_starpu},
+        .nbuffers = 2,
+        .modes = {STARPU_R, STARPU_W}
+    };
+    STARSH_int bi_value[nblocks_far_local];
+    starpu_data_handle_t bi_handle[nblocks_far_local];
+    starpu_data_handle_t rank_handle[nblocks_far_local];
+    starpu_data_handle_t U_handle[nblocks_far_local];
+    starpu_data_handle_t V_handle[nblocks_far_local];
+    starpu_data_handle_t work_handle[nblocks_far_local];
+    starpu_data_handle_t iwork_handle[nblocks_far_local];
     const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
@@ -86,6 +105,18 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             STARSH_int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i], ncols = CC->size[j];
+            int mn = nrows < ncols ? nrows : ncols;
+            int mn2 = maxrank+oversample;
+            if(mn2 > mn)
+                mn2 = mn;
+            // Get size of temporary arrays
+            int lwork = 3*ncols+1, lwork_sdd = (4*mn2+7)*mn2;
+            if(lwork_sdd > lwork)
+                lwork = lwork_sdd;
+            lwork += nrows*ncols+mn2*(2*ncols+mn2+1)+mn;
+            int liwork = ncols, liwork_sdd = 8*mn2;
+            if(liwork_sdd > liwork)
+                liwork = liwork_sdd;
             int shape_U[] = {nrows, maxrank};
             int shape_V[] = {ncols, maxrank};
             double *U = alloc_U+offset_U, *V = alloc_V+offset_V;
@@ -93,6 +124,19 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             offset_V += ncols*maxrank;
             array_from_buffer(far_U+lbi, 2, shape_U, 'd', 'F', U);
             array_from_buffer(far_V+lbi, 2, shape_V, 'd', 'F', V);
+            bi_value[lbi] = bi;
+            starpu_variable_data_register(bi_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(bi_value+lbi), sizeof(*bi_value));
+            starpu_variable_data_register(rank_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_rank+lbi), sizeof(*far_rank));
+            starpu_vector_data_register(U_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_U[lbi]->data), nrows*maxrank, sizeof(*U));
+            starpu_vector_data_register(V_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(far_V[lbi]->data), ncols*maxrank, sizeof(*V));
+            starpu_vector_data_register(work_handle+lbi, -1, 0, lwork,
+                    sizeof(*U));
+            starpu_vector_data_register(iwork_handle+lbi, -1, 0, liwork,
+                    sizeof(int));
         }
         offset_U = 0;
         offset_V = 0;
@@ -100,60 +144,25 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     // Work variables
     int info;
     // Simple cycle over all far-field admissible blocks
-    #pragma omp parallel for schedule(dynamic, 1)
     for(lbi = 0; lbi < nblocks_far_local; lbi++)
     {
-        STARSH_int bi = block_far_local[lbi];
-        // Get indexes of corresponding block row and block column
-        STARSH_int i = block_far[2*bi];
-        STARSH_int j = block_far[2*bi+1];
-        // Get corresponding sizes and minimum of them
-        int nrows = RC->size[i];
-        int ncols = CC->size[j];
-        int mn = nrows < ncols ? nrows : ncols;
-        int mn2 = maxrank+oversample;
-        if(mn2 > mn)
-            mn2 = mn;
-        // Get size of temporary arrays
-        int lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
-        if(lwork_sdd > lwork)
-            lwork = lwork_sdd;
-        lwork += (size_t)mn2*(2*ncols+mn2+1)+mn;
-        int liwork = ncols, liwork_sdd = 8*mn2;
-        if(liwork_sdd > liwork)
-            liwork = liwork_sdd;
-        double *D, *work;
-        int *iwork;
-        int info;
-        // Allocate temporary arrays
-        STARSH_PMALLOC(D, (size_t)nrows*(size_t)ncols, info);
-        STARSH_PMALLOC(iwork, liwork, info);
-        STARSH_PMALLOC(work, lwork, info);
-        // Compute elements of a block
-#ifdef OPENMP
-        double time0 = omp_get_wtime();
-#endif
-        kernel(nrows, ncols, RC->pivot+RC->start[i], CC->pivot+CC->start[j],
-                RD, CD, D, nrows);
-#ifdef OPENMP
-        double time1 = omp_get_wtime();
-#endif
-        starsh_dense_dlrqp3(nrows, ncols, D, nrows, far_U[lbi]->data, nrows,
-                far_V[lbi]->data, ncols, far_rank+lbi, maxrank, oversample,
-                tol, work, lwork, iwork);
-#ifdef OPENMP
-        double time2 = omp_get_wtime();
-        #pragma omp critical
-        {
-            drsdd_time += time2-time1;
-            kernel_time += time1-time0;
-        }
-#endif
-        // Free temporary arrays
-        free(D);
-        free(work);
-        free(iwork);
+        starpu_task_insert(&codelet, STARPU_VALUE, &F, sizeof(F),
+                STARPU_VALUE, &maxrank, sizeof(maxrank),
+                STARPU_VALUE, &oversample, sizeof(oversample),
+                STARPU_VALUE, &tol, sizeof(tol),
+                STARPU_R, bi_handle[lbi], STARPU_W, rank_handle[lbi],
+                STARPU_W, U_handle[lbi], STARPU_W, V_handle[lbi],
+                STARPU_SCRATCH, work_handle[lbi],
+                STARPU_SCRATCH, iwork_handle[lbi],
+                0);
+        starpu_data_unregister_submit(bi_handle[lbi]);
+        starpu_data_unregister_submit(rank_handle[lbi]);
+        starpu_data_unregister_submit(U_handle[lbi]);
+        starpu_data_unregister_submit(V_handle[lbi]);
+        starpu_data_unregister_submit(work_handle[lbi]);
+        starpu_data_unregister_submit(iwork_handle[lbi]);
     }
+    starpu_task_wait_for_all();
     // Get number of false far-field blocks
     STARSH_int nblocks_false_far_local = 0;
     STARSH_int *false_far_local = NULL;
@@ -205,14 +214,11 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         if(new_nblocks_near_local > 0)
             STARSH_MALLOC(block_near_local, new_nblocks_near_local);
         // At first get all near-field blocks, assumed to be dense
-        #pragma omp parallel for schedule(static)
         for(bi = 0; bi < 2*nblocks_near; bi++)
             block_near[bi] = F->block_near[bi];
-        #pragma omp parallel for schedule(static)
         for(lbi = 0; lbi < nblocks_near_local; lbi++)
             block_near_local[lbi] = F->block_near_local[lbi];
         // Add false far-field blocks
-        #pragma omp parallel for schedule(static)
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
             STARSH_int bj = false_far[bi];
@@ -279,8 +285,11 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         starsh_blrf_free(F2);
     }
     // Compute near-field blocks if needed
-    if(onfly == 0 && new_nblocks_near > 0)
+    if(onfly == 0 && new_nblocks_near_local > 0)
     {
+        STARSH_int nbi_value[new_nblocks_near_local];
+        starpu_data_handle_t D_handle[new_nblocks_near_local];
+        starpu_data_handle_t nbi_handle[new_nblocks_near_local];
         STARSH_MALLOC(near_D, new_nblocks_near_local);
         size_t size_D = 0;
         // Simple cycle over all near-field blocks
@@ -298,7 +307,6 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         }
         STARSH_MALLOC(alloc_D, size_D);
         // For each near-field block compute its elements
-        #pragma omp parallel for schedule(dynamic, 1)
         for(lbi = 0; lbi < new_nblocks_near_local; lbi++)
         {
             STARSH_int bi = block_near_local[lbi];
@@ -310,25 +318,26 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
             int ncols = CC->size[j];
             int shape[2] = {nrows, ncols};
             double *D;
-            #pragma omp critical
-            {
-                D = alloc_D+offset_D;
-                offset_D += nrows*ncols;
-                //array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
-                //offset_D += near_D[lbi]->size;
-            }
+            D = alloc_D+offset_D;
+            offset_D += nrows*ncols;
             array_from_buffer(near_D+lbi, 2, shape, 'd', 'F', D);
-#ifdef OPENMP
-            double time0 = omp_get_wtime();
-#endif
-            kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D, nrows);
-#ifdef OPENMP
-            double time1 = omp_get_wtime();
-            #pragma omp critical
-            kernel_time += time1-time0;
-#endif
+            nbi_value[lbi] = bi;
+            starpu_variable_data_register(nbi_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(nbi_value+lbi), sizeof(*nbi_value));
+            starpu_vector_data_register(D_handle+lbi, STARPU_MAIN_RAM,
+                    (uintptr_t)(near_D[lbi]->data),
+                    (size_t)nrows*(size_t)ncols, sizeof(*D));
         }
+        for(lbi = 0; lbi < new_nblocks_near_local; lbi++)
+        {
+            starpu_task_insert(&codelet2, STARPU_VALUE, &F, sizeof(F),
+                    STARPU_R, nbi_handle[lbi], STARPU_W, D_handle[lbi],
+                    0);
+            starpu_data_unregister_submit(nbi_handle[lbi]);
+            starpu_data_unregister_submit(D_handle[lbi]);
+        }
+        // Wait in this scope, because all handles are not visible outside
+        starpu_task_wait_for_all();
     }
     // Change sizes of far_rank, far_U and far_V if there were false
     // far-field blocks
@@ -376,18 +385,6 @@ int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         free(false_far_local);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
-#ifdef OPENMP
-    double mpi_drsdd_time = 0, mpi_kernel_time = 0;
-    MPI_Reduce(&drsdd_time, &mpi_drsdd_time, 1, MPI_DOUBLE, MPI_SUM, 0,
-            MPI_COMM_WORLD);
-    MPI_Reduce(&kernel_time, &mpi_kernel_time, 1, MPI_DOUBLE, MPI_SUM, 0,
-            MPI_COMM_WORLD);
-    if(mpi_rank == 0)
-    {
-        //STARSH_WARNING("DRSDD kernel total time: %e secs", mpi_drsdd_time);
-        //STARSH_WARNING("MATRIX kernel total time: %e secs", mpi_kernel_time);
-    }
-#endif
     return starsh_blrm_new_mpi(matrix, F, far_rank, far_U, far_V, onfly,
             near_D, alloc_U, alloc_V, alloc_D, '1');
 }
