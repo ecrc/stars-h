@@ -118,10 +118,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
         starpu_vector_data_register(work_handle+lbi, -1, 0, (size_t)nrhs*rank,
                 sizeof(*U));
         starpu_vector_data_register(B_handle+lbi, STARPU_MAIN_RAM,
-                (uintptr_t)(temp_B+R->start[i]), nrhs*(size_t)ldout,
-                sizeof(*temp_B));
+                (uintptr_t)(temp_B+R->start[i]),
+                nrhs*(size_t)ldout-R->start[i], sizeof(*temp_B));
         starpu_vector_data_register(A_handle+lbi, STARPU_MAIN_RAM,
-                (uintptr_t)(A+C->start[j]), nrhs*(size_t)lda, sizeof(*A));
+                (uintptr_t)(A+C->start[j]),
+                nrhs*(size_t)lda-C->start[j], sizeof(*A));
         // fake task to make workhandle initialized
         starpu_task_insert(&fake_codelet, STARPU_W, work_handle[lbi], 0);
         // Multiply low-rank matrix in U*V^T format by a dense matrix
@@ -163,10 +164,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
             // Multiply low-rank matrix in V*U^T format by a dense matrix
             // U and V are simply swapped in case of symmetric block
             starpu_vector_data_register(B2_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(temp_B+C->start[j]), nrhs*(size_t)ldout,
-                    sizeof(*temp_B));
+                    (uintptr_t)(temp_B+C->start[j]),
+                    nrhs*(size_t)ldout-C->start[j], sizeof(*temp_B));
             starpu_vector_data_register(A2_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(A+R->start[i]), nrhs*(size_t)lda, sizeof(*A));
+                    (uintptr_t)(A+R->start[i]),
+                    nrhs*(size_t)lda-R->start[i], sizeof(*A));
             starpu_vector_data_register(work2_handle+lbi, -1, 0,
                     (size_t)nrhs*rank, sizeof(*U));
             // fake task to make workhandle initialized
@@ -240,10 +242,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
             starpu_vector_data_register(work3_handle+lbi, -1, 0,
                     (size_t)nrows*ncols, sizeof(*A));
             starpu_vector_data_register(B3_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(temp_B+R->start[i]), nrhs*(size_t)ldout,
-                    sizeof(*temp_B));
+                    (uintptr_t)(temp_B+R->start[i]),
+                    nrhs*(size_t)ldout-R->start[i], sizeof(*temp_B));
             starpu_vector_data_register(A3_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(A+C->start[j]), nrhs*(size_t)lda, sizeof(*A));
+                    (uintptr_t)(A+C->start[j]),
+                    nrhs*(size_t)lda-C->start[j], sizeof(*A));
             // Fill temporary buffer with elements of corresponding block
             starpu_task_insert(&codelet_kernel, STARPU_VALUE, &F, sizeof(F),
                     STARPU_R, bi_handle[lbi], STARPU_W, work3_handle[lbi], 0);
@@ -272,11 +275,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
             {
                 // Repeat in case of symmetric matrix
                 starpu_vector_data_register(B4_handle+lbi, STARPU_MAIN_RAM,
-                        (uintptr_t)(temp_B+C->start[j]), nrhs*(size_t)ldout,
-                        sizeof(*temp_B));
+                        (uintptr_t)(temp_B+C->start[j]),
+                        nrhs*(size_t)ldout-C->start[j], sizeof(*temp_B));
                 starpu_vector_data_register(A4_handle+lbi, STARPU_MAIN_RAM,
-                        (uintptr_t)(A+R->start[i]), nrhs*(size_t)lda,
-                        sizeof(*A));
+                        (uintptr_t)(A+R->start[i]),
+                        nrhs*(size_t)lda-R->start[i], sizeof(*A));
                 starpu_task_insert(&codelet, STARPU_VALUE, &T, sizeof(T),
                         STARPU_VALUE, &N, sizeof(N),
                         STARPU_VALUE, &ncols, sizeof(ncols),
@@ -317,10 +320,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
             starpu_vector_data_register(work3_handle+lbi, STARPU_MAIN_RAM,
                     (uintptr_t)D, (size_t)nrows*ncols, sizeof(*D));
             starpu_vector_data_register(B3_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(temp_B+R->start[i]), nrhs*(size_t)ldout,
-                    sizeof(*temp_B));
+                    (uintptr_t)(temp_B+R->start[i]),
+                    nrhs*(size_t)ldout-R->start[i], sizeof(*temp_B));
             starpu_vector_data_register(A3_handle+lbi, STARPU_MAIN_RAM,
-                    (uintptr_t)(A+C->start[j]), nrhs*(size_t)lda, sizeof(*A));
+                    (uintptr_t)(A+C->start[j]),
+                    nrhs*(size_t)lda-C->start[j], sizeof(*A));
             // Multiply 2 dense matrices
             starpu_task_insert(&codelet, STARPU_VALUE, &N, sizeof(N),
                     STARPU_VALUE, &N, sizeof(N),
@@ -343,11 +347,11 @@ int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
             {
                 // Repeat in case of symmetric matrix
                 starpu_vector_data_register(B4_handle+lbi, STARPU_MAIN_RAM,
-                        (uintptr_t)(temp_B+C->start[j]), nrhs*(size_t)ldout,
-                        sizeof(*temp_B));
+                        (uintptr_t)(temp_B+C->start[j]),
+                        nrhs*(size_t)ldout-C->start[j], sizeof(*temp_B));
                 starpu_vector_data_register(A4_handle+lbi, STARPU_MAIN_RAM,
-                        (uintptr_t)(A+R->start[i]), nrhs*(size_t)lda,
-                        sizeof(*A));
+                        (uintptr_t)(A+R->start[i]),
+                        nrhs*(size_t)lda-R->start[i], sizeof(*A));
                 starpu_task_insert(&codelet, STARPU_VALUE, &T, sizeof(T),
                         STARPU_VALUE, &N, sizeof(N),
                         STARPU_VALUE, &ncols, sizeof(ncols),
@@ -589,11 +593,11 @@ int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
         starpu_vector_data_register(work_handle+lbi, -1, 0, (size_t)nrhs*rank,
                 sizeof(*U));
         starpu_vector_data_register(B_handle+lbi, STARPU_MAIN_RAM,
-                (uintptr_t)(temp_B+(i/grid_ny)*maxnb), nrhs*(size_t)ldout,
-                sizeof(*temp_B));
+                (uintptr_t)(temp_B+(i/grid_ny)*maxnb),
+                nrhs*(size_t)ldout-(i/grid_ny)*maxnb, sizeof(*temp_B));
         starpu_vector_data_register(A_handle+lbi, STARPU_MAIN_RAM,
-                (uintptr_t)(temp_A+(j/grid_nx)*maxnb), nrhs*(size_t)ld_temp_A,
-                sizeof(*temp_A));
+                (uintptr_t)(temp_A+(j/grid_nx)*maxnb),
+                nrhs*(size_t)ld_temp_A-(j/grid_nx)*maxnb, sizeof(*temp_A));
         // fake task to make workhandle initialized
         starpu_task_insert(&fake_codelet, STARPU_W, work_handle[bi], 0);
         // Multiply low-rank matrix in U*V^T format by a dense matrix
@@ -662,10 +666,10 @@ int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
                     (size_t)nrows*ncols, sizeof(*A));
             starpu_vector_data_register(B3_handle+lbi, STARPU_MAIN_RAM,
                     (uintptr_t)(temp_B+(i/grid_ny)*maxnb),
-                    nrhs*(size_t)ldout, sizeof(*temp_B));
+                    nrhs*(size_t)ldout-(i/grid_ny)*maxnb, sizeof(*temp_B));
             starpu_vector_data_register(A3_handle+lbi, STARPU_MAIN_RAM,
                     (uintptr_t)(temp_A+(j/grid_nx)*maxnb),
-                    nrhs*(size_t)ld_temp_A, sizeof(*temp_A));
+                    nrhs*(size_t)ld_temp_A-(j/grid_nx)*maxnb, sizeof(*temp_A));
             // Fill temporary buffer with elements of corresponding block
             starpu_task_insert(&codelet_kernel, STARPU_VALUE, &F, sizeof(F),
                     STARPU_R, bi_handle[lbi], STARPU_W, work3_handle[lbi], 0);
@@ -712,10 +716,10 @@ int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
                     (uintptr_t)D, (size_t)nrows*ncols, sizeof(*D));
             starpu_vector_data_register(B3_handle+lbi, STARPU_MAIN_RAM,
                     (uintptr_t)(temp_B+(i/grid_ny)*maxnb),
-                    nrhs*(size_t)ldout, sizeof(*temp_B));
+                    nrhs*(size_t)ldout-(i/grid_ny)*maxnb, sizeof(*temp_B));
             starpu_vector_data_register(A3_handle+lbi, STARPU_MAIN_RAM,
                     (uintptr_t)(temp_A+(j/grid_nx)*maxnb),
-                    nrhs*(size_t)ld_temp_A, sizeof(*temp_A));
+                    nrhs*(size_t)ld_temp_A-(j/grid_nx)*maxnb, sizeof(*temp_A));
             // Multiply 2 dense matrices
             starpu_task_insert(&codelet, STARPU_VALUE, &N, sizeof(N),
                     STARPU_VALUE, &N, sizeof(N),

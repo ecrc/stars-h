@@ -113,6 +113,7 @@ if(MPI AND STARPU)
             mpi_starpu_minimal 2500 500 10 1e-9)
         set(test_env "MKL_NUM_THREADS=1"
             "OMP_NUM_THREADS=1"
+            "STARPU_NCPU=${NOMP}"
             "STARSH_BACKEND=MPI_STARPU"
             "STARSH_LRENGINE=${lrengine}")
         set_tests_properties(mpi_starpu_minimal_${lrengine} PROPERTIES
@@ -166,24 +167,26 @@ if(OPENMP)
                 list(GET PLACEMENTS ${place} placement)
                 list(GET PLACENAMES ${place} placename)
                 add_test(NAME spatial_2d_${KERNAME}_${lrengine}_${placename}
-                    COMMAND spatial 2 ${placement} ${KERCODE} 0.1 10 2500 500 90
-                    1e-9 1 0)
+                    COMMAND spatial 2 ${placement} ${KERCODE} 0.1 10 2500 500
+                    90 1e-9 1 0)
                 set(test_env "MKL_NUM_THREADS=1"
                     "STARSH_BACKEND=OPENMP"
                     "STARSH_LRENGINE=${lrengine}")
-                set_tests_properties(spatial_2d_${KERNAME}_${lrengine}_${placename}
+                set_tests_properties(
+                    spatial_2d_${KERNAME}_${lrengine}_${placename}
                     PROPERTIES ENVIRONMENT "${test_env}")
                 add_test(NAME spatial_3d_${KERNAME}_${lrengine}_${placename}
-                    COMMAND spatial 3 ${placement} ${KERCODE} 0.1 10 3375 675 240
-                    1e-9 1 0)
-                set_tests_properties(spatial_3d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND spatial 3 ${placement} ${KERCODE} 0.1 10 3375 675
+                    240 1e-9 1 0)
+                set_tests_properties(
+                    spatial_3d_${KERNAME}_${lrengine}_${placename}
                     PROPERTIES ENVIRONMENT "${test_env}")
                 if(MPI)
                     add_test(NAME
                         mpi_spatial_2d_${KERNAME}_${lrengine}_${placename}
                         COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-                        ./mpi_spatial 2 ${placement} ${KERCODE} 0.1 10 2500 500 90
-                        1e-9 1 0)
+                        ./mpi_spatial 2 ${placement} ${KERCODE} 0.1 10 2500 500
+                        90 1e-9 1 0)
                     set(test_env "MKL_NUM_THREADS=1"
                         "OMP_NUM_THREADS=${NOMP}"
                         "STARSH_BACKEND=MPI_OPENMP"
@@ -194,8 +197,8 @@ if(OPENMP)
                     add_test(NAME
                         mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
                         COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
-                        ./mpi_spatial 3 ${placement} ${KERCODE} 0.1 10 3375 675 240
-                        1e-9 1 0)
+                        ./mpi_spatial 3 ${placement} ${KERCODE} 0.1 10 3375 675
+                        240 1e-9 1 0)
                     set_tests_properties(
                         mpi_spatial_3d_${KERNAME}_${lrengine}_${placename}
                         PROPERTIES ENVIRONMENT "${test_env}")
@@ -220,7 +223,8 @@ if(MPI AND STARPU)
                     ./mpi_starpu_spatial 2 ${placement} ${KERCODE} 0.1 10 2500
                     500 90 1e-9 1 0)
                 set(test_env "MKL_NUM_THREADS=1"
-                    "OMP_NUM_THREADS=${NOMP}"
+                    "OMP_NUM_THREADS=1"
+                    "STARPU_NCPU=${NOMP}"
                     "STARSH_BACKEND=MPI_STARPU"
                     "STARSH_LRENGINE=${lrengine}")
                 set_tests_properties(
