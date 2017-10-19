@@ -64,7 +64,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
     STARSH_int lbi, lbj, bi, bj = 0;
     double drsdd_time = 0, kernel_time = 0;
-    int BAD_TILE = 0;
     const int oversample = starsh_params.oversample;
     // Init buffers to store low-rank factors of far-field blocks if needed
     if(nblocks_far > 0)
@@ -120,13 +119,6 @@ int starsh_blrm__drsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         // Get corresponding sizes and minimum of them
         int nrows = RC->size[i];
         int ncols = CC->size[j];
-        if(nrows != ncols && BAD_TILE == 0)
-        {
-            #pragma omp critical
-            BAD_TILE = 1;
-            STARSH_WARNING("This was only tested on square tiles, error of "
-                    "approximation may be much higher, than demanded");
-        }
         int mn = nrows < ncols ? nrows : ncols;
         int mn2 = maxrank+oversample;
         if(mn2 > mn)

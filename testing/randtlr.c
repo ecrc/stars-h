@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     {
         printf("%d arguments provided, but 5 are needed\n", argc-1);
         printf("randtlr N NB decay maxrank tol\n");
-        return -1;
+        return 1;
     }
     int N = atoi(argv[1]);
     int block_size = atoi(argv[2]);
@@ -39,8 +39,11 @@ int main(int argc, char **argv)
     char symm = 'N', dtype = 'd';
     STARSH_int shape[2] = {N, N};
     int info;
+    srand(0);
     // Init STARS-H
-    starsh_init();
+    info = starsh_init();
+    if(info != 0)
+        return info;
     // Generate problem by random matrices
     STARSH_randtlr *data;
     STARSH_kernel *kernel;
@@ -55,21 +58,29 @@ int main(int argc, char **argv)
     }
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
-    starsh_problem_new(&P, 2, shape, symm, dtype, data, data, kernel,
+    info = starsh_problem_new(&P, 2, shape, symm, dtype, data, data, kernel,
             "Randomly generated tiled blr-matrix");
+    if(info != 0)
+        return info;
     starsh_problem_info(P);
     // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_plain(&C, data, N, block_size);
+    info = starsh_cluster_new_plain(&C, data, N, block_size);
+    if(info != 0)
+        return info;
     starsh_cluster_info(C);
     // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
-    starsh_blrf_new_tlr(&F, P, symm, C, C);
+    info = starsh_blrf_new_tlr(&F, P, symm, C, C);
+    if(info != 0)
+        return info;
     starsh_blrf_info(F);
     // Approximate each admissible block
     STARSH_blrm *M;
     double time1 = omp_get_wtime();
-    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
+    info = starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
+    if(info != 0)
+        return info;
     time1 = omp_get_wtime()-time1;
     // Print info about updated format and approximation
     starsh_blrf_info(F);
@@ -84,7 +95,7 @@ int main(int argc, char **argv)
     if(rel_err/tol > 10.)
     {
         printf("Resulting relative error is too big\n");
-        exit(1);
+        return 1;
     }
     // Free block low-rank matrix
     starsh_blrm_free(M);

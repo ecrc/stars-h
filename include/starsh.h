@@ -476,6 +476,11 @@ STARSH_blrm_approximate starsh_blrm__dsdd_omp, starsh_blrm__drsdd_omp,
     starsh_blrm__dqp3_omp, starsh_blrm__dna_omp;
 STARSH_blrm_approximate starsh_blrm__dsdd_mpi, starsh_blrm__drsdd_mpi,
     starsh_blrm__dqp3_mpi, starsh_blrm__dna_mpi;
+STARSH_blrm_approximate starsh_blrm__dsdd_starpu, starsh_blrm__drsdd_starpu,
+    starsh_blrm__dqp3_starpu;
+STARSH_blrm_approximate starsh_blrm__dsdd_mpi_starpu,
+                        starsh_blrm__drsdd_mpi_starpu,
+                        starsh_blrm__dqp3_mpi_starpu;
 
 
 int starsh_dense_dsvfr(int size, double *S, double tol);
@@ -483,7 +488,9 @@ int starsh_dense_dsvfr(int size, double *S, double tol);
 typedef int (STARSH_blrm__dmml)(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
 STARSH_blrm__dmml starsh_blrm__dmml, starsh_blrm__dmml_omp,
-                  starsh_blrm__dmml_mpi, starsh_blrm__dmml_mpi_tlr;
+                  starsh_blrm__dmml_mpi, starsh_blrm__dmml_mpi_tlr,
+                  starsh_blrm__dmml_starpu, starsh_blrm__dmml_mpi_starpu,
+                  starsh_blrm__dmml_mpi_starpu_tlr;
 
 double starsh_blrm__dfe(STARSH_blrm *matrix);
 double starsh_blrm__dfe_omp(STARSH_blrm *matrix);
@@ -510,17 +517,12 @@ void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, double tol, double *work, int lwork,
         int *iwork);
 
-/*
-void starsh_kernel_dsdd_starpu(void *buffers[], void *cl_arg);
-void starsh_kernel_drsdd_starpu(void *buffers[], void *cl_arg);
-void starsh_kernel_dqp3_starpu(void *buffers[], void *cl_arg);
-int starsh_blrm__drsdd_starpu(STARSH_blrm **M, STARSH_blrf *F,
-        STARSH_int maxrank, STARSH_int oversample, double tol, int onfly);
-int starsh_blrm__dsdd_starpu(STARSH_blrm **M, STARSH_blrf *F,
-        STARSH_int maxrank, STARSH_int oversample, double tol, int onfly);
-int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F,
-        STARSH_int maxrank, STARSH_int oversample, double tol, int onfly);
-*/
+void starsh_dense_dlrsdd_starpu(void *buffers[], void *cl_arg);
+void starsh_dense_dlrrsdd_starpu(void *buffers[], void *cl_arg);
+void starsh_dense_dlrqp3_starpu(void *buffers[], void *cl_arg);
+void starsh_dense_kernel_starpu(void *buffers[], void *cl_arg);
+void starsh_dense_dgemm_starpu(void *buffers[], void *cl_arg);
+void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);

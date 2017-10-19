@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file testing/spatial.c
+ * @file testing/starpu_spatial.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <string.h>
+#include <starpu.h>
 #include "starsh.h"
 #include "starsh-spatial.h"
 
@@ -28,8 +29,8 @@ int main(int argc, char **argv)
     if(argc != 10)
     {
         printf("%d arguments provided, but 9 are needed\n", argc-1);
-        printf("spatial ndim placement kernel beta nu N block_size maxrank"
-                " tol\n");
+        printf("starpu_spatial ndim placement kernel beta nu N block_size "
+                "maxrank tol\n");
         return 1;
     }
     int problem_ndim = atoi(argv[1]);
@@ -58,11 +59,10 @@ int main(int argc, char **argv)
     // Generate data for spatial statistics problem
     STARSH_ssdata *data;
     STARSH_kernel *kernel;
-    //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
             STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_SPATIAL_NOISE, noise, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
@@ -75,17 +75,21 @@ int main(int argc, char **argv)
     if(info != 0)
         return info;
     starsh_problem_info(P);
-    // Init plain clusterization and print info
+    // Init tiled cluster for tiled low-rank approximation and print info
     STARSH_cluster *C;
     info = starsh_cluster_new_plain(&C, data, N, block_size);
     if(info != 0)
         return info;
     starsh_cluster_info(C);
-    // Init tlr division into admissible blocks and print short info
+    // Init tiled division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    starsh_blrf_new_tlr(&F, P, symm, C, C);
+    info = starsh_blrf_new_tlr(&F, P, symm, C, C);
+    if(info != 0)
+        return info;
     starsh_blrf_info(F);
+    // Init StarPU
+    (void)starpu_init(NULL);
     // Approximate each admissible block
     double time1 = omp_get_wtime();
     info = starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
@@ -107,7 +111,7 @@ int main(int argc, char **argv)
         printf("Resulting relative error is too big\n");
         return 1;
     }
-    // Measure time for 10 matvecs
+    // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y;
     x = malloc(N*nrhs*sizeof(*x));
     y = malloc(N*nrhs*sizeof(*y));
@@ -119,5 +123,7 @@ int main(int argc, char **argv)
         starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);
     time1 = omp_get_wtime()-time1;
     printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
+    // Deinit StarPU
+    starpu_shutdown();
     return 0;
 }

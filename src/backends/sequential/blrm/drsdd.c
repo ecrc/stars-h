@@ -20,7 +20,6 @@ int starsh_blrm__drsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
  * @param[out] M: Address of pointer to @ref STARSH_blrm object.
  * @param[in] F: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
  * @return Error code @ref STARSH_ERRNO.

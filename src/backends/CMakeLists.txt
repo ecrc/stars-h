@@ -20,4 +20,10 @@ if(MPI)
     list(APPEND BACKENDS_OBJECTS $<TARGET_OBJECTS:backends_mpi>)
 endif()
 
+# Add MPI+StarPU code
+if(MPI AND STARPU)
+    add_subdirectory("mpi_starpu")
+    list(APPEND BACKENDS_OBJECTS $<TARGET_OBJECTS:backends_mpi_starpu>)
+endif()
+
 set(BACKENDS_OBJECTS ${BACKENDS_OBJECTS} PARENT_SCOPE)

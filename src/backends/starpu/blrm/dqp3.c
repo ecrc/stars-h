@@ -13,42 +13,55 @@
 #include "common.h"
 #include "starsh.h"
 
-int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
-        int oversample, double tol, int onfly)
+int starsh_blrm__dqp3_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly)
 //! Approximate each tile of BLR matrix with RRQR (GEQP3 function).
-/*! @param[out] M: Address of pointer to `STARSH_blrm` object.
- * @param[in] F: Block low-rank format.
+/*!
+ * @param[out] matrix: Address of pointer to @ref STARSH_blrm object.
+ * @param[in] format: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
+ * @return Error code @ref STARSH_ERRNO.
+ * @ingroup blrm
  * */
 {
+    STARSH_blrf *F = format;
     STARSH_problem *P = F->problem;
-    STARSH_kernel kernel = P->kernel;
-    size_t nblocks_far = F->nblocks_far, nblocks_near = F->nblocks_near;
+    STARSH_kernel *kernel = P->kernel;
+    STARSH_int nblocks_far = F->nblocks_far;
+    STARSH_int nblocks_near = F->nblocks_near;
     // Shortcuts to information about clusters
-    STARSH_cluster *RC = F->row_cluster, *CC = F->col_cluster;
+    STARSH_cluster *RC = F->row_cluster;
+    STARSH_cluster *CC = F->col_cluster;
     void *RD = RC->data, *CD = CC->data;
     // Following values default to given block low-rank format F, but they are
     // changed when there are false far-field blocks.
-    size_t new_nblocks_far = nblocks_far, new_nblocks_near = nblocks_near;
-    int *block_far = F->block_far, *block_near = F->block_near;
+    STARSH_int new_nblocks_far = nblocks_far;
+    STARSH_int new_nblocks_near = nblocks_near;
+    STARSH_int *block_far = F->block_far;
+    STARSH_int *block_near = F->block_near;
     // Places to store low-rank factors, dense blocks and ranks
     Array **far_U = NULL, **far_V = NULL, **near_D = NULL;
     int *far_rank = NULL;
     double *alloc_U = NULL, *alloc_V = NULL, *alloc_D = NULL;
     size_t offset_U = 0, offset_V = 0, offset_D = 0;
-    size_t bi, bj = 0;
+    STARSH_int bi, bj = 0;
+    const int oversample = starsh_params.oversample;
     struct starpu_codelet codelet =
     {
-        .cpu_funcs = {starsh_kernel_dqp3_starpu},
+        .cpu_funcs = {starsh_dense_dlrqp3_starpu},
         .nbuffers = 6,
         .modes = {STARPU_R, STARPU_W, STARPU_W, STARPU_W, STARPU_SCRATCH,
             STARPU_SCRATCH}
     };
-    (void)starpu_init(NULL);
-    size_t bi_value[nblocks_far];
+    struct starpu_codelet codelet2 =
+    {
+        .cpu_funcs = {starsh_dense_kernel_starpu},
+        .nbuffers = 2,
+        .modes = {STARPU_R, STARPU_W}
+    };
+    STARSH_int bi_value[nblocks_far];
     starpu_data_handle_t bi_handle[nblocks_far], rank_handle[nblocks_far];
     starpu_data_handle_t U_handle[nblocks_far], V_handle[nblocks_far];
     starpu_data_handle_t work_handle[nblocks_far], iwork_handle[nblocks_far];
@@ -63,8 +76,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         for(bi = 0; bi < nblocks_far; bi++)
         {
             // Get indexes of corresponding block row and block column
-            int i = block_far[2*bi];
-            int j = block_far[2*bi+1];
+            STARSH_int i = block_far[2*bi];
+            STARSH_int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_U += RC->size[i];
             size_V += CC->size[j];
@@ -76,20 +89,20 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         for(bi = 0; bi < nblocks_far; bi++)
         {
             // Get indexes of corresponding block row and block column
-            int i = block_far[2*bi];
-            int j = block_far[2*bi+1];
+            STARSH_int i = block_far[2*bi];
+            STARSH_int j = block_far[2*bi+1];
             // Get corresponding sizes and minimum of them
-            size_t nrows = RC->size[i], ncols = CC->size[j];
+            int nrows = RC->size[i], ncols = CC->size[j];
             int mn = nrows < ncols ? nrows : ncols;
             int mn2 = maxrank+oversample;
             if(mn2 > mn)
                 mn2 = mn;
             // Get size of temporary arrays
-            size_t lwork = 3*ncols+1, lwork_sdd = (4*(size_t)mn2+7)*mn2;
+            int lwork = 3*ncols+1, lwork_sdd = (4*mn2+7)*mn2;
             if(lwork_sdd > lwork)
                 lwork = lwork_sdd;
-            lwork += nrows*ncols+(size_t)mn2*(2*ncols+mn2+1)+mn;
-            size_t liwork = ncols, liwork_sdd = 8*mn2;
+            lwork += nrows*ncols+mn2*(2*ncols+mn2+1)+mn;
+            int liwork = ncols, liwork_sdd = 8*mn2;
             if(liwork_sdd > liwork)
                 liwork = liwork_sdd;
             int shape_U[] = {nrows, maxrank};
@@ -138,10 +151,9 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         starpu_data_unregister_submit(iwork_handle[bi]);
     }
     starpu_task_wait_for_all();
-    starpu_shutdown();
     // Get number of false far-field blocks
-    size_t nblocks_false_far = 0;
-    size_t *false_far = NULL;
+    STARSH_int nblocks_false_far = 0;
+    STARSH_int *false_far = NULL;
     for(bi = 0; bi < nblocks_far; bi++)
         if(far_rank[bi] == -1)
             nblocks_false_far++;
@@ -168,7 +180,7 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         // Add false far-field blocks
         for(bi = 0; bi < nblocks_false_far; bi++)
         {
-            size_t bj = false_far[bi];
+            STARSH_int bj = false_far[bi];
             block_near[2*(bi+nblocks_near)] = F->block_far[2*bj];
             block_near[2*(bi+nblocks_near)+1] = F->block_far[2*bj+1];
         }
@@ -194,28 +206,30 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         }
         // Update format by creating new format
         STARSH_blrf *F2;
-        info = starsh_blrf_new(&F2, P, F->symm, RC, CC, new_nblocks_far,
-                block_far, new_nblocks_near, block_near, F->type);
+        info = starsh_blrf_new_from_coo(&F2, P, F->symm, RC, CC,
+                new_nblocks_far, block_far, new_nblocks_near, block_near,
+                F->type);
         // Swap internal data of formats and free unnecessary data
         STARSH_blrf tmp_blrf = *F;
         *F = *F2;
         *F2 = tmp_blrf;
         STARSH_WARNING("`F` was modified due to false far-field blocks");
-        info = starsh_blrf_free(F2);
-        if(info != 0)
-            return info;
+        starsh_blrf_free(F2);
     }
     // Compute near-field blocks if needed
     if(onfly == 0 && new_nblocks_near > 0)
     {
+        STARSH_int nbi_value[new_nblocks_near];
+        starpu_data_handle_t D_handle[new_nblocks_near];
+        starpu_data_handle_t nbi_handle[new_nblocks_near];
         STARSH_MALLOC(near_D, new_nblocks_near);
         size_t size_D = 0;
         // Simple cycle over all near-field blocks
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
             // Get indexes of corresponding block row and block column
-            int i = block_near[2*bi];
-            int j = block_near[2*bi+1];
+            STARSH_int i = block_near[2*bi];
+            STARSH_int j = block_near[2*bi+1];
             // Get corresponding sizes and minimum of them
             size_t nrows = RC->size[i];
             size_t ncols = CC->size[j];
@@ -227,8 +241,8 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
             // Get indexes of corresponding block row and block column
-            int i = block_near[2*bi];
-            int j = block_near[2*bi+1];
+            STARSH_int i = block_near[2*bi];
+            STARSH_int j = block_near[2*bi+1];
             // Get corresponding sizes and minimum of them
             int nrows = RC->size[i];
             int ncols = CC->size[j];
@@ -236,9 +250,23 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
             double *D = alloc_D+offset_D;
             array_from_buffer(near_D+bi, 2, shape, 'd', 'F', D);
             offset_D += near_D[bi]->size;
-            kernel(nrows, ncols, RC->pivot+RC->start[i],
-                    CC->pivot+CC->start[j], RD, CD, D);
+            nbi_value[bi] = bi;
+            starpu_variable_data_register(nbi_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(nbi_value+bi), sizeof(*nbi_value));
+            starpu_vector_data_register(D_handle+bi, STARPU_MAIN_RAM,
+                    (uintptr_t)(near_D[bi]->data), (size_t)nrows*(size_t)ncols,
+                    sizeof(*D));
         }
+        for(bi = 0; bi < new_nblocks_near; bi++)
+        {
+            starpu_task_insert(&codelet2, STARPU_VALUE, &F, sizeof(F),
+                    STARPU_R, nbi_handle[bi], STARPU_W, D_handle[bi],
+                    0);
+            starpu_data_unregister_submit(nbi_handle[bi]);
+            starpu_data_unregister_submit(D_handle[bi]);
+        }
+        // Wait in this scope, because all handles are not visible outside
+        starpu_task_wait_for_all();
     }
     // Change sizes of far_rank, far_U and far_V if there were false
     // far-field blocks
@@ -282,7 +310,7 @@ int starsh_blrm__dqp3_starpu(STARSH_blrm **M, STARSH_blrf *F, int maxrank,
         free(false_far);
     // Finish with creating instance of Block Low-Rank Matrix with given
     // buffers
-    return starsh_blrm_new(M, F, far_rank, far_U, far_V, onfly, near_D,
+    return starsh_blrm_new(matrix, F, far_rank, far_U, far_V, onfly, near_D,
             alloc_U, alloc_V, alloc_D, '1');
 }
 

@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file testing/mpi_minimal.c
+ * @file testing/mpi_starpu_minimal.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include <starpu.h>
 #include "starsh.h"
 #include "starsh-minimal.h"
 
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
         if(mpi_rank == 0)
         {
             printf("%d arguments provided, but 4 are needed\n", argc-1);
-            printf("mpi_minimal N block_size maxrank tol\n");
+            printf("mpi_starpu_minimal N block_size maxrank tol\n");
         }
         MPI_Finalize();
         return 1;
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
     int maxrank = atoi(argv[3]);
     double tol = atof(argv[4]);
-    int oversample = 10, onfly = 0;
+    int onfly = 0;
     char dtype = 'd', symm = 'N';
     int ndim = 2;
     STARSH_int shape[2] = {N, N};
@@ -57,7 +58,6 @@ int main(int argc, char **argv)
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
     STARSH_kernel *kernel;
-    //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
             STARSH_MINIMAL, STARSH_MINIMAL_KERNEL1, 0);
     if(info != 0)
@@ -97,6 +97,8 @@ int main(int argc, char **argv)
     }
     if(mpi_rank == 0)
         starsh_blrf_info(F);
+    // Init StarPU
+    (void)starpu_init(NULL);
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
@@ -132,7 +134,10 @@ int main(int argc, char **argv)
         }
     }
     if(rel_err/tol > 10.)
+    {
+        MPI_Finalize();
         return 1;
+    }
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y, *y_tlr;
     int nrhs = 1;
@@ -149,7 +154,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi(M, nrhs, 1.0, x, N, 0.0, y, N);
+        starsh_blrm__dmml_mpi_starpu(M, nrhs, 1.0, x, N, 0.0, y, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
@@ -159,7 +164,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
+        starsh_blrm__dmml_mpi_starpu_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
@@ -169,6 +174,7 @@ int main(int argc, char **argv)
         printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, y_tlr, 1)
                 /cblas_dnrm2(N, y, 1));
     }
+    starpu_shutdown();
     MPI_Finalize();
     return 0;
 }
