@@ -58,7 +58,6 @@ int main(int argc, char **argv)
     char symm = 'N', dtype = 'd';
     int ndim = 2;
     STARSH_int shape[2] = {N, N};
-    int nrhs = 1;
     int info;
     srand(0);
     // Init STARS-H
@@ -158,8 +157,10 @@ int main(int argc, char **argv)
         MPI_Finalize();
         return 1;
     }
+    // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y, *y_tlr;
-    x = malloc(N*nrhs*sizeof(*y));
+    int nrhs = 1;
+    x = malloc(N*nrhs*sizeof(*x));
     y = malloc(N*nrhs*sizeof(*y));
     y_tlr = malloc(N*nrhs*sizeof(*y_tlr));
     if(mpi_rank == 0)
@@ -172,7 +173,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi_starpu(M, nrhs, 1.0, x, N, 0.0, y, N);
+        starsh_blrm__dmml_mpi(M, nrhs, 1.0, x, N, 0.0, y, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
@@ -182,7 +183,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi_starpu_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
+        starsh_blrm__dmml_mpi_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)

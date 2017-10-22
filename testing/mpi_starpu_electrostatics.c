@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi_tlr(M, nrhs, 1.0, x, N, 0.0, y, N);
+        starsh_blrm__dmml_mpi(M, nrhs, 1.0, x, N, 0.0, y, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_mpi_starpu_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
+        starsh_blrm__dmml_mpi_tlr(M, nrhs, 1.0, x, N, 0.0, y_tlr, N);
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
