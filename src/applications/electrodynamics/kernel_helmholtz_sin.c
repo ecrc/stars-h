@@ -12,7 +12,7 @@
  * will be replace by proposed values. If you want to use this file outside
  * STARS-H, simply do substitutions yourself.
  *
- * @file src/applications/electrostatics/kernel_coulomb_potential.c
+ * @file src/applications/electrodynamics/kernel_helmholtz_sin.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -20,23 +20,24 @@
 
 #include "common.h"
 #include "starsh.h"
-#include "starsh-electrostatics.h"
+#include "starsh-electrodynamics.h"
 
 // If dimensionality is static, then replace variable ndim with integer value
 #if (@NDIM != n)
 #define ndim @NDIM
 #endif
 
-void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
+void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
         void *col_data, void *result, STARSH_int ld)
-//! Coulomb potential for @NDIM-dimensional electrostatics problem.
+//! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
- *      A_{ij} = \frac{1}{r_{ij}},
+ *      A_{ij} = \frac{sin(k r_{ij})}{r_{ij}},
  * \f]
  * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
- * points. No memory is allocated in this function!
+ * points and \f$ k \f$ is a wave number. No memory is allocated in this
+ * function!
  *
  * @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
@@ -46,17 +47,17 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd().
- * @ingroup app-electrostatics-kernels
+ * @sa starsh_ssdata_block_helmholtz_sin_kernel_1d(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_2d(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_3d(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_4d(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_nd().
+ * @ingroup app-electrodynamics-kernels
  * */
 {
     STARSH_int i, j, k;
-    STARSH_esdata *data1 = row_data;
-    STARSH_esdata *data2 = col_data;
+    STARSH_eddata *data1 = row_data;
+    STARSH_eddata *data2 = col_data;
     double tmp, dist;
     // Read parameters
 // If dimensionality is not static
@@ -64,11 +65,12 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
     int ndim = data1->ndim;
 #endif
     // Get coordinates
-    STARSH_int count1 = data1->count;
-    STARSH_int count2 = data2->count;
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
-    x1[0] = data1->point;
-    x2[0] = data2->point;
+    double k = data1.k;
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
     //#pragma omp simd
     for(i = 1; i < ndim; i++)
     {
@@ -92,21 +94,25 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
             if(dist == 0)
                 buffer[j*(size_t)ld+i] = 0.0;
             else
-                buffer[j*(size_t)ld+i] = 1.0/sqrt(dist);
+            {
+                dist = sqrt(dist);
+                buffer[j*(size_t)ld+i] = sin(k*dist)/dist;
+            }
         }
     }
 }
 
-void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
+void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd_simd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
         void *col_data, void *result, STARSH_int ld)
-//! Coulomb potential for @NDIM-dimensional electrostatics problem.
+//! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
- *      A_{ij} = \frac{1}{r_{ij},
+ *      A_{ij} = \frac{sin(k r_{ij})}{r_{ij}},
  * \f]
  * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
- * points. No memory is allocated in this function!
+ * points and \f$ k \f$ is a wave number. No memory is allocated in this
+ * function!
  *
  * Uses SIMD instructions.
  *
@@ -118,17 +124,17 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd_simd().
- * @ingroup app-electrostatics-kernels
+ * @sa starsh_ssdata_block_helmholtz_sin_kernel_1d_simd(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_2d_simd(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_3d_simd(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_4d_simd(),
+ *      starsh_ssdata_block_helmholtz_sin_kernel_nd_simd().
+ * @ingroup app-electrodynamics-kernels
  * */
 {
-    int i, j, k;
-    STARSH_esdata *data1 = row_data;
-    STARSH_esdata *data2 = col_data;
+    STARSH_int i, j, k;
+    STARSH_eddata *data1 = row_data;
+    STARSH_eddata *data2 = col_data;
     double tmp, dist;
     // Read parameters
 // If dimensionality is not static
@@ -136,11 +142,12 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
     int ndim = data1->ndim;
 #endif
     // Get coordinates
-    size_t count1 = data1->count;
-    size_t count2 = data2->count;
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
-    x1[0] = data1->point;
-    x2[0] = data2->point;
+    double k = data1.k;
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
     #pragma omp simd
     for(i = 1; i < ndim; i++)
     {
@@ -164,7 +171,10 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
             if(dist == 0)
                 buffer[j*(size_t)ld+i] = 0.0;
             else
-                buffer[j*(size_t)ld+i] = 1.0/sqrt(dist);
+            {
+                dist = sqrt(dist);
+                buffer[j*(size_t)ld+i] = sin(k*dist)/dist;
+            }
         }
     }
 }

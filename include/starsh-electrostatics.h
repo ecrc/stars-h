@@ -71,14 +71,14 @@ enum STARSH_ELECTROSTATICS_PARAM
     //!< Distribution of particles (`place`, @ref STARSH_PARTICLES_PLACEMENT).
 };
 
-int starsh_esdata_new(STARSH_esdata **data, size_t count, int ndim);
-int starsh_esdata_init(STARSH_esdata **data, size_t count, int ndim,
+int starsh_esdata_new(STARSH_esdata **data, STARSH_int count, int ndim);
+int starsh_esdata_init(STARSH_esdata **data, STARSH_int count, int ndim,
         double *point);
-int starsh_esdata_generate(STARSH_esdata **data, size_t count, int ndim,
+int starsh_esdata_generate(STARSH_esdata **data, STARSH_int count, int ndim,
         enum STARSH_PARTICLES_PLACEMENT place);
-int starsh_esdata_generate_va(STARSH_esdata **data, size_t count,
+int starsh_esdata_generate_va(STARSH_esdata **data, STARSH_int count,
         va_list args);
-int starsh_esdata_generate_el(STARSH_esdata **data, size_t count, ...);
+int starsh_esdata_generate_el(STARSH_esdata **data, STARSH_int count, ...);
 int starsh_esdata_get_kernel(STARSH_kernel **kernel, STARSH_esdata *data,
          enum STARSH_ELECTROSTATICS_KERNEL type);
 void starsh_esdata_free(STARSH_esdata *data);

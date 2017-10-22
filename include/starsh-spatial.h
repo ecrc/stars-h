@@ -125,15 +125,15 @@ enum STARSH_SPATIAL_PARAM
     //!< Variance parameter (`sigma`, double).
 };
 
-int starsh_ssdata_new(STARSH_ssdata **data, size_t count, int ndim);
-int starsh_ssdata_init(STARSH_ssdata **data, size_t count, int ndim,
+int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim);
+int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
         double *point, double beta, double nu, double noise, double sigma);
-int starsh_ssdata_generate(STARSH_ssdata **data, size_t count, int ndim,
+int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
         double beta, double nu, double noise,
         enum STARSH_PARTICLES_PLACEMENT place, double sigma);
-int starsh_ssdata_generate_va(STARSH_ssdata **data, size_t count,
+int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
         va_list args);
-int starsh_ssdata_generate_el(STARSH_ssdata **data, size_t count, ...);
+int starsh_ssdata_generate_el(STARSH_ssdata **data, STARSH_int count, ...);
 int starsh_ssdata_get_kernel(STARSH_kernel **kernel, STARSH_ssdata *data,
          enum STARSH_SPATIAL_KERNEL type);
 void starsh_ssdata_free(STARSH_ssdata *data);
