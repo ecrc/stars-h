@@ -87,6 +87,8 @@ enum STARSH_PROBLEM_TYPE
     //!< Cauchy matrix
     STARSH_ELECTROSTATICS = 5,
     //!< Electrostatics problem
+    STARSH_ELECTRODYNAMICS = 6,
+    //!< Electrodynamics problem
 };
 
 //! Enum type to show actual block low-rank format

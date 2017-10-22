@@ -42,34 +42,36 @@ typedef struct starsh_eddata
     ////!< Precision of each matrix element (double, single etc).
     double k;
     //!< Characteristical wave length.
+    double diag;
+    //!< Value of diagonal elements.
 } STARSH_eddata;
 
 enum STARSH_ELECTRODYNAMICS_KERNEL
 //! List of built-in kernels for starsh_eddata_get_kernel().
 /*! For more info on exact formulas inside kernels, take a look at functions
- * starsh_eddata_block_helmholtz_sin_kernel_nd(),
- * starsh_eddata_block_helmholtz_cos_kernel_nd(),
- * starsh_eddata_block_helmholtz_sin_kernel_nd_simd(),
- * starsh_eddata_block_helmholtz_cos_kernel_nd_simd().
+ * starsh_eddata_block_sin_kernel_nd(),
+ * starsh_eddata_block_cos_kernel_nd(),
+ * starsh_eddata_block_sin_kernel_nd_simd(),
+ * starsh_eddata_block_cos_kernel_nd_simd().
  *
  * @ingroup app-electrodynamics
  * */
 {
     STARSH_ELECTRODYNAMICS_SIN = 1,
     /*!< Helmholtz sin kernel.
-     * @sa starsh_eddata_block_helmholtz_sin_kernel_nd().
+     * @sa starsh_eddata_block_sin_kernel_nd().
      * */
     STARSH_ELECTRODYNAMICS_COS = 2,
     /*!< Helmholtz cos kernel.
-     * @sa starsh_eddata_block_helmholtz_cos_kernel_nd().
+     * @sa starsh_eddata_block_cos_kernel_nd().
      * */
-    STARSH_ELECTRODYNAMICS_SIN = 11,
+    STARSH_ELECTRODYNAMICS_SIN_SIMD = 11,
     /*!< Helmholtz sin SIMD kernel.
-     * @sa starsh_eddata_block_helmholtz_sin_kernel_nd().
+     * @sa starsh_eddata_block_sin_kernel_nd_simd().
      * */
-    STARSH_ELECTRODYNAMICS_COS = 12,
+    STARSH_ELECTRODYNAMICS_COS_SIMD = 12,
     /*!< Helmholtz cos SIMD kernel.
-     * @sa starsh_eddata_block_helmholtz_cos_kernel_nd().
+     * @sa starsh_eddata_block_cos_kernel_nd_simd().
      * */
 };
 
@@ -91,6 +93,8 @@ enum STARSH_ELECTRODYNAMICS_PARAM
     //!< Wave number (`k`, double).
     STARSH_ELECTRODYNAMICS_DIAG = 3,
     //!< Value of diagonal elements (`diag`, double).
+    STARSH_ELECTRODYNAMICS_PLACE = 4,
+    //!< Distribution of particles (`place`, @ref STARSH_PARTICLES_PLACEMENT).
 };
 
 int starsh_eddata_new(STARSH_eddata **data, STARSH_int count, int ndim);
@@ -107,26 +111,26 @@ void starsh_eddata_free(STARSH_eddata *data);
 
 // KERNELS
 
-STARSH_kernel starsh_eddata_block_helmholtz_sin_kernel_1d_simd,
-              starsh_eddata_block_helmholtz_sin_kernel_1d,
-              starsh_eddata_block_helmholtz_sin_kernel_2d_simd,
-              starsh_eddata_block_helmholtz_sin_kernel_2d,
-              starsh_eddata_block_helmholtz_sin_kernel_3d_simd,
-              starsh_eddata_block_helmholtz_sin_kernel_3d,
-              starsh_eddata_block_helmholtz_sin_kernel_4d_simd,
-              starsh_eddata_block_helmholtz_sin_kernel_4d,
-              starsh_eddata_block_helmholtz_sin_kernel_nd_simd,
-              starsh_eddata_block_helmholtz_sin_kernel_nd;
+STARSH_kernel starsh_eddata_block_sin_kernel_1d_simd,
+              starsh_eddata_block_sin_kernel_1d,
+              starsh_eddata_block_sin_kernel_2d_simd,
+              starsh_eddata_block_sin_kernel_2d,
+              starsh_eddata_block_sin_kernel_3d_simd,
+              starsh_eddata_block_sin_kernel_3d,
+              starsh_eddata_block_sin_kernel_4d_simd,
+              starsh_eddata_block_sin_kernel_4d,
+              starsh_eddata_block_sin_kernel_nd_simd,
+              starsh_eddata_block_sin_kernel_nd;
 
-STARSH_kernel starsh_eddata_block_helmholtz_cos_kernel_1d_simd,
-              starsh_eddata_block_helmholtz_cos_kernel_1d,
-              starsh_eddata_block_helmholtz_cos_kernel_2d_simd,
-              starsh_eddata_block_helmholtz_cos_kernel_2d,
-              starsh_eddata_block_helmholtz_cos_kernel_3d_simd,
-              starsh_eddata_block_helmholtz_cos_kernel_3d,
-              starsh_eddata_block_helmholtz_cos_kernel_4d_simd,
-              starsh_eddata_block_helmholtz_cos_kernel_4d,
-              starsh_eddata_block_helmholtz_cos_kernel_nd_simd,
-              starsh_eddata_block_helmholtz_cos_kernel_nd;
+STARSH_kernel starsh_eddata_block_cos_kernel_1d_simd,
+              starsh_eddata_block_cos_kernel_1d,
+              starsh_eddata_block_cos_kernel_2d_simd,
+              starsh_eddata_block_cos_kernel_2d,
+              starsh_eddata_block_cos_kernel_3d_simd,
+              starsh_eddata_block_cos_kernel_3d,
+              starsh_eddata_block_cos_kernel_4d_simd,
+              starsh_eddata_block_cos_kernel_4d,
+              starsh_eddata_block_cos_kernel_nd_simd,
+              starsh_eddata_block_cos_kernel_nd;
 
 #endif // __STARSH_ELECTRODYNAMICS_H__

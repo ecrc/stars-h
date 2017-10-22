@@ -14,6 +14,7 @@ if(OPENMP)
         "cauchy.c"
         "spatial.c"
         "electrostatics.c"
+        "electrodynamics.c"
         "randtlr.c"
         )
 endif()
@@ -371,6 +372,138 @@ if(OPENMP)
                     240 1e-9)
                 set_tests_properties(
                     electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                if(MPI)
+                    add_test(NAME
+                        mpi_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                        ./mpi_electrostatics 2 ${placement} ${KERCODE} 2500 500
+                        90 1e-9)
+                    set(test_env "MKL_NUM_THREADS=1"
+                        "OMP_NUM_THREADS=${NOMP}"
+                        "STARSH_BACKEND=MPI_OPENMP"
+                        "STARSH_LRENGINE=${lrengine}")
+                    set_tests_properties(
+                        mpi_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                    add_test(NAME
+                        mpi_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                        ./mpi_electrostatics 3 ${placement} ${KERCODE} 3375 675
+                        240 1e-9)
+                    set_tests_properties(
+                        mpi_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                endif()
+                if(STARPU)
+                    add_test(NAME
+                        starpu_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND starpu_electrostatics 2 ${placement} ${KERCODE}
+                        2500 500 90 1e-9)
+                    set(test_env "MKL_NUM_THREADS=1"
+                        "OMP_NUM_THREADS=1"
+                        "STARSH_BACKEND=STARPU"
+                        "STARSH_LRENGINE=${lrengine}")
+                    set_tests_properties(
+                        starpu_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                    add_test(NAME
+                        starpu_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                        COMMAND starpu_electrostatics 3 ${placement} ${KERCODE}
+                        3375 675 240 1e-9)
+                    set(test_env "MKL_NUM_THREADS=1"
+                        "OMP_NUM_THREADS=1"
+                        "STARSH_BACKEND=STARPU"
+                        "STARSH_LRENGINE=${lrengine}")
+                    set_tests_properties(
+                        starpu_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                        PROPERTIES ENVIRONMENT "${test_env}")
+                endif()
+            endforeach()
+        endforeach()
+    endforeach()
+endif()
+# Check if MPI and STARPU are supported
+if(MPI AND STARPU)
+    # Then cycle over all supported configurations for spatial statistics tests
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        foreach(kernel RANGE ${NKERNELS})
+            foreach(place RANGE ${NPLACES})
+                list(GET KERNAMES ${kernel} KERNAME)
+                list(GET KERCODES ${kernel} KERCODE)
+                list(GET PLACEMENTS ${place} placement)
+                list(GET PLACENAMES ${place} placename)
+                add_test(NAME
+                    mpi_starpu_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                    ./mpi_starpu_electrostatics 2 ${placement} ${KERCODE} 2500
+                    500 90 1e-9)
+                set(test_env "MKL_NUM_THREADS=1"
+                    "OMP_NUM_THREADS=1"
+                    "STARPU_NCPU=${NOMP}"
+                    "STARSH_BACKEND=MPI_STARPU"
+                    "STARSH_LRENGINE=${lrengine}")
+                set_tests_properties(
+                    mpi_starpu_electrostatics_2d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                add_test(NAME
+                    mpi_starpu_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4
+                    ./mpi_starpu_electrostatics 3 ${placement} ${KERCODE} 3375
+                    675 240 1e-9)
+                set_tests_properties(
+                    mpi_starpu_electrostatics_3d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+            endforeach()
+        endforeach()
+    endforeach()
+endif()
+
+
+# Add tests for electrodynamics
+# Check if OPENMP is supported, since we use omp_get_wtime function to measure
+# performance
+# At first decide what matrix kernels are supported
+set(KERNAMES)
+set(KERCODES)
+list(APPEND KERNAMES "sin" "cos")
+list(APPEND KERCODES "11" "12")
+list(LENGTH KERNAMES NKERNELS)
+math(EXPR NKERNELS "${NKERNELS}-1")
+
+# Set possible generation schemes for particles
+set(PLACENAMES "rand" "uniform" "randgrid" "quasiuniform1" "quasiuniform2"
+    "obsolete1" "obsolete2")
+set(PLACEMENTS "1" "3" "4" "6" "7" "-1" "-2")
+list(LENGTH PLACEMENTS NPLACES)
+math(EXPR NPLACES "${NPLACES}-1")
+# Check if OPENMP is supported, since we use omp_get_wtime function to measure
+# performance
+if(OPENMP)
+    # Then cycle over all supported configurations for electrodynamics tests
+    foreach(lrengine IN ITEMS ${LRENGINES})
+        foreach(kernel RANGE ${NKERNELS})
+            foreach(place RANGE ${NPLACES})
+                list(GET KERNAMES ${kernel} KERNAME)
+                list(GET KERCODES ${kernel} KERCODE)
+                list(GET PLACEMENTS ${place} placement)
+                list(GET PLACENAMES ${place} placename)
+                add_test(NAME
+                    electrodynamics_2d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND electrodynamics 2 ${placement} ${KERCODE} 6.0 1.0
+                    2500 500 90 1e-9)
+                set(test_env "MKL_NUM_THREADS=1"
+                    "STARSH_BACKEND=OPENMP"
+                    "STARSH_LRENGINE=${lrengine}")
+                set_tests_properties(
+                    electrodynamics_2d_${KERNAME}_${lrengine}_${placename}
+                    PROPERTIES ENVIRONMENT "${test_env}")
+                add_test(NAME
+                    electrodynamics_3d_${KERNAME}_${lrengine}_${placename}
+                    COMMAND electrodynamics 3 ${placement} ${KERCODE} 6.0 1.0
+                    3375 675 240 1e-9)
+                set_tests_properties(
+                    electrodynamics_3d_${KERNAME}_${lrengine}_${placename}
                     PROPERTIES ENVIRONMENT "${test_env}")
                 if(MPI)
                     add_test(NAME

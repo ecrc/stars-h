@@ -14,7 +14,7 @@
 #include "starsh.h"
 #include "starsh-electrostatics.h"
 
-int starsh_esdata_new(STARSH_esdata **data, size_t count, int ndim)
+int starsh_esdata_new(STARSH_esdata **data, STARSH_int count, int ndim)
 //! Allocate memory for @ref STARSH_esdata object.
 /*! This functions only allocates memory for particles without setting
  * coordinates to any value.
@@ -49,7 +49,7 @@ int starsh_esdata_new(STARSH_esdata **data, size_t count, int ndim)
     return STARSH_SUCCESS;
 }
 
-int starsh_esdata_init(STARSH_esdata **data, size_t count, int ndim,
+int starsh_esdata_init(STARSH_esdata **data, STARSH_int count, int ndim,
         double *point)
 //! Initialize @ref STARSH_esdata object by given data.
 /*! Array `point` should be stored in a special way: `x_1 x_2 ... x_count y_1
@@ -89,7 +89,7 @@ int starsh_esdata_init(STARSH_esdata **data, size_t count, int ndim,
     return STARSH_SUCCESS;
 }
 
-int starsh_esdata_generate(STARSH_esdata **data, size_t count, int ndim,
+int starsh_esdata_generate(STARSH_esdata **data, STARSH_int count, int ndim,
         enum STARSH_PARTICLES_PLACEMENT place)
 //! Generate @ref STARSH_esdata object by given distribution.
 /*! @param[out] data: Address of pointer to @ref STARSH_esdata object.
@@ -117,7 +117,7 @@ int starsh_esdata_generate(STARSH_esdata **data, size_t count, int ndim,
     return STARSH_SUCCESS;
 }
 
-int starsh_esdata_generate_va(STARSH_esdata **data, size_t count,
+int starsh_esdata_generate_va(STARSH_esdata **data, STARSH_int count,
         va_list args)
 //! Generate @ref STARSH_esdata object with incomplete set of parameters.
 /*! Parses possibly incomplete set of parameters for starsh_esdata_generate().
@@ -176,7 +176,7 @@ int starsh_esdata_generate_va(STARSH_esdata **data, size_t count,
     return info;
 }
 
-int starsh_esdata_generate_el(STARSH_esdata **data, size_t count, ...)
+int starsh_esdata_generate_el(STARSH_esdata **data, STARSH_int count, ...)
 //! Generate @ref STARSH_esdata object with incomplete set of parameters.
 /*! Parses possibly incomplete set of parameters for starsh_esdata_generate().
  * If argument is not in the `...`, then its default value is used:

@@ -12,7 +12,7 @@
  * will be replace by proposed values. If you want to use this file outside
  * STARS-H, simply do substitutions yourself.
  *
- * @file src/applications/electrodynamics/kernel_helmholtz_sin.c
+ * @file src/applications/electrodynamics/kernel_cos.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -27,13 +27,13 @@
 #define ndim @NDIM
 #endif
 
-void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd(STARSH_int nrows,
+void starsh_eddata_block_cos_kernel_@NDIMd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
         void *col_data, void *result, STARSH_int ld)
 //! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
- *      A_{ij} = \frac{sin(k r_{ij})}{r_{ij}},
+ *      A_{ij} = \frac{cos(k r_{ij})}{r_{ij}},
  * \f]
  * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
  * points and \f$ k \f$ is a wave number. No memory is allocated in this
@@ -43,15 +43,15 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd(STARSH_int nrows,
  * @param[in] ncols: Number of columns of \f$ A \f$.
  * @param[in] irow: Array of row indexes.
  * @param[in] icol: Array of column indexes.
- * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
- * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] row_data: Pointer to physical data (@ref STARSH_eddata object).
+ * @param[in] col_data: Pointer to physical data (@ref STARSH_eddata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_helmholtz_sin_kernel_1d(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_2d(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_3d(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_4d(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_nd().
+ * @sa starsh_eddata_block_cos_kernel_1d(),
+ *      starsh_eddata_block_cos_kernel_2d(),
+ *      starsh_eddata_block_cos_kernel_3d(),
+ *      starsh_eddata_block_cos_kernel_4d(),
+ *      starsh_eddata_block_cos_kernel_nd().
  * @ingroup app-electrodynamics-kernels
  * */
 {
@@ -62,13 +62,14 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd(STARSH_int nrows,
     // Read parameters
 // If dimensionality is not static
 #if (@NDIM == n)
-    int ndim = data1->ndim;
+    int ndim = data1->particles.ndim;
 #endif
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
-    double k = data1.k;
+    double wave_k = data1->k;
+    double diag = data1->diag;
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
     //#pragma omp simd
@@ -92,23 +93,23 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd(STARSH_int nrows,
                 dist += tmp*tmp;
             }
             if(dist == 0)
-                buffer[j*(size_t)ld+i] = 0.0;
+                buffer[j*(size_t)ld+i] = diag;
             else
             {
                 dist = sqrt(dist);
-                buffer[j*(size_t)ld+i] = sin(k*dist)/dist;
+                buffer[j*(size_t)ld+i] = cos(wave_k*dist)/dist;
             }
         }
     }
 }
 
-void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd_simd(STARSH_int nrows,
+void starsh_eddata_block_cos_kernel_@NDIMd_simd(STARSH_int nrows,
         STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
         void *col_data, void *result, STARSH_int ld)
 //! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
- *      A_{ij} = \frac{sin(k r_{ij})}{r_{ij}},
+ *      A_{ij} = \frac{cos(k r_{ij})}{r_{ij}},
  * \f]
  * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
  * points and \f$ k \f$ is a wave number. No memory is allocated in this
@@ -120,15 +121,15 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd_simd(STARSH_int nrows,
  * @param[in] ncols: Number of columns of \f$ A \f$.
  * @param[in] irow: Array of row indexes.
  * @param[in] icol: Array of column indexes.
- * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
- * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] row_data: Pointer to physical data (@ref STARSH_eddata object).
+ * @param[in] col_data: Pointer to physical data (@ref STARSH_eddata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_helmholtz_sin_kernel_1d_simd(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_2d_simd(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_3d_simd(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_4d_simd(),
- *      starsh_ssdata_block_helmholtz_sin_kernel_nd_simd().
+ * @sa starsh_eddata_block_cos_kernel_1d_simd(),
+ *      starsh_eddata_block_cos_kernel_2d_simd(),
+ *      starsh_eddata_block_cos_kernel_3d_simd(),
+ *      starsh_eddata_block_cos_kernel_4d_simd(),
+ *      starsh_eddata_block_cos_kernel_nd_simd().
  * @ingroup app-electrodynamics-kernels
  * */
 {
@@ -139,13 +140,14 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd_simd(STARSH_int nrows,
     // Read parameters
 // If dimensionality is not static
 #if (@NDIM == n)
-    int ndim = data1->ndim;
+    int ndim = data1->particles.ndim;
 #endif
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
     double *x1[ndim], *x2[ndim];
-    double k = data1.k;
+    double wave_k = data1->k;
+    double diag = data1->diag;
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
     #pragma omp simd
@@ -169,11 +171,11 @@ void starsh_eddata_block_helmholtz_sin_kernel_@NDIMd_simd(STARSH_int nrows,
                 dist += tmp*tmp;
             }
             if(dist == 0)
-                buffer[j*(size_t)ld+i] = 0.0;
+                buffer[j*(size_t)ld+i] = diag;
             else
             {
                 dist = sqrt(dist);
-                buffer[j*(size_t)ld+i] = sin(k*dist)/dist;
+                buffer[j*(size_t)ld+i] = cos(wave_k*dist)/dist;
             }
         }
     }

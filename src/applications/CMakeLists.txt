@@ -7,6 +7,7 @@ set(STARSH_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/common.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/spatial.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/electrostatics.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/electrodynamics.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/randtlr.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/minimal.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/particles.c"
