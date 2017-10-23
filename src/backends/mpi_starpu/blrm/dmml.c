@@ -599,7 +599,7 @@ int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
                 (uintptr_t)(temp_A+(j/grid_nx)*maxnb),
                 nrhs*(size_t)ld_temp_A-(j/grid_nx)*maxnb, sizeof(*temp_A));
         // fake task to make workhandle initialized
-        starpu_task_insert(&fake_codelet, STARPU_W, work_handle[bi], 0);
+        starpu_task_insert(&fake_codelet, STARPU_W, work_handle[lbi], 0);
         // Multiply low-rank matrix in U*V^T format by a dense matrix
         starpu_task_insert(&codelet, STARPU_VALUE, &T, sizeof(T),
                 STARPU_VALUE, &N, sizeof(N),
@@ -636,11 +636,11 @@ int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
         //cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, nrhs,
         //        rank, alpha, U, nrows, D, rank, 1.0, out+i/grid_ny*maxnb,
         //        ldout);
-        starpu_data_unregister_submit(work_handle[bi]);
-        starpu_data_unregister_submit(U_handle[bi]);
-        starpu_data_unregister_submit(V_handle[bi]);
-        starpu_data_unregister_submit(A_handle[bi]);
-        starpu_data_unregister_submit(B_handle[bi]);
+        starpu_data_unregister_submit(work_handle[lbi]);
+        starpu_data_unregister_submit(U_handle[lbi]);
+        starpu_data_unregister_submit(V_handle[lbi]);
+        starpu_data_unregister_submit(A_handle[lbi]);
+        starpu_data_unregister_submit(B_handle[lbi]);
     }
     starpu_task_wait_for_all();
     starpu_data_handle_t A3_handle[nblocks_near_local],

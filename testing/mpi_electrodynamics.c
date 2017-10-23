@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file testing/mpi_starpu_spatial.c
+ * @file testing/mpi_electrodynamics.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -19,10 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include <starpu.h>
 #include <string.h>
 #include "starsh.h"
-#include "starsh-spatial.h"
+#include "starsh-electrodynamics.h"
 
 int main(int argc, char **argv)
 {
@@ -34,10 +33,9 @@ int main(int argc, char **argv)
     {
         if(mpi_rank == 0)
         {
-            printf("%d arguments provided, but 9 are needed\n",
-                    argc-1);
-            printf("mpi_starpu_spatial ndim placement kernel beta nu N block_size "
-                    "maxrank tol\n");
+            printf("%d arguments provided, but 9 are needed\n", argc-1);
+            printf("mpi_electrodynamics ndim placement kernel k diag N "
+                    "block_size maxrank tol\n");
         }
         MPI_Finalize();
         return 1;
@@ -47,17 +45,17 @@ int main(int argc, char **argv)
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
     int kernel_type = atoi(argv[3]);
-    double beta = atof(argv[4]);
-    double nu = atof(argv[5]);
+    double k = atof(argv[4]);
+    double diag = atof(argv[5]);
     int N = atoi(argv[6]);
     int block_size = atoi(argv[7]);
     int maxrank = atoi(argv[8]);
     double tol = atof(argv[9]);
-    double noise = 0;
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2;
     STARSH_int shape[2] = {N, N};
+    int nrhs = 1;
     int info;
     srand(0);
     // Init STARS-H
@@ -67,13 +65,16 @@ int main(int argc, char **argv)
         MPI_Finalize();
         return 1;
     }
-    // Generate data for spatial statistics problem
-    STARSH_ssdata *data;
+    // Generate data for electrodynamics problem
+    STARSH_eddata *data;
     STARSH_kernel *kernel;
     info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
-            STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_ELECTRODYNAMICS, kernel_type,
+            STARSH_ELECTRODYNAMICS_NDIM, problem_ndim,
+            STARSH_ELECTRODYNAMICS_PLACE, place,
+            STARSH_ELECTRODYNAMICS_K, k,
+            STARSH_ELECTRODYNAMICS_DIAG, diag,
+            0);
     if(info != 0)
     {
         if(mpi_rank == 0)
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
-            kernel, "Spatial Statistics example");
+            kernel, "Electrodynamics example");
     if(info != 0)
     {
         MPI_Finalize();
@@ -113,8 +114,6 @@ int main(int argc, char **argv)
     }
     if(mpi_rank == 0)
         starsh_blrf_info(F);
-    // Init StarPU
-    (void)starpu_init(NULL);
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
@@ -132,9 +131,8 @@ int main(int argc, char **argv)
     {
         starsh_blrf_info(F);
         starsh_blrm_info(M);
-    }
-    if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    }
     // Measure approximation error
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
@@ -159,7 +157,6 @@ int main(int argc, char **argv)
     }
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y, *y_tlr;
-    int nrhs = 1;
     x = malloc(N*nrhs*sizeof(*x));
     y = malloc(N*nrhs*sizeof(*y));
     y_tlr = malloc(N*nrhs*sizeof(*y_tlr));
@@ -193,7 +190,6 @@ int main(int argc, char **argv)
         printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, y_tlr, 1)
                 /cblas_dnrm2(N, y, 1));
     }
-    starpu_shutdown();
     MPI_Finalize();
     return 0;
 }

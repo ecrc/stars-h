@@ -36,7 +36,7 @@ int main(int argc, char **argv)
             printf("mpi_minimal N block_size maxrank tol\n");
         }
         MPI_Finalize();
-        exit(0);
+        return 1;
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
     int maxrank = atoi(argv[3]);
@@ -45,46 +45,75 @@ int main(int argc, char **argv)
     char dtype = 'd', symm = 'N';
     int ndim = 2;
     STARSH_int shape[2] = {N, N};
-    if(mpi_rank == 0)
-        printf("PARAMS: N=%d NB=%d TOL=%e\n", N, block_size, tol);
+    int info;
+    srand(0);
     // Init STARS-H
-    starsh_init();
+    info = starsh_init();
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     // Generate data for spatial statistics problem
     STARSH_mindata *data;
     STARSH_kernel *kernel;
     //starsh_gen_ssdata(&data, &kernel, n, beta);
-    starsh_application((void **)&data, &kernel, N, dtype, STARSH_MINIMAL,
-            STARSH_MINIMAL_KERNEL1, 0);
+    info = starsh_application((void **)&data, &kernel, N, dtype,
+            STARSH_MINIMAL, STARSH_MINIMAL_KERNEL1, 0);
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
-    starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
+    info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
             kernel, "Minimal example");
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     if(mpi_rank == 0)
         starsh_problem_info(P); 
     // Init plain clusterization and print info
     STARSH_cluster *C;
-    starsh_cluster_new_plain(&C, data, N, block_size);
+    info = starsh_cluster_new_plain(&C, data, N, block_size);
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     if(mpi_rank == 0)
         starsh_cluster_info(C);
     // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    starsh_blrf_new_tlr_mpi(&F, P, symm, C, C);
+    info = starsh_blrf_new_tlr_mpi(&F, P, symm, C, C);
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     if(mpi_rank == 0)
         starsh_blrf_info(F);
     // Approximate each admissible block
     MPI_Barrier(MPI_COMM_WORLD);
     double time1 = MPI_Wtime();
-    starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
+    info = starsh_blrm_approximate(&M, F, maxrank, tol, onfly);
+    if(info != 0)
+    {
+        MPI_Finalize();
+        return 1;
+    }
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime()-time1;
     if(mpi_rank == 0)
     {
         starsh_blrf_info(F);
         starsh_blrm_info(M);
-    }
-    if(mpi_rank == 0)
         printf("TIME TO APPROXIMATE: %e secs\n", time1);
+    }
     // Measure approximation error
     MPI_Barrier(MPI_COMM_WORLD);
     time1 = MPI_Wtime();
@@ -99,13 +128,11 @@ int main(int argc, char **argv)
         {
             printf("Resulting relative error is too big\n");
             MPI_Finalize();
-            exit(1);
+            return 1;
         }
     }
     if(rel_err/tol > 10.)
-        exit(1);
-    // Flush STDOUT, since next step is very time consuming
-    fflush(stdout);
+        return 1;
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     double *x, *y, *y_tlr;
     int nrhs = 1;

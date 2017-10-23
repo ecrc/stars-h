@@ -14,7 +14,7 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 
-int starsh_ssdata_new(STARSH_ssdata **data, size_t count, int ndim)
+int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
 //! Allocate memory for @ref STARSH_ssdata object.
 /*! This functions only allocates memory for particles without setting
  * coordinates to any value.
@@ -49,7 +49,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, size_t count, int ndim)
     return STARSH_SUCCESS;
 }
 
-int starsh_ssdata_init(STARSH_ssdata **data, size_t count, int ndim,
+int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
         double *point, double beta, double nu, double noise, double sigma)
 //! Initialize @ref STARSH_ssdata object by given data.
 /*! Array `point` should be stored in a special way: `x_1 x_2 ... x_count y_1
@@ -117,7 +117,7 @@ int starsh_ssdata_init(STARSH_ssdata **data, size_t count, int ndim,
     return STARSH_SUCCESS;
 }
 
-int starsh_ssdata_generate(STARSH_ssdata **data, size_t count, int ndim,
+int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
         double beta, double nu, double noise,
         enum STARSH_PARTICLES_PLACEMENT place, double sigma)
 //! Generate @ref STARSH_ssdata object by given distribution.
@@ -177,7 +177,7 @@ int starsh_ssdata_generate(STARSH_ssdata **data, size_t count, int ndim,
     return STARSH_SUCCESS;
 }
 
-int starsh_ssdata_generate_va(STARSH_ssdata **data, size_t count,
+int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
         va_list args)
 //! Generate @ref STARSH_ssdata object with incomplete set of parameters.
 /*! Parses possibly incomplete set of parameters for starsh_ssdata_generate().
@@ -257,7 +257,7 @@ int starsh_ssdata_generate_va(STARSH_ssdata **data, size_t count,
     return info;
 }
 
-int starsh_ssdata_generate_el(STARSH_ssdata **data, size_t count, ...)
+int starsh_ssdata_generate_el(STARSH_ssdata **data, STARSH_int count, ...)
 //! Generate @ref STARSH_ssdata object with incomplete set of parameters.
 /*! Parses possibly incomplete set of parameters for starsh_ssdata_generate().
  * If argument is not in the `...`, then its default value is used:
@@ -361,7 +361,7 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
 #endif
         default:
             STARSH_ERROR("Wrong type of kernel");
-            return STARSH_WRONG_PARAMETER;;
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }

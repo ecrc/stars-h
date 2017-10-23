@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file testing/spatial.c
+ * @file testing/electrostatics.c
  * @version 1.0.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -21,14 +21,14 @@
 #include <omp.h>
 #include <string.h>
 #include "starsh.h"
-#include "starsh-spatial.h"
+#include "starsh-electrostatics.h"
 
 int main(int argc, char **argv)
 {
-    if(argc != 10)
+    if(argc != 8)
     {
-        printf("%d arguments provided, but 9 are needed\n", argc-1);
-        printf("spatial ndim placement kernel beta nu N block_size maxrank"
+        printf("%d arguments provided, but 7 are needed\n", argc-1);
+        printf("electrostatics ndim placement kernel N block_size maxrank"
                 " tol\n");
         return 1;
     }
@@ -37,13 +37,10 @@ int main(int argc, char **argv)
     // Possible values can be found in documentation for enum
     // STARSH_PARTICLES_PLACEMENT
     int kernel_type = atoi(argv[3]);
-    double beta = atof(argv[4]);
-    double nu = atof(argv[5]);
-    int N = atoi(argv[6]);
-    int block_size = atoi(argv[7]);
-    int maxrank = atoi(argv[8]);
-    double tol = atof(argv[9]);
-    double noise = 0;
+    int N = atoi(argv[4]);
+    int block_size = atoi(argv[5]);
+    int maxrank = atoi(argv[6]);
+    double tol = atof(argv[7]);
     int onfly = 0;
     char symm = 'N', dtype = 'd';
     int ndim = 2;
@@ -55,14 +52,13 @@ int main(int argc, char **argv)
     info = starsh_init();
     if(info != 0)
         return info;
-    // Generate data for spatial statistics problem
-    STARSH_ssdata *data;
+    // Generate data for electrostatics problem
+    STARSH_esdata *data;
     STARSH_kernel *kernel;
-    //starsh_gen_ssdata(&data, &kernel, n, beta);
     info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
-            STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+            STARSH_ELECTROSTATICS, kernel_type,
+            STARSH_ELECTROSTATICS_NDIM, problem_ndim,
+            STARSH_ELECTROSTATICS_PLACE, place, 0);
     if(info != 0)
     {
         printf("Problem was NOT generated (wrong parameters)\n");
@@ -71,7 +67,7 @@ int main(int argc, char **argv)
     // Init problem with given data and kernel and print short info
     STARSH_problem *P;
     info = starsh_problem_new(&P, ndim, shape, symm, dtype, data, data,
-            kernel, "Spatial Statistics example");
+            kernel, "Electrostatics example");
     if(info != 0)
         return info;
     starsh_problem_info(P);
@@ -84,7 +80,9 @@ int main(int argc, char **argv)
     // Init tlr division into admissible blocks and print short info
     STARSH_blrf *F;
     STARSH_blrm *M;
-    starsh_blrf_new_tlr(&F, P, symm, C, C);
+    info = starsh_blrf_new_tlr(&F, P, symm, C, C);
+    if(info != 0)
+        return info;
     starsh_blrf_info(F);
     // Approximate each admissible block
     double time1 = omp_get_wtime();

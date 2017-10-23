@@ -13,8 +13,11 @@
 #include "common.h"
 #include "starsh.h"
 #include "starsh-spatial.h"
+#include "starsh-electrostatics.h"
+#include "starsh-electrodynamics.h"
 #include "starsh-minimal.h"
 #include "starsh-randtlr.h"
+#include "starsh-cauchy.h"
 
 int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
         char dtype, int problem_type, int kernel_type, ...)
@@ -67,6 +70,36 @@ int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
             if(info != STARSH_SUCCESS)
                 return info;
             info = starsh_ssdata_get_kernel(kernel, *data, kernel_type);
+            if(info != STARSH_SUCCESS)
+                return info;
+            break;
+        case STARSH_ELECTROSTATICS:
+            // Since electrostatics supports only double precision, dtype
+            // is ignored
+            info = starsh_esdata_generate_va((STARSH_esdata **)data, count,
+                    args);
+            if(info != STARSH_SUCCESS)
+                return info;
+            info = starsh_esdata_get_kernel(kernel, *data, kernel_type);
+            if(info != STARSH_SUCCESS)
+                return info;
+            break;
+        case STARSH_ELECTRODYNAMICS:
+            // Since electrodynamics supports only double precision, dtype
+            // is ignored
+            info = starsh_eddata_generate_va((STARSH_eddata **)data, count,
+                    args);
+            if(info != STARSH_SUCCESS)
+                return info;
+            info = starsh_eddata_get_kernel(kernel, *data, kernel_type);
+            if(info != STARSH_SUCCESS)
+                return info;
+            break;
+        case STARSH_CAUCHY:
+            info = starsh_cauchy_new_va((STARSH_cauchy **)data, count, args);
+            if(info != STARSH_SUCCESS)
+                return info;
+            info = starsh_cauchy_get_kernel(kernel, *data, kernel_type);
             if(info != STARSH_SUCCESS)
                 return info;
             break;
