@@ -2,6 +2,8 @@
 set(STARSH_PUB_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-spatial.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-electrostatics.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-electrodynamics.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-randtlr.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-minimal.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-constants.h"
