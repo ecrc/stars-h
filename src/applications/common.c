@@ -34,7 +34,11 @@ int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
  * @param[in] problem_type: Type of problem.
  * @param[in] kernel_type: Type of kernel, depends on problem.
  * @sa starsh_ssdata_generate(), starsh_ssdata_get_kernel(),
- *      starsh_randtlr_generate(), starsh_randtlr_get_kernel().
+ *      starsh_randtlr_generate(), starsh_randtlr_get_kernel(),
+ *      starsh_esdata_generate(), starsh_esdata_get_kernel(),
+ *      starsh_eddata_generate(), starsh_eddata_get_kernel(),
+ *      starsh_cauchy_new(), starsh_cauchy_get_kernel(),
+ *      starsh_mindata_new(), starsh_mindata_get_kernel().
  * @ingroup applications
  */
 {

@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     printf("TIME TO APPROXIMATE: %e secs\n", time1);
     // Measure approximation error
     time1 = omp_get_wtime();
-    double rel_err = starsh_blrm__dfe_omp(M);
+    double rel_err = starsh_blrm__dfe(M);
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
         return 1;
     }
     // Measure time for 10 matvecs
+    /* Not performed due to no matvec yet with STARPU
     double *x, *y;
     int nrhs = 1;
     x = malloc(N*nrhs*sizeof(*x));
@@ -108,9 +109,10 @@ int main(int argc, char **argv)
     cblas_dscal(N*nrhs, 0.0, y, 1);
     time1 = omp_get_wtime();
     for(int i = 0; i < 10; i++)
-        starsh_blrm__dmml_starpu(M, nrhs, 1.0, x, N, 0.0, y, N);
+        starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);
     time1 = omp_get_wtime()-time1;
     printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
+    */
     // Deinit StarPU
     starpu_shutdown();
     return 0;

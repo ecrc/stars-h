@@ -27,9 +27,9 @@
 #define ndim @NDIM
 #endif
 
-void starsh_ssdata_block_matern_kernel_@NDIMd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -65,7 +65,7 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(STARSH_int nrows,
  * @ingroup app-spatial-kernels
  * */
 {
-    STARSH_int i, j, k;
+    int i, j, k;
     STARSH_ssdata *data1 = row_data;
     STARSH_ssdata *data2 = col_data;
     double tmp, dist;
@@ -117,9 +117,9 @@ void starsh_ssdata_block_matern_kernel_@NDIMd(STARSH_int nrows,
     }
 }
 
-void starsh_ssdata_block_matern_kernel_@NDIMd_simd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
 //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -157,7 +157,7 @@ void starsh_ssdata_block_matern_kernel_@NDIMd_simd(STARSH_int nrows,
  * @ingroup app-spatial-kernels
  * */
 {
-    STARSH_int i, j, k;
+    int i, j, k;
     STARSH_ssdata *data1 = row_data;
     STARSH_ssdata *data2 = col_data;
     double tmp, dist;

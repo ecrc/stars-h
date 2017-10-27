@@ -49,10 +49,6 @@ if(MPI AND STARPU)
         )
 endif()
 
-if(PLASMA)
-    #list(APPEND tests_files "plasma/solve.c")
-endif()
-
 # Uses RUNPATH instead of RPATH
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 

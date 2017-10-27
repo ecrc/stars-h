@@ -23,7 +23,7 @@
 #include "starsh-constants.h"
 
 //! STARSH types for integers to support indexing
-#define STARSH_int ssize_t
+typedef ssize_t STARSH_int;
 
 //! Structure for STARS-H parameters
 struct starsh_params
@@ -49,10 +49,10 @@ typedef struct starsh_cluster STARSH_cluster;
 typedef struct starsh_blrf STARSH_blrf;
 typedef struct starsh_blrm STARSH_blrm;
 
-//! typedef for kernels
-typedef void (STARSH_kernel)(STARSH_int nrows, STARSH_int ncols,
-        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result, STARSH_int ld);
+////! @typedef STARSH_kernel
+typedef void STARSH_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
 
 /*! @defgroup applications Applications
  * @brief Set of applications
@@ -178,8 +178,8 @@ int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
         STARSH_kernel *kernel, char *name);
 void starsh_problem_free(STARSH_problem *problem);
 void starsh_problem_info(STARSH_problem *problem);
-int starsh_problem_get_block(STARSH_problem *problem, STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, Array **A);
+int starsh_problem_get_block(STARSH_problem *problem, int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, Array **A);
 int starsh_problem_from_array(STARSH_problem **problem, Array *A, char symm);
 int starsh_problem_to_array(STARSH_problem *problem, Array **A);
 
@@ -467,42 +467,74 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
  * @brief Approximation schemes for dense matrices
  * */
 
-typedef int (STARSH_blrm_approximate)(STARSH_blrm **matrix,
-        STARSH_blrf *format, int maxrank, double tol, int onfly);
+typedef int STARSH_blrm_approximate(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
 STARSH_blrm_approximate *starsh_blrm_approximate;
-STARSH_blrm_approximate starsh_blrm__dsdd, starsh_blrm__drsdd,
-    starsh_blrm__dqp3, starsh_blrm__dna;
-STARSH_blrm_approximate starsh_blrm__dsdd_omp, starsh_blrm__drsdd_omp,
-    starsh_blrm__dqp3_omp, starsh_blrm__dna_omp;
-STARSH_blrm_approximate starsh_blrm__dsdd_mpi, starsh_blrm__drsdd_mpi,
-    starsh_blrm__dqp3_mpi, starsh_blrm__dna_mpi;
-STARSH_blrm_approximate starsh_blrm__dsdd_starpu, starsh_blrm__drsdd_starpu,
-    starsh_blrm__dqp3_starpu;
-STARSH_blrm_approximate starsh_blrm__dsdd_mpi_starpu,
-                        starsh_blrm__drsdd_mpi_starpu,
-                        starsh_blrm__dqp3_mpi_starpu;
 
+int starsh_blrm__dsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
+        double tol, int onfly);
+int starsh_blrm__drsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
+        double tol, int onfly);
+int starsh_blrm__dqp3(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
+        double tol, int onfly);
+//int starsh_blrm__dna(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
+//        double tol, int onfly);
+
+int starsh_blrm__dsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__drsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__dqp3_omp(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+//int starsh_blrm__dna_omp(STARSH_blrm **matrix, STARSH_blrf *format,
+//        int maxrank, double tol, int onfly);
+
+int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__drsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__dna_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+
+int starsh_blrm__dsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__drsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__dqp3_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+//int starsh_blrm__dna_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+//        int maxrank, double tol, int onfly);
+
+int starsh_blrm__dsdd_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__drsdd_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+        int maxrank, double tol, int onfly);
+//int starsh_blrm__dna_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
+//        int maxrank, double tol, int onfly);
 
 int starsh_dense_dsvfr(int size, double *S, double tol);
 
-typedef int (STARSH_blrm__dmml)(STARSH_blrm *matrix, int nrhs, double alpha,
+int starsh_blrm__dmml(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
-STARSH_blrm__dmml starsh_blrm__dmml, starsh_blrm__dmml_omp,
-                  starsh_blrm__dmml_mpi, starsh_blrm__dmml_mpi_tlr,
-                  starsh_blrm__dmml_starpu, starsh_blrm__dmml_mpi_starpu,
-                  starsh_blrm__dmml_mpi_starpu_tlr;
+int starsh_blrm__dmml_omp(STARSH_blrm *matrix, int nrhs, double alpha,
+        double *A, int lda, double beta, double *B, int ldb);
+int starsh_blrm__dmml_mpi(STARSH_blrm *matrix, int nrhs, double alpha,
+        double *A, int lda, double beta, double *B, int ldb);
+int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
+        double *A, int lda, double beta, double *B, int ldb);
+//int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
+//        double *A, int lda, double beta, double *B, int ldb);
+//int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
+//        double alpha, double *A, int lda, double beta, double *B, int ldb);
 
 double starsh_blrm__dfe(STARSH_blrm *matrix);
 double starsh_blrm__dfe_omp(STARSH_blrm *matrix);
 double starsh_blrm__dfe_mpi(STARSH_blrm *matrix);
 int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
-
-//! Type for low-rank approximations of a dense double-precision matrix
-//typedef void STARSH_dense_dlr(int nrows, int ncols, double *D, double *U,
-//        double *V, int *rank, int maxrank, double tol, double *work,
-//        int lwork, int *iwork);
-//STARSH_dense_dlr *starsh_dense_dlr, starsh_dense_dlrsdd, starsh_dense_dlrrsdd,
-//        starsh_dense_dlrrsdd2, starsh_dense_dlrqp3, starsh_dense_dlrna;
 
 void starsh_dense_dlrsdd(int nrows, int ncols, double *D, int ldD, double *U,
         int ldU, double *V, int ldV, int *rank, int maxrank, double tol,
@@ -528,7 +560,5 @@ int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);
 int starsh_itersolvers__dcg_mpi(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);
-
-int cmp_size_t(const void *a, const void *b);
 
 #endif // __STARSH_H__

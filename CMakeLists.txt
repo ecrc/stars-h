@@ -42,10 +42,7 @@ option(STARPU "Use StarPU" ON)
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
 option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
-
-# Set desired external libraries
-# One may use -DPLASMA=OFF to disable wrappers for PLASMA
-option(PLASMA "Wrappers for PLASMA" OFF)
+option(GSL "Use special functions from Gnu Scientific Library" ON)
 
 # Options for examples, testing and documentation
 option(EXAMPLES "Generate examples binaries" ON)
@@ -141,27 +138,17 @@ if(MPI)
     endif()
 endif()
 
-# Check if PLASMA is available to build wrappers
-if(PLASMA)
-    pkg_search_module(PLASMA plasma>=3.0.0)
-    if(PLASMA_FOUND)
-        include_directories(${PLASMA_INCLUDE_DIRS})
-        link_directories(${PLASMA_LIBRARY_DIRS})
-        add_definitions("-DPLASMA")
-        #list(APPEND REQUIRES ${PLASMA_LIBRARIES})
-        message(STATUS "PLASMA ${PLASMA_VERSION} found")
-    else()
-        message("PLASMA is NOT found, skipping it")
-        set(PLASMA OFF)
-    endif()
-endif()
-
 # Check if GNU Scientific Library is available (for Matern kernel and
 # Bessel function)
-find_package(GSL)
-if(GSL_FOUND)
-    include_directories(${GSL_INCLUDE_DIRS})
-    add_definitions("-DGSL")
+if(GSL)
+    find_package(GSL)
+    if(GSL_FOUND)
+        include_directories(${GSL_INCLUDE_DIRS})
+        add_definitions("-DGSL")
+    else()
+        message("GSL has not been found, skipping it")
+        set(GSL OFF)
+    endif()
 endif()
 
 # Find BLAS and set it to parallel if USE_PARALLEL_BLAS is ON

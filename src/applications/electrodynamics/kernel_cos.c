@@ -27,9 +27,9 @@
 #define ndim @NDIM
 #endif
 
-void starsh_eddata_block_cos_kernel_@NDIMd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_eddata_block_cos_kernel_@NDIMd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
 //! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -55,7 +55,7 @@ void starsh_eddata_block_cos_kernel_@NDIMd(STARSH_int nrows,
  * @ingroup app-electrodynamics-kernels
  * */
 {
-    STARSH_int i, j, k;
+    int i, j, k;
     STARSH_eddata *data1 = row_data;
     STARSH_eddata *data2 = col_data;
     double tmp, dist;
@@ -103,9 +103,9 @@ void starsh_eddata_block_cos_kernel_@NDIMd(STARSH_int nrows,
     }
 }
 
-void starsh_eddata_block_cos_kernel_@NDIMd_simd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_eddata_block_cos_kernel_@NDIMd_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
 //! Helmholtz cos for @NDIM-dimensional electrodynamics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -133,7 +133,7 @@ void starsh_eddata_block_cos_kernel_@NDIMd_simd(STARSH_int nrows,
  * @ingroup app-electrodynamics-kernels
  * */
 {
-    STARSH_int i, j, k;
+    int i, j, k;
     STARSH_eddata *data1 = row_data;
     STARSH_eddata *data2 = col_data;
     double tmp, dist;

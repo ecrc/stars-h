@@ -91,6 +91,8 @@ int starsh_randtlr_get_kernel(STARSH_kernel **kernel, STARSH_randtlr *data,
 void starsh_randtlr_free(STARSH_randtlr *data);
 
 // KERNELS
-STARSH_kernel starsh_randtlr_block_kernel;
+void starsh_randtlr_block_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
 
 #endif // __STARSH_RANDTLR_H__

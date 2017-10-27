@@ -52,12 +52,14 @@ enum STARSH_MINIMAL_KERNEL
     //!< The only kernel.
 };
 
-int starsh_mindata_new(STARSH_mindata **data, STARSH_int n, char dtype);
+int starsh_mindata_new(STARSH_mindata **data, STARSH_int count, char dtype);
 void starsh_mindata_free(STARSH_mindata *data);
 int starsh_mindata_get_kernel(STARSH_kernel **kernel, STARSH_mindata *data,
         enum STARSH_MINIMAL_KERNEL type);
 
 // KERNELS
-STARSH_kernel starsh_mindata_block_kernel;
+void starsh_mindata_block_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
 
 #endif // __STARSH_MINIMAL_H__

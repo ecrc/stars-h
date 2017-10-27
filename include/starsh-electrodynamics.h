@@ -41,7 +41,7 @@ typedef struct starsh_eddata
     //char dtype;
     ////!< Precision of each matrix element (double, single etc).
     double k;
-    //!< Characteristical wave length.
+    //!< Characteristical wave number.
     double diag;
     //!< Value of diagonal elements.
 } STARSH_eddata;
@@ -111,26 +111,69 @@ void starsh_eddata_free(STARSH_eddata *data);
 
 // KERNELS
 
-STARSH_kernel starsh_eddata_block_sin_kernel_1d_simd,
-              starsh_eddata_block_sin_kernel_1d,
-              starsh_eddata_block_sin_kernel_2d_simd,
-              starsh_eddata_block_sin_kernel_2d,
-              starsh_eddata_block_sin_kernel_3d_simd,
-              starsh_eddata_block_sin_kernel_3d,
-              starsh_eddata_block_sin_kernel_4d_simd,
-              starsh_eddata_block_sin_kernel_4d,
-              starsh_eddata_block_sin_kernel_nd_simd,
-              starsh_eddata_block_sin_kernel_nd;
+void starsh_eddata_block_sin_kernel_1d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_sin_kernel_2d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_sin_kernel_3d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_sin_kernel_4d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_sin_kernel_nd(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
 
-STARSH_kernel starsh_eddata_block_cos_kernel_1d_simd,
-              starsh_eddata_block_cos_kernel_1d,
-              starsh_eddata_block_cos_kernel_2d_simd,
-              starsh_eddata_block_cos_kernel_2d,
-              starsh_eddata_block_cos_kernel_3d_simd,
-              starsh_eddata_block_cos_kernel_3d,
-              starsh_eddata_block_cos_kernel_4d_simd,
-              starsh_eddata_block_cos_kernel_4d,
-              starsh_eddata_block_cos_kernel_nd_simd,
-              starsh_eddata_block_cos_kernel_nd;
+void starsh_eddata_block_sin_kernel_1d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_sin_kernel_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_sin_kernel_3d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_sin_kernel_4d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_sin_kernel_nd_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+
+void starsh_eddata_block_cos_kernel_1d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_cos_kernel_2d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_cos_kernel_3d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_cos_kernel_4d(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+void starsh_eddata_block_cos_kernel_nd(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
+
+void starsh_eddata_block_cos_kernel_1d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_cos_kernel_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_cos_kernel_3d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_cos_kernel_4d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_eddata_block_cos_kernel_nd_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
 
 #endif // __STARSH_ELECTRODYNAMICS_H__
+

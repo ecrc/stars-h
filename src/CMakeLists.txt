@@ -4,8 +4,6 @@ set(STARSH_SRC)
 add_subdirectory("control")
 # Get code for applications
 add_subdirectory("applications")
-# Connection with other libraries (PLASMA)
-add_subdirectory("external")
 # Add some tools loke iterative solvers
 add_subdirectory("itersolvers")
 
@@ -28,9 +26,6 @@ if(MPI)
     set_target_properties(starsh PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     target_link_libraries(starsh PUBLIC ${MPI_C_LIBRARIES})
 endif(MPI)
-if(PLASMA)
-    target_link_libraries(starsh PUBLIC ${PLASMA_LIBRARIES})
-endif()
 
 # Install STARSH library
 install(TARGETS starsh

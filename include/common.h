@@ -118,4 +118,6 @@
     }\
 }
 
+int cmp_size_t(const void *a, const void *b);
+
 #endif // __COMMON_H__

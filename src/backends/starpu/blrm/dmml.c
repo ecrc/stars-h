@@ -13,8 +13,11 @@
 #include "starsh.h"
 #include "common.h"
 
-int starsh_blrm__dmml_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
-        double *A, int lda, double beta, double *B, int ldb)
+// Compilation of this file should file because it is intended to fail
+// This fail is commented due to bug
+
+//int starsh_blrm__dmml_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
+//        double *A, int lda, double beta, double *B, int ldb)
 //! Multiply blr-matrix by dense matrix.
 /*! Performs `C=alpha*A*B+beta*C` with @ref STARSH_blrm `A` and dense matrices
  * `B` and `C`. All the integer types are int, since they are used in BLAS

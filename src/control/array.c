@@ -814,7 +814,7 @@ int array_diff(Array *A, Array *B, double *result)
 //! Measure Frobenius error of approximation of `A` by `B`.
 /*! @param[in] A: Pointer to @ref array object.
  * @param[in] B: Pointer to @ref array object.
- * @param[out]: Address of result.
+ * @param[out] result: Address of result.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
@@ -903,7 +903,7 @@ int array_diff(Array *A, Array *B, double *result)
 int array_norm(Array *A, double *result)
 //! Measure Frobenius norm of `A`.
 /*! @param[in] A: Pointer to @ref array object.
- * @param[out]: Address of result.
+ * @param[out] result: Address of result.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
@@ -941,7 +941,7 @@ int array_convert(Array **A, Array *B, char dtype)
 //! Create `A` as a copy of `B` with different data type (precision).
 /*! @param[out] A: Address of pointer to @ref array object.
  * @param[in] B: Pointer to @ref array object.
- * @param[in]: New data type (precision).
+ * @param[in] dtype: New data type (precision).
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
