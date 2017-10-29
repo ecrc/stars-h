@@ -7,13 +7,13 @@ pipeline {
 //// By agent label:
 //      agent { label 'sandybridge' }
 
-        agent { label 'Almaha' }
-        triggers {
-                pollSCM('H/10 * * * *')
-        }
-        environment {
-                XX="gcc"
-        }
+    agent { label 'Almaha' }
+    triggers {
+        pollSCM('H/10 * * * *')
+    }
+    environment {
+        XX="gcc"
+    }
 
     options {
         disableConcurrentBuilds()
@@ -21,23 +21,23 @@ pipeline {
         timestamps()
     }
 
-        stages {
-                stage ('build') {
-                        steps {
-                                sh "jenkins-scripts/build.sh"
-                        }
-                }
-                stage ('test') {
-                        steps {
-                                sh "jenkins-scripts/test.sh"
-                                archiveArtifacts allowEmptyArchive: true, artifacts: 'build/install-dir/starsh.tgz'
-                        }
-                }
-                stage ('docs') {
-                        steps {
-                                sh "cd $WORKSPACE/build && make docs"
-                                publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
-                        }
-                }
+    stages {
+        stage ('build') {
+            steps {
+                sh "jenkins-scripts/build.sh"
+            }
         }
+        stage ('test') {
+            steps {
+                sh "jenkins-scripts/test.sh"
+                archiveArtifacts allowEmptyArchive: true, artifacts: 'build/install-dir/starsh.tgz'
+            }
+        }
+        stage ('docs') {
+            steps {
+                sh "cd $WORKSPACE/build && make docs"
+                publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
+            }
+        }
+    }
 }
