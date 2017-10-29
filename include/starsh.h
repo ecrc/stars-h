@@ -13,64 +13,114 @@
 #ifndef __STARSH_H__
 #define __STARSH_H__
 
-// Add definitions for size_t and ssize_t
+// Add definitions for size_t and ssize_t.
 #include <sys/types.h>
 
-// Add definition for va_args
+// Add definition for va_args.
 #include <stdarg.h>
 
-// Add definitions for enumerated constants
+// Add definitions for enumerated constants.
 #include "starsh-constants.h"
 
-//! STARSH types for integers to support indexing
-typedef ssize_t STARSH_int;
 
-//! Structure for STARS-H parameters
+///////////////////////////////////////////////////////////////////////////////
+//                                ENVIRONMENT                                //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup environment Environment
+ * @brief Routines for environmentally controlled parameters.
+ * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
+
+//! Structure for built-in STARS-H parameters.
 struct starsh_params
 {
     enum STARSH_BACKEND backend;
+    //!< What backend to use (e.g. MPI or STARPU).
     enum STARSH_LRENGINE lrengine;
+    //!< What low-rank engine to use (e.g. RSVD).
     int oversample;
+    //!< Oversampling parameter for RSVD and RRQR.
 };
 
-//! Runtime parameters of STARS-H
+//! Built-in parameters of STARS-H, accessible through environment.
 extern struct starsh_params starsh_params;
 
-//! Init functions for STARS-H
 int starsh_init();
 int starsh_set_backend(const char *string);
 int starsh_set_lrengine(const char *string);
 int starsh_set_oversample(const char *string);
 
-//! typedef for different structures
-typedef struct array Array;
-typedef struct starsh_problem STARSH_problem;
-typedef struct starsh_cluster STARSH_cluster;
-typedef struct starsh_blrf STARSH_blrf;
-typedef struct starsh_blrm STARSH_blrm;
+//! @}
+// End of group
 
-////! @typedef STARSH_kernel
+
+///////////////////////////////////////////////////////////////////////////////
+//                                 TYPEDEF                                   //
+///////////////////////////////////////////////////////////////////////////////
+
+//! STARSH signed integer to support more, than MAX_INT rows/columns.
+typedef ssize_t STARSH_int;
+
+//! Typedef for kernels
+//! @ingroup applications
 typedef void STARSH_kernel(int nrows, int ncols, STARSH_int *irow,
         STARSH_int *icol, void *row_data, void *col_data, void *result,
         int ld);
 
+//! Typedef for @ref ::array
+//! @ingroup array
+typedef struct array Array;
+
+//! Typedef for [problem](@ref ::starsh_problem)
+//! @ingroup problem
+typedef struct starsh_problem STARSH_problem;
+
+//! Typedef for [cluster](@ref ::starsh_cluster)
+//! @ingroup cluster
+typedef struct starsh_cluster STARSH_cluster;
+
+//! Typedef for [block-wise low-rank format](@ref ::starsh_blrf)
+//! @ingroup blrf
+typedef struct starsh_blrf STARSH_blrf;
+
+//! Typedef for [block-wise low-rank matrix](@ref ::starsh_blrm)
+//! @ingroup blrm
+typedef struct starsh_blrm STARSH_blrm;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                               APPLICATIONS                                //
+///////////////////////////////////////////////////////////////////////////////
+
 /*! @defgroup applications Applications
  * @brief Set of applications
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
-//! High-level API for generating problem
-//! @ingroup applications
 int starsh_application(void **data, STARSH_kernel **kernel, STARSH_int count,
         char dtype, int problem_type, int kernel_type, ...);
+
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                   ARRAY                                   //
+///////////////////////////////////////////////////////////////////////////////
 
 /*! @defgroup array Array
  * @brief Routines for n-dimensional arrays
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 struct array
 //! N-dimensional array.
-//! @ingroup array
-//! Simplifies debugging.
+/*! Simplifies debugging.
+ * */
 {
     int ndim;
     //!< Number of dimensions of array.
@@ -119,9 +169,19 @@ int array_norm(Array *A, double *result);
 int array_convert(Array **A, Array *B, char dtype);
 int array_cholesky(Array *A, char uplo);
 
-/*! @defgroup problem STARSH_problem
- * @brief Routines for @ref STARSH_problem
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                  PROBLEM                                  //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup problem Problem
+ * @brief Routines for @ref ::STARSH_problem
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 struct starsh_problem
 //! Matrix/tensor in matrix/tensor-free form.
@@ -131,27 +191,28 @@ struct starsh_problem
  * entry is a vector of `3` elements). Array elements are not stored in
  * memory, but computed on demand. Rows correspond to first dimension
  * of the array and columns correspond to last dimension of the array.
- *
- * @ingroup problem
  * */
 {
     int ndim;
     //!< Number of dimensions of corresponding problem.
     /*!< Real dimensionality of corresponding array. `ndim=2` for
      * problems with scalar kernel. `ndim=3` for astrophysics problem.
-     * Can not be less, than `2`. */
+     * Can not be less, than `2`.
+     * */
     STARSH_int *shape;
     //!< Shape of corresponding array.
     /*!< In case of non-scalar kernel `shape[0]` stands for number of
      * rows of array, `shape[ndim-1]` stands for number of columns of
      * array and `(ndim-2)`-dimensional tuple `shape[1:ndim-2]` stands
-     * for kernel shape. */
+     * for kernel shape.
+     * */
     char symm;
     //!< `'S'` if problem is symmetric, and `'N'` otherwise.
     char dtype;
     //!< Precision of problem and corresponding array.
     /*!< Possile value is `'s'`, `'d'`, `'c'` or `'z'`, much like in
-     * names of **LAPACK** routines. */
+     * names of **LAPACK** routines.
+     * */
     size_t dtype_size;
     //!< Size of element of array in bytes.
     size_t entry_size;
@@ -159,7 +220,8 @@ struct starsh_problem
     /*!< Corresponds to size of subarray on a single row on a single
      * column. Equal to size of array element, multiplied by total
      * number of elements and divided by number of rows and number of
-     * columns. */
+     * columns.
+     * */
     void *row_data;
     //!< Pointer to data, corresponding to rows.
     void *col_data;
@@ -168,7 +230,8 @@ struct starsh_problem
     //!< Pointer to a kernel.
     /*!< Kernel computes elements of a submatrix on intersection of
      * given rows and columns. Rows stand for first dimension and
-     * columns stand for last dimension. */
+     * columns stand for last dimension.
+     * */
     char *name;
     //!< Name of corresponding problem.
 };
@@ -183,41 +246,54 @@ int starsh_problem_get_block(STARSH_problem *problem, int nrows, int ncols,
 int starsh_problem_from_array(STARSH_problem **problem, Array *A, char symm);
 int starsh_problem_to_array(STARSH_problem *problem, Array **A);
 
-/*! @defgroup cluster STARSH_cluster
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                  CLUSTER                                  //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup cluster Cluster
  * @brief Clusterization routines
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 struct starsh_cluster
 //! Info about clusterization of physical data.
-/*! @ingroup cluster
- * */
 {
     void *data;
     //!< Pointer to structure, holding physical data.
     STARSH_int ndata;
     //!< Number of discrete elements, corresponding to physical data.
     /*!< Discrete element can be anything, i.e. particles, grid nodes,
-     * edges or mesh elements. */
+     * edges or mesh elements.
+     * */
     STARSH_int *pivot;
     //!< Pivoting of discrete elements for clusterization.
     /*!< After pivoting discrete elements of a single cluster are one
-     * after another. Used by field `start`. */
+     * after another. Used by field `start`.
+     * */
     STARSH_int nblocks;
     //!< Total number of subclusters (blocks) of discrete elements.
     STARSH_int nlevels;
     //!< Number of levels of hierarchy.
-    /*!< `0` in case of tiled clusterization. */
+    /*!< `0` in case of tiled clusterization.
+     * */
     STARSH_int *level;
     //!< Index of first cluster for each level of hierarchy.
     /*!< All subclusters, corresponding to given level of hierarchy are
      * stored in compressed format: subclusters with indexes from
      * `level[i]` to `level[i+1]-1` inclusively correspond to `i`-th
      * level of hierarchy. Field `level` is an array with `nlevels+1`
-     * elements in hierarchical case and is `NULL` in tiled case. */
+     * elements in hierarchical case and is `NULL` in tiled case.
+     * */
     STARSH_int *start;
     //!< Index of first pivoted discrete element of a cluster.
     /*!< Indexes of discrete elements, corresponding to a single
-     * cluster, are located one after another in array `pivot`. */
+     * cluster, are located one after another in array `pivot`.
+     * */
     STARSH_int *size;
     //!< Number of discrete elements in each cluster.
     STARSH_int *parent;
@@ -229,13 +305,15 @@ struct starsh_cluster
     /*!< Clusters with indexes from `child[child_start[i]]` to
      * `child[child_start[i+1]]-1`inclusively are children for a
      * cluster `i`. In case of tiled clusterization `child_start` is
-     * `NULL`.*/
+     * `NULL`.
+     * */
     STARSH_int *child;
     //!< Children clusters of each cluster.
     /*!< Clusters with indexes from `child[child_start[i]]` to
      * `child[child_start[i+1]]-1`inclusively are children for a
      * cluster `i`. In case of tiled clusterization `child` is
-     * `NULL`.*/
+     * `NULL`.
+     * */
     enum STARSH_CLUSTER_TYPE type;
     //!< Type of cluster (tiled or hierarchical).
 };
@@ -250,15 +328,22 @@ void starsh_cluster_info(STARSH_cluster *cluster);
 int starsh_cluster_new_plain(STARSH_cluster **cluster, void *data,
         STARSH_int ndata, STARSH_int block_size);
 
-/*! @defgroup blrf Block Low-Rank Format
- * @brief Division of a matrix into admissibly far and close blocks.
- *
- * This structure is about partitioning of a matrix into far-field and
- * near-field blocks, corresponding to low-rank and dense submatrices.
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                H-FORMAT                                   //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup blrf H-format
+ * @brief Routines to partition matrix into low-rank blocks.
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 struct starsh_blrf
-//! Non-nested block low-rank format.
+//! Non-nested block-wise low-rank format.
 /*! Stores non-nested division of problem into set of admissible pairs of
  * block rows and block columns. For simplicity, such admissible pairs are
  * called admissible blocks, since they stand as submatrix of corresponding
@@ -282,7 +367,6 @@ struct starsh_blrf
  * COO format.
  *
  * @sa starsh_blrf_generate().
- * @ingroup blrf
  * */
 {
     STARSH_problem *problem;
@@ -405,15 +489,25 @@ int starsh_blrf_new_from_coo_mpi(STARSH_blrf **format, STARSH_problem *problem,
 int starsh_blrf_new_tlr_mpi(STARSH_blrf **format, STARSH_problem *problem,
         char symm, STARSH_cluster *row_cluster, STARSH_cluster *col_cluster);
 
-/*! @defgroup blrm STARSH_blrm
- * @brief Block Low-Rank Matrix
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                H-MATRIX                                   //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup blrm H-matrix
+ * @brief Block-wise Low-Rank Matrix/Tensor
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 struct starsh_blrm
 //! Non-nested block low-rank matrix.
-//! @ingroup blrm
 /*! Stores approximation or dense form of each admissible blocks.Division into
- * blocks is defined by corresponding block low-rank format. */
+ * blocks is defined by corresponding block low-rank format.
+ * */
 {
     STARSH_blrf *format;
     //!< Pointer to block low-rank format.
@@ -422,11 +516,13 @@ struct starsh_blrm
     Array **far_U;
     //!< Low rank factor of each far-field block.
     /*!< Multiplication of `far_U[i]` by transposed `far_V[i]` is an
-     * approximation of `i`-th far-field block. */
+     * approximation of `i`-th far-field block.
+     * */
     Array **far_V;
     //!< Low rank factor of each far-field block.
     /*!< Multiplication of `far_U[i]` by transposed `far_V[i]` is an
-     * approximation of `i`-th far-field block. */
+     * approximation of `i`-th far-field block.
+     * */
     int onfly;
     //!< Equal to `1` to store dense blocks, `0` to compute it on demand.
     Array **near_D;
@@ -441,13 +537,13 @@ struct starsh_blrm
     //!< Type of memory allocation.
     /*!< Equal to `1` if allocating 3 big buffers `U_alloc`, `V_alloc` and
      * `D_alloc`; `2` if allocating many small buffers for each `far_U`,
-     * `far_V` and `near_D`. */
+     * `far_V` and `near_D`.
+     * */
     size_t nbytes;
     //!< Total size of block low-rank matrix, including auxiliary buffers.
     size_t data_nbytes;
     //!< Size of low-rank factors and dense blocks in block low-rank matrix.
 };
-
 
 int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
         Array **far_U, Array **far_V, int onfly, Array **near_D, void *alloc_U,
@@ -461,14 +557,25 @@ void starsh_blrm_info(STARSH_blrm *matrix);
 int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
         int *shape, int *rank, void **U, void **V, void **D);
 
-// Approximation procedures
-//
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                            APPROXIMATIONS                                 //
+///////////////////////////////////////////////////////////////////////////////
+
 /*! @defgroup approximations Approximation routines
  * @brief Approximation schemes for dense matrices
+ * @ingroup blrm
  * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
+//! Typedef for prototype of approximation routine
 typedef int STARSH_blrm_approximate(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly);
+//! Approximtion routine, chosen by @ref ::starsh_init().
 STARSH_blrm_approximate *starsh_blrm_approximate;
 
 int starsh_blrm__dsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
@@ -516,7 +623,17 @@ int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
 //int starsh_blrm__dna_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
 //        int maxrank, double tol, int onfly);
 
-int starsh_dense_dsvfr(int size, double *S, double tol);
+
+///////////////////////////////////////////////////////////////////////////////
+//                  MATRIX-MATRIX MULTIPLICATION                             //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup matmul GEMM
+ * @brief H-by-dense matrix multiplication
+ * @ingroup blrm
+ * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 int starsh_blrm__dmml(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
@@ -531,10 +648,41 @@ int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
 //int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
 //        double alpha, double *A, int lda, double beta, double *B, int ldb);
 
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                   MEASURE APPROXIMATION ERROR                             //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup approximation_error Error of approximation
+ * @brief Routines to measure error of approximation
+ * @ingroup blrm
+ * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
+
 double starsh_blrm__dfe(STARSH_blrm *matrix);
 double starsh_blrm__dfe_omp(STARSH_blrm *matrix);
 double starsh_blrm__dfe_mpi(STARSH_blrm *matrix);
+
+//! @}
+// End of group
+
 int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
+
+int starsh_dense_dsvfr(int size, double *S, double tol);
+
+///////////////////////////////////////////////////////////////////////////////
+//                  LOW-RANK ROUTNIES FOR DENSE                              //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup lrdense Low-rank dense routines
+ * @brief Set of low-rank routines for dense matrices
+ * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
 
 void starsh_dense_dlrsdd(int nrows, int ncols, double *D, int ldD, double *U,
         int ldU, double *V, int ldV, int *rank, int maxrank, double tol,
@@ -556,9 +704,27 @@ void starsh_dense_kernel_starpu(void *buffers[], void *cl_arg);
 void starsh_dense_dgemm_starpu(void *buffers[], void *cl_arg);
 void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 
+//! @}
+// End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                            ITERATIVE SOLVERS                              //
+///////////////////////////////////////////////////////////////////////////////
+
+/*! @defgroup iter
+ * @brief Set of iterative solvers
+ * */
+//! @{
+// This will automatically include all entities between @{ and @} into group.
+
 int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);
 int starsh_itersolvers__dcg_mpi(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);
 
+//! @}
+// End of group
+
 #endif // __STARSH_H__
+

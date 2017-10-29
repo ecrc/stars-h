@@ -46,11 +46,11 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(int nrows, int ncols,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd().
+ * @sa starsh_esdata_block_coulomb_potential_kernel_1d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_2d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_3d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_4d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_nd().
  * @ingroup app-electrostatics-kernels
  * */
 {
@@ -118,11 +118,11 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(int nrows,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd_simd().
+ * @sa starsh_esdata_block_coulomb_potential_kernel_1d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_2d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_3d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_4d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_nd_simd().
  * @ingroup app-electrostatics-kernels
  * */
 {

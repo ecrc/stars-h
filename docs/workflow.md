@@ -1,4 +1,5 @@
-@page workflow Workflow of STARS-H
+Workflow of STARS-H {#workflow}
+===================
 
 STARS-H is meant to build hierarchical approximations of different matrices. It
 supports both dense and matrix-free matrices as input. Here we show how to use
@@ -11,18 +12,19 @@ STARS-H in a matrix-free manner:
     be the same data, as `physical` data for rows. Note, that in this case
     matrix can be symmetric, but this is not guaranteed (i.e. for collocation
     method for integral equations).
-3.  Define STARSH\_problem instance, glueing `physical` data with corresponding
-    kernel. This is all, what you need to generate any element or a submatrix
-    of input matrix. So, STARSH\_problem stores input matrix in a matrix-free
-    form. Operations on STARSH\_problem structure can be found in module
-    @ref problem.
+3.  Define @ref STARSH\_problem instance, glueing `physical` data with
+    corresponding kernel. This is all, what you need to generate any element or
+    a submatrix of input matrix. So, @ref STARSH\_problem stores input matrix
+    in a matrix-free form. Operations on @ref STARSH\_problem structure can be
+    found in module @ref problem.
 4.  Build clusterization of `physical` row data and `physical` column data.
     Right now only plain clusterization is supported (one, which leads to TLR
-    format). This is stored in STARSH\_cluster instance (module @ref cluster).
+    format). This is stored in @ref STARSH\_cluster instance (module @ref
+    cluster).
 5.  Organize block-wise low-rank format by clusterizations of rows and columns.
-    This is stored in STARSH\_blrf instance (module @ref blrf).
-6.  Compute approximation using function starsh_blrm_approximate(). Resulting
-    block-wise low-rank matrix is stored in STARSH\_blrm instance (module @ref
-    blrm).
+    This is stored in @ref STARSH\_blrf instance (module @ref blrf).
+6.  Compute approximation using function @ref starsh\_blrm\_approximate().
+    Resulting block-wise low-rank matrix is stored in @ref STARSH\_blrm
+    instance (module @ref blrm).
 
 For better understanding please take a look at @ref examples.

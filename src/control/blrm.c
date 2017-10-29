@@ -320,7 +320,10 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
     return info;
 }
 
+//! Pointer to approximation function, corresponding to environment variables
+//! @ingroup blrm
 STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
+
 //int (*starsh_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F, STARSH_int maxrank,
 //        double tol, int onfly) = NULL;
 //! Main call to get approximation in non-nested block low-rank format.

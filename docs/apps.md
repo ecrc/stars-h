@@ -1,2 +1,3 @@
-@page apps Set of predefined applications
+Set of predefined applications {#apps}
+==============================
 
