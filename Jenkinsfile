@@ -15,6 +15,12 @@ pipeline {
                 XX="gcc"
         }
 
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '50'))
+        timestamps()
+    }
+
         stages {
                 stage ('build') {
                         steps {
