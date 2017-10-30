@@ -27,6 +27,7 @@
 #include "starsh-particles.h"
 
 //! Cauchy problem reuses structure for particles.
+//! @ingroup app-cauchy
 typedef STARSH_particles STARSH_cauchy;
 
 enum STARSH_CAUCHY_KERNEL

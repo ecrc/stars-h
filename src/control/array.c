@@ -658,7 +658,7 @@ int array_SVD(Array *A, Array **U, Array **S, Array **V)
                 lda, (*S)->data, (*U)->data, ldu, (*V)->data, ldv);
 }
 
-int svd_get_rank(Array *S, double tol, char type, int *rank)
+int SVD_get_rank(Array *S, double tol, char type, int *rank)
 //! Returns rank by given singular values `S`, tolerance and type of norm.
 /*! @param[in] S: Pointer to @ref array object.
  * @param[in] tol: Relative error threshold.

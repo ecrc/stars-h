@@ -14,6 +14,7 @@
 #include "starsh.h"
 
 int cmp_size_t(const void *a, const void *b)
+//! Compare two size_t integers
 {
     size_t _a = *(size_t *)a;
     size_t _b = *(size_t *)b;

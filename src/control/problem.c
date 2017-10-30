@@ -15,7 +15,7 @@
 
 int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
         char symm, char dtype, void *row_data, void *col_data,
-        STARSH_kernel kernel, char *name)
+        STARSH_kernel *kernel, char *name)
 //! Init @ref STARSH_problem object.
 /*! Unlike all other *_new() functions, this function creates copy of `shape`
  * to store internally. This is done to avoid clearing memory of static

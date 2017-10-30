@@ -22,8 +22,9 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 
-// If dimensionality is static, then replace variable ndim with integer value
+// If dimensionality is static
 #if (@NDIM != n)
+//! Replace variable ndim with static integer value
 #define ndim @NDIM
 #endif
 

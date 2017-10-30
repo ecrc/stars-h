@@ -251,6 +251,13 @@ if(BLA_VENDOR MATCHES "Intel")
     add_definitions("-DMKL")
 endif()
 
+###############################################################################
+# Print Options #
+#################
+get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMPILE_DEFINITIONS)
+include(PrintOpts)
+
 # If examples option is ON
 if(EXAMPLES)
     add_subdirectory("examples")
@@ -281,13 +288,6 @@ set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
 # Collect STARS-H sources + headers
 add_subdirectory("src")
 add_subdirectory("include")
-
-###############################################################################
-# Print Options #
-#################
-get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMPILE_DEFINITIONS )
-include(PrintOpts)
 
 #Install Pkg-config file
 generate_pkgconfig_file()

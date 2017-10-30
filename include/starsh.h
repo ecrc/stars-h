@@ -623,6 +623,8 @@ int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
 //int starsh_blrm__dna_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
 //        int maxrank, double tol, int onfly);
 
+//! @}
+// End of group
 
 ///////////////////////////////////////////////////////////////////////////////
 //                  MATRIX-MATRIX MULTIPLICATION                             //
@@ -712,7 +714,7 @@ void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 //                            ITERATIVE SOLVERS                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-/*! @defgroup iter
+/*! @defgroup iter Iterative solvers
  * @brief Set of iterative solvers
  * */
 //! @{
