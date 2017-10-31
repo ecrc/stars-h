@@ -1,3 +1,15 @@
+# @copyright (c) 2017 King Abdullah University of Science and
+#                      Technology (KAUST). All rights reserved.
+#
+# STARS-H is a software package, provided by King Abdullah
+#             University of Science and Technology (KAUST)
+#
+# @file testing/CMakeLists.txt
+# @version 1.0.0
+# @author Aleksandr Mikhalev
+# @date 2017-08-22
+
+
 # Defines the source files of the tests. Each file generates 1 test
 set(tests_files
     "particles.c")

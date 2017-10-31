@@ -1,8 +1,25 @@
+# @copyright (c) 2017 King Abdullah University of Science and
+#                      Technology (KAUST). All rights reserved.
+#
+# STARS-H is a software package, provided by King Abdullah
+#             University of Science and Technology (KAUST)
+#
+# @file CMakeLists.txt
+# @version 1.0.0
+# @author Aleksandr Mikhalev
+# @date 2017-08-22
+
+
 ###############################################################################
 #                       THIS IS A TOP-LEVEL CMAKELISTS.txt                    #
 #                                                                             #
 #        It is intended to find all dependencies (required or optional)       #
 #                    and set up corresponding variables                       #
+###############################################################################
+
+
+###############################################################################
+##                            PRELIMINARIES                                  ##
 ###############################################################################
 
 # Need to identify lowest possible CMake version
@@ -22,34 +39,53 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
         "'git submodule update --init'?")
 endif()
 
+# Append path to CMake modules and init ECRC CMake modules
+set(ECRC_CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+include(EcrcInit)
+include(GenPkgConfig)
+include(FindPkgConfig)
+
 # Create project and check C compiler
 cmake_policy(SET CMP0048 NEW)
 project(STARS-H VERSION 1.0.0 LANGUAGES C)
 
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
-# Set build type for optimization flags
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING
-        "Choose type of build, options are: None Debug Release\
-        RelWithDebInfo MinSizeRel"
-        FORCE)
-endif()
 
-# Set desired backends
-# One may use -DSTARPU=OFF to disable StarPU support manually
-option(STARPU "Use StarPU" ON)
+###############################################################################
+##                           DEFINE OPTIONS                                  ##
+###############################################################################
+
+# Option for build type
+set(CMAKE_BUILD_TYPE Release CACHE STRING
+    "Choose type of build, options are: None Debug Release\
+    RelWithDebInfo MinSizeRel")
+
+# Options for possible backends
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
+option(STARPU "Use StarPU" ON)
+
+# Option to force using parallel blas instead of sequential
 option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
+
+# Option for Gnu Scientific Library
 option(GSL "Use special functions from Gnu Scientific Library" ON)
 
-# Options for examples, testing and documentation
+# Options for examples
 option(EXAMPLES "Generate examples binaries" ON)
-option(TESTING "Generate testing binaries" ON)
-option(DOCS "Build documentation in docs directory" ON)
 
-# Show STARSH warnings with debug information
+# Option for testing
+option(TESTING "Generate testing binaries" ON)
+
+# Option for documentation
+set(DOCS FULL CACHE STRING
+    "Choose kind of documentation to build, options are: OFF SHORT FULL")
+
+# Option for STARSH warnings with debug information
 option(STARSH_WARNINGS "Show STARSH warnings with debug information" OFF)
 if(STARSH_WARNINGS)
     add_definitions("-DSHOW_WARNINGS")
@@ -77,19 +113,15 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
 #set(CPACK_GENERATOR "TGZ")
 #include(CPack)
-
-# Append path to CMake modules and init ECRC CMake modules
-set(ECRC_CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
-list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
-include(EcrcInit)
-include(GenPkgConfig)
-include(FindPkgConfig)
 find_package(PkgConfig REQUIRED)
 
 # Set path to header files of STARS-H
 include_directories("${CMAKE_SOURCE_DIR}/include")
+
+
+###############################################################################
+##                     CHECK IF OPTIONS ARE SUPPORTED                        ##
+###############################################################################
 
 # Check if OpenMP is supported and expand compilation flags
 # Addition of OpenMP flags will be local in future versions
@@ -102,6 +134,26 @@ if(OPENMP)
     endif()
 endif()
 
+# Check if MPI is available
+if(MPI)
+    find_package(MPI)
+    if(MPI_C_FOUND)
+        include_directories(${MPI_C_INCLUDE_PATH})
+        add_definitions("-DMPI")
+    else()
+        set(MPI OFF)
+    endif()
+    if(MPI_C_LIBRARIES)
+        # Go through the list of mpi libs and add them to
+        # EXTRAPKGLIBS, in the form of "-lnameoflibrary"
+        foreach(_mpilib ${MPI_C_LIBRARIES} )
+            get_filename_component( _extralib ${_mpilib} NAME_WE)
+            string(REGEX REPLACE "^lib" " -l" _extralib ${_extralib})
+            list(APPEND EXTRAPKGLIBS ${_extralib})
+        endforeach()
+    endif()
+endif()
+
 # Check if StarPU is available and add links to library
 # Addition of StarPU directories and libraries will be local in future versions
 if(STARPU)
@@ -110,31 +162,8 @@ if(STARPU)
         include_directories(${STARPU_INCLUDE_DIRS})
         link_directories(${STARPU_LIBRARY_DIRS})
         add_definitions("-DSTARPU")
-        #list(APPEND REQUIRES ${STARPU_LIBRARIES})
     else()
-        message("StarPU is NOT found, skipping it")
         set(STARPU OFF)
-    endif()
-endif()
-
-if(MPI)
-    find_package(MPI)
-    if(MPI_C_FOUND)
-        include_directories(${MPI_C_INCLUDE_PATH})
-        add_definitions("-DMPI")
-    else()
-        message("MPI is NOT found, skipping it")
-        set(MPI OFF)
-    endif()
-    if(MPI_C_LIBRARIES)
-        # Go through the list of mpi libs and add them to
-        # EXTRAPKGLIBS, in the form of "-lnameoflibrary"
-        message(STATUS "Found MPI_C_LIBRARIES: ${MPI_C_LIBRARIES}")
-        foreach(_mpilib ${MPI_C_LIBRARIES} )
-            get_filename_component( _extralib ${_mpilib} NAME_WE)
-            string(REGEX REPLACE "^lib" " -l" _extralib ${_extralib})
-            list(APPEND EXTRAPKGLIBS ${_extralib})
-        endforeach()
     endif()
 endif()
 
@@ -146,10 +175,28 @@ if(GSL)
         include_directories(${GSL_INCLUDE_DIRS})
         add_definitions("-DGSL")
     else()
-        message("GSL has not been found, skipping it")
         set(GSL OFF)
     endif()
 endif()
+
+# Check if testing is required
+if(TESTING)
+    include(CTest)
+    enable_testing()
+endif()
+
+# Check if need to process with docs
+if(NOT DOCS STREQUAL "OFF")
+    find_package(Doxygen)
+    if(NOT DOXYGEN_FOUND)
+        set(DOCS "OFF")
+    endif()
+endif()
+
+
+###############################################################################
+##                      BLAS, CBLAS, LAPACK AND LAPACKE                      ##
+###############################################################################
 
 # Find BLAS and set it to parallel if USE_PARALLEL_BLAS is ON
 find_package(BLASEXT)
@@ -251,12 +298,42 @@ if(BLA_VENDOR MATCHES "Intel")
     add_definitions("-DMKL")
 endif()
 
+
 ###############################################################################
-# Print Options #
-#################
+##                          PRINT CONFIGURATION                              ##
+###############################################################################
+
 get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR}
     COMPILE_DEFINITIONS)
 include(PrintOpts)
+
+
+###############################################################################
+##                 FILL STARSH.PC FILE FOR PKG_CONFIG                        ##
+###############################################################################
+
+# Set parameters for PKGCONFIG
+set(PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
+
+#Install Pkg-config file
+generate_pkgconfig_file()
+
+
+###############################################################################
+##               LIST FILES FOR DOCUMENTATION AND COMPILATION                ##
+###############################################################################
+
+# Collect STARS-H sources + headers
+set(DOXYGEN_INPUT)
+add_subdirectory("src")
+add_subdirectory("include")
+
+
+###############################################################################
+##                  BUILD EXAMPLES, TESTS AND DOCS                           ##
+###############################################################################
 
 # If examples option is ON
 if(EXAMPLES)
@@ -265,35 +342,11 @@ endif()
 
 # If testing option is ON
 if(TESTING)
-    include(CTest)
-    enable_testing()
     add_subdirectory("testing")
 endif()
 
-# If docs option is ON
-if(DOCS)
-    find_package(Doxygen)
-    if(DOXYGEN_FOUND)
-        add_subdirectory("docs")
-    else()
-        message(STATUS "Doxygen NOT found, skipping it")
-    endif()
+# Build docs, if needed
+if(NOT DOCS STREQUAL "OFF")
+    add_subdirectory("docs")
 endif()
 
-# Set parameters for PKGCONFIG
-set(PREFIX "${CMAKE_INSTALL_PREFIX}")
-set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
-
-# Collect STARS-H sources + headers
-add_subdirectory("src")
-add_subdirectory("include")
-
-#Install Pkg-config file
-generate_pkgconfig_file()
-#set(PKG_CONFIG_DIR "${LIBDIR}/pkgconfig")
-#string(REPLACE ";" "," REQUIRES "${REQUIRES}")
-#configure_file("${CMAKE_SOURCE_DIR}/starsh.pc.in"
-#    "${CMAKE_CURRENT_BINARY_DIR}/starsh.pc")
-#install(FILES "${CMAKE_BINARY_DIR}/starsh.pc"
-#    DESTINATION "${PKG_CONFIG_DIR}")

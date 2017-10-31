@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-starpu.h"
 
 void starsh_dense_dlrqp3_starpu(void *buffer[], void *cl_arg)
 //! STARPU kernel for RRQR on a tile.

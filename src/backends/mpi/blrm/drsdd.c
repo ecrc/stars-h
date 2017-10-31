@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int cmp_size_t(const void *a, const void *b)
 //! Compare two size_t integers

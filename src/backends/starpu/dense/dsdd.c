@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-starpu.h"
 
 void starsh_dense_dlrsdd_starpu(void *buffer[], void *cl_arg)
 //! STARPU kernel for DGESDD on a tile.

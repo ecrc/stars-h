@@ -16,6 +16,7 @@
 
 #include "starsh.h"
 #include "common.h"
+#include "starsh-starpu.h"
 
 // Compilation of this file should file because it is intended to fail
 // This fail is commented due to bug

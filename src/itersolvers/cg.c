@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 /*! @defgroup solvers Set of solvers
  * @brief Set of solvers

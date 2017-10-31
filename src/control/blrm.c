@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
         Array **far_U, Array **far_V, int onfly, Array **near_D, void *alloc_U,

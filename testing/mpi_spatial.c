@@ -20,8 +20,9 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <string.h>
-#include "starsh.h"
-#include "starsh-spatial.h"
+#include <starsh.h>
+#include <starsh-mpi.h>
+#include <starsh-spatial.h>
 
 int main(int argc, char **argv)
 {

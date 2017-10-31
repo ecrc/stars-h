@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrf_new(STARSH_blrf **format, STARSH_problem *problem, char symm,
         STARSH_cluster *row_cluster, STARSH_cluster *col_cluster,

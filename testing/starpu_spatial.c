@@ -21,8 +21,9 @@
 #include <omp.h>
 #include <string.h>
 #include <starpu.h>
-#include "starsh.h"
-#include "starsh-spatial.h"
+#include <starsh.h>
+#include <starsh-starpu.h>
+#include <starsh-spatial.h>
 
 int main(int argc, char **argv)
 {

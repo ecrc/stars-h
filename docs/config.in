@@ -773,26 +773,29 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT   = "@CMAKE_CURRENT_SOURCE_DIR@/"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../include"\
-    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/spatial" \
-    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/electrodynamics" \
-    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/electrostatics" \
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/applications" \
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/blrm"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/dense"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp/blrm"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi/blrm"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/blrm"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/dense"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi_starpu"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi_starpu/blrm"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/control"\
-    "@CMAKE_CURRENT_SOURCE_DIR@/../src/itersolvers"\
+#INPUT   = "@CMAKE_CURRENT_SOURCE_DIR@/"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../include"\
+#    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/spatial" \
+#    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/electrodynamics" \
+#    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/electrostatics" \
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/applications" \
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/blrm"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/sequential/dense"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/openmp/blrm"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi/blrm"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/blrm"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/starpu/dense"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi_starpu"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/backends/mpi_starpu/blrm"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/control"\
+#    "@CMAKE_CURRENT_SOURCE_DIR@/../src/itersolvers"\
+
+INPUT = "@CMAKE_CURRENT_SOURCE_DIR@/"\
+    "@DOXYGEN_INPUT@"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

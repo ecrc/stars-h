@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 double starsh_blrm__dfe_mpi(STARSH_blrm *matrix)
 //! Approximation error in Frobenius norm of double precision matrix.

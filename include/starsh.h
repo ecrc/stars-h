@@ -479,15 +479,6 @@ void starsh_blrf_info(STARSH_blrf *format);
 void starsh_blrf_print(STARSH_blrf *format);
 int starsh_blrf_get_block(STARSH_blrf *format, STARSH_int i, STARSH_int j,
         int *shape, void **D);
-int starsh_blrf_new_from_coo_mpi(STARSH_blrf **format, STARSH_problem *problem,
-        char symm, STARSH_cluster *row_cluster, STARSH_cluster *col_cluster,
-        STARSH_int nblocks_far, STARSH_int *block_far,
-        STARSH_int nblocks_far_local, STARSH_int *block_far_local,
-        STARSH_int nblocks_near, STARSH_int *block_near,
-        STARSH_int nblocks_near_local, STARSH_int *block_near_local,
-        enum STARSH_BLRF_TYPE type);
-int starsh_blrf_new_tlr_mpi(STARSH_blrf **format, STARSH_problem *problem,
-        char symm, STARSH_cluster *row_cluster, STARSH_cluster *col_cluster);
 
 //! @}
 // End of group
@@ -548,11 +539,7 @@ struct starsh_blrm
 int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
         Array **far_U, Array **far_V, int onfly, Array **near_D, void *alloc_U,
         void *alloc_V, void *alloc_D, char alloc_type);
-int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
-        int *far_rank, Array **far_U, Array **far_V, int onfly, Array **near_D,
-        void *alloc_U, void *alloc_V, void *alloc_D, char alloc_type);
 void starsh_blrm_free(STARSH_blrm *matrix);
-void starsh_blrm_free_mpi(STARSH_blrm *matrix);
 void starsh_blrm_info(STARSH_blrm *matrix);
 int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
         int *shape, int *rank, void **U, void **V, void **D);
@@ -596,35 +583,9 @@ int starsh_blrm__dqp3_omp(STARSH_blrm **matrix, STARSH_blrf *format,
 //int starsh_blrm__dna_omp(STARSH_blrm **matrix, STARSH_blrf *format,
 //        int maxrank, double tol, int onfly);
 
-int starsh_blrm__dsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__drsdd_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__dqp3_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__dna_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-
-int starsh_blrm__dsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__drsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__dqp3_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-//int starsh_blrm__dna_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-//        int maxrank, double tol, int onfly);
-
-int starsh_blrm__dsdd_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__drsdd_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-        int maxrank, double tol, int onfly);
-//int starsh_blrm__dna_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
-//        int maxrank, double tol, int onfly);
-
 //! @}
 // End of group
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //                  MATRIX-MATRIX MULTIPLICATION                             //
@@ -641,14 +602,6 @@ int starsh_blrm__dmml(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
 int starsh_blrm__dmml_omp(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb);
-int starsh_blrm__dmml_mpi(STARSH_blrm *matrix, int nrhs, double alpha,
-        double *A, int lda, double beta, double *B, int ldb);
-int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
-        double *A, int lda, double beta, double *B, int ldb);
-//int starsh_blrm__dmml_mpi_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
-//        double *A, int lda, double beta, double *B, int ldb);
-//int starsh_blrm__dmml_mpi_starpu_tlr(STARSH_blrm *matrix, int nrhs,
-//        double alpha, double *A, int lda, double beta, double *B, int ldb);
 
 //! @}
 // End of group
@@ -667,17 +620,17 @@ int starsh_blrm__dmml_mpi_tlr(STARSH_blrm *matrix, int nrhs, double alpha,
 
 double starsh_blrm__dfe(STARSH_blrm *matrix);
 double starsh_blrm__dfe_omp(STARSH_blrm *matrix);
-double starsh_blrm__dfe_mpi(STARSH_blrm *matrix);
+
+// This function should not be in this group, but it is for now.
+int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
 
 //! @}
 // End of group
 
-int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
 
-int starsh_dense_dsvfr(int size, double *S, double tol);
 
 ///////////////////////////////////////////////////////////////////////////////
-//                  LOW-RANK ROUTNIES FOR DENSE                              //
+//                  LOW-RANK ROUTINES FOR DENSE                              //
 ///////////////////////////////////////////////////////////////////////////////
 
 /*! @defgroup lrdense Low-rank dense routines
@@ -685,6 +638,8 @@ int starsh_dense_dsvfr(int size, double *S, double tol);
  * */
 //! @{
 // This will automatically include all entities between @{ and @} into group.
+
+int starsh_dense_dsvfr(int size, double *S, double tol);
 
 void starsh_dense_dlrsdd(int nrows, int ncols, double *D, int ldD, double *U,
         int ldU, double *V, int ldV, int *rank, int maxrank, double tol,
@@ -698,13 +653,6 @@ void starsh_dense_dlrqp3(int nrows, int ncols, double *D, int ldD, double *U,
 void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
         int *rank, int maxrank, double tol, double *work, int lwork,
         int *iwork);
-
-void starsh_dense_dlrsdd_starpu(void *buffers[], void *cl_arg);
-void starsh_dense_dlrrsdd_starpu(void *buffers[], void *cl_arg);
-void starsh_dense_dlrqp3_starpu(void *buffers[], void *cl_arg);
-void starsh_dense_kernel_starpu(void *buffers[], void *cl_arg);
-void starsh_dense_dgemm_starpu(void *buffers[], void *cl_arg);
-void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 
 //! @}
 // End of group
@@ -721,8 +669,6 @@ void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 // This will automatically include all entities between @{ and @} into group.
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
-        int ldb, double *X, int ldx, double tol, double *work);
-int starsh_itersolvers__dcg_mpi(STARSH_blrm *matrix, int nrhs, double *B,
         int ldb, double *X, int ldx, double tol, double *work);
 
 //! @}

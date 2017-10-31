@@ -20,8 +20,9 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <starpu.h>
-#include "starsh.h"
-#include "starsh-electrostatics.h"
+#include <starsh.h>
+#include <starsh-mpi-starpu.h>
+#include <starsh-electrostatics.h>
 
 int main(int argc, char **argv)
 {
