@@ -13,12 +13,13 @@
 #ifndef __STARSH_MPI_STARPU_H__
 #define __STARSH_MPI_STARPU_H__
 
-#include <starsh-mpi.h>
-#include <starsh-starpu.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //                            APPROXIMATIONS                                 //
 ///////////////////////////////////////////////////////////////////////////////
+
+// Check if this is enabled in Doxygen
+//! @cond (STARPU && MPI)
 
 /*! @addtogroup approximations
  * @{
@@ -54,6 +55,9 @@ int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
 
 //! @}
 // End of group
+
+//! @endcond
+// End of condition
 
 #endif // __STARSH_MPI_STARPU_H__
 

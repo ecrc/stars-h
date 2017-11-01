@@ -18,6 +18,9 @@
 //                            APPROXIMATIONS                                 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// Check if this is enabled in Doxygen
+//! @cond (STARPU)
+
 /*! @addtogroup approximations
  * @{
  * */
@@ -54,6 +57,9 @@ void starsh_dense_fake_init_starpu(void *buffers[], void *cl_arg);
 
 //! @}
 // End of group
+
+//! @endcond
+// End of condition
 
 #endif // __STARSH_STARPU_H__
 

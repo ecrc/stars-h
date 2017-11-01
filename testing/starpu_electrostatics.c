@@ -22,7 +22,6 @@
 #include <string.h>
 #include <starpu.h>
 #include <starsh.h>
-#include <starsh-starpu.h>
 #include <starsh-electrostatics.h>
 
 int main(int argc, char **argv)

@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <starsh.h>
-#include <starsh-mpi.h>
 #include <starsh-minimal.h>
 
 int main(int argc, char **argv)

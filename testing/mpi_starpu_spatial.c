@@ -22,7 +22,6 @@
 #include <starpu.h>
 #include <string.h>
 #include <starsh.h>
-#include <starsh-mpi-starpu.h>
 #include <starsh-spatial.h>
 
 int main(int argc, char **argv)

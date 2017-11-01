@@ -628,7 +628,6 @@ int starsh_blrm__dca(STARSH_blrm *matrix, Array *A);
 // End of group
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //                  LOW-RANK ROUTINES FOR DENSE                              //
 ///////////////////////////////////////////////////////////////////////////////
@@ -673,6 +672,18 @@ int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,
 
 //! @}
 // End of group
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                       HEADERS FOR OTHER BACKENDS                          //
+///////////////////////////////////////////////////////////////////////////////
+
+// This headers should be at the end, since all Doxygen groups must be defined
+// before (and they are defined above).
+#include "starsh-mpi.h"
+#include "starsh-starpu.h"
+#include "starsh-mpi-starpu.h"
+
 
 #endif // __STARSH_H__
 

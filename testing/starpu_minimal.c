@@ -21,7 +21,6 @@
 #include <omp.h>
 #include <starpu.h>
 #include <starsh.h>
-#include <starsh-starpu.h>
 #include <starsh-minimal.h>
 
 int main(int argc, char **argv)

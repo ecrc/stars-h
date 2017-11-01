@@ -18,6 +18,9 @@
 //                                H-FORMAT                                   //
 ///////////////////////////////////////////////////////////////////////////////
 
+// Check if this is enabled in Doxygen
+//! @cond (MPI)
+
 /*! @addtogroup blrf
  * @{
  * */
@@ -124,6 +127,9 @@ int starsh_itersolvers__dcg_mpi(STARSH_blrm *matrix, int nrhs, double *B,
 
 //! @}
 // End of group
+
+//! @endcond
+// End of condition
 
 #endif // __STARSH_MPI_H__
 

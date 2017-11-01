@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "starsh.h"
-#include "starsh-particles.h"
+#include <starsh.h>
+#include <starsh-particles.h>
 
 int main(int argc, char **argv)
 {

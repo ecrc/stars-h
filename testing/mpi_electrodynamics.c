@@ -21,7 +21,6 @@
 #include <mpi.h>
 #include <string.h>
 #include <starsh.h>
-#include <starsh-mpi.h>
 #include <starsh-electrodynamics.h>
 
 int main(int argc, char **argv)

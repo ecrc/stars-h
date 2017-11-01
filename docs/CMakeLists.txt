@@ -1,3 +1,11 @@
+# Collect Doxygen enabled sections
+if(DOCS STREQUAL "FULL")
+    set(DOXYGEN_ENABLED_SECTIONS OPENMP MPI STARPU GSL)
+endif()
+
+# Make enabled section appropriate for config file
+string(REPLACE ";" " " DOXYGEN_ENABLED_SECTIONS "${DOXYGEN_ENABLED_SECTIONS}")
+
 # Make DOXYGEN_INPUT appropriate for config file
 string(REPLACE ";" "\"\\\n    \"" DOXYGEN_INPUT "${DOXYGEN_INPUT}")
 

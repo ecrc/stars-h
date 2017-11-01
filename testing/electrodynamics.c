@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <string.h>
-#include "starsh.h"
-#include "starsh-electrodynamics.h"
+#include <starsh.h>
+#include <starsh-electrodynamics.h>
 
 int main(int argc, char **argv)
 {

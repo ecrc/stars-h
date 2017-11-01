@@ -11,11 +11,10 @@
  * */
 
 #include <omp.h>
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "starsh.h"
-#include "starsh-spatial.h"
+#include <starsh.h>
+#include <starsh-spatial.h>
 
 int main(int argc, char **argv)
 {

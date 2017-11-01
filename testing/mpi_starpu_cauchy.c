@@ -21,7 +21,6 @@
 #include <mpi.h>
 #include <starpu.h>
 #include <starsh.h>
-#include <starsh-mpi-starpu.h>
 #include <starsh-cauchy.h>
 
 int main(int argc, char **argv)
