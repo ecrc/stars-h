@@ -113,37 +113,37 @@ int starsh_blrf_new_from_coo(STARSH_blrf **format, STARSH_problem *problem,
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     if(row_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `row_cluster`");
+        STARSH_ERROR("Invalid value of `row_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(col_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `col_cluster`");
+        STARSH_ERROR("Invalid value of `col_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(nblocks_far > 0 && block_far == NULL)
     {
-        STARSH_ERROR("invalid value of `block_far`");
+        STARSH_ERROR("Invalid value of `block_far`");
         return STARSH_WRONG_PARAMETER;
     }
     if(nblocks_near > 0 && block_near == NULL)
     {
-        STARSH_ERROR("invalid value of `block_near`");
+        STARSH_ERROR("Invalid value of `block_near`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_int i, *size;
@@ -305,32 +305,32 @@ int starsh_blrf_new_tlr(STARSH_blrf **format, STARSH_problem *problem,
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(row_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `row_cluster`");
+        STARSH_ERROR("Invalid value of `row_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(col_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `col_cluster`");
+        STARSH_ERROR("Invalid value of `col_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm == 'S' && problem->symm == 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm == 'S' && row_cluster != col_cluster)
@@ -409,7 +409,7 @@ void starsh_blrf_info(STARSH_blrf *format)
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return;
     }
     STARSH_blrf *F = format;
@@ -424,7 +424,7 @@ void starsh_blrf_print(STARSH_blrf *format)
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return;
     }
     STARSH_int i;
@@ -485,33 +485,33 @@ int starsh_blrf_get_block(STARSH_blrf *format, STARSH_int i, STARSH_int j,
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     if(i < 0 || i >= format->nbrows)
     {
-        STARSH_ERROR("invalid value of `i`");
+        STARSH_ERROR("Invalid value of `i`");
         return STARSH_WRONG_PARAMETER;
     }
     if(j < 0 || j >= format->nbcols)
     {
-        STARSH_ERROR("invalid value of `j`");
+        STARSH_ERROR("Invalid value of `j`");
         return STARSH_WRONG_PARAMETER;
     }
     if(shape == NULL)
     {
-        STARSH_ERROR("invalid value of `shape`");
+        STARSH_ERROR("Invalid value of `shape`");
         return STARSH_WRONG_PARAMETER;
     }
     if(D == NULL)
     {
-        STARSH_ERROR("invalid value of `D`");
+        STARSH_ERROR("Invalid value of `D`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_problem *P = format->problem;
     if(P->ndim != 2)
     {
-        STARSH_ERROR("only scalar kernels are supported");
+        STARSH_ERROR("Only scalar kernels are supported");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_cluster *R = format->row_cluster, *C = format->col_cluster;
@@ -592,32 +592,32 @@ int starsh_blrf_new_tlr_mpi(STARSH_blrf **format, STARSH_problem *problem,
 {
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(row_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `row_cluster`");
+        STARSH_ERROR("Invalid value of `row_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(col_cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `col_cluster`");
+        STARSH_ERROR("Invalid value of `col_cluster`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm == 'S' && problem->symm == 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm == 'S' && row_cluster != col_cluster)

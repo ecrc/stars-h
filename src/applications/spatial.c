@@ -33,12 +33,12 @@ int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_ssdata *tmp;
@@ -77,32 +77,32 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-        STARSH_ERROR("invalid value of `beta`");
+        STARSH_ERROR("Invalid value of `beta`");
         return STARSH_WRONG_PARAMETER;
     }
     if(nu < 0)
     {
-        STARSH_ERROR("invalid value of `nu`");
+        STARSH_ERROR("Invalid value of `nu`");
         return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {
-        STARSH_ERROR("invalid value of `noise`");
+        STARSH_ERROR("Invalid value of `noise`");
         return STARSH_WRONG_PARAMETER;
     }
     if(sigma < 0)
     {
-        STARSH_ERROR("invalid value of `sigma`");
+        STARSH_ERROR("Invalid value of `sigma`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_ssdata *tmp;
@@ -136,27 +136,27 @@ int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-        STARSH_ERROR("invalid value of `beta`");
+        STARSH_ERROR("Invalid value of `beta`");
         return STARSH_WRONG_PARAMETER;
     }
     if(nu < 0)
     {
-        STARSH_ERROR("invalid value of `nu`");
+        STARSH_ERROR("Invalid value of `nu`");
         return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {
-        STARSH_ERROR("invalid value of `noise`");
+        STARSH_ERROR("Invalid value of `noise`");
         return STARSH_WRONG_PARAMETER;
     }
     if(sigma < 0)
     {
-        STARSH_ERROR("invalid value of `sigma`");
+        STARSH_ERROR("Invalid value of `sigma`");
         return STARSH_WRONG_PARAMETER;
     }
     int info;
@@ -180,7 +180,7 @@ int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
 int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
         va_list args)
 //! Generate @ref STARSH_ssdata object with incomplete set of parameters.
-/*! Parses possibly incomplete set of parameters for starsh_ssdata_generate().
+/*! Parse possibly incomplete set of parameters for starsh_ssdata_generate().
  * If argument is not in the `args`, then its default value is used:
  *
  * Argument | Default value | Type
@@ -259,7 +259,7 @@ int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
 
 int starsh_ssdata_generate_el(STARSH_ssdata **data, STARSH_int count, ...)
 //! Generate @ref STARSH_ssdata object with incomplete set of parameters.
-/*! Parses possibly incomplete set of parameters for starsh_ssdata_generate().
+/*! Parse possibly incomplete set of parameters for starsh_ssdata_generate().
  * If argument is not in the `...`, then its default value is used:
  *
  * Argument | Default value | Type

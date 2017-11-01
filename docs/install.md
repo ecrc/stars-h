@@ -1,6 +1,6 @@
 @page installation Installation
 
-Installation requires **CMake** of version 3.2.3 at least. To build STARS-H,
+Installation requires at least **CMake** of version 3.2.3. To build STARS-H,
 follow these instructions:
 
 1.  Get STARS-H from git repository
@@ -47,7 +47,7 @@ follow these instructions:
 
         export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
-    to your bashrc file.
+    to your .bashrc file.
 
 Now you can use pkg-config executable to collect compiler and linker flags for
 STARS-H.
