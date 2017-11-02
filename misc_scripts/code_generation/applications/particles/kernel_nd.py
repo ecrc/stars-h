@@ -6,7 +6,7 @@
              University of Science and Technology (KAUST)
 
  @file src/applications/spatial.c
- @version 1.0.0
+ @version 0.1.0
  @author Aleksandr Mikhalev
  @date 2017-08-22
 """

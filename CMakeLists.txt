@@ -24,7 +24,7 @@ endif()
 
 # Create project and check C compiler
 cmake_policy(SET CMP0048 NEW)
-project(STARS-H VERSION 1.0.0 LANGUAGES C)
+project(STARS-H VERSION 0.1.0 LANGUAGES C)
 
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
