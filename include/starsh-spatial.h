@@ -204,4 +204,9 @@ void starsh_ssdata_block_sqrexp_kernel_nd_simd(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int ld);
 
+
+// Add definitions for other kernels after Doxygen groups have already been
+// defined
+#include "starsh-spatial-gsl.h"
+
 #endif // __STARSH_SPATIAL_H__
