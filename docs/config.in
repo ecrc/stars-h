@@ -799,6 +799,7 @@ INPUT = "@CMAKE_CURRENT_SOURCE_DIR@/index.md"\
     "@CMAKE_CURRENT_SOURCE_DIR@/cmake_opts.md"\
     "@CMAKE_CURRENT_SOURCE_DIR@/apps.md"\
     "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/environment.md"\
     "@CMAKE_CURRENT_SOURCE_DIR@/examples.md"\
     "@DOXYGEN_INPUT@"
 
