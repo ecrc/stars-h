@@ -773,7 +773,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-#INPUT   = "@CMAKE_CURRENT_SOURCE_DIR@/"\
+#INPUT   = "@CMAKE_CURRENT_SOURCE_DIR@/index.md"\
 #    "@CMAKE_CURRENT_SOURCE_DIR@/../include"\
 #    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/spatial" \
 #    "@CMAKE_CURRENT_BINARY_DIR@/../src/applications/electrodynamics" \
@@ -794,7 +794,12 @@ WARN_LOGFILE           =
 #    "@CMAKE_CURRENT_SOURCE_DIR@/../src/control"\
 #    "@CMAKE_CURRENT_SOURCE_DIR@/../src/itersolvers"\
 
-INPUT = "@CMAKE_CURRENT_SOURCE_DIR@/"\
+INPUT = "@CMAKE_CURRENT_SOURCE_DIR@/index.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/install.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/cmake_opts.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/apps.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md"\
+    "@CMAKE_CURRENT_SOURCE_DIR@/examples.md"\
     "@DOXYGEN_INPUT@"
 
 # This tag can be used to specify the character encoding of the source files
@@ -1440,7 +1445,7 @@ DISABLE_INDEX          = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 
 # The ENUM_VALUES_PER_LINE tag can be used to set the number of enum values that
 # doxygen will group on one line in the generated HTML documentation.
@@ -2176,7 +2181,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # set to NO
 # The default value is: YES.
 
-HAVE_DOT               = NO
+HAVE_DOT               = YES
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is allowed
 # to run in parallel. When set to 0 doxygen will base this on the number of
@@ -2338,7 +2343,7 @@ DIRECTORY_GRAPH        = YES
 # The default value is: png.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_IMAGE_FORMAT       = png
+DOT_IMAGE_FORMAT       = svg
 
 # If DOT_IMAGE_FORMAT is set to svg, then this option can be set to YES to
 # enable generation of interactive SVG images that allow zooming and panning.

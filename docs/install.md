@@ -24,7 +24,8 @@ follow these instructions:
 
         mkdir build && cd build
 
-5.  Use CMake to get all the dependencies
+5.  Use CMake to get all the dependencies. For a list of CMake options,
+    click [here](@ref cmake_opts)
 
         cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/
 
