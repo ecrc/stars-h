@@ -5,7 +5,7 @@
  STARS-H is a software package, provided by King Abdullah
              University of Science and Technology (KAUST)
 
- @file src/applications/spatial.c
+ @file misc_scripts/code_generation/applications/particles/kernel_nd.py
  @version 0.1.0
  @author Aleksandr Mikhalev
  @date 2017-08-22
