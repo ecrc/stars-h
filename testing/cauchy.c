@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     if(argc < 5)
     {
         printf("%d arguments provided, but 4 are needed\n", argc-1);
-        printf("Cauchy N block_size maxrank tol\n");
+        printf("cauchy N block_size maxrank tol\n");
         return 1;
     }
     int N = atoi(argv[1]), block_size = atoi(argv[2]);
