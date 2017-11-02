@@ -120,7 +120,7 @@ int starsh_cluster_new_plain(STARSH_cluster **cluster, void *data,
 {
     if(cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `cluster`");
+        STARSH_ERROR("Invalid value of `cluster`");
         return 1;
     }
     STARSH_int i = 0, j, k = 0;

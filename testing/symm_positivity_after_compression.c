@@ -23,8 +23,8 @@
 #include "starsh-spatial.h"
 
 int main(int argc, char **argv)
-// Example of how to use STARS library for spatial statistics.
-// For more information on STARS structures look inside of header files.
+// Example of how to use STARS-H library for spatial statistics.
+// For more information on STARS-H structures look inside of header files.
 {
     /*
     if(argc < 8)

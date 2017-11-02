@@ -33,12 +33,12 @@ int starsh_esdata_new(STARSH_esdata **data, STARSH_int count, int ndim)
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_esdata *tmp;
@@ -73,12 +73,12 @@ int starsh_esdata_init(STARSH_esdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_esdata *tmp;
@@ -103,7 +103,7 @@ int starsh_esdata_generate(STARSH_esdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     int info;
@@ -120,7 +120,7 @@ int starsh_esdata_generate(STARSH_esdata **data, STARSH_int count, int ndim,
 int starsh_esdata_generate_va(STARSH_esdata **data, STARSH_int count,
         va_list args)
 //! Generate @ref STARSH_esdata object with incomplete set of parameters.
-/*! Parses possibly incomplete set of parameters for starsh_esdata_generate().
+/*! Parss possibly incomplete set of parameters for starsh_esdata_generate().
  * If argument is not in the `args`, then its default value is used:
  *
  * Argument | Default value | Type

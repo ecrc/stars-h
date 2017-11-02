@@ -22,7 +22,7 @@ void starsh_cauchy_block_kernel(STARSH_int nrows, STARSH_int ncols,
  * \f[
  *      A_{ij} = \frac{1}{x_i-y_j},
  * \f]
- * where \f$ x \f$ and \f$ y \f$ are coordinates of points in 1-dimensional
+ * where \f$ x \f$ and \f$ y \f$ are coordinates of points in one-dimensional
  * space. Diagonal elements are simply set as
  * \f[
  *      A_{ii} = d_i,

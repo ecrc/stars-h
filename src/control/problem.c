@@ -43,22 +43,22 @@ int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
 {
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim < 2)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     if(shape == NULL)
     {
-        STARSH_ERROR("invalid value of `shape`");
+        STARSH_ERROR("Invalid value of `shape`");
         return STARSH_WRONG_PARAMETER;
     }
     if(kernel == NULL)
     {
-        STARSH_ERROR("invalud value of `kernel`");
+        STARSH_ERROR("Invalid value of `kernel`");
         return STARSH_WRONG_PARAMETER;
     }
     int i;
@@ -73,7 +73,7 @@ int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
         dtype_size = sizeof(double complex);
     else
     {
-        STARSH_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("Invalid value of `dtype`");
         return STARSH_WRONG_PARAMETER;
     }
     size_t entry_size = dtype_size;
@@ -146,28 +146,28 @@ int starsh_problem_get_block(STARSH_problem *problem, STARSH_int nrows,
     STARSH_problem *P = problem;
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `parameter`");
+        STARSH_ERROR("Invalid value of `parameter`");
         return STARSH_WRONG_PARAMETER;
     }
     if(irow == NULL)
     {
-        STARSH_ERROR("invalid value of `irow`");
+        STARSH_ERROR("Invalid value of `irow`");
         return STARSH_WRONG_PARAMETER;
     }
     if(icol == NULL)
     {
-        STARSH_ERROR("invalid value of `icol`");
+        STARSH_ERROR("Invalid value of `icol`");
         return STARSH_WRONG_PARAMETER;
     }
     int ndim = P->ndim, info;
     if(nrows < 0)
     {
-        STARSH_ERROR("invalid value of `nrows`");
+        STARSH_ERROR("Invalid value of `nrows`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ncols < 0)
     {
-        STARSH_ERROR("invalid value of `ncols`");
+        STARSH_ERROR("Invalid value of `ncols`");
         return STARSH_WRONG_PARAMETER;
     }
     int *shape;
@@ -239,22 +239,22 @@ int starsh_problem_from_array(STARSH_problem **problem, Array *A, char symm)
 {
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->ndim < 2)
     {
-        STARSH_ERROR("`A` should be at least 2-dimensional");
+        STARSH_ERROR("`A` should be at least two-dimensional");
         return STARSH_WRONG_PARAMETER;
     }
     if(symm != 'S' && symm != 'N')
     {
-        STARSH_ERROR("invalid value of `symm`");
+        STARSH_ERROR("Invalid value of `symm`");
         return STARSH_WRONG_PARAMETER;
     }
     Array *A2 = A;
@@ -289,12 +289,12 @@ int starsh_problem_to_array(STARSH_problem *problem, Array **A)
 {
     if(problem == NULL)
     {
-        STARSH_ERROR("invalid value of `problem`");
+        STARSH_ERROR("Invalid value of `problem`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_int i;

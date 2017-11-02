@@ -16,7 +16,7 @@
 
 int starsh_init()
 //! Initialize backend and low-rank engine to be used.
-/*! Reads environment variables and sets up backend (etc. MPI) and low-rank
+/*! Read environment variables and sets up backend (etc. MPI) and low-rank
  * engine (etc. SVD).
  *
  * Environment variables

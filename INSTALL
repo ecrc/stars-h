@@ -45,7 +45,7 @@ please follow these instructions:
 
         export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
-    to your bashrc file.
+    to your .bashrc file.
 
 Now you can use pkg-config executable to collect compiler and linker flags for
 STARS-H.
