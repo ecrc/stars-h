@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/cauchy.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -22,7 +22,7 @@ void starsh_cauchy_block_kernel(int nrows, int ncols, STARSH_int *irow,
  * \f[
  *      A_{ij} = \frac{1}{x_i-y_j},
  * \f]
- * where \f$ x \f$ and \f$ y \f$ are coordinates of points in 1-dimensional
+ * where \f$ x \f$ and \f$ y \f$ are coordinates of points in one-dimensional
  * space. Diagonal elements are simply set as
  * \f[
  *      A_{ii} = d_i,

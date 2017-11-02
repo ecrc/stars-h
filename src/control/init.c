@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/init.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -19,7 +19,7 @@
 
 int starsh_init()
 //! Initialize backend and low-rank engine to be used.
-/*! Reads environment variables and sets up backend (etc. MPI) and low-rank
+/*! Read environment variables and sets up backend (etc. MPI) and low-rank
  * engine (etc. SVD).
  *
  * Environment variables

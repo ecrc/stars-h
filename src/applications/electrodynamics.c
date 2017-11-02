@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/electrodynamics.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  */
@@ -33,12 +33,12 @@ int starsh_eddata_new(STARSH_eddata **data, STARSH_int count, int ndim)
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_eddata *tmp;
@@ -75,12 +75,12 @@ int starsh_eddata_init(STARSH_eddata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_eddata *tmp;
@@ -109,7 +109,7 @@ int starsh_eddata_generate(STARSH_eddata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     int info;

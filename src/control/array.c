@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/array.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -31,22 +31,22 @@ int array_from_buffer(Array **A, int ndim, int *shape,
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim < 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     if(order != 'F' && order != 'C')
     {
-        STARSH_ERROR("invalid value of `order`");
+        STARSH_ERROR("Invalid value of `order`");
         return STARSH_WRONG_PARAMETER;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARSH_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("Invalid value of `dtype`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_MALLOC(*A, 1);
@@ -130,7 +130,7 @@ int array_new(Array **A, int ndim, int *shape, char dtype,
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     int info = array_from_buffer(A, ndim, shape, dtype, order, NULL);
@@ -150,12 +150,12 @@ int array_new_like(Array **A, Array *B)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B == NULL)
     {
-        STARSH_ERROR("invalid value of `B`");
+        STARSH_ERROR("Invalid value of `B`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_MALLOC(*A, 1);
@@ -186,17 +186,17 @@ int array_new_copy(Array **A, Array *B, char order)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B == NULL)
     {
-        STARSH_ERROR("invalid value of `B`");
+        STARSH_ERROR("Invalid value of `B`");
         return STARSH_WRONG_PARAMETER;
     }
     if(order != 'F' && order != 'C' && order != 'N')
     {
-        STARSH_ERROR("invalid value of `order`");
+        STARSH_ERROR("Invalid value of `order`");
         return STARSH_WRONG_PARAMETER;
     }
     int info;
@@ -423,12 +423,12 @@ int array_to_matrix(Array *A, char kind)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARSH_ERROR("invalid value of `kind`");
+        STARSH_ERROR("Invalid value of `kind`");
         return STARSH_WRONG_PARAMETER;
     }
     if(kind == 'R')
@@ -462,7 +462,7 @@ int array_trans_inplace(Array *A)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     int i;
@@ -498,17 +498,17 @@ int array_dot(Array* A, Array *B, Array **C)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B == NULL)
     {
-        STARSH_ERROR("invalid value of `B`");
+        STARSH_ERROR("Invalid value of `B`");
         return STARSH_WRONG_PARAMETER;
     }
     if(C == NULL)
     {
-        STARSH_ERROR("invalid value of `C`");
+        STARSH_ERROR("Invalid value of `C`");
         return STARSH_WRONG_PARAMETER;
     }
     int i;
@@ -524,7 +524,7 @@ int array_dot(Array* A, Array *B, Array **C)
     }
     if(A->shape[A->ndim-1] != B->shape[0])
     {
-        STARSH_ERROR("non-multiplicative shapes of `A` and `B`");
+        STARSH_ERROR("Non-multiplicative shapes of `A` and `B`");
         return STARSH_WRONG_PARAMETER;
     }
     int order, new_ndim = A->ndim+B->ndim-2, info;
@@ -586,27 +586,27 @@ int array_SVD(Array *A, Array **U, Array **S, Array **V)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(U == NULL)
     {
-        STARSH_ERROR("invalid value of `U`");
+        STARSH_ERROR("Invalid value of `U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(S == NULL)
     {
-        STARSH_ERROR("invalid value of `S`");
+        STARSH_ERROR("Invalid value of `S`");
         return STARSH_WRONG_PARAMETER;
     }
     if(V == NULL)
     {
-        STARSH_ERROR("invalid value of `V`");
+        STARSH_ERROR("Invalid value of `V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->ndim != 2)
     {
-        STARSH_ERROR("`A` must be 2-dimensional");
+        STARSH_ERROR("`A` must be two-dimensional");
         return STARSH_WRONG_PARAMETER;
     }
     char uv_dtype = A->dtype;
@@ -673,17 +673,17 @@ int SVD_get_rank(Array *S, double tol, char type, int *rank)
 {
     if(S == NULL)
     {
-        STARSH_ERROR("invalid value of `S`");
+        STARSH_ERROR("Invalid value of `S`");
         return STARSH_WRONG_PARAMETER;
     }
     if(rank == NULL)
     {
-        STARSH_ERROR("invalid value of `rank`");
+        STARSH_ERROR("Invalid value of `rank`");
         return STARSH_WRONG_PARAMETER;
     }
     if(type != 'F' && type != '2')
     {
-        STARSH_ERROR("invalid value of `type`");
+        STARSH_ERROR("Invalid value of `type`");
         return STARSH_WRONG_PARAMETER;
     }
     size_t i, size = S->size;
@@ -758,17 +758,17 @@ int array_scale(Array *A, char kind, Array *S)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(S == NULL)
     {
-        STARSH_ERROR("invalid value of `S`");
+        STARSH_ERROR("Invalid value of `S`");
         return STARSH_WRONG_PARAMETER;
     }
     if(kind != 'R' && kind != 'C')
     {
-        STARSH_ERROR("invalid value of `kind`");
+        STARSH_ERROR("Invalid value of `kind`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->dtype != S->dtype)
@@ -824,17 +824,17 @@ int array_diff(Array *A, Array *B, double *result)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B == NULL)
     {
-        STARSH_ERROR("invalid value of `B`");
+        STARSH_ERROR("Invalid value of `B`");
         return STARSH_WRONG_PARAMETER;
     }
     if(result == NULL)
     {
-        STARSH_ERROR("invalid value of `result`");
+        STARSH_ERROR("Invalid value of `result`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->dtype != B->dtype)
@@ -862,7 +862,7 @@ int array_diff(Array *A, Array *B, double *result)
     int copied = 0, info;
     if(A->order != B->order)
     {
-        STARSH_WARNING("`A` and `B` have different data layout "
+        STARSH_WARNING("`A` and `B` have different data layouts "
                 "(one is 'C'-order, another is 'F'-order). Creating copy of "
                 "`B` with data layout of `A`");
         info = array_new_copy(&B, B, A->order);
@@ -913,12 +913,12 @@ int array_norm(Array *A, double *result)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(result == NULL)
     {
-        STARSH_ERROR("invalid value of `result`");
+        STARSH_ERROR("Invalid value of `result`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->dtype == 's')
@@ -951,17 +951,17 @@ int array_convert(Array **A, Array *B, char dtype)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B == NULL)
     {
-        STARSH_ERROR("invalid value of `B`");
+        STARSH_ERROR("Invalid value of `B`");
         return STARSH_WRONG_PARAMETER;
     }
     if(dtype != 's' && dtype != 'd' && dtype != 'c' && dtype != 'z')
     {
-        STARSH_ERROR("invalid value of `dtype`");
+        STARSH_ERROR("Invalid value of `dtype`");
         return STARSH_WRONG_PARAMETER;
     }
     if(B->dtype == dtype)
@@ -1133,12 +1133,12 @@ int array_cholesky(Array *A, char uplo)
 {
     if(A == NULL)
     {
-        STARSH_ERROR("invalid value of `A`");
+        STARSH_ERROR("Invalid value of `A`");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->ndim != 2)
     {
-        STARSH_ERROR("`A` should be 2-dimensional");
+        STARSH_ERROR("`A` should be two-dimensional");
         return STARSH_WRONG_PARAMETER;
     }
     if(A->shape[0] != A->shape[1])
@@ -1148,7 +1148,7 @@ int array_cholesky(Array *A, char uplo)
     }
     if(uplo != 'U' && uplo != 'L')
     {
-        STARSH_ERROR("invalid value of `uplo`");
+        STARSH_ERROR("Invalid value of `uplo`");
         return STARSH_WRONG_PARAMETER;
     }
     int order;

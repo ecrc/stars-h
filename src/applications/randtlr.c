@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/randtlr.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -107,7 +107,7 @@ int starsh_randtlr_generate(STARSH_randtlr **data, STARSH_int count,
 int starsh_randtlr_generate_va(STARSH_randtlr **data, STARSH_int count,
         va_list args)
 //! Generate @ref STARSH_randtlr object with incomplete set of parameters.
-/*! Parses possibly incomplete set of parameters for starsh_randtlr_generate().
+/*! Parse possibly incomplete set of parameters for starsh_randtlr_generate().
  * If argument is not in the `args`, then its default value is used:
  *
  * Argument     | Default value | Type

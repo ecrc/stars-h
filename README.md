@@ -1,44 +1,49 @@
 What is STARS-H?
 ================
 
-STARS-H is a **parallel open-source** software, aimed at measuring performance
-of different libraries for hierarchical computations (including itself). Its
-abbreviation stands for **Software for Testing Accuracy, Reliability and
-Scalability of Hierarchical computations**. Idea behind this testing is to
-provide comparison of operations in different hierarchical formats for a given
-hardware with a focus on clusters of CPUs and GPUs.
+STARS-H is a **high performance parallel open-source** software standing for
+**Software for Testing Accuracy, Reliability and Scalability of Hierarchical 
+computations**. Its core idea is to provide a hierarchical matrix 
+market in order to benchmark performance of various libraries for hierarchical 
+matrix compressions and computations (including itself). STARS-H
+intends to provide a standard for assessing accuracy and performance
+of hierarchical matrix libraries on a given hardware architecture environment.
+STARS-H currently supports only the tile low-rank (TLR) data format for approximation
+on shared and distributed-memory systems, using MPI, OpenMP and task-based programming
+models.
 
 Vision of STARS-H
 =================
 
-Main purpose of STARS-H is to serve as a connection between different synthetic
-and real problems and block-wise low-rank matrices/tensors. Such matrix/tensor
-formats are presented by, but not limited to: tile low-rank (matrix is divided
-into equal tiles), HSS, HODLR, H and H^2. Many other hierarchical libraries
-already can do it, but they are either not open-source or not parallel at all.
-STARS-H is meant to fill in this gap. Also, functionality of STARS-H is limited
-to building approximations in different formats and multiplication of matrices
-in such formats by dense matrices. This is due to another ECRC project, called
-HiCMA, aimed at performing different operations on hierarchical matrices.
+The vision of STARS-H is to design, implement and provide a community code for
+hierarchical matrix generator with support of various data formats for approximation, 
+including, but limited to, TLR, HSS, HODLR, H and H^2. STARS-H aspires to be 
+for the low-rank approximation community what UF Sparse Matrix Collection is 
+for the sparse linear algebra community, by generating hierarchical matrices 
+coming from a variety of synthetic and real-world applications. Furthermore, 
+extracting the performance of the underlying hardware resources (i.e., x86 and GPUs) 
+is in the DNA of STARS-H, since the approximation phase can be time-consuming 
+on large-scale scientific applications.
 
 Features of STARS-H
 ===================
 
 This project is WIP, with current features limited to:
 
-The only supported format is Tile Low Rank (TLR):
-1.  Approximation
+The only supported data format is Tile Low Rank (TLR):
+1.  TLR Approximation
 2.  Multiplication of TLR matrix by dense matrix
 
-Backends:
+Programming models:
 1.  OpenMP
 2.  MPI
-3.  StarPU (shared-memory support only)
+3.  Task-based using StarPU (shared-memory x86 support only)
 
 Applications:
 1.  Synthetic TLR problems 
 2.  Spatial statistics (i.e., exponential, square exponential, and 
     Matern kernels)
+3. There is more here... Alex?
 
 TODO List
 =========
@@ -46,12 +51,13 @@ TODO List
 1.  Add support for more matrix kernels and applications 
 2.  Extend support to hardware accelerators (i.e, GPUs)
 3.  Provide full StarPU support (GPUs and distributed-memory systems)
-4.  Implement additional formats: HODLR/H/HSS/H^2
+4.  Port to other dynamic runtime systems
+5.  Implement additional formats: HODLR/H/HSS/H^2
 
 Installation
 ============
 
-Installation requires **CMake** of version 3.2.3 at least. To build STARS-H,
+Installation requires at least **CMake** of version 3.2.3. To build STARS-H,
 follow these instructions:
 
 1.  Get STARS-H from git repository
@@ -98,7 +104,7 @@ follow these instructions:
 
         export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
 
-    to your bashrc file.
+    to your .bashrc file.
 
 Now you can use pkg-config executable to collect compiler and linker flags for
 STARS-H.
@@ -112,5 +118,5 @@ minimal or dense) and how to create STARSH\_problem instance, required for every
 step of STARS-H. The examples in `approximation` are based on problem generations 
 and have additional steps on approximation of corresponding matrices.
 
-*Important notice: approximation does not require dense matrix to be stored
-anywhere, only required matrix elements are computed on the fly.*
+*Important notice: the approximation phase does not require the entire dense matrix 
+to be stored, since matrix elements are computed on the fly.*

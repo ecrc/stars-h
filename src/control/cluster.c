@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/cluster.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -120,7 +120,7 @@ int starsh_cluster_new_plain(STARSH_cluster **cluster, void *data,
 {
     if(cluster == NULL)
     {
-        STARSH_ERROR("invalid value of `cluster`");
+        STARSH_ERROR("Invalid value of `cluster`");
         return 1;
     }
     STARSH_int i = 0, j, k = 0;

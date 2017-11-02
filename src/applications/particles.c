@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/particles.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  */
@@ -36,12 +36,12 @@ int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim)
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_particles *tmp;
@@ -76,12 +76,12 @@ int starsh_particles_init(STARSH_particles **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-        STARSH_ERROR("invalid value of `data`");
+        STARSH_ERROR("Invalid value of `data`");
         return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-        STARSH_ERROR("invalid value of `ndim`");
+        STARSH_ERROR("Invalid value of `ndim`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_particles *tmp;

@@ -13,7 +13,7 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/electrodynamics/kernel_cos.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  */

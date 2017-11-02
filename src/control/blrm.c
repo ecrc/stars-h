@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/blrm.c
- * @version 1.0.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
  * */
@@ -37,59 +37,59 @@ int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
 {
     if(matrix == NULL)
     {
-        STARSH_ERROR("invalid value of `matrix`");
+        STARSH_ERROR("Invalid value of `matrix`");
         return STARSH_WRONG_PARAMETER;
     }
     if(format == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrf *F = format;
     if(far_rank == NULL && F->nblocks_far > 0)
     {
-        STARSH_ERROR("invalid value of `far_rank`");
+        STARSH_ERROR("Invalid value of `far_rank`");
         return STARSH_WRONG_PARAMETER;
     }
     if(far_U == NULL && F->nblocks_far > 0)
     {
-        STARSH_ERROR("invalid value of `far_U`");
+        STARSH_ERROR("Invalid value of `far_U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(far_V == NULL && F->nblocks_far > 0)
     {
-        STARSH_ERROR("invalid value of `far_V`");
+        STARSH_ERROR("Invalid value of `far_V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(onfly != 0 && onfly != 1)
     {
-        STARSH_ERROR("invalid value of `onfly`");
+        STARSH_ERROR("Invalid value of `onfly`");
         return STARSH_WRONG_PARAMETER;
     }
     if(near_D == NULL && F->nblocks_near > 0 && onfly == 0)
     {
-        STARSH_ERROR("invalid value of `near_D`");
+        STARSH_ERROR("Invalid value of `near_D`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_type != '1' && alloc_type != '2')
     {
-        STARSH_ERROR("invalid value of `alloc_type`");
+        STARSH_ERROR("Invalid value of `alloc_type`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_U == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
-        STARSH_ERROR("invalid value of `alloc_U`");
+        STARSH_ERROR("Invalid value of `alloc_U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_V == NULL && F->nblocks_far > 0 && alloc_type == '1')
     {
-        STARSH_ERROR("invalid value of `alloc_V`");
+        STARSH_ERROR("Invalid value of `alloc_V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_D == NULL && F->nblocks_near > 0 && alloc_type == '1' &&
             onfly == 0)
     {
-        STARSH_ERROR("invalid value of `alloc_D`");
+        STARSH_ERROR("Invalid value of `alloc_D`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrm *M;
@@ -220,49 +220,49 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
     STARSH_blrm *M = matrix;
     if(M == NULL)
     {
-        STARSH_ERROR("invalid value of `matrix`");
+        STARSH_ERROR("Invalid value of `matrix`");
         return STARSH_WRONG_PARAMETER;
     }
     if(shape == NULL)
     {
-        STARSH_ERROR("invalid value of `shape`");
+        STARSH_ERROR("Invalid value of `shape`");
         return STARSH_WRONG_PARAMETER;
     }
     if(rank == NULL)
     {
-        STARSH_ERROR("invalid value of `rank`");
+        STARSH_ERROR("Invalid value of `rank`");
         return STARSH_WRONG_PARAMETER;
     }
     if(U == NULL)
     {
-        STARSH_ERROR("invalid value of `U`");
+        STARSH_ERROR("Invalid value of `U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(V == NULL)
     {
-        STARSH_ERROR("invalid value of `V`");
+        STARSH_ERROR("Invalid value of `V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(D == NULL)
     {
-        STARSH_ERROR("invalid value of `D`");
+        STARSH_ERROR("Invalid value of `D`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrf *F = M->format;
     if(i < 0 || i >= F->nbrows)
     {
-        STARSH_ERROR("invalid value of `i`");
+        STARSH_ERROR("Invalid value of `i`");
         return STARSH_WRONG_PARAMETER;
     }
     if(j < 0 || j >= F->nbcols)
     {
-        STARSH_ERROR("invalid value of `j`");
+        STARSH_ERROR("Invalid value of `j`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_problem *P = F->problem;
     if(P->ndim != 2)
     {
-        STARSH_ERROR("only scalar kernels are supported");
+        STARSH_ERROR("Only scalar kernels are supported");
         return STARSH_WRONG_PARAMETER;
     }
     int onfly = M->onfly;
@@ -349,59 +349,59 @@ int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
 {
     if(matrix == NULL)
     {
-        STARSH_ERROR("invalid value of `matrix`");
+        STARSH_ERROR("Invalid value of `matrix`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrf *F = format;
     if(F == NULL)
     {
-        STARSH_ERROR("invalid value of `format`");
+        STARSH_ERROR("Invalid value of `format`");
         return STARSH_WRONG_PARAMETER;
     }
     if(far_rank == NULL && F->nblocks_far_local > 0)
     {
-        STARSH_ERROR("invalid value of `far_rank`");
+        STARSH_ERROR("Invalid value of `far_rank`");
         return STARSH_WRONG_PARAMETER;
     }
     if(far_U == NULL && F->nblocks_far_local > 0)
     {
-        STARSH_ERROR("invalid value of `far_U`");
+        STARSH_ERROR("Invalid value of `far_U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(far_V == NULL && F->nblocks_far_local > 0)
     {
-        STARSH_ERROR("invalid value of `far_V`");
+        STARSH_ERROR("Invalid value of `far_V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(onfly != 0 && onfly != 1)
     {
-        STARSH_ERROR("invalid value of `onfly`");
+        STARSH_ERROR("Invalid value of `onfly`");
         return STARSH_WRONG_PARAMETER;
     }
     if(near_D == NULL && F->nblocks_near_local > 0 && onfly == 0)
     {
-        STARSH_ERROR("invalid value of `near_D`");
+        STARSH_ERROR("Invalid value of `near_D`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_type != '1' && alloc_type != '2')
     {
-        STARSH_ERROR("invalid value of `alloc_type`");
+        STARSH_ERROR("Invalid value of `alloc_type`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_U == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
     {
-        STARSH_ERROR("invalid value of `alloc_U`");
+        STARSH_ERROR("Invalid value of `alloc_U`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_V == NULL && F->nblocks_far_local > 0 && alloc_type == '1')
     {
-        STARSH_ERROR("invalid value of `alloc_V`");
+        STARSH_ERROR("Invalid value of `alloc_V`");
         return STARSH_WRONG_PARAMETER;
     }
     if(alloc_D == NULL && F->nblocks_near_local > 0 && alloc_type == '1' &&
             onfly == 0)
     {
-        STARSH_ERROR("invalid value of `alloc_D`");
+        STARSH_ERROR("Invalid value of `alloc_D`");
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_blrm *M;
