@@ -57,3 +57,13 @@ Low-rank approximation techniques (low-rank engines):
 
 Additional:
 1. CG method for symmetric positive-definite (SPD) systems.
+
+TODO List
+---------
+
+1.  Add support for more matrix kernels and applications 
+2.  Extend support to hardware accelerators (i.e, GPUs)
+3.  Provide full StarPU support (GPUs and distributed-memory systems)
+4.  Port to other dynamic runtime systems
+5.  Implement additional low-rank routines like ACA.
+6.  Implement additional formats: HODLR/H/HSS/H^2
