@@ -1,16 +1,19 @@
 What is STARS-H?
 ================
 
-STARS-H is a **high performance parallel open-source** software standing for
-**Software for Testing Accuracy, Reliability and Scalability of Hierarchical 
-computations**. Its core idea is to provide a hierarchical matrix 
-market in order to benchmark performance of various libraries for hierarchical 
-matrix compressions and computations (including itself). STARS-H
-intends to provide a standard for assessing accuracy and performance
-of hierarchical matrix libraries on a given hardware architecture environment.
-STARS-H currently supports only the tile low-rank (TLR) data format for
-approximation on shared and distributed-memory systems, using MPI, OpenMP and
-task-based programming models.
+STARS-H is a **high performance parallel open-source** package of **Software
+for Testing Accuracy, Reliability and Scalability of Hierarchical
+computations**. It
+provides a hierarchical matrix market in order to benchmark performance of
+various libraries for hierarchical matrix compressions and computations
+(including itself). **Why hierarchical matrices?** Because such matrices arise
+in many PDEs and use much less memory, while requiring fewer flops for
+computations. There are several hierarchical data formats, each one with its
+own performance and memory footprint. STARS-H intends to provide a standard for
+assessing accuracy and performance of hierarchical matrix libraries on a given
+hardware architecture environment. STARS-H currently supports the tile low-rank
+(TLR) data format for approximation on shared and distributed-memory systems,
+using MPI, OpenMP and task-based programming models.
 
 Vision of STARS-H
 =================
@@ -131,3 +134,6 @@ and have additional steps on approximation of corresponding matrices.
 
 *Important notice: the approximation phase does not require the entire dense matrix 
 to be stored, since matrix elements are computed on the fly.*
+
+
+![Handout](docs/STARS-H-final.png)
