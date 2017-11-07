@@ -136,4 +136,4 @@ and have additional steps on approximation of corresponding matrices.
 to be stored, since matrix elements are computed on the fly.*
 
 
-![Handout](STARS-H-final.png)
+![Handout](docs/STARS-H-final.png)
