@@ -7,7 +7,7 @@
  * @file include/starsh-spatial-gsl.h
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-22
+ * @date 2017-11-07
  * */
 
 #ifndef __STARSH_SPATIAL_GSL_H__

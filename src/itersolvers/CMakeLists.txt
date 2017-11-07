@@ -7,7 +7,7 @@
 # @file src/itersolvers/CMakeLists.txt
 # @version 0.1.0
 # @author Aleksandr Mikhalev
-# @date 2017-08-22
+# @date 2017-11-07
 
 
 # set the values of the variable in the parent scope

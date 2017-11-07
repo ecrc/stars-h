@@ -7,7 +7,7 @@
  * @file src/backends/mpi_starpu/blrm/drsdd.c
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-08-22
+ * @date 2017-11-07
  * */
 
 #include "common.h"

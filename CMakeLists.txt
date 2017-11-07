@@ -8,7 +8,7 @@
 # @version 0.1.0
 # @author Eduardo Gonzalez Fisher
 # @author Aleksandr Mikhalev
-# @date 2017-08-22
+# @date 2017-11-07
 
 
 ###############################################################################

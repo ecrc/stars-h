@@ -7,7 +7,7 @@
 # @file src/applications/electrostatics/CMakeLists.txt
 # @version 0.1.0
 # @author Aleksandr Mikhalev
-# @date 2017-08-22
+# @date 2017-11-07
 
 EXECUTE_PROCESS(COMMAND "python"
     "../misc_scripts/code_generation/applications/particles/kernel_nd.py"
