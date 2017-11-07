@@ -27,6 +27,7 @@
 #include "starsh-particles.h"
 
 //! Cauchy problem reuses structure for particles.
+//! @ingroup app-cauchy
 typedef STARSH_particles STARSH_cauchy;
 
 enum STARSH_CAUCHY_KERNEL
@@ -59,8 +60,8 @@ enum STARSH_CAUCHY_PARAM
     //!< Diagonal values of Cauchy matrix.
 };
 
-int starsh_cauchy_init(STARSH_cauchy **data, STARSH_int n, double *point);
-int starsh_cauchy_new(STARSH_cauchy **data, STARSH_int n, double *point,
+int starsh_cauchy_init(STARSH_cauchy **data, STARSH_int count, double *point);
+int starsh_cauchy_new(STARSH_cauchy **data, STARSH_int count, double *point,
         double *diag);
 int starsh_cauchy_new_va(STARSH_cauchy **data, STARSH_int count, va_list args);
 int starsh_cauchy_new_el(STARSH_cauchy **data, STARSH_int count, ...);
@@ -69,6 +70,8 @@ int starsh_cauchy_get_kernel(STARSH_kernel **kernel, STARSH_cauchy *data,
         enum STARSH_CAUCHY_KERNEL type);
 
 // KERNELS
-STARSH_kernel starsh_cauchy_block_kernel;
+void starsh_cauchy_block_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld);
 
 #endif // __STARSH_CAUCHY_H__

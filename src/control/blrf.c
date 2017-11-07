@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrf_new(STARSH_blrf **format, STARSH_problem *problem, char symm,
         STARSH_cluster *row_cluster, STARSH_cluster *col_cluster,
@@ -552,9 +553,9 @@ int starsh_blrf_new_from_coo_mpi(STARSH_blrf **format, STARSH_problem *problem,
  *      locally on MPI node.
  * @param[in] nblocks_near: Number of admissible near-field blocks.
  * @param[in] block_near: Coordinates of admissible near-field blocks.
- * @param[in] nblocks_far_local: Number of admissible near-field blocks, stored
- *      locally on MPI node.
- * @param[in] block_far_local: List of admissible near-field blocks, stored
+ * @param[in] nblocks_near_local: Number of admissible near-field blocks,
+ *      stored locally on MPI node.
+ * @param[in] block_near_local: List of admissible near-field blocks, stored
  *      locally on MPI node.
  * @param[in] type: Type of format.
  * @return Error code @ref STARSH_ERRNO.

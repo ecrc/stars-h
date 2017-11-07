@@ -11,6 +11,9 @@
  * */
 
 #include "starsh.h"
+#include "starsh-mpi.h"
+#include "starsh-starpu.h"
+#include "starsh-mpi-starpu.h"
 #include "common.h"
 #include "control/init.h"
 

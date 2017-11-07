@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-starpu.h"
 
 void starsh_dense_kernel_starpu(void *buffer[], void *cl_arg)
 //! STARPU kernel for matrix kernel.

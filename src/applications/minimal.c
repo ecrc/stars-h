@@ -14,9 +14,9 @@
 #include "starsh.h"
 #include "starsh-minimal.h"
 
-void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
-        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result, STARSH_int ld)
+void starsh_mindata_block_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld)
 //! The only kernel for @ref STARSH_mindata object.
 /*! @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
@@ -29,11 +29,11 @@ void starsh_mindata_block_kernel(STARSH_int nrows, STARSH_int ncols,
  * @ingroup app-minimal
  * */
 {
-    STARSH_int i, j;
+    int i, j;
     STARSH_mindata *data = row_data;
     STARSH_int n = data->count;
     double *buffer = result;
-    //#pragma omp simd
+    #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -71,7 +71,7 @@ int starsh_mindata_get_kernel(STARSH_kernel **kernel, STARSH_mindata *data,
         enum STARSH_MINIMAL_KERNEL type)
 //! Get kernel for minimal working example.
 /*! Kernel can be selected with this call or manually. Currently, there is only
- * one kernel for @STARSH_mindata problem.
+ * one kernel for @ref STARSH_mindata problem.
  *
  * @param[out] kernel: Address of @ref STARSH_kernel function.
  * @param[in] data: Pointer to @ref STARSH_mindata object.
@@ -93,3 +93,4 @@ int starsh_mindata_get_kernel(STARSH_kernel **kernel, STARSH_mindata *data,
     }
     return STARSH_SUCCESS;
 }
+

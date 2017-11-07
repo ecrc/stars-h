@@ -14,9 +14,9 @@
 #include "starsh.h"
 #include "starsh-randtlr.h"
 
-void starsh_randtlr_block_kernel(STARSH_int nrows, STARSH_int ncols,
-        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result, STARSH_int ld)
+void starsh_randtlr_block_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld)
 //! The only kernel for @ref STARSH_randtlr object.
 /*! @param[in] nrows: Number of rows of \f$ A \f$.
  * @param[in] ncols: Number of columns of \f$ A \f$.
@@ -214,7 +214,7 @@ int starsh_randtlr_get_kernel(STARSH_kernel **kernel, STARSH_randtlr *data,
         enum STARSH_RANDTLR_KERNEL type)
 //! Get kernel for spatial statistics problem.
 /*! Kernel can be selected with this call or manually. Currently, there is only
- * one kernel for @STARSH_randtlr problem.
+ * one kernel for @ref STARSH_randtlr problem.
  *
  * @param[out] kernel: Address of pointer to @ref STARSH_kernel function.
  * @param[in] data: Pointer to @ref STARSH_randtlr object.

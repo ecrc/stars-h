@@ -22,14 +22,15 @@
 #include "starsh.h"
 #include "starsh-electrostatics.h"
 
-// If dimensionality is static, then replace variable ndim with integer value
+// If dimensionality is static
 #if (@NDIM != n)
+//! Replace variable ndim with static integer value
 #define ndim @NDIM
 #endif
 
-void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
 //! Coulomb potential for @NDIM-dimensional electrostatics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
@@ -46,15 +47,15 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd().
+ * @sa starsh_esdata_block_coulomb_potential_kernel_1d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_2d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_3d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_4d(),
+ *      starsh_esdata_block_coulomb_potential_kernel_nd().
  * @ingroup app-electrostatics-kernels
  * */
 {
-    STARSH_int i, j, k;
+    int i, j, k;
     STARSH_esdata *data1 = row_data;
     STARSH_esdata *data2 = col_data;
     double tmp, dist;
@@ -97,13 +98,13 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd(STARSH_int nrows,
     }
 }
 
-void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
-        void *col_data, void *result, STARSH_int ld)
+void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(int nrows,
+        int ncols, STARSH_int *irow, STARSH_int *icol, void *row_data,
+        void *col_data, void *result, int ld)
 //! Coulomb potential for @NDIM-dimensional electrostatics problem.
 /*! Fills matrix \f$ A \f$ with values
  * \f[
- *      A_{ij} = \frac{1}{r_{ij},
+ *      A_{ij} = \frac{1}{r_{ij}},
  * \f]
  * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
  * points. No memory is allocated in this function!
@@ -118,11 +119,11 @@ void starsh_esdata_block_coulomb_potential_kernel_@NDIMd_simd(STARSH_int nrows,
  * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
- * @sa starsh_ssdata_block_coulomb_potential_kernel_1d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_2d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_3d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_4d_simd(),
- *      starsh_ssdata_block_coulomb_potential_kernel_nd_simd().
+ * @sa starsh_esdata_block_coulomb_potential_kernel_1d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_2d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_3d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_4d_simd(),
+ *      starsh_esdata_block_coulomb_potential_kernel_nd_simd().
  * @ingroup app-electrostatics-kernels
  * */
 {

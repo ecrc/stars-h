@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi-starpu.h"
 
 int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly)
@@ -20,7 +21,6 @@ int starsh_blrm__dqp3_mpi_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
  * @param[out] matrix: Address of pointer to @ref STARSH_blrm object.
  * @param[in] format: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
  * @return Error code @ref STARSH_ERRNO.

@@ -12,15 +12,15 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrm__dna_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly)
 //! Simply compute matrix without any approximation.
 /*! @ingroup blrm
- * @param[out] M: Address of pointer to `STARSH_blrm` object.
- * @param[in] F: Block low-rank format.
+ * @param[out] matrix: Address of pointer to `STARSH_blrm` object.
+ * @param[in] format: Block low-rank format.
  * @param[in] maxrank: Maximum possible rank.
- * @param[in] oversample: Rank oversampling.
  * @param[in] tol: Relative error tolerance.
  * @param[in] onfly: Whether not to store dense blocks.
  * */

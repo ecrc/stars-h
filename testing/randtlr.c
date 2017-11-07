@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include "starsh.h"
-#include "starsh-randtlr.h"
+#include <starsh.h>
+#include <starsh-randtlr.h>
 
 int main(int argc, char **argv)
 {

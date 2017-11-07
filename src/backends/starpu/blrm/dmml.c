@@ -5,6 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/starpu/blrm/dmml.c
+ *
+ * @cond
+ * This command in pair with endcond will prevent file from being documented.
+ *
  * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -12,9 +16,13 @@
 
 #include "starsh.h"
 #include "common.h"
+#include "starsh-starpu.h"
 
-int starsh_blrm__dmml_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
-        double *A, int lda, double beta, double *B, int ldb)
+// Compilation of this file should file because it is intended to fail
+// This fail is commented due to bug
+
+//int starsh_blrm__dmml_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
+//        double *A, int lda, double beta, double *B, int ldb)
 //! Multiply blr-matrix by dense matrix.
 /*! Performs `C=alpha*A*B+beta*C` with @ref STARSH_blrm `A` and dense matrices
  * `B` and `C`. All the integer types are int, since they are used in BLAS
@@ -359,3 +367,5 @@ int starsh_blrm__dmml_starpu(STARSH_blrm *matrix, int nrhs, double alpha,
     starpu_task_wait_for_all();
     return 0;
 }
+
+//! @endcond

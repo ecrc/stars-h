@@ -22,7 +22,6 @@ int starsh_dense_dsvfr(int size, double *S, double tol)
  * @param[in] S: Array of singular values.
  * @param[in] tol: Relative error tolerance.
  * @return rank in terms of relative error in Frobenius norm.
- * @ingroup approximations
  * */
 {
     int i;

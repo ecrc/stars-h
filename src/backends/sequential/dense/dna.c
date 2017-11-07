@@ -31,7 +31,6 @@ void starsh_dense_dlrna(int nrows, int ncols, double *D, double *U, double *V,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
- * @ingroup approximations
  * */
 {
     *rank = -1;

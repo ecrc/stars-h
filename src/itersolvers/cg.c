@@ -12,9 +12,13 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
-/*! @defgroup solvers
+/*! @defgroup solvers Set of solvers
  * @brief Set of solvers
+ * 
+ * Although this is not intented to be STARS-H business, we plan on putting
+ * here some easy iterative methods.
  * */
 
 int starsh_itersolvers__dcg_omp(STARSH_blrm *matrix, int nrhs, double *B,

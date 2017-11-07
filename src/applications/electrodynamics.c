@@ -101,6 +101,7 @@ int starsh_eddata_generate(STARSH_eddata **data, STARSH_int count, int ndim,
  * @param[in] ndim: Dimensionality of space.
  * @param[in] k: Wave number.
  * @param[in] diag: Value of diagonal elements.
+ * @param[in] place: Placement strategy for spatial points.
  * @return Error code @ref STARSH_ERRNO.
  * @sa starsh_eddata_generate_va(), starsh_eddata_generate_el().
  * @ingroup app-electrodynamics

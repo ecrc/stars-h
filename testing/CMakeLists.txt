@@ -1,3 +1,15 @@
+# @copyright (c) 2017 King Abdullah University of Science and
+#                      Technology (KAUST). All rights reserved.
+#
+# STARS-H is a software package, provided by King Abdullah
+#             University of Science and Technology (KAUST)
+#
+# @file testing/CMakeLists.txt
+# @version 0.1.0
+# @author Aleksandr Mikhalev
+# @date 2017-08-22
+
+
 # Defines the source files of the tests. Each file generates 1 test
 set(tests_files
     "particles.c")
@@ -47,10 +59,6 @@ if(MPI AND STARPU)
         "mpi_starpu_electrostatics.c"
         "mpi_starpu_electrodynamics.c"
         )
-endif()
-
-if(PLASMA)
-    #list(APPEND tests_files "plasma/solve.c")
 endif()
 
 # Uses RUNPATH instead of RPATH

@@ -85,15 +85,37 @@ void starsh_esdata_free(STARSH_esdata *data);
 
 // KERNELS
 
-STARSH_kernel starsh_esdata_block_coulomb_potential_kernel_1d,
-              starsh_esdata_block_coulomb_potential_kernel_1d_simd,
-              starsh_esdata_block_coulomb_potential_kernel_2d,
-              starsh_esdata_block_coulomb_potential_kernel_2d_simd,
-              starsh_esdata_block_coulomb_potential_kernel_3d,
-              starsh_esdata_block_coulomb_potential_kernel_3d_simd,
-              starsh_esdata_block_coulomb_potential_kernel_4d,
-              starsh_esdata_block_coulomb_potential_kernel_4d_simd,
-              starsh_esdata_block_coulomb_potential_kernel_nd,
-              starsh_esdata_block_coulomb_potential_kernel_nd_simd;
+void starsh_esdata_block_coulomb_potential_kernel_1d(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_2d(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_3d(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_4d(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_nd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+
+void starsh_esdata_block_coulomb_potential_kernel_1d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_3d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_4d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_esdata_block_coulomb_potential_kernel_nd_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
 
 #endif // __STARSH_ELECTROSTATICS_H__
+

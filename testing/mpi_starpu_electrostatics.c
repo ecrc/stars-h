@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <starpu.h>
-#include "starsh.h"
-#include "starsh-electrostatics.h"
+#include <starsh.h>
+#include <starsh-electrostatics.h>
 
 int main(int argc, char **argv)
 {
@@ -148,6 +148,7 @@ int main(int argc, char **argv)
         return 1;
     }
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
+    /* Not performed due to no matvec yet with STARPU
     double *x, *y, *y_tlr;
     int nrhs = 1;
     x = malloc(N*nrhs*sizeof(*x));
@@ -183,6 +184,7 @@ int main(int argc, char **argv)
         printf("MATVEC DIFF: %e\n", cblas_dnrm2(N, y_tlr, 1)
                 /cblas_dnrm2(N, y, 1));
     }
+    */
     starpu_shutdown();
     MPI_Finalize();
     return 0;

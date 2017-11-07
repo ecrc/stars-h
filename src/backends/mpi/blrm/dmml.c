@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrm__dmml_mpi(STARSH_blrm *matrix, int nrhs, double alpha,
         double *A, int lda, double beta, double *B, int ldb)

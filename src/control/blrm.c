@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-mpi.h"
 
 int starsh_blrm_new(STARSH_blrm **matrix, STARSH_blrf *format, int *far_rank,
         Array **far_U, Array **far_V, int onfly, Array **near_D, void *alloc_U,
@@ -320,76 +321,10 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
     return info;
 }
 
+//! Pointer to approximation function, corresponding to environment variables
+//! @ingroup blrm
 STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
-//int (*starsh_blrm_approximate)(STARSH_blrm **M, STARSH_blrf *F, STARSH_int maxrank,
-//        double tol, int onfly) = NULL;
-//! Main call to get approximation in non-nested block low-rank format.
-/*! @ingroup blrm
- * @param[out] M: Address of pointer to `STARSH_blrm` object.
- * @param[in,out] F: Format of a matrix. May be changed on exit.
- * @param[in] maxrank: Maximum rank.
- * @param[in] oversample: Oversampling parameter for randomized SVD. Use `10`
- *     as default value.
- * @param[in] tol: Relative error tolerance.
- * @param[in] onfly: Whether not to store dense near-field blocks.
- * @param[in] scheme: Scheme to use for low=-rank approximations. Possible
- *     values are: `sdd`, `qp3`, `rsdd`, `rsdd2`, `omp_sdd`, `omp_qp3`,
- *     `omp_rsdd`, `omp_rsdd2`, `starpu_sdd`, `starpu_qp3`, `starpu_rsdd`,
- *     `starpu_rsdd2`, 
- * @return Error code.
- * */
-/*
-int starsh_blrm_approximate(STARSH_blrm **M, STARSH_blrf *F, STARSH_int maxrank,
-        STARSH_int oversample, double tol, int onfly, const char *scheme)
-{
-    if(strcmp(scheme, "sdd") == 0)
-        starsh_blrm__dsdd(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "rsdd") == 0)
-        starsh_blrm__drsdd(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "rsdd2") == 0)
-        starsh_blrm__drsdd2(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "qp3") == 0)
-        starsh_blrm__dqp3(M, F, maxrank, oversample, tol, onfly);
-#ifdef OPENMP
-    else if(strcmp(scheme, "omp_sdd") == 0)
-        starsh_blrm__dsdd_omp(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "omp_rsdd") == 0)
-        starsh_blrm__drsdd_omp(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "omp_rsdd2") == 0)
-        starsh_blrm__drsdd2_omp(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "omp_qp3") == 0)
-        starsh_blrm__dqp3_omp(M, F, maxrank, oversample, tol, onfly);
-#endif
-#ifdef STARPU
-    else if(strcmp(scheme, "starpu_sdd") == 0)
-        starsh_blrm__dsdd_starpu(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_rsdd") == 0)
-        starsh_blrm__drsdd_starpu(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_rsdd2") == 0)
-        starsh_blrm__drsdd2_starpu(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "starpu_qp3") == 0)
-        starsh_blrm__dqp3_starpu(M, F, maxrank, oversample, tol, onfly);
-#endif
-#ifdef MPI
-    else if(strcmp(scheme, "mpi_sdd") == 0)
-        starsh_blrm__dsdd_mpi(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "mpi_rsdd") == 0)
-        starsh_blrm__drsdd_mpi(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "mpi_qp3") == 0)
-        starsh_blrm__dqp3_mpi(M, F, maxrank, oversample, tol, onfly);
-    else if(strcmp(scheme, "mpi_na") == 0)
-        starsh_blrm__dna_mpi(M, F, maxrank, oversample, tol, onfly);
-#endif
-    else
-    {
-        STARSH_ERROR("wrong scheme (possible: sdd, rsdd, qp3, starpu_sdd, "
-                "starpu_rsdd, starpu_rsdd2, starpu_qp3, omp_sdd, omp_rsdd, "
-                "omp_rsdd2, omp_qp3, mpi_sdd, mpi_rsdd, mpi_qp3)");
-        return 1;
-    }
-    return 0;
-}
-*/
+
 #ifdef MPI
 int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         int *far_rank, Array **far_U, Array **far_V, int onfly, Array **near_D,

@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "starsh.h"
+#include "starsh-starpu.h"
 
 int starsh_blrm__dqp3_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly)

@@ -26,7 +26,7 @@
 #  @date 22-08-2017
 #
 ###
-set(dep_message "\nConfiguration of STARS-H:\n"
+set(dep_message "\nConfiguration of STARS-H ${PROJECT_VERSION}:\n"
         "       Compiler: C .........: ${CMAKE_C_COMPILER} "
         "(${CMAKE_C_COMPILER_ID})\n"
 #        "       Compiler: Fortran ...: ${CMAKE_Fortran_COMPILER} "
@@ -58,20 +58,17 @@ set(dep_message "${dep_message}"
 "       Kernels specific\n"
 "       BLAS ................: ${BLAS_VENDOR_FOUND} [${BLAS_LIBRARIES}]\n"
 "       LAPACK...............: ${LAPACK_VENDOR_FOUND} [${LAPACK_LIBRARIES}]\n"
-#"\n"
-#"       Chameleon ...........: ${CHAMELEON_DIR_FOUND}\n"
-#"       STARS-H .............: ${STARSH_DIR_FOUND}\n"
-#"\n"
-#"       Trace ...............: ${STARSH_ENABLE_TRACING}\n"
-#"       Simulation mode .....: ${STARSH_SIMULATION}\n"
+"\n"
+"       Other\n"
+"       GSL .................: ${GSL} [${GSL_LIBRARIES}]\n"
 "\n"
 "       Binaries to build\n"
-"       documentation ........: ${DOCS}\n"
-"       example ..............: ${EXAMPLES}\n"
-"       testing ..............: ${TESTING}\n"
+"       documentation .......: ${DOCS}\n"
+"       examples ............: ${EXAMPLES}\n"
+"       testing .............: ${TESTING}\n"
 #"       timing ...............: ${STARSH_ENABLE_TIMING}\n"
 "\n"
-"       STARSH dependencies :\n")
+"       STARSH dependencies .:\n")
 foreach (_dep ${STARSH_DEP})
     set(dep_message "${dep_message}"
     "                                 ${_dep}\n")

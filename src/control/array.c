@@ -15,8 +15,11 @@
 
 int array_from_buffer(Array **A, int ndim, int *shape,
         char dtype, char order, void *data)
-//! Init @ref array object from given buffer.
-/*! @param[out] A: Address of pointer to @ref array object.
+//! Init array from given buffer.
+/*! Memory is automatically allocated, do not forget to free it by @ref
+ * array_free().
+ *
+ * @param[out] A: Output array.
  * @param[in] ndim: Number of dimensions of array, `ndim > 1`.
  * @param[in] shape: Size of array in each dimension.
  * @param[in] dtype: Precision of array element.
@@ -115,8 +118,8 @@ int array_from_buffer(Array **A, int ndim, int *shape,
 
 int array_new(Array **A, int ndim, int *shape, char dtype,
         char order)
-//! Init @ref array object and allocate memory for its buffer.
-/*! @param[out] A: Address of pointer to @ref array object.
+//! Init @ref ::array object and allocate memory for its buffer.
+/*! @param[out] A: Address of pointer to @ref ::array object.
  * @param[in] ndim: Number of dimensions of array, `ndim > 1`.
  * @param[in] shape: Size of array in each dimension.
  * @param[in] dtype: Precision of array element.
@@ -138,9 +141,9 @@ int array_new(Array **A, int ndim, int *shape, char dtype,
 }
 
 int array_new_like(Array **A, Array *B)
-//! Init new @ref array object with the shape, dtype and order of other.
-/*! @param[out] A: Address of pointer to @ref array object.
- * @param[in] B: Other @ref array object.
+//! Init new @ref ::array object with the shape, dtype and order of other.
+/*! @param[out] A: Address of pointer to @ref ::array object.
+ * @param[in] B: Other @ref ::array object.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
@@ -173,9 +176,9 @@ int array_new_like(Array **A, Array *B)
 }
 
 int array_new_copy(Array **A, Array *B, char order)
-//! Init new @ref array object as copy of other with given data layout.
-/*! @param[out] A: Address of pointer to @ref array object.
- * @param[in] B: Other @ref array object.
+//! Init new @ref ::array object as copy of other with given data layout.
+/*! @param[out] A: Address of pointer to @ref ::array object.
+ * @param[in] B: Other @ref ::array object.
  * @param[in] order: Fortran (column-major) or C (row-major) order.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
@@ -241,7 +244,7 @@ int array_new_copy(Array **A, Array *B, char order)
 }
 
 void array_free(Array *A)
-//! Free @ref array object.
+//! Free @ref ::array object.
 //! @ingroup array
 {
     if(A == NULL)
@@ -256,7 +259,7 @@ void array_free(Array *A)
 }
 
 void array_info(Array *A)
-//! Print all the data from Array structure `A`.
+//! Print all the data from @ref ::array object `A`.
 //! @ingroup array
 {
     if(A == NULL)
@@ -282,7 +285,7 @@ void array_info(Array *A)
 }
 
 void array_print(Array *A)
-//! Print `A`. Different rows of `A` are printed on different output rows.
+//! Print array. Different rows of `A` are printed on different output rows.
 //! @ingroup array
 {
     if(A == NULL)
@@ -401,7 +404,7 @@ void array_print(Array *A)
 }
 
 int array_to_matrix(Array *A, char kind)
-//! Convert Array to 2-dimensional matrix by glueing different dimensions.
+//! Convert @ref ::array to 2-dimensional matrix by glueing different dimensions.
 //! @ingroup array
 /*! Convert N-dimensional `A` to 2-dimensional `A` (matrix) by
  * collapsing dimensions. This collapse can be assumed as attempt to look
@@ -658,7 +661,7 @@ int array_SVD(Array *A, Array **U, Array **S, Array **V)
                 lda, (*S)->data, (*U)->data, ldu, (*V)->data, ldv);
 }
 
-int svd_get_rank(Array *S, double tol, char type, int *rank)
+int SVD_get_rank(Array *S, double tol, char type, int *rank)
 //! Returns rank by given singular values `S`, tolerance and type of norm.
 /*! @param[in] S: Pointer to @ref array object.
  * @param[in] tol: Relative error threshold.
@@ -814,7 +817,7 @@ int array_diff(Array *A, Array *B, double *result)
 //! Measure Frobenius error of approximation of `A` by `B`.
 /*! @param[in] A: Pointer to @ref array object.
  * @param[in] B: Pointer to @ref array object.
- * @param[out]: Address of result.
+ * @param[out] result: Address of result.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
@@ -903,7 +906,7 @@ int array_diff(Array *A, Array *B, double *result)
 int array_norm(Array *A, double *result)
 //! Measure Frobenius norm of `A`.
 /*! @param[in] A: Pointer to @ref array object.
- * @param[out]: Address of result.
+ * @param[out] result: Address of result.
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */
@@ -941,7 +944,7 @@ int array_convert(Array **A, Array *B, char dtype)
 //! Create `A` as a copy of `B` with different data type (precision).
 /*! @param[out] A: Address of pointer to @ref array object.
  * @param[in] B: Pointer to @ref array object.
- * @param[in]: New data type (precision).
+ * @param[in] dtype: New data type (precision).
  * @return Error code @ref STARSH_ERRNO.
  * @ingroup array
  * */

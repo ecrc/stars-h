@@ -15,7 +15,7 @@
 
 int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
         char symm, char dtype, void *row_data, void *col_data,
-        STARSH_kernel kernel, char *name)
+        STARSH_kernel *kernel, char *name)
 //! Init @ref STARSH_problem object.
 /*! Unlike all other *_new() functions, this function creates copy of `shape`
  * to store internally. This is done to avoid clearing memory of static
@@ -127,8 +127,8 @@ void starsh_problem_info(STARSH_problem *problem)
     printf("), '%c' dtype, '%c' symmetric>\n", P->dtype, P->symm);
 }
 
-int starsh_problem_get_block(STARSH_problem *problem, STARSH_int nrows,
-        STARSH_int ncols, STARSH_int *irow, STARSH_int *icol, Array **A)
+int starsh_problem_get_block(STARSH_problem *problem, int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, Array **A)
 //! Get submatrix on given rows and columns.
 /*! Rows correspond to the first dimension and columns correspond to the
  * last dimension.
@@ -186,9 +186,9 @@ int starsh_problem_get_block(STARSH_problem *problem, STARSH_int nrows,
     return STARSH_SUCCESS;
 }
 
-static void _matrix_kernel(STARSH_int nrows, STARSH_int ncols,
-        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result, STARSH_int ld)
+static void _matrix_kernel(int nrows, int ncols, STARSH_int *irow,
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld)
 //! Kernel for problems, defined by dense matrices.
 //! @ingroup problem
 {

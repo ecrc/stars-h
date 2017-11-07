@@ -5,6 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/common.h
+ *
+ * @cond
+ * This command in pair with endcond will prevent file from being documented.
+ *
  * @version 0.1.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-22
@@ -118,4 +122,8 @@
     }\
 }
 
+int cmp_size_t(const void *a, const void *b);
+
 #endif // __COMMON_H__
+
+//! @endcond

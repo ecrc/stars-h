@@ -34,7 +34,6 @@ void starsh_dense_dlrsdd(int nrows, int ncols, double *D, int ldD, double *U,
  * @param[in] work: Working array.
  * @param[in] lwork: Size of `work` array.
  * @param[in] iwork: Temporary integer array.
- * @ingroup approximations
  * */
 {
     int mn = nrows < ncols ? nrows : ncols;

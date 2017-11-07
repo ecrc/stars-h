@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <starpu.h>
-#include "starsh.h"
-#include "starsh-minimal.h"
+#include <starsh.h>
+#include <starsh-minimal.h>
 
 int main(int argc, char **argv)
 {
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     printf("TIME TO APPROXIMATE: %e secs\n", time1);
     // Measure approximation error
     time1 = omp_get_wtime();
-    double rel_err = starsh_blrm__dfe_omp(M);
+    double rel_err = starsh_blrm__dfe(M);
     time1 = omp_get_wtime()-time1;
     printf("TIME TO MEASURE ERROR: %e secs\nRELATIVE ERROR: %e\n",
             time1, rel_err);
@@ -83,9 +83,8 @@ int main(int argc, char **argv)
         printf("Resulting relative error is too big\n");
         exit(1);
     }
-    // Flush STDOUT, since next step is very time consuming
-    fflush(stdout);
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
+    /* Not performed due to no matvec yet with STARPU
     double *x, *y;
     int nrhs = 1;
     x = malloc(N*nrhs*sizeof(*x));
@@ -97,11 +96,12 @@ int main(int argc, char **argv)
     for(int i = 0; i < 10; i++)
         starsh_blrm__dmml_starpu(M, nrhs, 1.0, x, N, 0.0, y, N);
     time1 = omp_get_wtime()-time1;
-    starpu_shutdown();
     printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
     double norm = cblas_dnrm2(N*nrhs, y, 1);
     starsh_blrm__dmml(M, nrhs, 1.0, x, N, -1.0, y, N);
     double diff = cblas_dnrm2(N*nrhs, y, 1);
     printf("MATVEC DIFF (STARPU vs SEQUENTIAL): %f\n", diff/norm);
+    */
+    starpu_shutdown();
     return 0;
 }

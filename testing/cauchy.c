@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include "starsh.h"
-#include "starsh-cauchy.h"
+#include <starsh.h>
+#include <starsh-cauchy.h>
 
 int main(int argc, char **argv)
 {

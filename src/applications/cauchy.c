@@ -14,9 +14,9 @@
 #include "starsh.h"
 #include "starsh-cauchy.h"
 
-void starsh_cauchy_block_kernel(STARSH_int nrows, STARSH_int ncols,
-        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-        void *result, STARSH_int ld)
+void starsh_cauchy_block_kernel(int nrows, int ncols, STARSH_int *irow, 
+        STARSH_int *icol, void *row_data, void *col_data, void *result,
+        int ld)
 //! The Cauchy kernel for @ref STARSH_cauchy object.
 /*! Each off-diagonal element is generated as
  * \f[
@@ -37,10 +37,11 @@ void starsh_cauchy_block_kernel(STARSH_int nrows, STARSH_int ncols,
  * @param[in] col_data: Pointer to physical data (@ref STARSH_cauchy object).
  * @param[out] result: Pointer to memory of \f$ A \f$.
  * @param[in] ld: Leading dimension of `result`.
+ * @sa starsh_cauchy_get_kernel().
  * @ingroup app-cauchy
  * */
 {
-    STARSH_int i, j;
+    int i, j;
     STARSH_cauchy *data1 = row_data;
     STARSH_cauchy *data2 = col_data;
     STARSH_int count = data1->count;
@@ -48,7 +49,7 @@ void starsh_cauchy_block_kernel(STARSH_int nrows, STARSH_int ncols,
     double *y = data2->point;
     double *diag = x+count;
     double *buffer = result;
-    //#pragma omp simd
+    #pragma omp simd
     for(j = 0; j < ncols; j++)
         for(i = 0; i < nrows; i++)
         {
@@ -66,6 +67,7 @@ int starsh_cauchy_init(STARSH_cauchy **data, STARSH_int count, double *point)
  * @param[in] point: Coordinates of points (1D space) and values for diagonals
  *      of Cauchy matrix.
  * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_cauchy_new().
  * @ingroup app-cauchy
  * */
 {
@@ -83,6 +85,7 @@ int starsh_cauchy_new(STARSH_cauchy **data, STARSH_int count, double *point,
  * @param[in] point: Coordinates of points (1D space).
  * @param[in] diag: Values for diagonal of Cauchy matrix.
  * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_cauchy_init().
  * @ingroup app-cauchy
  * */
 {
@@ -107,6 +110,7 @@ int starsh_cauchy_new(STARSH_cauchy **data, STARSH_int count, double *point,
 int starsh_cauchy_new_va(STARSH_cauchy **data, STARSH_int count, va_list args)
 //! Generate @ref STARSH_cauchy object by incomplete set of parameters.
 /*!
+ * @sa starsh_cauchy_new().
  * @ingroup app-cauchy
  * */
 {
@@ -134,6 +138,7 @@ int starsh_cauchy_new_va(STARSH_cauchy **data, STARSH_int count, va_list args)
 int starsh_cauchy_new_el(STARSH_cauchy **data, STARSH_int count, ...)
 //! Generate @ref STARSH_cauchy object by incomplete set of parameters.
 /*!
+ * @sa starsh_cauchy_new().
  * @ingroup app-cauchy
  * */
 {
@@ -155,7 +160,7 @@ int starsh_cauchy_get_kernel(STARSH_kernel **kernel, STARSH_cauchy *data,
         enum STARSH_CAUCHY_KERNEL type)
 //! Get kernel for minimal working example.
 /*! Kernel can be selected with this call or manually. Currently, there is only
- * one kernel for @STARSH_cauchy problem.
+ * one kernel for @ref STARSH_cauchy problem.
  *
  * @param[out] kernel: Address of @ref STARSH_kernel function.
  * @param[in] data: Pointer to @ref STARSH_cauchy object.

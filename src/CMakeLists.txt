@@ -1,19 +1,39 @@
+# @copyright (c) 2017 King Abdullah University of Science and
+#                      Technology (KAUST). All rights reserved.
+#
+# STARS-H is a software package, provided by King Abdullah
+#             University of Science and Technology (KAUST)
+#
+# @file src/CMakeLists.txt
+# @version 0.1.0
+# @author Aleksandr Mikhalev
+# @date 2017-08-22
+
+
+# Non-backend sources of STARS-H
 set(STARSH_SRC)
 
 # Define the source files
 add_subdirectory("control")
 # Get code for applications
 add_subdirectory("applications")
-# Connection with other libraries (PLASMA)
-add_subdirectory("external")
-# Add some tools loke iterative solvers
+# Add some tools like iterative solvers
 add_subdirectory("itersolvers")
 
 # Set backends and check if there is support for them
 set(BACKENDS_OBJECTS)
 add_subdirectory("backends")
 
+# Put all doxygen inputs back to parent
+set(DOXYGEN_INPUT ${DOXYGEN_INPUT} ${STARSH_SRC} PARENT_SCOPE)
+
+# Define STARS-H library
 add_library(starsh STATIC ${STARSH_SRC} ${BACKENDS_OBJECTS})
+
+# Install STARS-H library
+install(TARGETS starsh DESTINATION ${LIBDIR})
+
+# Add compile and link flags for STARS-H
 if(OPENMP)
     target_compile_options(starsh PUBLIC "${OpenMP_C_FLAGS}")
     target_link_libraries(starsh PUBLIC "${OpenMP_C_FLAGS}")
@@ -28,10 +48,3 @@ if(MPI)
     set_target_properties(starsh PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     target_link_libraries(starsh PUBLIC ${MPI_C_LIBRARIES})
 endif(MPI)
-if(PLASMA)
-    target_link_libraries(starsh PUBLIC ${PLASMA_LIBRARIES})
-endif()
-
-# Install STARSH library
-install(TARGETS starsh
-    DESTINATION ${LIBDIR})
