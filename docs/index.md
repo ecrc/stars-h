@@ -1,5 +1,8 @@
+About STARS-H {#mainpage}
+=============
+
 What is STARS-H?
-================
+----------------
 
 STARS-H is a **high performance parallel open-source** package of **Software
 for Testing Accuracy, Reliability and Scalability of Hierarchical
@@ -16,7 +19,7 @@ hardware architecture environment. STARS-H currently supports the tile low-rank
 using MPI, OpenMP and task-based programming models.
 
 Vision of STARS-H
-=================
+-----------------
 
 The vision of STARS-H is to design, implement and provide a community code for
 hierarchical matrix generator with support of various data formats for
@@ -30,7 +33,7 @@ approximation phase can be time-consuming on large-scale scientific
 applications.
 
 Current Features of STARS-H
-===========================
+---------------------------
 
 This project is WIP, with current features limited to:
 
@@ -59,7 +62,7 @@ Additional:
 1. CG method for symmetric positive-definite (SPD) systems.
 
 TODO List
-=========
+---------
 
 1.  Add support for more matrix kernels and applications 
 2.  Extend support to hardware accelerators (i.e, GPUs)
@@ -68,72 +71,3 @@ TODO List
 5.  Implement additional low-rank routines like ACA.
 6.  Implement additional formats: HODLR/H/HSS/H^2
 
-Installation
-============
-
-Installation requires at least **CMake** of version 3.2.3. To build STARS-H,
-follow these instructions:
-
-1.  Get STARS-H from git repository
-
-        git clone git@github.com:ecrc/stars-h
-
-    or
-
-        git clone https://github.com/ecrc/stars-h
-
-2.  Go into STARS-H folder
-
-        cd stars-h
-
-3.  Get submodules
-
-        git submodule update --init
-
-4.  Create build directory and go there
-
-        mkdir build && cd build
-
-5.  Use CMake to get all the dependencies
-
-        cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/
-
-6.  Build STARS-H
-
-        make -j
-
-7.  Run tests (optional)
-
-        make test
-
-8.  Build local documentation (optional)
-
-        make docs
-
-9.  Install STARS-H
-
-        make install
-
-10. Add line
-
-        export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
-
-    to your .bashrc file.
-
-Now you can use pkg-config executable to collect compiler and linker flags for
-STARS-H.
-
-Examples
-========
-
-The directory `examples` contains two subfolders: `problem` and `approximation`.
-The sources in `problem` show how to generate problems (e.g., spatial statistics, 
-minimal or dense) and how to create STARSH\_problem instance, required for every 
-step of STARS-H. The examples in `approximation` are based on problem generations 
-and have additional steps on approximation of corresponding matrices.
-
-*Important notice: the approximation phase does not require the entire dense matrix 
-to be stored, since matrix elements are computed on the fly.*
-
-
-![Handout](docs/STARS-H-final.png)

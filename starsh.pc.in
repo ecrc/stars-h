@@ -1,0 +1,9 @@
+Name: STARSH
+Description: Software for Testing Accuracy, Reliability and Scalability of Hierarchical computations
+Version: @STARS-H_VERSION@
+URL: https://github.com/ecrc/stars-h
+Cflags: -I@INCDIR@
+Libs: -L@LIBDIR@ @STARSH_PKGCONFIG_LIBS@
+Libs.private: @STARSH_PKGCONFIG_LIBS_PRIVATE@
+Requires: @STARSH_PKGCONFIG_REQUIRED@
+Requires.private: @STARSH_PKGCONFIG_REQUIRED_PRIVATE@
