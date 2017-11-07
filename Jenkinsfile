@@ -58,7 +58,14 @@ pipeline {
                     # Delete previous CTest results and run tests
                     rm -rf $BUILDDIR/Testing
                     cd $BUILDDIR
-                    ctest --no-compress-output -T Test
+                    if [ "master" == "$BRANCH_NAME" ]
+                    then
+                        # if master branch, run full set of tests
+                        ctest --no-compress-output -T Test
+                    else
+                        # Run every fourth test
+                        ctest --no-compress-output -T Test -I 1,,4
+                    fi
 
                     # archive
                     cd $INSTALLDIR
