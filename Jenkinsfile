@@ -24,7 +24,35 @@ pipeline {
     stages {
         stage ('build') {
             steps {
-                sh "jenkins-scripts/build.sh"
+                sh '''#!/bin/bash -el
+                    # The -x flags indicates to echo all commands, thus knowing exactly what is being executed.
+                    # The -e flags indicates to halt on error, so no more processing of this script will be done
+                    # if any command exits with value other than 0 (zero)
+
+                    # loads modules
+                    module load gcc/5.5.0
+                    module load mkl/2018-initial
+                    module load openmpi/3.0.0-gcc-5.5.0
+                    module load starpu/1.2.3-gcc-5.5.0-mkl-openmpi-3.0.0
+                    module load gsl/2.4-gcc-5.5.0
+                    module load cmake/3.9.6
+
+                    # variables
+                    BUILDDIR="$WORKSPACE/build/"
+                    INSTALLDIR="$BUILDDIR/install-dir/"
+
+                    set -x
+                    # initialise git submodule
+                    git submodule update --init
+                    mkdir -p $BUILDDIR && cd $BUILDDIR && rm -rf ./CMake*
+                    cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALLDIR # -DMPIEXEC=$(which mpirun)
+
+                    # Build only
+                    make
+
+                    # Install
+                    make install
+'''
             }
         }
         stage ('test') {
