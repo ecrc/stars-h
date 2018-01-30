@@ -355,10 +355,19 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
 #endif
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
         default:
             STARSH_ERROR("Wrong type of kernel");
             return STARSH_WRONG_PARAMETER;
@@ -385,6 +394,12 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_SQREXP_SIMD:
             *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd;
             break;
+        case STARSH_SPATIAL_EXP_GCD:
+            *kernel = starsh_ssdata_block_exp_kernel_2d_simd_gcd;
+            break;
+        case STARSH_SPATIAL_SQREXP_GCD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd;
+            break;
 #ifdef GSL
         case STARSH_SPATIAL_MATERN:
             *kernel = starsh_ssdata_block_matern_kernel_2d;
@@ -398,11 +413,19 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN2_SIMD:
             *kernel = starsh_ssdata_block_matern2_kernel_2d_simd;
             break;
+        case STARSH_SPATIAL_MATERN_GCD:
+            *kernel = starsh_ssdata_block_matern_kernel_2d_simd_gcd;
+            break;
+        case STARSH_SPATIAL_MATERN2_GCD:
+            *kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
+            break;
 #else
         case STARSH_SPATIAL_MATERN:
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
@@ -455,6 +478,13 @@ static int starsh_ssdata_get_kernel_3d(STARSH_kernel **kernel,
                     "not found");
             return STARSH_WRONG_PARAMETER;
 #endif
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
         default:
             STARSH_ERROR("Wrong type of kernel");
             return STARSH_WRONG_PARAMETER;
@@ -503,6 +533,13 @@ static int starsh_ssdata_get_kernel_4d(STARSH_kernel **kernel,
                     "not found");
             return STARSH_WRONG_PARAMETER;
 #endif
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
         default:
             STARSH_ERROR("Wrong type of kernel");
             return STARSH_WRONG_PARAMETER;
@@ -523,11 +560,11 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
         case STARSH_SPATIAL_EXP_SIMD:
             *kernel = starsh_ssdata_block_exp_kernel_nd_simd;
             break;
-        case STARSH_SPATIAL_SQREXP_SIMD:
-            *kernel = starsh_ssdata_block_sqrexp_kernel_nd_simd;
-            break;
         case STARSH_SPATIAL_SQREXP:
             *kernel = starsh_ssdata_block_sqrexp_kernel_nd;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_nd_simd;
             break;
 #ifdef GSL
         case STARSH_SPATIAL_MATERN:
@@ -550,7 +587,16 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
 #endif
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
         default:
             STARSH_ERROR("Wrong type of kernel");
             return STARSH_WRONG_PARAMETER;
@@ -594,3 +640,359 @@ int starsh_ssdata_get_kernel(STARSH_kernel **kernel, STARSH_ssdata *data,
             return starsh_ssdata_get_kernel_nd(kernel, type);
     }
 }
+
+// This function converts decimal degrees to radians
+static double deg2rad(double deg) {
+  return (deg * M_PI / 180.);
+}
+//  This function converts radians to decimal degrees
+static double rad2deg(double rad) {
+  return (rad * 180. / M_PI);
+}
+
+#define earthRadiusKm 6371.0
+
+/**
+ * Returns the distance between two points on the Earth.
+ * Direct translation from http://en.wikipedia.org/wiki/Haversine_formula
+ * @param lat1d Latitude of the first point in degrees
+ * @param lon1d Longitude of the first point in degrees
+ * @param lat2d Latitude of the second point in degrees
+ * @param lon2d Longitude of the second point in degrees
+ * @return The distance between the two points in kilometers
+ */
+static double distanceEarth(double lat1d, double lon1d, double lat2d, double lon2d) {
+  double lat1r, lon1r, lat2r, lon2r, u, v;
+  lat1r = deg2rad(lat1d);
+  lon1r = deg2rad(lon1d);
+  lat2r = deg2rad(lat2d);
+  lon2r = deg2rad(lon2d);
+  u = sin((lat2r - lat1r)/2);
+  v = sin((lon2r - lon1r)/2);
+  return 2.0 * earthRadiusKm * asin(sqrt(u * u + cos(lat1r) * cos(lat2r) * v * v));
+}
+
+void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+//! Exponential kernel for @NDIM-dimensional spatial statistics problem
+/*! Fills matrix \f$ A \f$ with values
+ * \f[
+ *      A_{ij} = \sigma^2 e^{-\frac{r_{ij}}{\beta}} + \mu \delta(r_{ij}),
+ * \f]
+ * where \f$ \delta \f$ is the delta function
+ * \f[
+ *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+ *      \end{array} \right.,
+ * \f]
+ * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+ * points, measured by arc on sphere, and variance \f$ \sigma \f$, correlation
+ * length \f$ \beta \f$ and
+ * noise \f$ \mu \f$ come from \p row_data (\ref STARSH_ssdata object). No
+ * memory is allocated in this function!
+ *
+ * Uses SIMD instructions.
+ *
+ * @param[in] nrows: Number of rows of \f$ A \f$.
+ * @param[in] ncols: Number of columns of \f$ A \f$.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
+ * @sa starsh_ssdata_block_exp_kernel_1d_simd(),
+ *      starsh_ssdata_block_exp_kernel_2d_simd(),
+ *      starsh_ssdata_block_exp_kernel_3d_simd(),
+ *      starsh_ssdata_block_exp_kernel_4d_simd(),
+ *      starsh_ssdata_block_exp_kernel_nd_simd().
+ * @ingroup app-spatial-kernels
+ * */
+{
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    //int ndim = 2;
+    double beta = -data1->beta;
+    double noise = data1->noise;
+    double sigma = data1->sigma;
+    sigma *= sigma;
+    // Get coordinates
+    size_t count1 = data1->particles.count;
+    size_t count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+    #pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*exp(dist);
+        }
+    }
+}
+
+void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+//! Square exponential kernel for @NDIM-dimensional spatial statistics problem
+/*! Fills matrix \f$ A \f$ with values
+ * \f[
+ *      A_{ij} = \sigma^2 e^{-\frac{1}{2} \left( \frac{r_{ij}}{\beta}
+ *      \right)^2} + \mu \delta(r_{ij}),
+ * \f]
+ * where \f$ \delta \f$ is the delta function
+ * \f[
+ *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+ *      \end{array} \right.,
+ * \f]
+ * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+ * points and variance \f$ \sigma \f$, correlation length \f$ \beta \f$ and
+ * noise \f$ \mu \f$ come from \p row_data (\ref STARSH_ssdata object). No
+ * memory is allocated in this function!
+ *
+ * Uses SIMD instructions.
+ *
+ * @param[in] nrows: Number of rows of \f$ A \f$.
+ * @param[in] ncols: Number of columns of \f$ A \f$.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
+ * @sa starsh_ssdata_block_sqrexp_kernel_1d(),
+ *      starsh_ssdata_block_sqrexp_kernel_2d(),
+ *      starsh_ssdata_block_sqrexp_kernel_3d(),
+ *      starsh_ssdata_block_sqrexp_kernel_4d(),
+ *      starsh_ssdata_block_sqrexp_kernel_nd().
+ * @ingroup app-spatial-kernels
+ * */
+{
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    double beta = -2*data1->beta*data1->beta;
+    double noise = data1->noise;
+    double sigma = data1->sigma;
+    sigma *= sigma;
+    // Get coordinates
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+    #pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist*dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*exp(dist);
+        }
+    }
+}
+
+#ifdef GSL
+
+void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+//! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
+/*! Fills matrix \f$ A \f$ with values
+ * \f[
+ *      A_{ij} = \sigma^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left( \sqrt{2 \nu}
+ *      \frac{r_{ij}}{\beta} \right)^{\nu} K_{\nu} \left( \sqrt{2 \nu}
+ *      \frac{r_{ij}}{\beta} \right) + \mu \delta(r_{ij}),
+ * \f]
+ * where \f$ \Gamma \f$ is the Gamma function, \f$ K_{\nu} \f$ is the modified
+ * Bessel function of the second kind, \f$ \delta \f$ is the delta function
+ * \f[
+ *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+ *      \end{array} \right.,
+ * \f]
+ * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+ * points and variance \f$ \sigma \f$, correlation length \f$ \beta \f$,
+ * smoothing parameter \f$ \nu \f$ and noise \f$ \mu \f$ come from \p
+ * row_data (\ref STARSH_ssdata object). No memory is allocated in this
+ * function!
+ *
+ * Uses SIMD instructions.
+ *
+ * @param[in] nrows: Number of rows of \f$ A \f$.
+ * @param[in] ncols: Number of columns of \f$ A \f$.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
+ * @sa starsh_ssdata_block_matern_kernel_1d(),
+ *      starsh_ssdata_block_matern_kernel_2d_simd(),
+ *      starsh_ssdata_block_matern_kernel_3d_simd(),
+ *      starsh_ssdata_block_matern_kernel_4d_simd(),
+ *      starsh_ssdata_block_matern_kernel_nd_simd().
+ * @ingroup app-spatial-kernels
+ * */
+{
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    double beta = data1->beta;
+    double nu = data1->nu;
+    double theta = sqrt(2*nu)/beta;
+    double noise = data1->noise;
+    double sigma = data1->sigma;
+    sigma *= sigma;
+    // Get coordinates
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+    #pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist*theta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                        gsl_sf_gamma(nu)*pow(dist, nu)*
+                        gsl_sf_bessel_Knu(nu, dist);
+        }
+    }
+}
+
+void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+//! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
+/*! Fills matrix \f$ A \f$ with values
+ * \f[
+ *      A_{ij} = \sigma^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left( \frac{r_{ij}}
+ *      {\beta} \right)^{\nu} K_{\nu} \left( \frac{r_{ij}}{\beta} \right) +
+ *      \mu \delta(r_{ij}),
+ * \f]
+ * where \f$ \Gamma \f$ is the Gamma function, \f$ K_{\nu} \f$ is the modified
+ * Bessel function of the second kind, \f$ \delta \f$ is the delta function
+ * \f[
+ *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+ *      \end{array} \right.,
+ * \f]
+ * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+ * points and variance \f$ \sigma \f$, correlation length \f$ \beta \f$,
+ * smoothing parameter \f$ \nu \f$ and noise \f$ \mu \f$ come from \p
+ * row_data (\ref STARSH_ssdata object). No memory is allocated in this
+ * function!
+ *
+ * Uses SIMD instructions.
+ *
+ * @param[in] nrows: Number of rows of \f$ A \f$.
+ * @param[in] ncols: Number of columns of \f$ A \f$.
+ * @param[in] irow: Array of row indexes.
+ * @param[in] icol: Array of column indexes.
+ * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+ * @param[out] result: Pointer to memory of \f$ A \f$.
+ * @param[in] ld: Leading dimension of `result`.
+ * @sa starsh_ssdata_block_matern2_kernel_1d_simd(),
+ *      starsh_ssdata_block_matern2_kernel_2d_simd(),
+ *      starsh_ssdata_block_matern2_kernel_3d_simd(),
+ *      starsh_ssdata_block_matern2_kernel_4d_simd(),
+ *      starsh_ssdata_block_matern2_kernel_nd_simd().
+ * @ingroup app-spatial-kernels
+ * */
+{
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    double beta = data1->beta;
+    double nu = data1->nu;
+    double noise = data1->noise;
+    double sigma = data1->sigma;
+    sigma *= sigma;
+    // Get coordinates
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+    #pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+    #pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                        gsl_sf_gamma(nu)*pow(dist, nu)*
+                        gsl_sf_bessel_Knu(nu, dist);
+        }
+    }
+}
+#endif
