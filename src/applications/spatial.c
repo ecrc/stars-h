@@ -46,6 +46,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
     tmp->particles.count = count;
     tmp->particles.ndim = ndim;
     STARSH_MALLOC(tmp->particles.point, count*ndim);
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
@@ -114,6 +115,7 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
     tmp->nu = nu;
     tmp->noise = noise;
     tmp->sigma = sigma;
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
