@@ -720,7 +720,6 @@ void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
     double beta = -data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     size_t count1 = data1->particles.count;
     size_t count2 = data2->particles.count;
@@ -797,7 +796,6 @@ void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
     double beta = -2*data1->beta*data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -881,7 +879,6 @@ void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
     double theta = sqrt(2*nu)/beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -964,7 +961,6 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
     double nu = data1->nu;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
