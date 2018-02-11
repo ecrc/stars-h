@@ -49,6 +49,7 @@ int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim)
     tmp->count = count;
     tmp->ndim = ndim;
     STARSH_MALLOC(tmp->point, count*ndim);
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
@@ -89,6 +90,7 @@ int starsh_particles_init(STARSH_particles **data, STARSH_int count, int ndim,
     tmp->count = count;
     tmp->ndim = ndim;
     tmp->point = point;
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
