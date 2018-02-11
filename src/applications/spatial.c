@@ -46,6 +46,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
     tmp->particles.count = count;
     tmp->particles.ndim = ndim;
     STARSH_MALLOC(tmp->particles.point, count*ndim);
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
@@ -67,7 +68,7 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
  * @param[in] beta: Correlation length.
  * @param[in] nu: Smoothing parameter for Mat&eacute;rn kernel.
  * @param[in] noise: Value to add to diagonal elements.
- * @param[in] sigma: Variance.
+ * @param[in] sigma: Square of variance.
  * @return Error code @ref STARSH_ERRNO.
  * @sa starsh_ssdata_new(), starsh_ssdata_free(),
  *      starsh_ssdata_generate(), starsh_ssdata_read_from_file(),
@@ -114,6 +115,7 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
     tmp->nu = nu;
     tmp->noise = noise;
     tmp->sigma = sigma;
+    *data = tmp;
     return STARSH_SUCCESS;
 }
 
@@ -128,7 +130,7 @@ int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
  * @param[in] nu: Smoothing parameter for Mat&eacute;rn kernel.
  * @param[in] noise: Value to add to diagonal elements.
  * @param[in] place: Placement strategy for spatial points.
- * @param[in] sigma: Variance.
+ * @param[in] sigma: Square of variance.
  * @return Error code @ref STARSH_ERRNO.
  * @sa starsh_ssdata_generate_va(), starsh_ssdata_generate_el().
  * @ingroup app-spatial

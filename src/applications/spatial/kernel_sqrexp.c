@@ -75,7 +75,6 @@ void starsh_ssdata_block_sqrexp_kernel_@NDIMd(int nrows, int ncols,
     double beta = -2*data1->beta*data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -160,7 +159,6 @@ void starsh_ssdata_block_sqrexp_kernel_@NDIMd_simd(int nrows, int ncols,
     double beta = -2*data1->beta*data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
