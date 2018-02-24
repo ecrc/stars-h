@@ -106,7 +106,14 @@ pipeline {
         stage ('docs') {
             steps {
                 sh "cd $WORKSPACE/build && make docs"
+                sh '''#!/bin/bash -ex
+                      cd $WORKSPACE
+                      rm -rf cppcheckhtml
+                      cppcheck --enable=all --xml --xml-version=2 testing/ src/ examples/ -I include/   2> cppcheck.xml
+                      cppcheck-htmlreport --source-encoding="iso8859-1" --title="STARS-H" --source-dir=. --report-dir=cppcheckhtml --file=cppcheck.xml
+'''
                 publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/docs/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
+                publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'cppcheckhtml', reportFiles: 'index.html', reportName: 'CppCheckReport', reportTitles: ''] )
             }
         }
     }
