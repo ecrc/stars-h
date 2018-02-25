@@ -14,6 +14,8 @@
 #include "starsh.h"
 #include "starsh-spatial.h"
 
+#define PI 3.14159265358979323846264338327950288 
+
 int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
 //! Allocate memory for @ref STARSH_ssdata object.
 /*! This functions only allocates memory for particles without setting
@@ -357,8 +359,6 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_MATERN_GCD:
-        case STARSH_SPATIAL_MATERN2_GCD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
@@ -589,8 +589,6 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
-        case STARSH_SPATIAL_MATERN_GCD:
-        case STARSH_SPATIAL_MATERN2_GCD:
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:
@@ -645,11 +643,11 @@ int starsh_ssdata_get_kernel(STARSH_kernel **kernel, STARSH_ssdata *data,
 
 // This function converts decimal degrees to radians
 static double deg2rad(double deg) {
-  return (deg * M_PI / 180.);
+  return (deg * PI / 180.);
 }
 //  This function converts radians to decimal degrees
 static double rad2deg(double rad) {
-  return (rad * 180. / M_PI);
+  return (rad * 180. / PI);
 }
 
 #define earthRadiusKm 6371.0
@@ -993,4 +991,4 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
         }
     }
 }
-#endif
+#endif // GSL
