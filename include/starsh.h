@@ -562,7 +562,8 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
 //! Typedef for prototype of approximation routine
 typedef int STARSH_blrm_approximate(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly);
-//! Approximtion routine, chosen by @ref ::starsh_init().
+//! Approximation routine, chosen by @ref ::starsh_init().
+//! @ingroup blrm
 extern STARSH_blrm_approximate *starsh_blrm_approximate;
 
 int starsh_blrm__dsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,

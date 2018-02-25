@@ -18,7 +18,7 @@
 #include "control/init.h"
 
 // Approximation routine, chosen by starsh_init()
-STARSH_blrm_approximate *starsh_blrm_approximate;
+STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
 
 int starsh_init()
 //! Initialize backend and low-rank engine to be used.

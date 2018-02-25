@@ -321,10 +321,6 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
     return info;
 }
 
-//! Pointer to approximation function, corresponding to environment variables
-//! @ingroup blrm
-STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
-
 #ifdef MPI
 int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,
         int *far_rank, Array **far_U, Array **far_V, int onfly, Array **near_D,
