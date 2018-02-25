@@ -17,6 +17,9 @@
 #include "common.h"
 #include "control/init.h"
 
+// Approximation routine, chosen by starsh_init()
+STARSH_blrm_approximate *starsh_blrm_approximate;
+
 int starsh_init()
 //! Initialize backend and low-rank engine to be used.
 /*! Read environment variables and sets up backend (etc. MPI) and low-rank

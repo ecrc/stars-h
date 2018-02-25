@@ -563,7 +563,7 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
 typedef int STARSH_blrm_approximate(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly);
 //! Approximtion routine, chosen by @ref ::starsh_init().
-STARSH_blrm_approximate *starsh_blrm_approximate;
+extern STARSH_blrm_approximate *starsh_blrm_approximate;
 
 int starsh_blrm__dsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
         double tol, int onfly);
