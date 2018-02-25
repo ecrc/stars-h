@@ -359,8 +359,6 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_MATERN_GCD:
-        case STARSH_SPATIAL_MATERN2_GCD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
@@ -591,8 +589,6 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
-        case STARSH_SPATIAL_MATERN_GCD:
-        case STARSH_SPATIAL_MATERN2_GCD:
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:

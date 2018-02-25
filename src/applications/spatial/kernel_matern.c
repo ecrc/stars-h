@@ -28,6 +28,8 @@
 #define ndim @NDIM
 #endif
 
+#ifdef GSL
+
 void starsh_ssdata_block_matern_kernel_@NDIMd(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int ld)
@@ -207,4 +209,6 @@ void starsh_ssdata_block_matern_kernel_@NDIMd_simd(int nrows, int ncols,
         }
     }
 }
+
+#endif // GSL
 
