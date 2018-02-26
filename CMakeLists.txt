@@ -322,8 +322,9 @@ include(PrintOpts)
 
 # Set parameters for PKGCONFIG
 set(PREFIX "${CMAKE_INSTALL_PREFIX}")
-set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(INCDIR "${CMAKE_INSTALL_PREFIX}/include")
+set(LIBDIR "lib")
+set(INCDIR "include")
+
 
 #Install Pkg-config file
 generate_pkgconfig_file()
