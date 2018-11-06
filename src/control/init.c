@@ -7,7 +7,7 @@
  * @file src/control/init.c
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  * */
 
 #include "starsh.h"
@@ -16,6 +16,9 @@
 #include "starsh-mpi-starpu.h"
 #include "common.h"
 #include "control/init.h"
+
+// Approximation routine, chosen by starsh_init()
+STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
 
 int starsh_init()
 //! Initialize backend and low-rank engine to be used.

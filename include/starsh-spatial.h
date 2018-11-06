@@ -7,7 +7,7 @@
  * @file include/starsh-spatial.h
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  * */
 
 #ifndef __STARSH_SPATIAL_H__
@@ -96,6 +96,22 @@ enum STARSH_SPATIAL_KERNEL
     STARSH_SPATIAL_MATERN2_SIMD = 14,
     /*!< Modified Mat&eacute;rn kernel with SIMD.
      * @sa starsh_ssdata_block_matern2_kernel_nd_simd().
+     * */
+    STARSH_SPATIAL_EXP_GCD = 15,
+    /*!< Exponential kernel.
+     * @sa starsh_ssdata_block_exp_kernel_nd_simd_gcd().
+     * */
+    STARSH_SPATIAL_SQREXP_GCD = 16,
+    /*!< Square exponential kernel.
+     * @sa starsh_ssdata_block_sqrexp_kernel_nd_simd_gcd().
+     * */
+    STARSH_SPATIAL_MATERN_GCD = 17,
+    /*!< Mat&eacute;rn kernel with SIMD.
+     * @sa starsh_ssdata_block_matern_kernel_nd_simd_gcd().
+     * */
+    STARSH_SPATIAL_MATERN2_GCD = 18,
+    /*!< Modified Mat&eacute;rn kernel with SIMD.
+     * @sa starsh_ssdata_block_matern2_kernel_nd_simd_gcd().
      * */
 };
 
@@ -204,6 +220,19 @@ void starsh_ssdata_block_sqrexp_kernel_nd_simd(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int ld);
 
+
+void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
 
 // Add definitions for other kernels after Doxygen groups have already been
 // defined

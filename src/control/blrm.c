@@ -7,7 +7,7 @@
  * @file src/control/blrm.c
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  * */
 
 #include "common.h"
@@ -320,10 +320,6 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
     info = starsh_blrf_get_block(F, i, j, shape, D);
     return info;
 }
-
-//! Pointer to approximation function, corresponding to environment variables
-//! @ingroup blrm
-STARSH_blrm_approximate *starsh_blrm_approximate = NULL;
 
 #ifdef MPI
 int starsh_blrm_new_mpi(STARSH_blrm **matrix, STARSH_blrf *format,

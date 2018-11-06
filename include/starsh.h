@@ -7,7 +7,7 @@
  * @file include/starsh.h
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  * */
 
 #ifndef __STARSH_H__
@@ -562,8 +562,9 @@ int starsh_blrm_get_block(STARSH_blrm *matrix, STARSH_int i, STARSH_int j,
 //! Typedef for prototype of approximation routine
 typedef int STARSH_blrm_approximate(STARSH_blrm **matrix, STARSH_blrf *format,
         int maxrank, double tol, int onfly);
-//! Approximtion routine, chosen by @ref ::starsh_init().
-STARSH_blrm_approximate *starsh_blrm_approximate;
+//! Approximation routine, chosen by @ref ::starsh_init().
+//! @ingroup blrm
+extern STARSH_blrm_approximate *starsh_blrm_approximate;
 
 int starsh_blrm__dsdd(STARSH_blrm **matrix, STARSH_blrf *format, int maxrank,
         double tol, int onfly);

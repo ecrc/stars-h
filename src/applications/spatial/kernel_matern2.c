@@ -15,7 +15,7 @@
  * @file src/applications/spatial/kernel_matern2.c
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  */
 
 #include "common.h"
@@ -27,6 +27,8 @@
 //! Replace variable ndim with static integer value
 #define ndim @NDIM
 #endif
+
+#ifdef GSL
 
 void starsh_ssdata_block_matern2_kernel_@NDIMd(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
@@ -79,7 +81,6 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd(int nrows, int ncols,
     double nu = data1->nu;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -170,7 +171,6 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd_simd(int nrows, int ncols,
     double nu = data1->nu;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -207,4 +207,6 @@ void starsh_ssdata_block_matern2_kernel_@NDIMd_simd(int nrows, int ncols,
         }
     }
 }
+
+#endif // GSL
 

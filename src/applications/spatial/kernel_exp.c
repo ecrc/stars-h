@@ -15,7 +15,7 @@
  * @file src/applications/spatial/kernel_exp.c
  * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  */
 
 #include "common.h"
@@ -74,7 +74,6 @@ void starsh_ssdata_block_exp_kernel_@NDIMd(int nrows, int ncols,
     double beta = -data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -158,7 +157,6 @@ void starsh_ssdata_block_exp_kernel_@NDIMd_simd(int nrows, int ncols,
     double beta = -data1->beta;
     double noise = data1->noise;
     double sigma = data1->sigma;
-    sigma *= sigma;
     // Get coordinates
     size_t count1 = data1->particles.count;
     size_t count2 = data2->particles.count;
