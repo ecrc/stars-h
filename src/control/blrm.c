@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/blrm.c
- * @version 0.1.0
+ * @version 0.1.1
  * @author Aleksandr Mikhalev
  * @date 2018-11-06
  * */

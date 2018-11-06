@@ -13,7 +13,7 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/spatial/kernel_matern2.c
- * @version 0.1.0
+ * @version 0.1.1
  * @author Aleksandr Mikhalev
  * @date 2018-11-06
  */
