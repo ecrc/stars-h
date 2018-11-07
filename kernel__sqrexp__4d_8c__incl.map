@@ -1,0 +1,10 @@
+<map id="build/src/applications/spatial/kernel_sqrexp_4d.c" name="build/src/applications/spatial/kernel_sqrexp_4d.c">
+<area shape="rect" id="node3" href="$starsh_8h.html" title="starsh.h" alt="" coords="312,244,381,271"/>
+<area shape="rect" id="node10" href="$starsh-spatial_8h.html" title="starsh&#45;spatial.h" alt="" coords="362,95,473,121"/>
+<area shape="rect" id="node6" href="$starsh-constants_8h.html" title="starsh&#45;constants.h" alt="" coords="213,319,344,345"/>
+<area shape="rect" id="node7" href="$starsh-mpi_8h.html" title="starsh&#45;mpi.h" alt="" coords="369,319,463,345"/>
+<area shape="rect" id="node8" href="$starsh-starpu_8h.html" title="starsh&#45;starpu.h" alt="" coords="488,319,597,345"/>
+<area shape="rect" id="node9" href="$starsh-mpi-starpu_8h.html" title="starsh&#45;mpi&#45;starpu.h" alt="" coords="622,319,757,345"/>
+<area shape="rect" id="node11" href="$starsh-particles_8h.html" title="starsh&#45;particles.h" alt="" coords="384,169,507,196"/>
+<area shape="rect" id="node14" href="$starsh-spatial-gsl_8h.html" title="starsh&#45;spatial&#45;gsl.h" alt="" coords="531,169,663,196"/>
+</map>

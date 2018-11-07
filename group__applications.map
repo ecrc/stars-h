@@ -1,0 +1,9 @@
+<map id="Applications" name="Applications">
+<area shape="rect" id="node1" href="$group__app-electrodynamics.html" title="Template for electrodynamics problems. " alt="" coords="147,5,316,32"/>
+<area shape="rect" id="node2" href="$group__app-mindata.html" title="Minimal working example. " alt="" coords="147,56,316,83"/>
+<area shape="rect" id="node3" href="$group__app-spatial.html" title="Template for spatial statistics problems. " alt="" coords="172,107,291,149"/>
+<area shape="rect" id="node4" href="$group__app-electrostatics.html" title="Template for electrostatics problems. " alt="" coords="155,173,307,200"/>
+<area shape="rect" id="node6" href="$group__app-particles.html" title="Template for particle&#45;to&#45;particle interactions. " alt="" coords="199,224,263,251"/>
+<area shape="rect" id="node7" href="$group__app-randtlr.html" title="Synthetic random TLR matrix routines. " alt="" coords="161,275,301,301"/>
+<area shape="rect" id="node8" href="$group__app-cauchy.html" title="Cauchy example. " alt="" coords="171,325,291,352"/>
+</map>

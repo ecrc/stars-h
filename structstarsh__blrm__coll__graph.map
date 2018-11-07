@@ -1,0 +1,6 @@
+<map id="starsh_blrm" name="starsh_blrm">
+<area shape="rect" id="node2" href="$structarray.html" title="N&#45;dimensional array. " alt="" coords="11,109,62,136"/>
+<area shape="rect" id="node3" href="$structstarsh__blrf.html" title="Non&#45;nested block&#45;wise low&#45;rank format. " alt="" coords="86,109,169,136"/>
+<area shape="rect" id="node4" href="$structstarsh__problem.html" title="Matrix/tensor in matrix/tensor&#45;free form. " alt="" coords="5,5,116,32"/>
+<area shape="rect" id="node5" href="$structstarsh__cluster.html" title="Info about clusterization of physical data. " alt="" coords="141,5,245,32"/>
+</map>

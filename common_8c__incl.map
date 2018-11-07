@@ -1,0 +1,15 @@
+<map id="src/applications/common.c" name="src/applications/common.c">
+<area shape="rect" id="node3" href="$starsh_8h.html" title="starsh.h" alt="" coords="543,229,612,256"/>
+<area shape="rect" id="node10" href="$starsh-spatial_8h.html" title="starsh&#45;spatial.h" alt="" coords="619,80,730,107"/>
+<area shape="rect" id="node15" href="$starsh-electrostatics_8h.html" title="starsh&#45;electrostatics.h" alt="" coords="113,80,263,107"/>
+<area shape="rect" id="node16" href="$starsh-electrodynamics_8h.html" title="starsh&#45;electrodynamics.h" alt="" coords="288,80,456,107"/>
+<area shape="rect" id="node17" href="$starsh-minimal_8h.html" title="starsh&#45;minimal.h" alt="" coords="711,155,830,181"/>
+<area shape="rect" id="node18" href="$starsh-randtlr_8h.html" title="starsh&#45;randtlr.h" alt="" coords="855,155,964,181"/>
+<area shape="rect" id="node19" href="$starsh-cauchy_8h_source.html" title="starsh&#45;cauchy.h" alt="" coords="480,80,595,107"/>
+<area shape="rect" id="node6" href="$starsh-constants_8h.html" title="starsh&#45;constants.h" alt="" coords="444,304,575,331"/>
+<area shape="rect" id="node7" href="$starsh-mpi_8h.html" title="starsh&#45;mpi.h" alt="" coords="599,304,694,331"/>
+<area shape="rect" id="node8" href="$starsh-starpu_8h.html" title="starsh&#45;starpu.h" alt="" coords="719,304,828,331"/>
+<area shape="rect" id="node9" href="$starsh-mpi-starpu_8h.html" title="starsh&#45;mpi&#45;starpu.h" alt="" coords="853,304,987,331"/>
+<area shape="rect" id="node11" href="$starsh-particles_8h.html" title="starsh&#45;particles.h" alt="" coords="255,155,377,181"/>
+<area shape="rect" id="node14" href="$starsh-spatial-gsl_8h.html" title="starsh&#45;spatial&#45;gsl.h" alt="" coords="503,155,635,181"/>
+</map>

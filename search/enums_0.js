@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['starsh_5fbackend',['STARSH_BACKEND',['../starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4',1,'starsh-constants.h']]],
+  ['starsh_5fblrf_5ftype',['STARSH_BLRF_TYPE',['../starsh-constants_8h.html#a97225e894b310e2bd118c009547aae9e',1,'starsh-constants.h']]],
+  ['starsh_5fcauchy_5fkernel',['STARSH_CAUCHY_KERNEL',['../group__app-mindata.html#gad19436db3e367ca3a656628c95d3d080',1,'starsh-cauchy.h']]],
+  ['starsh_5fcauchy_5fparam',['STARSH_CAUCHY_PARAM',['../group__app-spatial.html#gaf22e7446818ddac9082fdded729ebc24',1,'starsh-cauchy.h']]],
+  ['starsh_5fcluster_5ftype',['STARSH_CLUSTER_TYPE',['../starsh-constants_8h.html#ae8c55e8ca87b3573c56d3a14b2f9724b',1,'starsh-constants.h']]],
+  ['starsh_5felectrodynamics_5fkernel',['STARSH_ELECTRODYNAMICS_KERNEL',['../group__app-electrodynamics.html#ga32fddd6314e927c241671d8eb25d6f9d',1,'starsh-electrodynamics.h']]],
+  ['starsh_5felectrodynamics_5fparam',['STARSH_ELECTRODYNAMICS_PARAM',['../group__app-electrodynamics.html#ga8c5d115dfcef687a61afb8cea7527a56',1,'starsh-electrodynamics.h']]],
+  ['starsh_5felectrostatics_5fkernel',['STARSH_ELECTROSTATICS_KERNEL',['../group__app-electrostatics.html#gae5ad9591f751d9e39763bcd851e4c3d7',1,'starsh-electrostatics.h']]],
+  ['starsh_5felectrostatics_5fparam',['STARSH_ELECTROSTATICS_PARAM',['../group__app-electrostatics.html#ga19da4fe6b047d712412f8ff7c3bd558b',1,'starsh-electrostatics.h']]],
+  ['starsh_5ferrno',['STARSH_ERRNO',['../starsh-constants_8h.html#a6a0bd0c9246e66e42928f455933c2802',1,'starsh-constants.h']]],
+  ['starsh_5ffile_5ftype',['STARSH_FILE_TYPE',['../starsh-constants_8h.html#a1dd50be81801fb81a98eb23bda067f2f',1,'starsh-constants.h']]],
+  ['starsh_5flrengine',['STARSH_LRENGINE',['../starsh-constants_8h.html#abe21db163d1d0ca16cd20c65af7fc5d1',1,'starsh-constants.h']]],
+  ['starsh_5fminimal_5fkernel',['STARSH_MINIMAL_KERNEL',['../group__app-mindata.html#ga0ae2ec8432e2d4890982df3f892f7925',1,'starsh-minimal.h']]],
+  ['starsh_5fparticles_5fplacement',['STARSH_PARTICLES_PLACEMENT',['../group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882',1,'starsh-particles.h']]],
+  ['starsh_5fproblem_5ftype',['STARSH_PROBLEM_TYPE',['../starsh-constants_8h.html#a14fdbc2c11f7f581ca87b886b0991051',1,'starsh-constants.h']]],
+  ['starsh_5frandtlr_5fkernel',['STARSH_RANDTLR_KERNEL',['../group__app-randtlr.html#ga4554b6671acd5c7a468c09fa693412b1',1,'starsh-randtlr.h']]],
+  ['starsh_5frandtlr_5fparam',['STARSH_RANDTLR_PARAM',['../group__app-randtlr.html#gadf7a0ce3c396c4202b721d85c48f3ba0',1,'starsh-randtlr.h']]],
+  ['starsh_5fspatial_5fkernel',['STARSH_SPATIAL_KERNEL',['../group__app-spatial.html#ga6643f5698ae19aba8e75447ce5655413',1,'starsh-spatial.h']]],
+  ['starsh_5fspatial_5fparam',['STARSH_SPATIAL_PARAM',['../group__app-spatial.html#gaed230786777c7908cec46789ae5c42fb',1,'starsh-spatial.h']]]
+];

@@ -1,0 +1,9 @@
+<map id="include/starsh&#45;electrostatics.h" name="include/starsh&#45;electrostatics.h">
+<area shape="rect" id="node2" href="$common_8c.html" title="src/applications/common.c" alt="" coords="5,95,184,121"/>
+<area shape="rect" id="node3" href="$electrostatics_8c.html" title="src/applications/electrostatics.c" alt="" coords="209,95,415,121"/>
+<area shape="rect" id="node4" href="$kernel__coulomb__potential__nd_8c.html" title="build/src/applications\l/electrostatics/kernel\l_coulomb_potential_nd.c" alt="" coords="439,80,606,136"/>
+<area shape="rect" id="node5" href="$kernel__coulomb__potential__1d_8c.html" title="build/src/applications\l/electrostatics/kernel\l_coulomb_potential_1d.c" alt="" coords="630,80,797,136"/>
+<area shape="rect" id="node6" href="$kernel__coulomb__potential__2d_8c.html" title="build/src/applications\l/electrostatics/kernel\l_coulomb_potential_2d.c" alt="" coords="821,80,987,136"/>
+<area shape="rect" id="node7" href="$kernel__coulomb__potential__3d_8c.html" title="build/src/applications\l/electrostatics/kernel\l_coulomb_potential_3d.c" alt="" coords="1011,80,1178,136"/>
+<area shape="rect" id="node8" href="$kernel__coulomb__potential__4d_8c.html" title="build/src/applications\l/electrostatics/kernel\l_coulomb_potential_4d.c" alt="" coords="1202,80,1369,136"/>
+</map>

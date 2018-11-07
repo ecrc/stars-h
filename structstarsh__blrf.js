@@ -1,0 +1,26 @@
+var structstarsh__blrf =
+[
+    [ "bcol_far", "structstarsh__blrf.html#ac53f83ce3f85b64d85f6c595391e79de", null ],
+    [ "bcol_far_start", "structstarsh__blrf.html#a264fd4850408d3f11133d65d9334e637", null ],
+    [ "bcol_near", "structstarsh__blrf.html#a7765fcedf64c345d03d125fd280e4cf0", null ],
+    [ "bcol_near_start", "structstarsh__blrf.html#a262663ad236e7d8c5c8280f4aec0f4c6", null ],
+    [ "block_far", "structstarsh__blrf.html#ae66d0d2ff1612f18e37b0d602c7991be", null ],
+    [ "block_far_local", "structstarsh__blrf.html#a9763c73fbc4579b79af243c9fcc3661b", null ],
+    [ "block_near", "structstarsh__blrf.html#ae95bb573fa48c28063cf57dd81d8ad0f", null ],
+    [ "block_near_local", "structstarsh__blrf.html#a2d40b81c5fa8d67b4955c92323e456f1", null ],
+    [ "brow_far", "structstarsh__blrf.html#a0e3e7cd21de41f49fbbf3f0804381482", null ],
+    [ "brow_far_start", "structstarsh__blrf.html#a64065e5376bf3927237af1c57720f3a9", null ],
+    [ "brow_near", "structstarsh__blrf.html#a50b6629cd355ef70dc91db2b38987a24", null ],
+    [ "brow_near_start", "structstarsh__blrf.html#a0ab61d222490331481d9e310cbd660c3", null ],
+    [ "col_cluster", "structstarsh__blrf.html#ac7c312d68f5006e662069ba78841f7e2", null ],
+    [ "nbcols", "structstarsh__blrf.html#add881c0cb5bc373e782ee800506e5585", null ],
+    [ "nblocks_far", "structstarsh__blrf.html#a5ebe947d1c8772fba6dc2b1a646fe557", null ],
+    [ "nblocks_far_local", "structstarsh__blrf.html#acace313e03ca54d066488a91d306097e", null ],
+    [ "nblocks_near", "structstarsh__blrf.html#a6176d7015e9755d3668d88b185872774", null ],
+    [ "nblocks_near_local", "structstarsh__blrf.html#a3d8d1927ba79f350c3000c23300428ca", null ],
+    [ "nbrows", "structstarsh__blrf.html#acf5acf9f3e7ec519f5835ffb5275114a", null ],
+    [ "problem", "structstarsh__blrf.html#a80ff9b138cfc3c741e9fc3d36933f63d", null ],
+    [ "row_cluster", "structstarsh__blrf.html#add157e220d7945d28c8b44efc0fe201f", null ],
+    [ "symm", "structstarsh__blrf.html#a7c847ed126a8243fe5e8cea238296ec6", null ],
+    [ "type", "structstarsh__blrf.html#ad6a6b9be7384aa0a5edf11e3a1d5c04e", null ]
+];
