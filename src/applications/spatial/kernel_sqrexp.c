@@ -13,9 +13,9 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/spatial/kernel_sqrexp.c
- * @version 0.1.0
+ * @version 0.1.1
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  */
 
 #include "common.h"

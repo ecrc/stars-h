@@ -5,9 +5,9 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/init.c
- * @version 0.1.0
+ * @version 0.1.1
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2018-11-06
  * */
 
 #include "starsh.h"
