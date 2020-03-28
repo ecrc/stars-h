@@ -577,10 +577,11 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
 			*kernel = starsh_ssdata_block_matern2_kernel_2d_simd;
 			break;
 		case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-{printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
-			*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
-			break;
-}
+			{
+				printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
+				*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
+				break;
+			}
 		case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
 			*kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd;
 			break;
@@ -588,17 +589,17 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
 			*kernel = starsh_ssdata_block_matern_kernel_2d_simd_gcd;
 			break;
 		case STARSH_SPATIAL_MATERN2_GCD:
-		{
-printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
-	*kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
-			break;
-}
+			{
+				printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
+				*kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
+				break;
+			}
 		case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-{
-printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
-			*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
-			break;
-}
+			{
+				printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
+				*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
+				break;
+			}
 		case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
 			*kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd;
 			break;
@@ -747,7 +748,7 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
 	// Get corresponding kernel for n-dimensional spatial statistics problem.
 	// This function is static not to be visible outside this module.
 {
-printf("%============99999999999999999999999 \n" );
+	printf("%============99999999999999999999999 \n" );
 	switch(type)
 	{
 		case STARSH_SPATIAL_EXP:
@@ -920,7 +921,7 @@ void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
 	size_t count1 = data1->particles.count;
 	size_t count2 = data2->particles.count;
 	double *x1[2], *x2[2];
-//printf("%===============%f(4), \n", sigma);
+	//printf("%===============%f(4), \n", sigma);
 	x1[0] = data1->particles.point;
 	x2[0] = data2->particles.point;
 #pragma omp simd
@@ -999,7 +1000,7 @@ void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
 	double *x1[2], *x2[2];
 	x1[0] = data1->particles.point;
 	x2[0] = data2->particles.point;
-//printf("%===============(3)%f, \n", sigma);
+	//printf("%===============(3)%f, \n", sigma);
 #pragma omp simd
 	for(i = 1; i < 2; i++)
 	{
@@ -1083,7 +1084,7 @@ void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
 	double *x1[2], *x2[2];
 	x1[0] = data1->particles.point;
 	x2[0] = data2->particles.point;
-//printf("%===============(2)%f, \n", sigma);
+	//printf("%===============(2)%f, \n", sigma);
 #pragma omp simd
 	for(i = 1; i < 2; i++)
 	{
@@ -1166,7 +1167,7 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
 	double *x1[2], *x2[2];
 	x1[0] = data1->particles.point;
 	x2[0] = data2->particles.point;
-//printf("%(14)===============(test)%f, \n", sigma);
+	//printf("%(14)===============(test)%f, \n", sigma);
 #pragma omp simd
 	for(i = 1; i < 2; i++)
 	{
@@ -1251,7 +1252,7 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
 	double sigma2 = data1->sigma2;
 	double corr  = data1->corr;
 
-//printf("%(13)===============%f, %f, %f, %f, %f, %f\n", sigma1, sigma2, beta, nu1, nu2, corr);
+	//printf("%(13)===============%f, %f, %f, %f, %f, %f\n", sigma1, sigma2, beta, nu1, nu2, corr);
 	// Get coordinates
 	STARSH_int count1 = data1->particles.count;
 	STARSH_int count2 = data2->particles.count;
@@ -1399,8 +1400,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 	double sigma2 = data1->sigma2;
 	double corr  = data1->corr;
 
-//printf("(12)======%f %f %f %f %f %f %f %f\n", sigma1, sigma2, beta, nu1, nu2, corr, noise1, noise2);
-//exit(0);
+	//printf("(12)======%f %f %f %f %f %f %f %f\n", sigma1, sigma2, beta, nu1, nu2, corr, noise1, noise2);
+	//exit(0);
 	// Get coordinates
 	STARSH_int count1 = data1->particles.count;
 	STARSH_int count2 = data2->particles.count;
@@ -1438,7 +1439,7 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 	con12 = 1.0/con12;
 	con12 = rho * sqrt(sigma1 * sigma2) * con12;
 
-//printf("(LR): %f, %f, %f, %f\n", rho, con1, con2, con12);
+	//printf("(LR): %f, %f, %f, %f\n", rho, con1, con2, con12);
 	//printf("%f, %f, %f, %f, %f, %f\n", sigma1, sigma2, beta, nu1, nu2, corr);
 	//exit(0);
 
@@ -1682,15 +1683,13 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 	double noise1 = data1->noise;
 	double sigma1 = data1->sigma;
 
-
 	double nu2    = data1->nu2;
-	double noise2 = data1->noise2;
+	double noise2 = data1->noise;
 	double sigma2 = data1->sigma2;
 	double corr  = data1->corr;
 
-	printf("%(10)===============%f, %f, %f, %f, %f, %f\n", sigma1, sigma2, beta, nu1, nu2, corr);
-	//exit(0);
-
+//	printf("(12)======%f %f %f %f %f %f %f %f\n", sigma1, sigma2, beta, nu1, nu2, corr, noise1, noise2);
+//	exit(0);
 	// Get coordinates
 	STARSH_int count1 = data1->particles.count;
 	STARSH_int count2 = data2->particles.count;
@@ -1721,10 +1720,8 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 	nu12 = 0.5 * (nu1+ nu2);
 
 	rho = corr * sqrt( (tgamma(nu1 + 1)*tgamma(nu2 + 1)) /
-
 			(tgamma(nu1) * tgamma(nu2)) ) *
 		tgamma(nu12) / tgamma(nu12 + 1);
-
 
 	con12 = pow(2,(nu12-1)) * tgamma(nu12);
 	con12 = 1.0/con12;
@@ -1732,60 +1729,104 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 
 
 
+//printf("%f %f %f %f %f %f %f\n", con1, con2, nu1, nu2, nu12, rho, con12);
+//exit(0);
 	// Fill column-major matrix
 #pragma omp simd
-	for(j = 0; j < ncols; j++)
+	for(j = 0; j < ncols/2; j++)
 	{
-		for(i = 0; i < nrows; i++)
+		for(i = 0; i < nrows/2; i++)
 		{
 			double dist = 0.0;
 			for(k = 0; k < 2; k++)
 			{
-				tmp = x1[k][irow[i]]-x2[k][icol[j]];
-				dist += tmp*tmp;
+				tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+				dist += tmp;
 			}
-			dist = dist/beta;
-			if( i % 2 ==0)
-			{
-				if(dist == 0)
-				{
-					if( i == j)
-						buffer[j*(size_t)ld+i] = sigma1+noise1;
+			dist = sqrt(dist)/beta;
 
-					else
-						buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+			if(dist == 0)
+				buffer[j*(size_t)ld+i] = sigma1;//+1e-4;
 
-
-				}
-				else
-
-					if( i == j)
-						buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-					else
-						buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
-			}
 			else
-			{
-				if(dist == 0)
-				{
-					if( i == j)
-						buffer[j*(size_t)ld+i] = sigma2+noise2;
-					else
-						buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+{
+				buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);//+noise1;
 
-				}
-				else
-				{
-					if( i == j)
-						buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-					else
-						buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);
-				}
+			//printf("\n\n======%f %f %f %f %f (%f, %f), (%f, %f)\n", con1, pow(dist, nu1), nu1, dist, gsl_sf_bessel_Knu(nu1, dist),  x1[0][irow[i]], x2[0][icol[j]], x1[1][irow[i]], x2[1][icol[j]]  );
+		//	printf("(1)%6.4e, %f, %f\n", buffer[j*(size_t)ld+i], dist, (con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist)));
 
-			}
+//exit(0);
+}
 		}
-
 	}
+
+	//************************************************
+	for(j = ncols/2; j < ncols; j++)
+	{
+		for(i = nrows/2; i < nrows; i++)
+		{
+			double dist = 0.0;
+			for(k = 0; k < 2; k++)
+			{
+				tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+				dist += tmp;
+			}
+			dist = sqrt(dist)/beta;
+
+			if(dist == 0)
+				buffer[j*(size_t)ld+i] = sigma2;//+1e-4;
+
+			else
+				buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);//+noise1;
+
+		}
+		//printf("(2)%f ", buffer[j*(size_t)ld+i]);
+	}
+	//***************************************************
+	for(j = ncols/2; j < ncols; j++)
+	{
+		for(i = 0; i < nrows/2; i++)
+		{
+			double dist = 0.0;
+			for(k = 0; k < 2; k++)
+			{
+				tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+				dist += tmp;
+			}
+			dist = sqrt(dist)/beta;
+
+			if(dist == 0)
+				buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
+
+			else
+				buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
+
+		}
+		//printf("(3)%f ", buffer[j*(size_t)ld+i]);
+	}
+	//***************************************************
+	for(j = 0; j < ncols/2; j++)
+	{
+		for(i = nrows/2; i < nrows; i++)
+		{
+			double dist = 0.0;
+			for(k = 0; k < 2; k++)
+			{
+				tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+				dist += tmp;
+			}
+			dist = sqrt(dist)/beta;
+
+			if(dist == 0)
+				buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
+			else
+				buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
+
+		}
+		//printf("(4)%f ", buffer[j*(size_t)ld+i]);
+	}
+
+
 }
 #endif // GSL
 
