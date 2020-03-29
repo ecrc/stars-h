@@ -70,6 +70,8 @@ enum STARSH_PARTICLES_PLACEMENT
     //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
     STARSH_PARTICLES_OBSOLETE3 = -3,
     //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
+    STARSH_PARTICLES_OBSOLETE4 = -4,
+    //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
 };
 
 int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim);

@@ -164,6 +164,9 @@ int starsh_particles_generate(STARSH_particles **data, STARSH_int count,
         case STARSH_PARTICLES_OBSOLETE3:
             info = starsh_particles_generate_obsolete3(data, count, ndim);
             break;
+        case STARSH_PARTICLES_OBSOLETE4:
+            info = starsh_particles_generate_obsolete4(data, count, ndim);
+            break;
         default:
             return STARSH_WRONG_PARAMETER;
     };
@@ -705,6 +708,81 @@ int starsh_particles_generate_obsolete3(STARSH_particles **data,
 	return STARSH_SUCCESS;
 }
 
+
+int starsh_particles_generate_obsolete4(STARSH_particles **data,
+        STARSH_int count, int ndim)
+//! Generate a uniform grid of particles with random shift of each particle.
+/*! Similar to starsh_particles_generate_quasiuniform1(), but works only for
+ * 1D, 2D and 3D. Parameter `count` must be square of integer if `ndim`=2 and
+ * cube if integer if `ndim`=3.
+ *
+ * @param[out] data: Address of pointer to @ref STARSH_particles object.
+ * @param[in] count: Amount of particles to generate.
+ * @param[in] ndim: Dimensionality of space.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_particles_generate(), starsh_particles_generate_quasiuniform1().
+ * @ingroup app-particles
+ * */
+{
+        STARSH_int i, j, k;
+        double *point;
+        size_t nelem = count*ndim;
+        STARSH_MALLOC(point, nelem);
+        if(ndim == 1)
+        {//TODO
+                for(i = 0; i < count; i++)
+                        point[i] = (i+0.1+0.8*rand()/(1.0+RAND_MAX))/count;
+        }
+        else if(ndim == 2)
+        {
+
+
+                STARSH_int sqrtn = floor(sqrt(count/2)+0.1);
+                if(sqrtn*sqrtn != count/2)
+                {
+                        STARSH_ERROR("parameter `count` must be square of some integer");
+                        return STARSH_WRONG_PARAMETER;
+                }
+
+                double *x = point, *y = x+count;
+                for(i = 0; i < sqrtn; i++)
+                        for(j = 0; j < sqrtn; j++)
+                        {
+                                STARSH_int ind = i*sqrtn + j;
+                                x[ind] = x[(count/2)+ind]= (i/2+0.1+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+                                y[ind] = y[(count/2)+ind]= (j/2+0.1+0.8*rand()/(1.0+RAND_MAX))/sqrtn;
+                        }
+
+               zsort(count/2, point);
+               zsort(count/2, &point[count/2]);
+        }
+        else
+        {//TODO
+                STARSH_int cbrtn = floor(cbrt(count)+0.1);
+                if(cbrtn*cbrtn*cbrtn != count)
+                {
+                        STARSH_ERROR("parameter `count` must be cube of some integer");
+                        return STARSH_WRONG_PARAMETER;
+                }
+                double *x = point, *y = x+count, *z = y+count;
+                for(i = 0; i < cbrtn; i++)
+                        for(j = 0; j < cbrtn; j++)
+                                for(k = 0; k < cbrtn; k++)
+                                {
+                                        STARSH_int ind = (i*cbrtn + j)*cbrtn + k;
+                                        x[ind] = (i+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                                        y[ind] = (j+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                                        z[ind] = (k+0.1+0.8*rand()/(1.0+RAND_MAX))/cbrtn;
+                                }
+                zsort3(count, point);
+        }
+        STARSH_MALLOC(*data, 1);
+        (*data)->point = point;
+        (*data)->count = count;
+        (*data)->ndim = ndim;
+
+        return STARSH_SUCCESS;
+}
 
 int starsh_particles_read_from_file(STARSH_particles **data, const char *fname,
 		const enum STARSH_FILE_TYPE ftype)
