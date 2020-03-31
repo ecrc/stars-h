@@ -1460,10 +1460,10 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 
 			if(dist == 0)
 			{
-				buffer[j*(size_t)ld+i] = sigma1;//+noise1;
+				buffer[j*(size_t)ld+i] = sigma1+noise1;
 				buffer[j*(size_t)ld+(i+1)] = rho * sqrt(sigma1 * sigma2) ;
 				buffer[(j+1)*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
-				buffer[(j+1)*(size_t)ld+(i+1)] = sigma2;//;+noise2;
+				buffer[(j+1)*(size_t)ld+(i+1)] = sigma2+noise2;
 
 			}
 			else
