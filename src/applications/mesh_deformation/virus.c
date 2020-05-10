@@ -134,18 +134,19 @@ void starsh_generate_3d_virus(int nrows, int ncols,
         int m, k;
         STARSH_mddata *data = row_data;
         double *mesh = data->particles.point;
+        double rad;
 
          if((data->numobj)>1 && (data->rad)<0) rad=0.25*(data->numobj)*sqrt(3); //Use the this formultation
 
          double *A= (double *)result;
 
         for(m=0;m<nrows;m++){
-                int i0=irow*nrows+m;
+                int i0=irow[m];
                 int posi=i0*3;
                 double vi[3] = {mesh[posi], mesh[posi+1], mesh[posi+2]};
  
                 for(k=0;k<ncols;k++){
-                        int j0=icol*ncols+k;
+                        int j0=icol[k];
                         int posj=j0*3;
                         double vj[3] = {mesh[posj], mesh[posj+1], mesh[posj+2]};
                         double d = diff(vi, vj) / (double)rad;
@@ -181,8 +182,8 @@ void starsh_generate_3d_virus_rhs(STARSH_int mesh_points, double *A)
 
     for(i=0;i<mesh_points;i++)
        A[i]=0.01;
-    for(i=nb_tot;i<2*mesh_points;i++)
+    for(i=mesh_points;i<2*mesh_points;i++)
        A[i]=-0.019;
-    for(i=2*nb_tot;i<3*mesh_points;i++)
+    for(i=2*mesh_points;i<3*mesh_points;i++)
        A[i]=0.021;
 }

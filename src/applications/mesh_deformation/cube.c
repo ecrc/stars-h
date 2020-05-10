@@ -134,21 +134,21 @@ void starsh_generate_3d_cube(int nrows, int ncols,
         double vi[3];
         double vj[3];
         STARSH_mddata *data = row_data;
-        int i0, j0;
+        STARSH_int i0, j0;
         int n = floor(1 + pow(1 - (8 - data->mesh_points) / (double)6, 0.5)) + 1;
         int nb = (int)(6 * pow(n, 2) - 12 * n + 8);
         double L = 0.5*n; // 0.5 : minimal distance between two neighboring mesh points
         int m, k;
         double *A = (double *) result;
         for(m=0;m<nrows;m++){
-                i0 = irow*nrows+m;
+                i0 = irow[m];
                 cube(vi, i0, L, n);
                 for(k=0;k<ncols;k++){
-                        j0 = icol*ncols+k;
+                        j0 = icol[k];
                         cube(vj, j0, L, n);
-                        double d = diff(vi, vj) / (double)rad;
+                        double d = diff(vi, vj) / (double) data->rad;
                        //A[lda*k+m]=Gaussian3(d);
-                        switch(kernel){
+                        switch(data->kernel){
                            case 0: A[lda*k+m]=Gaussian(d);
                                    break;
                            case 1: A[lda*k+m]=Expon(d);
@@ -168,7 +168,7 @@ void starsh_generate_3d_cube(int nrows, int ncols,
                            default: A[lda*k+m]=Wendland(d);
                                    break;
                         }
-                        if( i0==j0 && (data->isreg)) A[lda*k+m] + = (data->reg);
+                        if( i0==j0 && (data->isreg)) A[lda*k+m] += (data->reg);
                 }
         }
 

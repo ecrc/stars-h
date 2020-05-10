@@ -5,6 +5,7 @@ set(STARSH_PUB_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-starpu.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-mpi-starpu.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-spatial.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-rbf.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-spatial-gsl.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-electrostatics.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-electrodynamics.h"

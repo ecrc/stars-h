@@ -246,7 +246,7 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
     (particles)->ndim = ndim;    
 
     STARSH_MALLOC(*data, 1);
-    (*data)->particles = particles;
+    (*data)->particles = *particles;
     free(particles);
     (*data)->reg = reg;
     (*data)->isreg = isreg;
