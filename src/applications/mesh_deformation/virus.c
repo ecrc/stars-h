@@ -134,7 +134,7 @@ void starsh_generate_3d_virus(int nrows, int ncols,
         int m, k;
         STARSH_mddata *data = row_data;
         double *mesh = data->particles.point;
-        double rad;
+        double rad = data->rad;
 
          if((data->numobj)>1 && (data->rad)<0) rad=0.25*(data->numobj)*sqrt(3); //Use the this formultation
 

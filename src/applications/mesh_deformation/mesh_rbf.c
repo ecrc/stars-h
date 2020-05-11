@@ -256,3 +256,13 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
     (*data)->rad = rad;
 }
 
+
+void starsh_mddata_free(STARSH_mddata *data)
+//! Free memory of @ref STARSH_mddata object.
+/*! @sa starsh_mddata_new(), starsh_mddata_init(), starsh_mddata_generate().
+ * @ingroup app-spatial
+ * */
+{
+    starsh_particles_free(&data->particles);
+}
+
