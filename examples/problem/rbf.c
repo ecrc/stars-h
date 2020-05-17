@@ -1,4 +1,4 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2020 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     STARSH_int shape[2] = {N, N};
     int info;
     int numobj =1; // how many objects (e.g. number of viurese)
-    int isreg = 1; // it it either 0 or 1 if you want to add regularizer
+    int isreg = 1; // it is either 0 or 1 if you want to add regularizer
     int reg = 1.1; // regularization value
     int ordering = 0; // 0: no ordering, 1: Morton ordering
     char * mesh_file = "../../../data/10370.txt";  //path to mesh file

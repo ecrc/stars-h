@@ -1,40 +1,33 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2020 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file include/starsh-spatial.h
+ * @file include/starsh-rbf.h
  * @version 0.1.1
+ * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2018-11-06
+ * @date 2018-05-09
  * */
 
 #ifndef __STARSH_RBF_H__
 #define __STARSH_RBF_H__
 
-/*! @defgroup app-spatial Spatial statistics problem
+/*! @defgroup mesh deformation problem
  * @ingroup applications
- * @brief Template for spatial statistics problems.
+ * @brief Template for mesh deformation problems.
  *
- * @ref STARSH_ssdata holds all the necessary data.
+ * @ref STARSH_mddata holds all the necessary data.
  * */
 
-/*! @defgroup app-spatial-kernels Kernels
- * @ingroup app-spatial
- * @brief Set of kernels for spatial statistics problems
- *
- * Click on functions to view implemented equations.
- * */
 
 // Add definitions for size_t, va_list, STARSH_kernel and STARSH_particles
 #include "starsh.h"
 #include "starsh-particles.h"
 
 typedef struct starsh_mddata
-//! Structure for Spatial Statistics problems.
-/*! @ingroup app-spatial
- * */
+//! Structure for mesh deformation problems.
 {
     STARSH_particles particles;
     //!< Particles.

@@ -1,4 +1,4 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2020 King Abdullah University of Science and
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
@@ -10,11 +10,12 @@
  * will be replace by proposed values. If you want to use this file outside
  * STARS-H, simply do substitutions yourself.
  *
- * @file src/applications/spatial/kernel_exp.c
+ * @file src/applications/mesh_deformation/mesh_rbf.c
  * @version 0.1.1
+ * @author Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2018-11-06
- */
+ * @date 2020-05-09 
+*/
 
 #include "common.h"
 #include "starsh.h"
@@ -178,7 +179,7 @@ static void starsh_morton_zsort(int n, double *points)
 static void starsh_morton_zsort3(int n, double *points)
 // Sort in Morton order for 3D
 {
-    // Some sorting, required by spatial statistics code
+    // Some sorting, required by mesh deformation
     int i;
     uint16_t x, y, z;
     uint64_t Z[n];
@@ -201,12 +202,23 @@ static void starsh_morton_zsort3(int n, double *points)
     }
 }
 
-
+/*! It reads mesh pointd fron file
+ *
+ * @param[inout] data: STARSH_mddata mesh deformation 
+ * @param[in] file_name: path to mesh file
+ * @param[in] mesh points: number of mesh points
+ * @param[in] ndim: problem dimension.
+ * @param[in] kernel_type: kernel (0:).
+ * @param[in] numobj: how many objects (e.g. number of viurese)
+ * @param[in] isreg:  it is either 0 or 1 if you want to add regularizer
+ * @param[in] reg:  regularization value
+ * @param[in] rad: RBF scaling factor  
+ * @param[in] mordering: 0: no ordering, 1: Morton ordering.
+ * */
 void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
                           int numobj, int isreg, double reg, double rad, int mordering){
 
    
-  //double *mesh = (double *) malloc
   STARSH_particles *particles;
   STARSH_MALLOC(particles, 1);
   (particles)->count = mesh_points;
