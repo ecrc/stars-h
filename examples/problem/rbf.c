@@ -4,10 +4,11 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/problem/spatial.c
+ * @file examples/problem/rbf.c
  * @version 0.1.0
+ * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2020-05-17
  * */
 
 #include <stdio.h>
@@ -17,40 +18,30 @@
 
 int main(int argc, char **argv)
 {
-    int problem_ndim = 2;
+    int problem_ndim = 3;
     int kernel_type = 0;
-    // Correlation length
-    double beta = 0.1;
-    // Smoothing parameter for Matern kernel
-    double nu = 0.5;
-    // Set level of noise
-    double noise = 0;
     // Size of desired matrix
     int N = 10370;
     // 'N' for nonsymmetric matrix and 'd' for double precision
-    char symm = 'Y', dtype = 'd';
-    int ndim = 3;
-    STARSH_int shape[3] = {N, N, N};
+    char symm = 'S', dtype = 'd';
+    int ndim = 2;
+    STARSH_int shape[2] = {N, N};
     int info;
-    // Generate data for spatial statistics problem
+    int numobj =1; // how many objects (e.g. number of viurese)
+    int isreg = 1; // it it either 0 or 1 if you want to add regularizer
+    int reg = 1.1; // regularization value
+    int ordering = 0; // 0: no ordering, 1: Morton ordering
+    char * mesh_file = "../../../data/10370.txt";  //path to mesh file
+    double rad = 0.6; //RBF scaling factor 
+    // Generate data for mesh deformation problem
     STARSH_mddata *data;
     STARSH_kernel *kernel;
     
-    starsh_generate_3d_rbf_mesh_coordinates((STARSH_mddata **)&data, "10370.txt", 10370, 3, 0, 
-                          1, 0, 0.1, 0.6, 0);
+    starsh_generate_3d_rbf_mesh_coordinates((STARSH_mddata **)&data, mesh_file, N, problem_ndim, kernel_type, numobj, isreg, reg, rad, ordering);
     kernel=starsh_generate_3d_virus;
     STARSH_particles particles= data->particles;
     double *mesh = particles.point;  
 
-     for (int ii =0; ii<9;ii+=3){
-          printf("%f %f %f \n", mesh[ii], mesh[ii+1], mesh[ii+2]);
-         }
-       printf("\n");
-    /*if(info != 0)
-    {
-        printf("wrong parameters for spatial statistics problem\n");
-        return info;
-    }*/
     // Init problem with given data and kernel and print short info
     STARSH_problem *problem;
     info = starsh_problem_new(&problem, ndim, shape, symm, dtype, data, data,
@@ -65,11 +56,11 @@ int main(int argc, char **argv)
     // Compute dense matrix
     Array *array;
     info = starsh_problem_to_array(problem, &array);
-/*    if(info != 0)
+    if(info != 0)
     {
         printf("Error when computing matrix elements\n");
         exit(info);
-    }*/
+    }
     printf("Matrix was successfully computed\n");
     return 0;
 }
