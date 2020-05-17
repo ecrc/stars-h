@@ -18,13 +18,13 @@
 
 int main(int argc, char **argv)
 {
-    int problem_ndim = 3;
+    int problem_ndim = 3; // problem dimension
     int kernel_type = 0;
     // Size of desired matrix
     int N = 10370;
     // 'N' for nonsymmetric matrix and 'd' for double precision
     char symm = 'S', dtype = 'd';
-    int ndim = 2;
+    int ndim = 2; //  tensors dimension 
     STARSH_int shape[2] = {N, N};
     int info;
     int numobj =1; // how many objects (e.g. number of viurese)
