@@ -53,5 +53,18 @@ void starsh_generate_3d_cube(int nrows, int ncols,
 void starsh_generate_3d_virus_rhs(STARSH_int mesh_points, double *A);
 void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
                           int numobj, int isreg, double reg, double rad, int mordering);
+/* RBF Kernels headers */
+double Gaussian(double x);
+double Expon(double x);
+double Maternc1(double x);
+double Maternc2(double x);
+double QUAD(double x);
+double InvQUAD(double x);
+double InvMQUAD(double x);
+double TPS(double x);
+double Wendland(double x);
+double CTPS(double x);
+double diff(double*x, double*y);
+
 
 #endif // __STARSH_RBF__H__
