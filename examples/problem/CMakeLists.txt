@@ -16,6 +16,7 @@ set(examples_files
     "minimal.c"
     "dense.c"
     "particles.c"
+    "rbf.c"
     )
 
 file(COPY "particles.txt"

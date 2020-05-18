@@ -34,7 +34,6 @@ if(GSL_FOUND OR DOCS STREQUAL "FULL")
         "${CMAKE_CURRENT_BINARY_DIR}" OUTPUT_VARIABLE generated_files2)
     list(APPEND generated_files ${generated_files2})
 endif()
-
 #message("${generated_files}")
 set(STARSH_SRC
     ${generated_files}
