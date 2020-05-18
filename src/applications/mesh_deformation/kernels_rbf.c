@@ -28,7 +28,7 @@
  */
 double Gaussian(double x)
 {
-        return exp(-pow(x, 2));
+        return exp(-(x * x));
 }
 
 /*! RBF Exponential basis function
@@ -50,7 +50,7 @@ double Maternc1(double x)
  */
 double Maternc2(double x)
 {
-        return exp(-x)+(3+3*x+pow(x,2));
+        return exp(-x)+(3+3*x+(x * x));
 }
 
 /*! RBF Quadratic basis function
@@ -58,7 +58,7 @@ double Maternc2(double x)
  */
 double QUAD(double x)
 {
-        return 1 + pow(x, 2);
+        return 1 + (x * x);
 }
 
 /*! RBF Inverse Quadratic basis function
@@ -66,7 +66,7 @@ double QUAD(double x)
  */
 double InvQUAD(double x)
 {
-	return 1 / (1 + pow(x, 2));
+	return 1 / (1 + (x * x));
 }
 
 /*! RBF Inverse Multi-Quadratic basis function
@@ -74,7 +74,7 @@ double InvQUAD(double x)
  */
 double InvMQUAD(double x)
 {
-        return 1 / sqrt(1 + pow(x, 2));
+        return 1 / sqrt(1 + (x * x));
 }
 
 /*! RBF Thin plate spline basis function
@@ -82,7 +82,7 @@ double InvMQUAD(double x)
  */
 double TPS(double x)
 {
-        return pow(x, 2) * log(x);
+        return (x * x) * log(x);
 }
 
 /*! RBF Wendland basis function
@@ -93,7 +93,7 @@ double Wendland(double x)
         if (x > 1)
                 return 0;
         else
-                return pow(1 - x, 4)*(4 * x + 1);
+                return ((1 - x) * (1 - x) * (1 - x) * (1 - x))*(4 * x + 1);
 }
 
 /*! RBF Continuous Thin plate spline basis function
@@ -104,7 +104,7 @@ double CTPS(double x)
         if (x > 1)
                 return 0;
         else
-                return pow(1 - x, 5);
+                return ((1 - x) * (1 - x) * (1 - x) * (1 - x) * (1 - x));
 }
 
 /*! Computing Euclidean distance
@@ -116,6 +116,6 @@ double diff(double*x, double*y)
 {
         double r = 0;
         for (int i = 0; i < 3; i++)
-                r = r + pow(x[i] - y[i], 2);
-        return pow(r, 0.5);
+                r = r + ((x[i] - y[i]) * (x[i] - y[i]));
+        return sqrt(r);
 }

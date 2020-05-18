@@ -39,28 +39,28 @@ static void cube(double* v, int index, double L, int n)
 	double y = -1;
 	double z = -1;
 
-	if (index < 2 * pow(n, 2))
+	if (index < 2 * (n * n))
 	{
-		z = index / (int)pow(n, 2);
-		int ind = index - z*pow(n, 2);
+		z = index / (int) (n * n);
+		int ind = index - z*(n * n);
 
 		x = (ind / n)* step;
 		y = (ind % n)* step;
 	}
-	else if ((index >= 2 * pow(n, 2)) && (index < 4 * (pow(n, 2) - n)))
+	else if ((index >= 2 * (n * n)) && (index < 4 * ((n * n) - n)))
 	{
-		int ind = index - 2 * pow(n, 2);
-		x = ind / (int)(pow(n, 2) - 2 * n);
-		ind =(int)(ind - x*(pow(n, 2) - 2 * n));
+		int ind = index - 2 * (n * n);
+		x = ind / (int)((n * n) - 2 * n);
+		ind =(int)(ind - x*((n * n) - 2 * n));
 
 		y = (ind % n)* step;
 		z = ((ind / n) + 1)* step;
 	}
-	else if ((index >= 4 * (pow(n, 2) - n)) && (index < 6 * pow(n, 2) - 12 * n + 8))
+	else if ((index >= 4 * ((n * n) - n)) && (index < 6 * (n * n) - 12 * n + 8))
 	{
-		int ind = index - 4 * (pow(n, 2) - n);
-		y = ind / (int)(pow(n, 2) - 4 * n + 4);
-		ind =(int)(ind - y*(pow(n, 2) - 4 * n + 4));
+		int ind = index - 4 * ((n * n) - n);
+		y = ind / (int)((n * n) - 4 * n + 4);
+		ind =(int)(ind - y*((n * n) - 4 * n + 4));
 
 		x = ((ind / (n - 2)) + 1)* step;
 		z = ((ind % (n - 2)) + 1)* step;
@@ -91,7 +91,7 @@ void starsh_generate_3d_cube(int nrows, int ncols,
 	STARSH_mddata *data = row_data;
 	STARSH_int i0, j0;
 	int n = floor(1 + sqrt(1 - (8 - data->mesh_points) / (double)6)) + 1;
-	int nb = (int)(6 * pow(n, 2) - 12 * n + 8);
+	int nb = (int)(6 * (n * n) - 12 * n + 8);
 	double L = 0.5*n; // 0.5 : minimal distance between two neighboring mesh points
 	int m, k;
 	double *A = (double *) result;
