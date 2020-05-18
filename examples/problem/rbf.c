@@ -27,9 +27,9 @@ int main(int argc, char **argv)
     int ndim = 2; //  tensors dimension 
     STARSH_int shape[2] = {N, N};
     int info;
-    int numobj =1; // how many objects (e.g. number of viurese)
+    int numobj =1; // how many objects (e.g. number of viruses)
     int isreg = 1; // it is either 0 or 1 if you want to add regularizer
-    int reg = 1.1; // regularization value
+    double reg = 1.1; // regularization value
     int ordering = 0; // 0: no ordering, 1: Morton ordering
     char * mesh_file = "../../../data/10370.txt";  //path to mesh file
     double rad = 0.6; //RBF scaling factor 
