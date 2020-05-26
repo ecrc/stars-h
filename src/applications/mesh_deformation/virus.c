@@ -23,7 +23,7 @@
 #include <math.h>
 #include <stdio.h>
 
-
+#define pi 3.14159265358979323846
 
 /*! Fills matrix \f$ A \f$ with values
  *
@@ -37,6 +37,7 @@
  * @param[in] ld: Leading dimension of `result`.
  * */
 
+
 void starsh_generate_3d_virus(int nrows, int ncols,
 		STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
 		void *result, int lda)
@@ -46,7 +47,9 @@ void starsh_generate_3d_virus(int nrows, int ncols,
 	double *mesh = data->particles.point;
 	double rad = data->rad;
 
-	if((data->numobj)>1 && (data->rad)<0) rad=0.25*(data->numobj)*sqrt(3); //Use the this formultation
+	//if((data->numobj)>1 && (data->rad)<0) rad=0.25*(data->numobj)*sqrt(3); // For uniform dist
+
+        if((data->numobj)>1 && (data->rad)<0) rad= (sqrt(3)) * (pow(((4 * pi * (0.09 * 0.09 * 0.09) * (data->numobj)/ 3) / 0.14 ), (1/3)) + 0.18); // For sphere packing
 
 	double *A= (double *)result;
 
