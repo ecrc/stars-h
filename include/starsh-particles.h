@@ -69,9 +69,11 @@ enum STARSH_PARTICLES_PLACEMENT
     STARSH_PARTICLES_OBSOLETE2 = -2,
     //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
     STARSH_PARTICLES_OBSOLETE3 = -3,
-    //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
+    //!< Uniform in [0,1] grid, but each grid coordinate is slightly shifted
+    // for 1D, 2D, and 3D cases -- use each location twice. (Parsimonious bivaritae case1).
     STARSH_PARTICLES_OBSOLETE4 = -4,
-    //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
+    //!< Uniform in [0,1] grid, but each grid coordinate is slightly shifted
+    // for 1D, 2D, and 3D cases-- use each location twice. (Parsimonious bivaritae case2).
 };
 
 int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim);

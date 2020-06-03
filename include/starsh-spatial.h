@@ -49,12 +49,11 @@ typedef struct starsh_ssdata
     double sigma;
     //!< Variance.
     double nu2;
-    //!< Order of Mat&eacute;rn kernel.
-    double noise2;
-    //!< Noise and regularization parameter.
+    //!< Order of Mat&eacute;rn kernel for the second variable (in the parsimonious bivariate case).
     double sigma2;
-    //!< Variance.
+    //!< Variance for the second variable (in the parsimonious bivariate case).
    double corr;
+    //!< spatial range parameter (define the correlation between the two variables in the parsimonious bivariate case).
 } STARSH_ssdata;
 
 enum STARSH_SPATIAL_KERNEL
@@ -163,10 +162,11 @@ enum STARSH_SPATIAL_PARAM
     STARSH_SPATIAL_SIGMA = 6,
     //!< Variance parameter (`sigma`, double).
     STARSH_SPATIAL_SIGMA2 = 7,
-    //!< Variance parameter (`sigma`, double).
+    //!< Variance for the second variable (in the parsimonious bivariate case).
     STARSH_SPATIAL_NU2 = 8,
-    //!< Smoothing parameter for Mat&eacute;rn kernel (`nu`, double).
+    //!< Order of Mat&eacute;rn kernel for the second variable (in the parsimonious bivariate case).
     STARSH_SPATIAL_CORR = 9,
+    //!< spatial range parameter (define the correlation between the two variables in the parsimonious bivariate case).
 };
 
 int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim);

@@ -189,7 +189,6 @@ int starsh_ssdata_init_parsimonious(STARSH_ssdata **data, STARSH_int count, int 
     tmp->noise = noise;
     tmp->sigma = sigma1;
     tmp->nu2 = nu2;
-    tmp->noise = noise;
     tmp->sigma2 = sigma2;
     tmp->corr = corr;
     *data = tmp;
@@ -343,6 +342,9 @@ int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
      * `noise`  | 0.0           | double
      * `place`  | @ref STARSH_PARTICLES_UNIFORM | @ref STARSH_PARTICLES_PLACEMENT
      * `sigma`  | 1.0           | double
+     * `nu2`    | 0.5           | double
+     * `sigma2  | 1.0           | double
+     * `corr`   | 0.5           | double
      *
      * List of arguments `args` should look as pairs (Arg.constant, Value) with 0
      * as a last argument. For correspondance of arguments and arg.constants take a
