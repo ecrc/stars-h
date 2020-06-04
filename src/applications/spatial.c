@@ -1256,7 +1256,7 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
     double sigma1 = data1->sigma;
 
     double nu2    = data1->nu2;
-    double noise2 = data1->noise2;
+    double noise2 = data1->noise;
     double sigma2 = data1->sigma2;
     double corr  = data1->corr;
 
@@ -1536,7 +1536,7 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
     double sigma1 = data1->sigma;
 
     double nu2    = data1->nu2;
-    double noise2 = data1->noise2;
+    double noise2 = data1->noise;
     double sigma2 = data1->sigma2;
     double corr  = data1->corr;
 
