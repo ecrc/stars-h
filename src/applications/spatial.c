@@ -6,8 +6,9 @@
  *
  * @file src/applications/spatial.c
  * @version 0.1.1
+ * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2018-11-06
+ * @date 2020-06-04
  */
 
 #include "common.h"

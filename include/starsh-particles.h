@@ -6,8 +6,9 @@
  *
  * @file include/starsh-particles.h
  * @version 0.1.0
+ * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2020-06-04
  * */
 
 #ifndef __STARSH_PARTICLES_H__

@@ -6,8 +6,9 @@
  *
  * @file include/starsh-spatial.h
  * @version 0.1.1
+ * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2018-11-06
+ * @date 2020-06-04
  * */
 
 #ifndef __STARSH_SPATIAL_H__
