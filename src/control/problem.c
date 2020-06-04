@@ -120,10 +120,10 @@ void starsh_problem_info(STARSH_problem *problem)
     if(problem == NULL)
         return;
     STARSH_problem *P = problem;
-    printf("<STARS_Problem at %p, name \"%s\", shape (%d", P, P->name,
+    printf("<STARS_Problem at %p, name \"%s\", shape (%zd", P, P->name,
             P->shape[0]);
     for(int i = 1; i < P->ndim; i++)
-        printf(",%d", P->shape[i]);
+        printf(",%zd", P->shape[i]);
     printf("), '%c' dtype, '%c' symmetric>\n", P->dtype, P->symm);
 }
 

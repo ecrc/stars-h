@@ -322,7 +322,7 @@ int starsh_ssdata_generate_parsimonious(STARSH_ssdata **data, STARSH_int count, 
     (*data)->noise = noise;
     (*data)->sigma = sigma;
     (*data)->nu2 = nu2;
-    (*data)->noise2 = noise;
+    //(*data)->noise2 = noise;
     (*data)->sigma2 = sigma2;
     (*data)->corr = corr;
     return STARSH_SUCCESS;
@@ -525,20 +525,25 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+            break;
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:
         case STARSH_SPATIAL_MATERN_GCD:
         case STARSH_SPATIAL_MATERN2_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
                     "problem");
+            return STARSH_WRONG_PARAMETER;
+            break;
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("Bivariate kernel works currently only in 2D space");
+            return STARSH_WRONG_PARAMETER;
             break;
         default:
             STARSH_ERROR("Wrong type of kernel");
@@ -626,6 +631,7 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+            break;
 #endif
         default:
             STARSH_ERROR("Wrong type of kernel");
@@ -671,20 +677,25 @@ static int starsh_ssdata_get_kernel_3d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+            break;
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:
         case STARSH_SPATIAL_MATERN_GCD:
         case STARSH_SPATIAL_MATERN2_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
                     "problem");
+            return STARSH_WRONG_PARAMETER;
+            break;
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("Bivariate kernel works currently only in 2D space");
+            return STARSH_WRONG_PARAMETER;
             break;
         default:
             STARSH_ERROR("Wrong type of kernel");
@@ -730,20 +741,25 @@ static int starsh_ssdata_get_kernel_4d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+            break;
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:
         case STARSH_SPATIAL_MATERN_GCD:
         case STARSH_SPATIAL_MATERN2_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
                     "problem");
+            return STARSH_WRONG_PARAMETER;
+            break;
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("Bivariate kernel works currently only in 2D space");
+            return STARSH_WRONG_PARAMETER;
             break;
         default:
             STARSH_ERROR("Wrong type of kernel");
@@ -790,20 +806,25 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN_SIMD:
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
             return STARSH_WRONG_PARAMETER;
+            break;
 #endif
         case STARSH_SPATIAL_EXP_GCD:
         case STARSH_SPATIAL_SQREXP_GCD:
         case STARSH_SPATIAL_MATERN_GCD:
         case STARSH_SPATIAL_MATERN2_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
                     "problem");
+            return STARSH_WRONG_PARAMETER;
+            break;
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("Bivariate kernel works currently only in 2D space");
+            return STARSH_WRONG_PARAMETER;
             break;
         default:
             STARSH_ERROR("Wrong type of kernel");
