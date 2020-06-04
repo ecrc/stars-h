@@ -100,7 +100,7 @@ void starsh_cluster_info(STARSH_cluster *cluster)
         printf("tiled, ");
     else
         printf("hierarchical, ");
-    printf("%d blocks>\n", C->nblocks);
+    printf("%zd blocks>\n", C->nblocks);
 }
 
 int starsh_cluster_new_plain(STARSH_cluster **cluster, void *data,

@@ -98,6 +98,10 @@ int starsh_particles_generate_obsolete1(STARSH_particles **data,
         STARSH_int count, int ndim);
 int starsh_particles_generate_obsolete2(STARSH_particles **data,
         STARSH_int count, int ndim);
+int starsh_particles_generate_obsolete3(STARSH_particles **data,
+        STARSH_int count, int ndim);
+int starsh_particles_generate_obsolete4(STARSH_particles **data,
+        STARSH_int count, int ndim);
 
 int starsh_particles_read_from_file(STARSH_particles **data, const char *fname,
         const enum STARSH_FILE_TYPE ftype);

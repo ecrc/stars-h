@@ -61,7 +61,8 @@
 #endif
 
 #ifdef GSL
-    #include <gsl/gsl_sf.h>
+    #include <gsl/gsl_sf_bessel.h>
+    #include <gsl/gsl_sf_gamma.h>
 #endif
 
 #define STARSH_ERROR(format, ...)\
