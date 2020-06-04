@@ -35,13 +35,13 @@ int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
 {
     if(data == NULL)
     {
-	STARSH_ERROR("Invalid value of `data`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-	STARSH_ERROR("Invalid value of `ndim`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `ndim`");
+        return STARSH_WRONG_PARAMETER;
     }
     STARSH_ssdata *tmp;
     STARSH_MALLOC(tmp, 1);
@@ -53,7 +53,7 @@ int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim)
 }
 
 int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
-	double *point, double beta, double nu, double noise, double sigma)
+        double *point, double beta, double nu, double noise, double sigma)
     //! Initialize @ref STARSH_ssdata object by given data.
     /*! Array `point` should be stored in a special way: `x_1 x_2 ... x_count y_1
      * y_2 ... y_count z_1 z_2 ...`.
@@ -80,33 +80,33 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-	STARSH_ERROR("Invalid value of `data`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-	STARSH_ERROR("Invalid value of `ndim`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `ndim`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-	STARSH_ERROR("Invalid value of `beta`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `beta`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(nu < 0)
     {
-	STARSH_ERROR("Invalid value of `nu`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `nu`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {
-	STARSH_ERROR("Invalid value of `noise`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `noise`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(sigma < 0)
     {
-	STARSH_ERROR("Invalid value of `sigma`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `sigma`");
+        return STARSH_WRONG_PARAMETER;
     }
     STARSH_ssdata *tmp;
     STARSH_MALLOC(tmp, 1);
@@ -124,8 +124,8 @@ int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
 
 
 int starsh_ssdata_init_parsimonious(STARSH_ssdata **data, STARSH_int count, int ndim,
-	double *point, double sigma1, double sigma2, double beta, double nu1,
-	double nu2, double corr, double noise)
+        double *point, double sigma1, double sigma2, double beta, double nu1,
+        double nu2, double corr, double noise)
     //! Initialize @ref STARSH_ssdata object by given data.
     /*! Array `point` should be stored in a special way: `x_1 x_2 ... x_count y_1
      * y_2 ... y_count z_1 z_2 ...`.
@@ -152,32 +152,32 @@ int starsh_ssdata_init_parsimonious(STARSH_ssdata **data, STARSH_int count, int 
 {
     if(data == NULL)
     {
-	STARSH_ERROR("Invalid value of `data`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(ndim <= 0)
     {
-	STARSH_ERROR("Invalid value of `ndim`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `ndim`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-	STARSH_ERROR("Invalid value of `beta`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `beta`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(nu1 < 0 || nu2 < 0)
     {
-	STARSH_ERROR("Invalid value of `nu`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `nu`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {        STARSH_ERROR("Invalid value of `noise`");
-	return STARSH_WRONG_PARAMETER;
+        return STARSH_WRONG_PARAMETER;
     }
     if(sigma1 < 0 || sigma2 < 0)
     {
-	STARSH_ERROR("Invalid value of `sigma`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `sigma`");
+        return STARSH_WRONG_PARAMETER;
     }
     STARSH_ssdata *tmp;
     STARSH_MALLOC(tmp, 1);
@@ -198,8 +198,8 @@ int starsh_ssdata_init_parsimonious(STARSH_ssdata **data, STARSH_int count, int 
 
 
 int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
-	double beta, double nu, double noise,
-	enum STARSH_PARTICLES_PLACEMENT place, double sigma)
+        double beta, double nu, double noise,
+        enum STARSH_PARTICLES_PLACEMENT place, double sigma)
     //! Generate @ref STARSH_ssdata object by given distribution.
     /*! @param[out] data: Address of pointer to @ref STARSH_ssdata object.
      * @param[in] count: Number of particles.
@@ -216,36 +216,36 @@ int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
 {
     if(data == NULL)
     {
-	STARSH_ERROR("Invalid value of `data`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-	STARSH_ERROR("Invalid value of `beta`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `beta`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(nu < 0)
     {
-	STARSH_ERROR("Invalid value of `nu`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `nu`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {
-	STARSH_ERROR("Invalid value of `noise`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `noise`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(sigma < 0)
     {
-	STARSH_ERROR("Invalid value of `sigma`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `sigma`");
+        return STARSH_WRONG_PARAMETER;
     }
     int info;
     STARSH_particles *particles;
     info = starsh_particles_generate(&particles, count, ndim, place);
     if(info != STARSH_SUCCESS)
     {
-	fprintf(stderr, "INFO=%d\n", info);
-	return info;
+        fprintf(stderr, "INFO=%d\n", info);
+        return info;
     }
     STARSH_MALLOC(*data, 1);
     (*data)->particles = *particles;
@@ -259,9 +259,9 @@ int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
 
 
 int starsh_ssdata_generate_parsimonious(STARSH_ssdata **data, STARSH_int count, int ndim,
-	double beta, double nu, double noise,
-	enum STARSH_PARTICLES_PLACEMENT place, double sigma, double sigma2,
-	double nu2, double corr)
+        double beta, double nu, double noise,
+        enum STARSH_PARTICLES_PLACEMENT place, double sigma, double sigma2,
+        double nu2, double corr)
     //! Generate @ref STARSH_ssdata object by given distribution.
     /*! @param[out] data: Address of pointer to @ref STARSH_ssdata object.
      * @param[in] count: Number of particles.
@@ -281,28 +281,28 @@ int starsh_ssdata_generate_parsimonious(STARSH_ssdata **data, STARSH_int count, 
 {
     if(data == NULL)
     {
-	STARSH_ERROR("Invalid value of `data`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `data`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(beta <= 0)
     {
-	STARSH_ERROR("Invalid value of `beta`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `beta`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(nu < 0)
     {
-	STARSH_ERROR("Invalid value of `nu`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `nu`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(noise < 0)
     {
-	STARSH_ERROR("Invalid value of `noise`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `noise`");
+        return STARSH_WRONG_PARAMETER;
     }
     if(sigma < 0)
     {
-	STARSH_ERROR("Invalid value of `sigma`");
-	return STARSH_WRONG_PARAMETER;
+        STARSH_ERROR("Invalid value of `sigma`");
+        return STARSH_WRONG_PARAMETER;
     }
     int info;
 
@@ -310,8 +310,8 @@ int starsh_ssdata_generate_parsimonious(STARSH_ssdata **data, STARSH_int count, 
     info = starsh_particles_generate(&particles, count, ndim, place);
     if(info != STARSH_SUCCESS)
     {
-	fprintf(stderr, "INFO=%d\n", info);
-	return info;
+        fprintf(stderr, "INFO=%d\n", info);
+        return info;
     }
     STARSH_MALLOC(*data, 1);
     (*data)->particles = *particles;
@@ -329,7 +329,7 @@ int starsh_ssdata_generate_parsimonious(STARSH_ssdata **data, STARSH_int count, 
 
 
 int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
-	va_list args)
+        va_list args)
     //! Generate @ref STARSH_ssdata object with incomplete set of parameters.
     /*! Parse possibly incomplete set of parameters for starsh_ssdata_generate().
      * If argument is not in the `args`, then its default value is used:
@@ -384,45 +384,45 @@ int starsh_ssdata_generate_va(STARSH_ssdata **data, STARSH_int count,
     int info;
     while((arg_type = va_arg(args, int)) != 0)
     {
-	switch(arg_type)
-	{
-	    case STARSH_SPATIAL_NDIM:
-		ndim = va_arg(args, int);
-		break;
-	    case STARSH_SPATIAL_BETA:
-		beta = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_NU:
-		nu = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_NOISE:
-		noise = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_PLACE:
-		place = va_arg(args, enum STARSH_PARTICLES_PLACEMENT);
-		break;
-	    case STARSH_SPATIAL_SIGMA:
-		sigma = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_SIGMA2:
-		sigma2 = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_NU2:
-		nu2 = va_arg(args, double);
-		break;
-	    case STARSH_SPATIAL_CORR:
-		corr = va_arg(args, double);
-		break;
-	    default:
-		STARSH_ERROR("Wrong parameter type");
-		return STARSH_WRONG_PARAMETER;
-	}
+        switch(arg_type)
+        {
+            case STARSH_SPATIAL_NDIM:
+                ndim = va_arg(args, int);
+                break;
+            case STARSH_SPATIAL_BETA:
+                beta = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_NU:
+                nu = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_NOISE:
+                noise = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_PLACE:
+                place = va_arg(args, enum STARSH_PARTICLES_PLACEMENT);
+                break;
+            case STARSH_SPATIAL_SIGMA:
+                sigma = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_SIGMA2:
+                sigma2 = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_NU2:
+                nu2 = va_arg(args, double);
+                break;
+            case STARSH_SPATIAL_CORR:
+                corr = va_arg(args, double);
+                break;
+            default:
+                STARSH_ERROR("Wrong parameter type");
+                return STARSH_WRONG_PARAMETER;
+        }
     }
-    if(sigma2 < 0)	
-	info = starsh_ssdata_generate(data, count, ndim, beta, nu, noise, place,
-		sigma);
+    if(sigma2 < 0)      
+        info = starsh_ssdata_generate(data, count, ndim, beta, nu, noise, place,
+                sigma);
     else
-	info = starsh_ssdata_generate_parsimonious(data, count, ndim, beta, nu, noise, place, sigma, sigma2, nu2, corr);
+        info = starsh_ssdata_generate_parsimonious(data, count, ndim, beta, nu, noise, place, sigma, sigma2, nu2, corr);
     return info;
 }
 
@@ -488,331 +488,331 @@ void starsh_ssdata_free(STARSH_ssdata *data)
 }
 
 static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     // Get kernel for 1-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
     switch(type)
     {
-	case STARSH_SPATIAL_EXP:
-	    *kernel = starsh_ssdata_block_exp_kernel_1d;
-	    break;
-	case STARSH_SPATIAL_EXP_SIMD:
-	    *kernel = starsh_ssdata_block_exp_kernel_1d_simd;
-	    break;
-	case STARSH_SPATIAL_SQREXP:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_1d;
-	    break;
-	case STARSH_SPATIAL_SQREXP_SIMD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_1d_simd;
-	    break;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_1d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_1d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_1d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_1d_simd;
+            break;
 #ifdef GSL
-	case STARSH_SPATIAL_MATERN:
-	    *kernel = starsh_ssdata_block_matern_kernel_1d;
-	    break;
-	case STARSH_SPATIAL_MATERN_SIMD:
-	    *kernel = starsh_ssdata_block_matern_kernel_1d_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN2:
-	    *kernel = starsh_ssdata_block_matern2_kernel_1d;
-	    break;
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	    *kernel = starsh_ssdata_block_matern2_kernel_1d_simd;
-	    break;
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_1d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_1d_simd;
+            break;
+        case STARSH_SPATIAL_MATERN2:
+            *kernel = starsh_ssdata_block_matern2_kernel_1d;
+            break;
+        case STARSH_SPATIAL_MATERN2_SIMD:
+            *kernel = starsh_ssdata_block_matern2_kernel_1d_simd;
+            break;
 #else
-	case STARSH_SPATIAL_MATERN:
-	case STARSH_SPATIAL_MATERN_SIMD:
-	case STARSH_SPATIAL_MATERN2:
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	    STARSH_ERROR("Matern kernel requires GSL library, which was "
-		    "not found");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN:
+        case STARSH_SPATIAL_MATERN_SIMD:
+        case STARSH_SPATIAL_MATERN2:
+        case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+            STARSH_ERROR("Matern kernel requires GSL library, which was "
+                    "not found");
+            return STARSH_WRONG_PARAMETER;
 #endif
-	case STARSH_SPATIAL_EXP_GCD:
-	case STARSH_SPATIAL_SQREXP_GCD:
-	case STARSH_SPATIAL_MATERN_GCD:
-	case STARSH_SPATIAL_MATERN2_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
-		    "problem");
-	    break;
-	default:
-	    STARSH_ERROR("Wrong type of kernel");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
 
 static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     // Get kernel for 2-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
     switch(type)
     {
-	case STARSH_SPATIAL_EXP:
-	    *kernel = starsh_ssdata_block_exp_kernel_2d;
-	    break;
-	case STARSH_SPATIAL_EXP_SIMD:
-	    *kernel = starsh_ssdata_block_exp_kernel_2d_simd;
-	    break;
-	case STARSH_SPATIAL_SQREXP:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_2d;
-	    break;
-	case STARSH_SPATIAL_SQREXP_SIMD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd;
-	    break;
-	case STARSH_SPATIAL_EXP_GCD:
-	    *kernel = starsh_ssdata_block_exp_kernel_2d_simd_gcd;
-	    break;
-	case STARSH_SPATIAL_SQREXP_GCD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd;
-	    break;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_2d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_2d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_EXP_GCD:
+            *kernel = starsh_ssdata_block_exp_kernel_2d_simd_gcd;
+            break;
+        case STARSH_SPATIAL_SQREXP_GCD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd;
+            break;
 #ifdef GSL
-	case STARSH_SPATIAL_MATERN:
-	    *kernel = starsh_ssdata_block_matern_kernel_2d;
-	    break;
-	case STARSH_SPATIAL_MATERN_SIMD:
-	    *kernel = starsh_ssdata_block_matern_kernel_2d_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN2:
-	    *kernel = starsh_ssdata_block_matern2_kernel_2d;
-	    break;
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	    *kernel = starsh_ssdata_block_matern2_kernel_2d_simd;
-	    break;
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	    {
-		printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
-		*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
-		break;
-	    }
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	    *kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN_GCD:
-	    *kernel = starsh_ssdata_block_matern_kernel_2d_simd_gcd;
-	    break;
-	case STARSH_SPATIAL_MATERN2_GCD:
-	    {
-		printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
-		*kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
-		break;
-	    }
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	    {
-		printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
-		*kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
-		break;
-	    }
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    *kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd;
-	    break;
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_2d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_MATERN2:
+            *kernel = starsh_ssdata_block_matern2_kernel_2d;
+            break;
+        case STARSH_SPATIAL_MATERN2_SIMD:
+            *kernel = starsh_ssdata_block_matern2_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+            {
+                printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
+                *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
+                break;
+            }
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+            *kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd;
+            break;
+        case STARSH_SPATIAL_MATERN_GCD:
+            *kernel = starsh_ssdata_block_matern_kernel_2d_simd_gcd;
+            break;
+        case STARSH_SPATIAL_MATERN2_GCD:
+            {
+                printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
+                *kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
+                break;
+            }
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+            {
+                printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
+                *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
+                break;
+            }
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            *kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd;
+            break;
 #else
-	case STARSH_SPATIAL_MATERN:
-	case STARSH_SPATIAL_MATERN_SIMD:
-	case STARSH_SPATIAL_MATERN2:
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	case STARSH_SPATIAL_MATERN_GCD:
-	case STARSH_SPATIAL_MATERN2_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    STARSH_ERROR("Matern kernel requires GSL library, which was "
-		    "not found");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN:
+        case STARSH_SPATIAL_MATERN_SIMD:
+        case STARSH_SPATIAL_MATERN2:
+        case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("Matern kernel requires GSL library, which was "
+                    "not found");
+            return STARSH_WRONG_PARAMETER;
 #endif
-	default:
-	    STARSH_ERROR("Wrong type of kernel");
-	    return STARSH_WRONG_PARAMETER;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
 
 static int starsh_ssdata_get_kernel_3d(STARSH_kernel **kernel,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     // Get kernel for 3-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
     switch(type)
     {
-	case STARSH_SPATIAL_EXP:
-	    *kernel = starsh_ssdata_block_exp_kernel_3d;
-	    break;
-	case STARSH_SPATIAL_EXP_SIMD:
-	    *kernel = starsh_ssdata_block_exp_kernel_3d_simd;
-	    break;
-	case STARSH_SPATIAL_SQREXP:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_3d;
-	    break;
-	case STARSH_SPATIAL_SQREXP_SIMD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_3d_simd;
-	    break;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_3d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_3d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_3d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_3d_simd;
+            break;
 #ifdef GSL
-	case STARSH_SPATIAL_MATERN:
-	    *kernel = starsh_ssdata_block_matern_kernel_3d;
-	    break;
-	case STARSH_SPATIAL_MATERN_SIMD:
-	    *kernel = starsh_ssdata_block_matern_kernel_3d_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN2:
-	    *kernel = starsh_ssdata_block_matern2_kernel_3d;
-	    break;
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	    *kernel = starsh_ssdata_block_matern2_kernel_3d_simd;
-	    break;
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_3d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_3d_simd;
+            break;
+        case STARSH_SPATIAL_MATERN2:
+            *kernel = starsh_ssdata_block_matern2_kernel_3d;
+            break;
+        case STARSH_SPATIAL_MATERN2_SIMD:
+            *kernel = starsh_ssdata_block_matern2_kernel_3d_simd;
+            break;
 #else
-	case STARSH_SPATIAL_MATERN:
-	case STARSH_SPATIAL_MATERN_SIMD:
-	case STARSH_SPATIAL_MATERN2:
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	    STARSH_ERROR("Matern kernel requires GSL library, which was "
-		    "not found");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN:
+        case STARSH_SPATIAL_MATERN_SIMD:
+        case STARSH_SPATIAL_MATERN2:
+        case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+            STARSH_ERROR("Matern kernel requires GSL library, which was "
+                    "not found");
+            return STARSH_WRONG_PARAMETER;
 #endif
-	case STARSH_SPATIAL_EXP_GCD:
-	case STARSH_SPATIAL_SQREXP_GCD:
-	case STARSH_SPATIAL_MATERN_GCD:
-	case STARSH_SPATIAL_MATERN2_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
-		    "problem");
-	    break;
-	default:
-	    STARSH_ERROR("Wrong type of kernel");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
 
 static int starsh_ssdata_get_kernel_4d(STARSH_kernel **kernel,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     // Get kernel for 4-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
     switch(type)
     {
-	case STARSH_SPATIAL_EXP:
-	    *kernel = starsh_ssdata_block_exp_kernel_4d;
-	    break;
-	case STARSH_SPATIAL_EXP_SIMD:
-	    *kernel = starsh_ssdata_block_exp_kernel_4d_simd;
-	    break;
-	case STARSH_SPATIAL_SQREXP:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_4d;
-	    break;
-	case STARSH_SPATIAL_SQREXP_SIMD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_4d_simd;
-	    break;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_4d;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_4d_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_4d;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_4d_simd;
+            break;
 #ifdef GSL
-	case STARSH_SPATIAL_MATERN:
-	    *kernel = starsh_ssdata_block_matern_kernel_4d;
-	    break;
-	case STARSH_SPATIAL_MATERN_SIMD:
-	    *kernel = starsh_ssdata_block_matern_kernel_4d_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN2:
-	    *kernel = starsh_ssdata_block_matern2_kernel_4d;
-	    break;
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	    *kernel = starsh_ssdata_block_matern2_kernel_4d_simd;
-	    break;
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_4d;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_4d_simd;
+            break;
+        case STARSH_SPATIAL_MATERN2:
+            *kernel = starsh_ssdata_block_matern2_kernel_4d;
+            break;
+        case STARSH_SPATIAL_MATERN2_SIMD:
+            *kernel = starsh_ssdata_block_matern2_kernel_4d_simd;
+            break;
 #else
-	case STARSH_SPATIAL_MATERN:
-	case STARSH_SPATIAL_MATERN_SIMD:
-	case STARSH_SPATIAL_MATERN2:
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	    STARSH_ERROR("Matern kernel requires GSL library, which was "
-		    "not found");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN:
+        case STARSH_SPATIAL_MATERN_SIMD:
+        case STARSH_SPATIAL_MATERN2:
+        case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+            STARSH_ERROR("Matern kernel requires GSL library, which was "
+                    "not found");
+            return STARSH_WRONG_PARAMETER;
 #endif
-	case STARSH_SPATIAL_EXP_GCD:
-	case STARSH_SPATIAL_SQREXP_GCD:
-	case STARSH_SPATIAL_MATERN_GCD:
-	case STARSH_SPATIAL_MATERN2_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
-		    "problem");
-	    break;
-	default:
-	    STARSH_ERROR("Wrong type of kernel");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
 
 static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     // Get corresponding kernel for n-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
     printf("%============99999999999999999999999 \n" );
     switch(type)
     {
-	case STARSH_SPATIAL_EXP:
-	    *kernel = starsh_ssdata_block_exp_kernel_nd;
-	    break;
-	case STARSH_SPATIAL_EXP_SIMD:
-	    *kernel = starsh_ssdata_block_exp_kernel_nd_simd;
-	    break;
-	case STARSH_SPATIAL_SQREXP:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_nd;
-	    break;
-	case STARSH_SPATIAL_SQREXP_SIMD:
-	    *kernel = starsh_ssdata_block_sqrexp_kernel_nd_simd;
-	    break;
+        case STARSH_SPATIAL_EXP:
+            *kernel = starsh_ssdata_block_exp_kernel_nd;
+            break;
+        case STARSH_SPATIAL_EXP_SIMD:
+            *kernel = starsh_ssdata_block_exp_kernel_nd_simd;
+            break;
+        case STARSH_SPATIAL_SQREXP:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_nd;
+            break;
+        case STARSH_SPATIAL_SQREXP_SIMD:
+            *kernel = starsh_ssdata_block_sqrexp_kernel_nd_simd;
+            break;
 #ifdef GSL
-	case STARSH_SPATIAL_MATERN:
-	    *kernel = starsh_ssdata_block_matern_kernel_nd;
-	    break;
-	case STARSH_SPATIAL_MATERN_SIMD:
-	    *kernel = starsh_ssdata_block_matern_kernel_nd_simd;
-	    break;
-	case STARSH_SPATIAL_MATERN2:
-	    *kernel = starsh_ssdata_block_matern2_kernel_nd;
-	    break;
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	    *kernel = starsh_ssdata_block_matern2_kernel_nd_simd;
-	    break;
+        case STARSH_SPATIAL_MATERN:
+            *kernel = starsh_ssdata_block_matern_kernel_nd;
+            break;
+        case STARSH_SPATIAL_MATERN_SIMD:
+            *kernel = starsh_ssdata_block_matern_kernel_nd_simd;
+            break;
+        case STARSH_SPATIAL_MATERN2:
+            *kernel = starsh_ssdata_block_matern2_kernel_nd;
+            break;
+        case STARSH_SPATIAL_MATERN2_SIMD:
+            *kernel = starsh_ssdata_block_matern2_kernel_nd_simd;
+            break;
 #else
-	case STARSH_SPATIAL_MATERN:
-	case STARSH_SPATIAL_MATERN_SIMD:
-	case STARSH_SPATIAL_MATERN2:
-	case STARSH_SPATIAL_MATERN2_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
-	    STARSH_ERROR("Matern kernel requires GSL library, which was "
-		    "not found");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_MATERN:
+        case STARSH_SPATIAL_MATERN_SIMD:
+        case STARSH_SPATIAL_MATERN2:
+        case STARSH_SPATIAL_MATERN2_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+            STARSH_ERROR("Matern kernel requires GSL library, which was "
+                    "not found");
+            return STARSH_WRONG_PARAMETER;
 #endif
-	case STARSH_SPATIAL_EXP_GCD:
-	case STARSH_SPATIAL_SQREXP_GCD:
-	case STARSH_SPATIAL_MATERN_GCD:
-	case STARSH_SPATIAL_MATERN2_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS_GCD:
-	case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
-	    STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
-		    "problem");
-	    break;
-	default:
-	    STARSH_ERROR("Wrong type of kernel");
-	    return STARSH_WRONG_PARAMETER;
+        case STARSH_SPATIAL_EXP_GCD:
+        case STARSH_SPATIAL_SQREXP_GCD:
+        case STARSH_SPATIAL_MATERN_GCD:
+        case STARSH_SPATIAL_MATERN2_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
+            STARSH_ERROR("GCD (spherical distance) can be used only for 2D "
+                    "problem");
+            break;
+        default:
+            STARSH_ERROR("Wrong type of kernel");
+            return STARSH_WRONG_PARAMETER;
     }
     return STARSH_SUCCESS;
 }
 
 int starsh_ssdata_get_kernel(STARSH_kernel **kernel, STARSH_ssdata *data,
-	enum STARSH_SPATIAL_KERNEL type)
+        enum STARSH_SPATIAL_KERNEL type)
     //! Get kernel for spatial statistics problem.
     /*! Kernel can be selected with this call or manually. To select kernel
      * manually look into @ref app-spatial-kernels.
@@ -835,16 +835,16 @@ int starsh_ssdata_get_kernel(STARSH_kernel **kernel, STARSH_ssdata *data,
 {
     switch(data->particles.ndim)
     {
-	case 1:
-	    return starsh_ssdata_get_kernel_1d(kernel, type);
-	case 2:
-	    return starsh_ssdata_get_kernel_2d(kernel, type);
-	case 3:
-	    return starsh_ssdata_get_kernel_3d(kernel, type);
-	case 4:
-	    return starsh_ssdata_get_kernel_4d(kernel, type);
-	default:
-	    return starsh_ssdata_get_kernel_nd(kernel, type);
+        case 1:
+            return starsh_ssdata_get_kernel_1d(kernel, type);
+        case 2:
+            return starsh_ssdata_get_kernel_2d(kernel, type);
+        case 3:
+            return starsh_ssdata_get_kernel_3d(kernel, type);
+        case 4:
+            return starsh_ssdata_get_kernel_4d(kernel, type);
+        default:
+            return starsh_ssdata_get_kernel_nd(kernel, type);
     }
 }
 
@@ -880,8 +880,8 @@ static double distanceEarth(double lat1d, double lon1d, double lat2d, double lon
 }
 
 void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Exponential kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -935,8 +935,8 @@ void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -944,22 +944,22 @@ void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist/beta;
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma+noise;
-	    else
-		buffer[j*(size_t)ld+i] = sigma*exp(dist);
-	}
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*exp(dist);
+        }
     }
 }
 
 void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Square exponential kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1012,8 +1012,8 @@ void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1021,24 +1021,24 @@ void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist*dist/beta;
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma+noise;
-	    else
-		buffer[j*(size_t)ld+i] = sigma*exp(dist);
-	}
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist*dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*exp(dist);
+        }
     }
 }
 
 #ifdef GSL
 
 void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1096,8 +1096,8 @@ void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1105,24 +1105,24 @@ void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist*theta;
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma+noise;
-	    else
-		buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
-		    gsl_sf_gamma(nu)*pow(dist, nu)*
-		    gsl_sf_bessel_Knu(nu, dist);
-	}
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist*theta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                    gsl_sf_gamma(nu)*pow(dist, nu)*
+                    gsl_sf_bessel_Knu(nu, dist);
+        }
     }
 }
 
 void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1179,8 +1179,8 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1188,26 +1188,26 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist/beta;
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma+noise;
-	    else
-		buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
-		    gsl_sf_gamma(nu)*pow(dist, nu)*
-		    gsl_sf_bessel_Knu(nu, dist);
-	}
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                    gsl_sf_gamma(nu)*pow(dist, nu)*
+                    gsl_sf_bessel_Knu(nu, dist);
+        }
     }
 }
 
 
 
 void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1270,8 +1270,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1291,8 +1291,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
     nu12 = 0.5 * (nu1+ nu2);
 
     rho = corr * sqrt( (tgamma(nu1 + 1)*tgamma(nu2 + 1)) /
-	    (tgamma(nu1) * tgamma(nu2)) ) *
-	tgamma(nu12) / tgamma(nu12 + 1);
+            (tgamma(nu1) * tgamma(nu2)) ) *
+        tgamma(nu12) / tgamma(nu12 + 1);
 
 
     con12 = pow(2,(nu12-1)) * tgamma(nu12);
@@ -1305,57 +1305,57 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
+        for(i = 0; i < nrows; i++)
+        {
 
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist/beta;
-	    if( i % 2 ==0)
-	    {
-		if(dist == 0)
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = sigma1+noise1;
-		    else 
-			buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if( i % 2 ==0)
+            {
+                if(dist == 0)
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = sigma1+noise1;
+                    else 
+                        buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
 
 
-		}
-		else
+                }
+                else
 
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-		    else
-			buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
-	    }
-	    else
-	    {
-		if(dist == 0)
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = sigma2+noise2;
-		    else
-			buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
+                    else
+                        buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
+            }
+            else
+            {
+                if(dist == 0)
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = sigma2+noise2;
+                    else
+                        buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
 
-		}
-		else
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-		    else
-			buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);
-		}
+                }
+                else
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
+                    else
+                        buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);
+                }
 
-	    }	
-	}
+            }   
+        }
     }
 }
 
 
 void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1419,8 +1419,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1440,8 +1440,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
     nu12 = 0.5 * (nu1+ nu2);
 
     rho = corr * sqrt( (tgamma(nu1 + 1)*tgamma(nu2 + 1)) /
-	    (tgamma(nu1) * tgamma(nu2)) ) *
-	tgamma(nu12) / tgamma(nu12 + 1);
+            (tgamma(nu1) * tgamma(nu2)) ) *
+        tgamma(nu12) / tgamma(nu12 + 1);
 
     con12 = pow(2,(nu12-1)) * tgamma(nu12);
     con12 = 1.0/con12;
@@ -1451,33 +1451,33 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols-1; j+=2)
     {
-	for(i = 0; i < nrows-1; i+=2)
-	{
-	    double dist = 0.0;
-	    for(k = 0; k < 2; k++)
-	    {
-		tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
-		dist += tmp;
-	    }
-	    dist = sqrt(dist)/beta;
+        for(i = 0; i < nrows-1; i+=2)
+        {
+            double dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+                dist += tmp;
+            }
+            dist = sqrt(dist)/beta;
 
-	    if(dist == 0)
-	    {
-		buffer[j*(size_t)ld+i] = sigma1+noise1;
-		buffer[j*(size_t)ld+(i+1)] = rho * sqrt(sigma1 * sigma2) ;
-		buffer[(j+1)*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
-		buffer[(j+1)*(size_t)ld+(i+1)] = sigma2+noise2;
+            if(dist == 0)
+            {
+                buffer[j*(size_t)ld+i] = sigma1+noise1;
+                buffer[j*(size_t)ld+(i+1)] = rho * sqrt(sigma1 * sigma2) ;
+                buffer[(j+1)*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+                buffer[(j+1)*(size_t)ld+(i+1)] = sigma2+noise2;
 
-	    }
-	    else
-	    {
-		buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);//+noise1;
-		buffer[j*(size_t)ld+(i+1)] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
-		buffer[(j+1)*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
-		buffer[(j+1)*(size_t)ld+(i+1)] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);//;+noise2;
-	    }
+            }
+            else
+            {
+                buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);//+noise1;
+                buffer[j*(size_t)ld+(i+1)] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
+                buffer[(j+1)*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
+                buffer[(j+1)*(size_t)ld+(i+1)] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);//;+noise2;
+            }
 
-	}
+        }
     }
 }
 
@@ -1486,8 +1486,8 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
 
 
 void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1549,8 +1549,8 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1567,8 +1567,8 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
     nu12 = 0.5 * (nu1+ nu2);
 
     rho = corr * sqrt( (tgamma(nu1 + 1)*tgamma(nu2 + 1)) /
-	    (tgamma(nu1) * tgamma(nu2)) ) *
-	tgamma(nu12) / tgamma(nu12 + 1);
+            (tgamma(nu1) * tgamma(nu2)) ) *
+        tgamma(nu12) / tgamma(nu12 + 1);
 
 
     con12 = pow(2,(nu12-1)) * tgamma(nu12);
@@ -1579,58 +1579,58 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols; j++)
     {
-	for(i = 0; i < nrows; i++)
-	{
+        for(i = 0; i < nrows; i++)
+        {
 
-	    dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
-		    x2[0][icol[j]], x2[1][icol[j]]);
-	    dist = dist/beta;
-	    if( i % 2 ==0)
-	    {
-		if(dist == 0)
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = sigma1+noise1;
-		    else
-			buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = dist/beta;
+            if( i % 2 ==0)
+            {
+                if(dist == 0)
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = sigma1+noise1;
+                    else
+                        buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
 
 
-		}
-		else
+                }
+                else
 
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-		    else
-			buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
-	    }
-	    else
-	    {
-		if(dist == 0)
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
+                    else
+                        buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);
+            }
+            else
+            {
+                if(dist == 0)
 
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = sigma2+noise2;
-		    else
-			buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = sigma2+noise2;
+                    else
+                        buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2) ;
 
-		}
-		else
-		{
-		    if( i == j)
-			buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
-		    else
-			buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);
-		}
+                }
+                else
+                {
+                    if( i == j)
+                        buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);
+                    else
+                        buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);
+                }
 
-	    }
-	}
+            }
+        }
     }
 }
 
 
 void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
-	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
-	void *result, int ld)
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
     //! Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
     /*! Fills matrix \f$ A \f$ with values
      * \f[
@@ -1693,8 +1693,8 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
-	x1[i] = x1[0]+i*count1;
-	x2[i] = x2[0]+i*count2;
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
     }
     double *x1_cur, *x2_cur;
     double *buffer = result;
@@ -1712,8 +1712,8 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
     nu12 = 0.5 * (nu1+ nu2);
 
     rho = corr * sqrt( (tgamma(nu1 + 1)*tgamma(nu2 + 1)) /
-	    (tgamma(nu1) * tgamma(nu2)) ) *
-	tgamma(nu12) / tgamma(nu12 + 1);
+            (tgamma(nu1) * tgamma(nu2)) ) *
+        tgamma(nu12) / tgamma(nu12 + 1);
 
     con12 = pow(2,(nu12-1)) * tgamma(nu12);
     con12 = 1.0/con12;
@@ -1723,83 +1723,83 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 #pragma omp simd
     for(j = 0; j < ncols/2; j++)
     {
-	for(i = 0; i < nrows/2; i++)
-	{
-	    double dist = 0.0;
-	    for(k = 0; k < 2; k++)
-	    {
-		tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
-		dist += tmp;
-	    }
-	    dist = sqrt(dist)/beta;
+        for(i = 0; i < nrows/2; i++)
+        {
+            double dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+                dist += tmp;
+            }
+            dist = sqrt(dist)/beta;
 
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma1;//+1e-4;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma1;//+1e-4;
 
-	    else
-		buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);//+noise1;
-	}
+            else
+                buffer[j*(size_t)ld+i] = con1 * pow(dist, nu1) * gsl_sf_bessel_Knu(nu1, dist);//+noise1;
+        }
     }
 
     for(j = ncols/2; j < ncols; j++)
     {
-	for(i = nrows/2; i < nrows; i++)
-	{
-	    double dist = 0.0;
-	    for(k = 0; k < 2; k++)
-	    {
-		tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
-		dist += tmp;
-	    }
-	    dist = sqrt(dist)/beta;
+        for(i = nrows/2; i < nrows; i++)
+        {
+            double dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+                dist += tmp;
+            }
+            dist = sqrt(dist)/beta;
 
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = sigma2;//+1e-4;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma2;//+1e-4;
 
-	    else
-		buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);//+noise1;
+            else
+                buffer[j*(size_t)ld+i] = con2 * pow(dist, nu2) * gsl_sf_bessel_Knu(nu2, dist);//+noise1;
 
-	}
+        }
     }
     for(j = ncols/2; j < ncols; j++)
     {
-	for(i = 0; i < nrows/2; i++)
-	{
-	    double dist = 0.0;
-	    for(k = 0; k < 2; k++)
-	    {
-		tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
-		dist += tmp;
-	    }
-	    dist = sqrt(dist)/beta;
+        for(i = 0; i < nrows/2; i++)
+        {
+            double dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+                dist += tmp;
+            }
+            dist = sqrt(dist)/beta;
 
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
 
-	    else
-		buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
+            else
+                buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
 
-	}
+        }
     }
     //***************************************************
     for(j = 0; j < ncols/2; j++)
     {
-	for(i = nrows/2; i < nrows; i++)
-	{
-	    double dist = 0.0;
-	    for(k = 0; k < 2; k++)
-	    {
-		tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
-		dist += tmp;
-	    }
-	    dist = sqrt(dist)/beta;
+        for(i = nrows/2; i < nrows; i++)
+        {
+            double dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = pow(x1[k][irow[i]]-x2[k][icol[j]],2);
+                dist += tmp;
+            }
+            dist = sqrt(dist)/beta;
 
-	    if(dist == 0)
-		buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
-	    else
-		buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = rho * sqrt(sigma1 * sigma2);
+            else
+                buffer[j*(size_t)ld+i] = con12 * pow(dist, nu12) * gsl_sf_bessel_Knu(nu12, dist);//+noise1;
 
-	}
+        }
     }
 
 
