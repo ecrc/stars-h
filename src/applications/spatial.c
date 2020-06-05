@@ -592,7 +592,7 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
             break;
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
             {
-                printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
+                //printf("STARSH_SPATIAL_PARSIMONIOUS_SIMD\n");
                 *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
                 break;
             }
@@ -604,13 +604,13 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
             break;
         case STARSH_SPATIAL_MATERN2_GCD:
             {
-                printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
+                //printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
                 *kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
                 break;
             }
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
             {
-                printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
+                //printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
                 *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
                 break;
             }
@@ -773,7 +773,7 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
     // Get corresponding kernel for n-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
-    printf("%============99999999999999999999999 \n" );
+    //printf("%============99999999999999999999999 \n" );
     switch(type)
     {
         case STARSH_SPATIAL_EXP:
