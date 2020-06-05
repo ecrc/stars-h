@@ -665,7 +665,7 @@ int starsh_particles_generate_obsolete3(STARSH_particles **data,
 		STARSH_int sqrtn = floor(sqrt(count/2)+0.1);
 		if(sqrtn*sqrtn != count/2)
 		{
-			STARSH_ERROR("number of particles must be square of some integer");
+			STARSH_ERROR("half of number of particles must be square of some integer");
 			return STARSH_WRONG_PARAMETER;
 		}
 
@@ -741,7 +741,7 @@ int starsh_particles_generate_obsolete4(STARSH_particles **data,
                 STARSH_int sqrtn = floor(sqrt(count/2)+0.1);
                 if(sqrtn*sqrtn != count/2)
                 {
-                        STARSH_ERROR("number of particles must be square of some integer");
+                        STARSH_ERROR("half of number of particles must be square of some integer");
                         return STARSH_WRONG_PARAMETER;
                 }
 
