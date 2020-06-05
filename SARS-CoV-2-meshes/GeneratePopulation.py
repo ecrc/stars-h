@@ -43,7 +43,7 @@ while (len(pos) < nb):
     pos = np.unique(pos, axis=0)
 
 
-newPath = "data/VirusPopulation.txt"
+newPath = "singleviursdata/VirusPopulation.txt"
 np.savetxt(newPath, (M + pos[0]).values, delimiter=",", fmt='%1.4e')
 
 f = open(newPath,'ab')
