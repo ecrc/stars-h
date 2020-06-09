@@ -5,10 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file examples/problem/rbf.c
- * @version 0.1.0
+ * @version 0.1.2
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2020-05-17
+ * @date 2020-06-09
  * */
 
 #include <stdio.h>

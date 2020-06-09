@@ -5,9 +5,9 @@
 #             University of Science and Technology (KAUST)
 #
 # @file src/applications/CMakeLists.txt
-# @version 0.1.0
+# @version 0.1.2
 # @author Aleksandr Mikhalev
-# @date 2017-11-07
+# @date 2020-06-09
 
 
 # set the values of the variable in the parent scope

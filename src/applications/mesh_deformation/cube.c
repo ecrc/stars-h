@@ -11,9 +11,9 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/mesh_deformation/cube.c
- * @version 0.1.1
+ * @version 0.1.2
  * @author Rabab Alomairy
- * @date 2020-05-09
+ * @date 2020-06-09
  */
 
 #include "common.h"

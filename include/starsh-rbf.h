@@ -5,10 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-rbf.h
- * @version 0.1.1
+ * @version 0.1.2
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2018-05-09
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_RBF_H__

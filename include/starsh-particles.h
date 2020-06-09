@@ -5,10 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-particles.h
- * @version 0.1.0
+ * @version 0.1.2
  * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2020-06-04
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_PARTICLES_H__

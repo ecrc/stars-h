@@ -1,4 +1,16 @@
+# @copyright (c) 2017 King Abdullah University of Science and
+#                      Technology (KAUST). All rights reserved.
+#
+# STARS-H is a software package, provided by King Abdullah
+#             University of Science and Technology (KAUST)
+#
+# @file CMakeLists.txt
+# @version 0.1.2
+# @author Eduardo Gonzalez Fisher
+# @author Aleksandr Mikhalev
+# @date 2020-06-09
 # Add public headers files to installation
+
 set(STARSH_PUB_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-mpi.h"

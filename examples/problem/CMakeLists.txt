@@ -5,9 +5,9 @@
 #             University of Science and Technology (KAUST)
 #
 # @file examples/problem/CMakeLists.txt
-# @version 0.1.0
+# @version 0.1.2
 # @author Aleksandr Mikhalev
-# @date 2017-11-07
+# @date 2020-06-09
 
 
 set(examples_files
