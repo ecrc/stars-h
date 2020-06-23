@@ -39,6 +39,7 @@ typedef struct starsh_mddata
     int numobj;
     int isreg;
     double rad;
+    double denst;
     int mesh_points;
     int mordering;
 } STARSH_mddata;
@@ -51,8 +52,10 @@ void starsh_generate_3d_cube(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int lda);
 void starsh_generate_3d_virus_rhs(STARSH_int mesh_points, double *A);
-void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
-                          int numobj, int isreg, double reg, double rad, int mordering);
+int starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
+                          int numobj, int isreg, double reg, double rad, double denst, int mordering);
+void starsh_mddata_free(STARSH_mddata *data);
+
 /* RBF Kernels headers */
 double Gaussian(double x);
 double Expon(double x);

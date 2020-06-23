@@ -17,4 +17,5 @@ set(SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/dsdd.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dsvfr.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dna.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/zrsdd.c"
     ${SRC} PARENT_SCOPE)

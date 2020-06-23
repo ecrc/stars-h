@@ -26,6 +26,7 @@ set(STARSH_PUB_HDR
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-constants.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-particles.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/starsh-cauchy.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/starsh-acoustic.h"
 )
 
 # Add public headers to doxygen input

@@ -46,6 +46,8 @@ typedef struct starsh_particles
     //!< Coordinates of particles.
 } STARSH_particles;
 
+
+
 enum STARSH_PARTICLES_PLACEMENT
 //! Distribution of particles for starsh_particles_generate().
 /*! @ingroup app-particles

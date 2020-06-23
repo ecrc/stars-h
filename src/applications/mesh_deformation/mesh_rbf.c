@@ -212,11 +212,12 @@ static void starsh_morton_zsort3(int n, double *points)
  * @param[in] numobj: how many objects (e.g. number of viurese)
  * @param[in] isreg:  it is either 0 or 1 if you want to add regularizer
  * @param[in] reg:  regularization value
- * @param[in] rad: RBF scaling factor  
+ * @param[in] rad: RBF scaling factor 
+ * @param[in] denst: density scaling factor  
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
-void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
-		int numobj, int isreg, double reg, double rad, int mordering){
+int starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
+		int numobj, int isreg, double reg, double rad, double denst, int mordering){
 
 
 	STARSH_particles *particles;
@@ -266,6 +267,10 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
 	(*data)->mordering = mordering;
 	(*data)->kernel = kernel;
 	(*data)->rad = rad;
+        (*data)->denst = denst;
+       
+        return STARSH_SUCCESS;
+
 }
 
 

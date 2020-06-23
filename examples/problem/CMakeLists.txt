@@ -18,7 +18,9 @@ set(examples_files
     "dense.c"
     "particles.c"
     "rbf.c"
+    "acoustic.c"
     )
+
 
 file(COPY "particles.txt"
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
