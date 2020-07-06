@@ -21,9 +21,9 @@
 #include "starsh.h"
 #include "starsh-acoustic.h"
 #include <inttypes.h>
+#include <string.h>
 
-
-/*! It reads mesh points fron file
+/*! It reads mesh points from file
  *
  * @param[inout] data: STARSH_acdata acoustic scattering
  * @param[in] mesh points: number of mesh points
@@ -33,16 +33,17 @@
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
 int starsh_generate_3d_acoustic_coordinates(STARSH_acdata **data, STARSH_int mesh_points, 
-                                 int ndim, int trian, int nipp, int mordering){
+                                 int ndim, int trian, int nipp, int mordering, char* file_name, char* file_name_interpl
+){
 
-
-        generate_mesh_points_serials(&nipp, &trian);        
+        int filelength1=strlen(file_name);
+        int filelength2=strlen(file_name_interpl);
+        generate_mesh_points_serials(&nipp, &trian, file_name, &filelength1, file_name_interpl, &filelength2);        
 
 	STARSH_MALLOC(*data, 1);
 	(*data)->train = trian;
 	(*data)->nipp = nipp;
 	(*data)->mordering = mordering;
-
         return STARSH_SUCCESS;
 }
 

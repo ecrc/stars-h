@@ -32,8 +32,10 @@ int main(int argc, char **argv)
     STARSH_acdata *data;
     STARSH_kernel *kernel;
     
+    char* file_name = argv[1];
+    char* file_name_interpl = argv[2];
 
-    starsh_generate_3d_acoustic_coordinates((STARSH_acdata **)&data, N, problem_ndim, trian, nipp, 0);
+    starsh_generate_3d_acoustic_coordinates((STARSH_acdata **)&data, N, problem_ndim, trian, nipp, 0, file_name, file_name_interpl);
 
     kernel=starsh_generate_3d_acoustic;
 
