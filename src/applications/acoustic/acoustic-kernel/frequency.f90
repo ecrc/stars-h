@@ -13,8 +13,7 @@ subroutine Acoustic_code_hardCase(nip, ntrain, file_name, filelength1, &
   !implicit none
   
   integer(c_int),    intent(in) :: nip,ntrain,filelength1,filelength2
- ! integer(c_int),    intent(inout) :: filelength2
-  character(c_char), intent(in) :: file_name(filelength1) !, file_name_interpl(filelength2)
+  character(c_char), intent(in) :: file_name(filelength1) 
   character(c_char), intent(in) :: file_name_interpl(filelength2)
   character(len=filelength1) :: ffile_name
   character(len=filelength2) :: ffile_name_interpl
@@ -27,12 +26,12 @@ subroutine Acoustic_code_hardCase(nip, ntrain, file_name, filelength1, &
   do i=1,filelength1
       ffile_name(i:i) = file_name(i)
   end do
-  print *, 'Got string: ' ,ffile_name
+!  print *, 'Got string: ' ,ffile_name
 
   do i=1,filelength2
     ffile_name_interpl(i:i) = file_name_interpl(i)
   end do 
- print* , 'Got second string : ', ffile_name_interpl
+!  print* , 'Got second string : ', ffile_name_interpl
 
 !  ffile_name_interpl = "this is a fortran string"//" surfixed by another string"
 
@@ -46,10 +45,6 @@ subroutine Acoustic_code_hardCase(nip, ntrain, file_name, filelength1, &
 
 !  print *, 'Got string: ' ,ffile_name_interpl
 
-  !complex(c_double_complex), dimension(ntrain*nip, ntrain*nip):: zzsparse_temp
-  !complex(c_double_complex), dimension(ntrain*nip*ntrain*nip):: zzsparse
-  !complex(c_double_complex), dimension(ntrain*nip):: JVector
-  !complex(c_double_complex), dimension(ntrain*nip):: crhs
 
 if(nip.eq.3) then
 open(unit=12,file=trim(ffile_name_interpl),status='old') ! main input file
