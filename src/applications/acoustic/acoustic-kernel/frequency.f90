@@ -1,28 +1,62 @@
 !*************************************************************************
 !program Acoustic_code_hardCase
 
-subroutine Acoustic_code_hardCase(nip, ntrain) bind(C, name="generate_mesh_points_serials")
+subroutine Acoustic_code_hardCase(nip, ntrain, file_name, filelength1, & 
+                                  file_name_interpl, filelength2)      &
+           bind(C, name="generate_mesh_points_serials")
 !====================================================================
   use, intrinsic :: iso_c_binding
   use global_com 
   use global_dim
   use gaussintegraldata
+  
   !implicit none
-  real(kind=dp)::mem_est
-  integer(c_int) ::ntrain
-  integer(c_int) ::nip
-  integer::i,j,p,q,k
+  
+  integer(c_int),    intent(in) :: nip,ntrain,filelength1,filelength2
+ ! integer(c_int),    intent(inout) :: filelength2
+  character(c_char), intent(in) :: file_name(filelength1) !, file_name_interpl(filelength2)
+  character(c_char), intent(in) :: file_name_interpl(filelength2)
+  character(len=filelength1) :: ffile_name
+  character(len=filelength2) :: ffile_name_interpl
+  real(kind=dp) :: mem_est
+  integer       :: i,j,p,q,k
+  
+  ffile_name=''
+  ffile_name_interpl=''
+
+  do i=1,filelength1
+      ffile_name(i:i) = file_name(i)
+  end do
+  print *, 'Got string: ' ,ffile_name
+
+  do i=1,filelength2
+    ffile_name_interpl(i:i) = file_name_interpl(i)
+  end do 
+ print* , 'Got second string : ', ffile_name_interpl
+
+!  ffile_name_interpl = "this is a fortran string"//" surfixed by another string"
+
+!  file_length2 = trim_len(ffile_name_interpl) + 1
+
+!  do i=1,filelength2-1
+!      file_name_interpl(i) = ffile_name_interpl(i:i)
+!  end do
+
+!  file_name_interpl(filelength2) = c_null_char
+
+!  print *, 'Got string: ' ,ffile_name_interpl
+
   !complex(c_double_complex), dimension(ntrain*nip, ntrain*nip):: zzsparse_temp
   !complex(c_double_complex), dimension(ntrain*nip*ntrain*nip):: zzsparse
   !complex(c_double_complex), dimension(ntrain*nip):: JVector
   !complex(c_double_complex), dimension(ntrain*nip):: crhs
 
 if(nip.eq.3) then
-open(unit=12,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/mom_1.inp',status='old') ! main input file
+open(unit=12,file=trim(ffile_name_interpl),status='old') ! main input file
 elseif(nip.eq.6) then
-open(unit=12,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/mom_2.inp',status='old') ! main input file
+open(unit=12,file=trim(ffile_name_interpl),status='old') ! main input file
 elseif(nip.eq.12) then
-open(unit=12,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/mom_3.inp',status='old') ! main input file
+open(unit=12,file=trim(ffile_name_interpl),status='old') ! main input file
 else
      print*,"nippp should only be 1,2 or 3!!"
      stop
@@ -33,7 +67,7 @@ else
 !---------------------------------------------------------------------
 !print*, "Init ideas ntrain:", ntrain
 if ((defile .eq. 0).AND. ( ntrain .eq. 4452)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_4452.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1063_dp
     cd=340.29_dp
@@ -42,7 +76,7 @@ if ((defile .eq. 0).AND. ( ntrain .eq. 4452)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 4800)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_4800.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas    
     fre_single=1090_dp
     cd=340.29_dp
@@ -51,7 +85,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 4800)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 5104)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_5104.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1134_dp
     cd=340.29_dp
@@ -60,7 +94,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 5104)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 5936)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_5936.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1215_dp
     cd=340.29_dp
@@ -69,7 +103,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 5936)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 7632)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_7632.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1372_dp
     cd=340.29_dp
@@ -78,7 +112,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 7632)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 7992)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_7992.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1417_dp
     cd=340.29_dp
@@ -87,7 +121,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 7992)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 9758)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_9758.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1563_dp
     cd=340.29_dp
@@ -96,7 +130,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 9758)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 10790)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_10790.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1636_dp
     cd=340.29_dp
@@ -105,7 +139,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 10790)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 11460)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_11460.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1701_dp
     cd=340.29_dp
@@ -114,7 +148,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 11460)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 12366)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_12366.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1764_dp
     cd=340.29_dp
@@ -123,7 +157,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 12366)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 14212)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_14212.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1890_dp
     cd=340.29_dp
@@ -132,7 +166,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 14212)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 15228)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_15228.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=1978_dp
     cd=340.29_dp
@@ -141,7 +175,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 15228)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 19020)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_19020.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2181_dp
     cd=340.29_dp
@@ -150,7 +184,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 19020)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 19890)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_19890.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2227_dp
     cd=340.29_dp
@@ -159,7 +193,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 19890)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 20232)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_20232.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2268_dp
     cd=340.29_dp
@@ -169,7 +203,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 20232)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 21696)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_21696.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2350_dp
     cd=340.29_dp
@@ -179,7 +213,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 21696)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 23616)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_23616.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2430_dp
     cd=340.29_dp
@@ -189,7 +223,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 23616)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 27642)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_27642.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2633_dp
     cd=340.29_dp
@@ -198,7 +232,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 27642)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 28956)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_28956.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2699_dp
     cd=340.29_dp
@@ -208,7 +242,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 28956)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 29680)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_29680.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2735_dp
     cd=340.29_dp
@@ -218,7 +252,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 29680)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 30702)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_30702.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2771_dp
     cd=340.29_dp
@@ -227,7 +261,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 30702)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 31200)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_31200.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2798_dp
     cd=340.29_dp
@@ -237,7 +271,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 31200)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 31780)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_31780.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=2827_dp
     cd=340.29_dp
@@ -246,7 +280,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 31780)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 36240)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_36240.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=3038_dp
     cd=340.29_dp
@@ -256,7 +290,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 36240)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 46208)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_46208.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=3402_dp
     cd=340.29_dp
@@ -266,7 +300,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 46208)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 51700)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_51700.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=3620_dp
     cd=340.29_dp
@@ -276,7 +310,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 51700)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 61920)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_61920.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=3953_dp
     cd=340.29_dp
@@ -285,7 +319,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 61920)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 78916)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_78916.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=4477_dp
     cd=340.29_dp
@@ -295,7 +329,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 78916)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 82926)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_82926.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=4586_dp
     cd=340.29_dp
@@ -305,7 +339,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 82926)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 98910)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_98910.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=5004_dp
     cd=340.29_dp
@@ -315,7 +349,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 98910)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 115640)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_115640.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=5435_dp
     cd=340.29_dp
@@ -325,7 +359,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 115640)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 135548)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_135548.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=3858_dp
     cd=340.29_dp
@@ -334,7 +368,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 135548)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 149448)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_149448.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=4046_dp
     cd=340.29_dp
@@ -344,7 +378,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 149448)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 167706)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_167706.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=5235_dp
     cd=340.29_dp
@@ -353,7 +387,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 167706)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 283864)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_283864.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     fre_single=5805_dp
     cd=340.29_dp
@@ -361,7 +395,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 283864)) THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 786432)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_mesh_8_786432.inp')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile_ideas
     !14015
     fre_single=14015_dp
@@ -371,7 +405,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 786432)) THEN !read ANSYS file
     cjvk=cjj*wavenumkk
 !---------------------------------------------------------------------
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 3170)) THEN !read ANSYS file
-open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_3170.inp')
+open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=945_dp
     cd=340.29_dp
@@ -380,7 +414,7 @@ open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_cu
     cjvk=cjj*wavenumkk
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 5332)) THEN !read ANSYS file
-open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_5332.lis')
+open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1215_dp
     cd=340.29_dp
@@ -390,7 +424,7 @@ open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_cu
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 6224)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_6224.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1308_dp
     cd=340.29_dp
@@ -400,7 +434,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 6224)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 8738)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_8738.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1546_dp
     cd=340.29_dp
@@ -410,7 +444,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 8738)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 9420)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_9420.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1605_dp
     cd=340.29_dp
@@ -420,7 +454,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 9420)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 9798)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_9798.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1636_dp
     cd=340.29_dp
@@ -430,7 +464,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 9798)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 10616)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_10616.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1701_dp
     cd=340.29_dp
@@ -440,7 +474,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 10616)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 11074)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_11074.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1736_dp
     cd=340.29_dp
@@ -450,7 +484,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 11074)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 11548)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_11548.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1772_dp
     cd=340.29_dp
@@ -460,7 +494,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 11548)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 12046)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_12046.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1810_dp
     cd=340.29_dp
@@ -471,7 +505,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 12046)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 13140)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_13140.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1890_dp
     cd=340.29_dp
@@ -481,7 +515,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 13140)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 14410)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_14410.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=1978_dp
     cd=340.29_dp
@@ -491,7 +525,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 14410)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 15108)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_15108.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2025_dp
     cd=340.29_dp
@@ -501,7 +535,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 15108)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 15914)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_15914.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2074_dp
     cd=340.29_dp
@@ -511,7 +545,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 15914)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 16718)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_16718.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2126_dp
     cd=340.29_dp
@@ -521,7 +555,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 16718)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 17598)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_17598.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2181_dp
     cd=340.29_dp
@@ -531,7 +565,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 17598)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 18530)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_18530.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2238_dp
     cd=340.29_dp
@@ -541,7 +575,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 18530)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 19546)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_19546.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2299_dp
     cd=340.29_dp
@@ -551,7 +585,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 19546)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 20726)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_20726.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2363_dp
     cd=340.29_dp
@@ -561,7 +595,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 20726)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 21920)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_21920.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2430_dp
     cd=340.29_dp
@@ -571,7 +605,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 21920)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 23312)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_23312.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2502_dp
     cd=340.29_dp
@@ -581,7 +615,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 23312)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 24742)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_24742.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2577_dp
     cd=340.29_dp
@@ -591,7 +625,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 24742)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 26310)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_26310.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2658_dp
     cd=340.29_dp
@@ -601,7 +635,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 26310)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 28076)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_28076.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2744_dp
     cd=340.29_dp
@@ -611,7 +645,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 28076)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 29998)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_29998.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2835_dp
     cd=340.29_dp
@@ -621,7 +655,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 29998)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 32096)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_32096.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2933_dp
     cd=340.29_dp
@@ -631,7 +665,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 32096)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 33246)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_33246.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=2985_dp
     cd=340.29_dp
@@ -641,7 +675,7 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 33246)) THEN !read ANSYS file
 
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 34474)) THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_34474.lis')
+    open(unit=111,file=trim(ffile_name))
     call incurvefile
     fre_single=3038_dp
     cd=340.29_dp
@@ -652,20 +686,20 @@ elseif ((defile .eq. 0) .AND.( ntrain .eq. 34474)) THEN !read ANSYS file
 
 !---------------------------------------------------------------------
 elseif((defile .eq. 0) .AND. ( ntrain .eq. 120)) THEN !read ANSYS file
-     open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_120.inp')  ! mesh file for curve surface triangles
+     open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
      call incurvefile
 
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 396)) THEN !read ANSYS file
-     open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_396.inp')  ! mesh file for curve surface triangles
+     open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
      call incurvefile
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 622)) THEN !read ANSYS file
-     open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_622.inp')  ! mesh file for curve surface triangles
+     open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile
 elseif ((defile .eq. 0) .AND.( ntrain .eq. 1126))THEN !read ANSYS file
-     open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_1126.inp')  ! mesh file for curve surface triangles
+     open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
      call incurvefile
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 1008)) THEN !read ANSYS fil ......chenage
-     open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_1008.inp')  ! mesh file for curve surface triangles
+     open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=300_dp
     cd=340.29_dp
@@ -673,22 +707,22 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 1008)) THEN !read ANSYS fil ......ch
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 3156)) THEN !read ANSYS fil ......chenage
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_3156.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 252)) THEN !read ANSYS fil ......chenage
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_252.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
 elseif ((defile .eq. 0) .AND. ( ntrain .eq.2560))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_2560.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 4032))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_4032.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
    call incurvefile
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 7320))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_7320.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 12288))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_12288.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=1810_dp
     !fre_single=1797_dp
@@ -698,7 +732,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 12288))THEN !read ANSYS file
     cjvk=cjj*wavenumkk
     print*,"I am here 12288"
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 14338))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_14338.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=1978_dp
     cd=340.29_dp
@@ -706,7 +740,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 14338))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 16180))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_16180.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=2074_dp
     cd=340.29_dp
@@ -714,7 +748,7 @@ elseif ((defile .eq. 0) .AND. ( ntrain .eq. 16180))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 22370))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_22370.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=2502_dp
     cd=340.29_dp
@@ -722,7 +756,7 @@ elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 22370))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 41258))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_41258.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=3007_dp
     cd=340.29_dp
@@ -730,7 +764,7 @@ elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 41258))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 49152))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_49152.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=3807_dp
     cd=340.29_dp
@@ -738,7 +772,7 @@ elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 49152))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 60204))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_60204.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=3680_dp
     cd=340.29_dp
@@ -746,10 +780,10 @@ elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 60204))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND. ( ntrain .eq. 63380))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_63380.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 93590))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_93590.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=3720_dp
     cd=340.29_dp
@@ -757,7 +791,7 @@ elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 93590))THEN !read ANSYS file
     wavenumkk=2.0_dp*pid*fre_single/cd  !wave number k
     cjvk=cjj*wavenumkk
 elseif ((defile .eq. 0) .AND.  ( ntrain .eq. 196608))THEN !read ANSYS file
-    open(unit=111,file='stars-h-dev/src/applications/acoustic/acoustic-kernel/geo_curve_tri_196608.inp')  ! mesh file for curve surface triangles
+    open(unit=111,file=trim(ffile_name))  ! mesh file for curve surface triangles
     call incurvefile_ideas
     fre_single=4400_dp
     cd=340.29_dp
