@@ -42,6 +42,7 @@ void starsh_generate_3d_cube(int nrows, int ncols,
 	STARSH_mddata *data = row_data;
 	double *mesh = data->particles.point;
 	double rad = data->rad;
+        double *A= (double *)result;
 
 	for(m=0;m<nrows;m++){
 		int i0=irow[m];

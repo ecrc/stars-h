@@ -267,7 +267,7 @@ int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *fi
 	(*data)->mordering = mordering;
 	(*data)->kernel = kernel;
 	(*data)->rad = rad;
-    (*data)->denst = denst;
+        (*data)->denst = denst;
        
         return STARSH_SUCCESS;
 
@@ -307,7 +307,7 @@ int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_in
 
 	for (i=0; i<mesh_points; i++)
 	{
-		cube(mesh[i*3], i, L, n);
+		cube(&(mesh[i*3]), i, L, n);
 	}
 
 	if(mordering==1){
@@ -327,7 +327,7 @@ int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_in
 	(*data)->mordering = mordering;
 	(*data)->kernel = kernel;
 	(*data)->rad = rad;
-    (*data)->denst = -1;
+        (*data)->denst = -1;
        
         return STARSH_SUCCESS;
 

@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     // Init problem with given data and kernel and print short info
     STARSH_problem *problem;
     info = starsh_problem_new(&problem, ndim, shape, symm, dtype, data, data,
-            kernel, "SARS-CoV-2");
+            kernel, "Cube");
     if(info != 0)
     {
         printf("Error in starsh problem\n");

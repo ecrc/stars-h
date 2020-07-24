@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     int isreg = 1; // it is either 0 or 1 if you want to add regularizer
     double reg = 1.1; // regularization value
     int ordering = 0; // 0: no ordering, 1: Morton ordering
-    char * mesh_file = "../../../data/10370.txt";  //path to mesh file
+    char* mesh_file = argv[1];
     double rad = 0.6; //RBF scaling factor 
     double denst = 0.6; //RBF scaling factor 
 
