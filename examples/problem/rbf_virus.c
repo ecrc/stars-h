@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/problem/rbf.c
+ * @file examples/problem/rbf_virus.c
  * @version 0.1.2
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     STARSH_mddata *data;
     STARSH_kernel *kernel;
     
-    starsh_generate_3d_rbf_mesh_coordinates((STARSH_mddata **)&data, mesh_file, N, problem_ndim, 
+    starsh_generate_3d_rbf_mesh_coordinates_virus((STARSH_mddata **)&data, mesh_file, N, problem_ndim, 
                                              kernel_type, numobj, isreg, reg, rad, denst, ordering);
     kernel=starsh_generate_3d_virus;
     STARSH_particles particles= data->particles;

@@ -68,6 +68,7 @@ double TPS(double x);
 double Wendland(double x);
 double CTPS(double x);
 double diff(double*x, double*y);
+void cube(double* v, int index, double L, int n);
 
 
 #endif // __STARSH_RBF__H__
