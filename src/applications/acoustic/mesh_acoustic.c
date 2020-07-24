@@ -44,6 +44,12 @@ int starsh_generate_3d_acoustic_coordinates(STARSH_acdata **data, STARSH_int mes
 	(*data)->train = trian;
 	(*data)->nipp = nipp;
 	(*data)->mordering = mordering;
+
+       if(nipp!=3 || nipp !=6 || nipp!=12){
+             STARSH_ERROR("Wrong parameter type, number of quadrature points are 3, 6, or 12");
+             return STARSH_WRONG_PARAMETER;
+        }
+
         return STARSH_SUCCESS;
 }
 
