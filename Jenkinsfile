@@ -116,5 +116,15 @@ pipeline {
                 publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'cppcheckhtml', reportFiles: 'index.html', reportName: 'CppCheckReport', reportTitles: ''] )
             }
         }
+        stage ('post') {
+            success {
+                if (env.BRANCH_NAME == 'master') {
+                build '../../al4san-dev/master'
+                build '../../hcore-dev/master'
+                build '../../hicma-dev/master'
+                build '../../exageostat-dev/master' 
+            }
+		}
+     }
     }
 }
