@@ -117,14 +117,17 @@ pipeline {
             }
         }
         stage ('post') {
-            success {
-                if (env.BRANCH_NAME == 'master') {
-                build '../../al4san-dev/master'
-                build '../../hcore-dev/master'
-                build '../../hicma-dev/master'
-                build '../../exageostat-dev/master' 
-            }
+		steps{
+			success {
+                		if (env.BRANCH_NAME == 'master') {
+                		build '../../al4san-dev/master'
+                		build '../../hcore-dev/master'
+                		build '../../hicma-dev/master'
+                		build '../../exageostat-dev/master'
+				}
+			}
 		}
-     }
+	}
     }
 }
+ 
