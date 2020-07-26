@@ -116,6 +116,7 @@ pipeline {
                 publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'cppcheckhtml', reportFiles: 'index.html', reportName: 'CppCheckReport', reportTitles: ''] )
             }
         }
+    }
         post {
 		success {
                		if (env.BRANCH_NAME == 'master') {
@@ -126,5 +127,4 @@ pipeline {
 			}
 		}
 	}
-    }
 }
