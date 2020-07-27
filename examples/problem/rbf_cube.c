@@ -4,7 +4,7 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/problem/rbf.c
+ * @file examples/problem/rbf_cube.c
  * @version 0.1.2
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
@@ -27,28 +27,26 @@ int main(int argc, char **argv)
     int ndim = 2; //  tensors dimension 
     STARSH_int shape[2] = {N, N};
     int info;
-    int numobj =1; // how many objects (e.g. number of viruses)
     int isreg = 1; // it is either 0 or 1 if you want to add regularizer
     double reg = 1.1; // regularization value
     int ordering = 0; // 0: no ordering, 1: Morton ordering
-    char * mesh_file = "../../../data/10370.txt";  //path to mesh file
     double rad = 0.6; //RBF scaling factor 
-    double denst = 0.6; //RBF scaling factor 
 
     // Generate data for mesh deformation problem
     STARSH_mddata *data;
     STARSH_kernel *kernel;
     
-    starsh_generate_3d_rbf_mesh_coordinates((STARSH_mddata **)&data, mesh_file, N, problem_ndim, 
-                                             kernel_type, numobj, isreg, reg, rad, denst, ordering);
-    kernel=starsh_generate_3d_virus;
+    starsh_generate_3d_rbf_mesh_coordinates_cube((STARSH_mddata **)&data, N, problem_ndim, 
+                                             kernel_type, isreg, reg, rad, ordering);
+
+    kernel=starsh_generate_3d_cube;
     STARSH_particles particles= data->particles;
     double *mesh = particles.point;  
 
     // Init problem with given data and kernel and print short info
     STARSH_problem *problem;
     info = starsh_problem_new(&problem, ndim, shape, symm, dtype, data, data,
-            kernel, "SARS-CoV-2");
+            kernel, "Cube");
     if(info != 0)
     {
         printf("Error in starsh problem\n");

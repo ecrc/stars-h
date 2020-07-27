@@ -17,7 +17,8 @@ set(examples_files
     "minimal.c"
     "dense.c"
     "particles.c"
-    "rbf.c"
+    "rbf_virus.c"
+    "rbf_cube.c"
     "acoustic.c"
     )
 
