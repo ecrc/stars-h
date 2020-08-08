@@ -231,14 +231,14 @@ int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *fi
 
 	FILE *p_file = fopen(file_name,"r");
 	char line[100];
-	int i=0;
+	int i=0, j=0;
 	if(!p_file)
 	{
 		printf("\n File missing or error when reading file:");
 		return 0;
 	}
 
-	while(fgets(line,100,p_file) != NULL)
+	while(fgets(line,100,p_file) != NULL && j < mesh_points)
 	{
 		char *p = strtok(line, ",");
 		while(p)
@@ -247,7 +247,7 @@ int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *fi
 			p=strtok(NULL, ",");
 			i++;
 		}
-
+          j++;
 	}
 
 	if(mordering==1){
