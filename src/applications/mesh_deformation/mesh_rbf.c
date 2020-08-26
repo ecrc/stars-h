@@ -216,7 +216,7 @@ static void starsh_morton_zsort3(int n, double *points)
  * @param[in] denst: density scaling factor  
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
-int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
+void starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
 		int numobj, int isreg, double reg, double rad, double denst, int mordering){
 
 
@@ -269,8 +269,6 @@ int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *fi
 	(*data)->rad = rad;
         (*data)->denst = denst;
        
-        return STARSH_SUCCESS;
-
 }
 
 
@@ -285,7 +283,7 @@ int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *fi
  * @param[in] rad: RBF scaling factor 
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
-int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_int mesh_points, int ndim, int kernel, 
+void starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_int mesh_points, int ndim, int kernel, 
 	 int isreg, double reg, double rad, int mordering){
 
 
@@ -329,8 +327,6 @@ int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_in
 	(*data)->rad = rad;
         (*data)->denst = -1;
        
-        return STARSH_SUCCESS;
-
 }
 
 void starsh_mddata_free(STARSH_mddata *data)
