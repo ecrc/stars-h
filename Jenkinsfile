@@ -119,10 +119,7 @@ pipeline {
     }
         post {
 		success {
-               		build '../al4san-dev/master'
                		build '../hcore-dev/master'
-               		build '../hicma-dev/master'
-               		build '../exageostat-dev/master'
 		}
 	}
 }
