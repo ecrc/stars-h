@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-spatial-gsl.h
- * @version 0.1.2
+ * @version 1.3.0
  * @author sameh Abdulah
  * @author Aleksandr Mikhalev
  * @date 2020-06-09

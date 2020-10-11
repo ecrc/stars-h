@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file examples/problem/acoustic.c 
- * @version 0.1.2
+ * @version 1.3.0
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
  * @date 2020-06-09
