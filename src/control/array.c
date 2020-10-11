@@ -136,7 +136,9 @@ int array_new(Array **A, int ndim, int *shape, char dtype,
     int info = array_from_buffer(A, ndim, shape, dtype, order, NULL);
     if(info != 0)
         return info;
+//    printf("\nsize: %d\n", (*A)->data_nbytes);
     STARSH_MALLOC((*A)->data, (*A)->data_nbytes);
+//      (*A)->data = malloc((*A)->data_nbytes);
     return STARSH_SUCCESS;
 }
 

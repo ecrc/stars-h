@@ -9,9 +9,9 @@
  * @cond
  * This command in pair with endcond will prevent file from being documented.
  *
- * @version 0.1.0
+ * @version 0.1.2
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2020-06-09
  * */
 
 #ifndef __COMMON_H__
@@ -61,7 +61,8 @@
 #endif
 
 #ifdef GSL
-    #include <gsl/gsl_sf.h>
+    #include <gsl/gsl_sf_bessel.h>
+    #include <gsl/gsl_sf_gamma.h>
 #endif
 
 #define STARSH_ERROR(format, ...)\

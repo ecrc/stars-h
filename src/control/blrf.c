@@ -414,7 +414,7 @@ void starsh_blrf_info(STARSH_blrf *format)
         return;
     }
     STARSH_blrf *F = format;
-    printf("<STARSH_blrf at %p, '%c' symmetric, %d block rows, %d "
+    printf("<STARSH_blrf at %p, '%c' symmetric, %zd block rows, %zd "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
             F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
 }
@@ -431,7 +431,7 @@ void starsh_blrf_print(STARSH_blrf *format)
     STARSH_int i;
     STARSH_int j;
     STARSH_blrf *F = format;
-    printf("<STARSH_blrf at %p, '%c' symmetric, %d block rows, %d "
+    printf("<STARSH_blrf at %p, '%c' symmetric, %zd block rows, %zd "
             "block columns, %zu far-field blocks, %zu near-field blocks>\n",
             F, F->symm, F->nbrows, F->nbcols, F->nblocks_far, F->nblocks_near);
     // Printing info about far-field blocks
@@ -441,7 +441,7 @@ void starsh_blrf_print(STARSH_blrf *format)
         {
             if(F->brow_far_start[i+1] > F->brow_far_start[i])
                 printf("Admissible far-field blocks for block row "
-                        "%d: %zu", i, F->brow_far[F->brow_far_start[i]]);
+                        "%zd: %zu", i, F->brow_far[F->brow_far_start[i]]);
             for(j = F->brow_far_start[i]+1; j < F->brow_far_start[i+1]; j++)
             {
                 printf(" %zu", F->brow_far[j]);
@@ -457,7 +457,7 @@ void starsh_blrf_print(STARSH_blrf *format)
         {
             if(F->brow_near_start[i+1] > F->brow_near_start[i])
                 printf("Admissible near-field blocks for block row "
-                        "%d: %zu", i, F->brow_near[F->brow_near_start[i]]);
+                        "%zd: %zu", i, F->brow_near[F->brow_near_start[i]]);
             for(j = F->brow_near_start[i]+1; j < F->brow_near_start[i+1]; j++)
             {
                 printf(" %zu", F->brow_near[j]);
