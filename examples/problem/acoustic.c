@@ -4,48 +4,47 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/problem/rbf.c
- * @version 0.1.0
+ * @file examples/problem/acoustic.c 
+ * @version 1.3.0
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2020-05-17
+ * @date 2020-06-09
  * */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <starsh.h>
-#include <starsh-rbf.h>
+#include <starsh-acoustic.h>
 
 int main(int argc, char **argv)
 {
     int problem_ndim = 3; // problem dimension
-    int kernel_type = 0;
     // Size of desired matrix
-    int N = 10370;
+    int N = 7680;
     // 'N' for nonsymmetric matrix and 'd' for double precision
-    char symm = 'S', dtype = 'd';
+    char symm = 'N', dtype = 'z';
     int ndim = 2; //  tensors dimension 
     STARSH_int shape[2] = {N, N};
     int info;
-    int numobj =1; // how many objects (e.g. number of viruses)
-    int isreg = 1; // it is either 0 or 1 if you want to add regularizer
-    double reg = 1.1; // regularization value
-    int ordering = 0; // 0: no ordering, 1: Morton ordering
-    char * mesh_file = "../../../data/10370.txt";  //path to mesh file
-    double rad = 0.6; //RBF scaling factor 
-    // Generate data for mesh deformation problem
-    STARSH_mddata *data;
+    int trian =2560; // number of triangles
+    int nipp = 3; // number of quads
+
+    STARSH_acdata *data;
     STARSH_kernel *kernel;
     
-    starsh_generate_3d_rbf_mesh_coordinates((STARSH_mddata **)&data, mesh_file, N, problem_ndim, kernel_type, numobj, isreg, reg, rad, ordering);
-    kernel=starsh_generate_3d_virus;
-    STARSH_particles particles= data->particles;
-    double *mesh = particles.point;  
+    char* file_name = argv[1];
+    char* file_name_interpl = argv[2];
+
+    starsh_generate_3d_acoustic_coordinates((STARSH_acdata **)&data, N, problem_ndim, trian, nipp, 0, file_name, file_name_interpl);
+
+    kernel=starsh_generate_3d_acoustic;
+
+    //****Block below is not yet enabled for double complex 
 
     // Init problem with given data and kernel and print short info
     STARSH_problem *problem;
     info = starsh_problem_new(&problem, ndim, shape, symm, dtype, data, data,
-            kernel, "SARS-CoV-2");
+            kernel, "acoustic-scattering");
     if(info != 0)
     {
         printf("Error in starsh problem\n");

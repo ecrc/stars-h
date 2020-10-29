@@ -5,10 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-particles.h
- * @version 0.1.0
+ * @version 1.3.0
  * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2020-06-04
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_PARTICLES_H__
@@ -45,6 +45,8 @@ typedef struct starsh_particles
     double *point;
     //!< Coordinates of particles.
 } STARSH_particles;
+
+
 
 enum STARSH_PARTICLES_PLACEMENT
 //! Distribution of particles for starsh_particles_generate().

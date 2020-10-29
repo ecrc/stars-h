@@ -5,10 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-rbf.h
- * @version 0.1.1
+ * @version 1.3.0
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
- * @date 2018-05-09
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_RBF_H__
@@ -39,6 +39,7 @@ typedef struct starsh_mddata
     int numobj;
     int isreg;
     double rad;
+    double denst;
     int mesh_points;
     int mordering;
 } STARSH_mddata;
@@ -51,8 +52,12 @@ void starsh_generate_3d_cube(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int lda);
 void starsh_generate_3d_virus_rhs(STARSH_int mesh_points, double *A);
-void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
-                          int numobj, int isreg, double reg, double rad, int mordering);
+int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, 
+	int kernel, int numobj, int isreg, double reg, double rad, double denst, int mordering);
+int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_int mesh_points, int ndim, int kernel,
+         int isreg, double reg, double rad, int mordering);
+void starsh_mddata_free(STARSH_mddata *data);
+
 /* RBF Kernels headers */
 double Gaussian(double x);
 double Expon(double x);
@@ -65,6 +70,7 @@ double TPS(double x);
 double Wendland(double x);
 double CTPS(double x);
 double diff(double*x, double*y);
+void cube(double* v, int index, double L, int n);
 
 
 #endif // __STARSH_RBF__H__

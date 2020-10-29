@@ -212,11 +212,12 @@ static void starsh_morton_zsort3(int n, double *points)
  * @param[in] numobj: how many objects (e.g. number of viurese)
  * @param[in] isreg:  it is either 0 or 1 if you want to add regularizer
  * @param[in] reg:  regularization value
- * @param[in] rad: RBF scaling factor  
+ * @param[in] rad: RBF scaling factor 
+ * @param[in] denst: density scaling factor  
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
-void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
-		int numobj, int isreg, double reg, double rad, int mordering){
+int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
+		int numobj, int isreg, double reg, double rad, double denst, int mordering){
 
 
 	STARSH_particles *particles;
@@ -230,14 +231,14 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
 
 	FILE *p_file = fopen(file_name,"r");
 	char line[100];
-	int i=0;
+	int i=0, j=0;
 	if(!p_file)
 	{
 		printf("\n File missing or error when reading file:");
 		return 0;
 	}
 
-	while(fgets(line,100,p_file) != NULL)
+	while(fgets(line,100,p_file) != NULL && j < mesh_points)
 	{
 		char *p = strtok(line, ",");
 		while(p)
@@ -246,7 +247,7 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
 			p=strtok(NULL, ",");
 			i++;
 		}
-
+          j++;
 	}
 
 	if(mordering==1){
@@ -266,8 +267,71 @@ void starsh_generate_3d_rbf_mesh_coordinates(STARSH_mddata **data, char *file_na
 	(*data)->mordering = mordering;
 	(*data)->kernel = kernel;
 	(*data)->rad = rad;
+        (*data)->denst = denst;
+       
+        return STARSH_SUCCESS;
+
 }
 
+
+/*! It reads mesh pointd fron file
+ *
+ * @param[inout] data: STARSH_mddata mesh deformation 
+ * @param[in] mesh points: number of mesh points
+ * @param[in] ndim: problem dimension.
+ * @param[in] kernel_type: kernel (0:).
+ * @param[in] isreg:  it is either 0 or 1 if you want to add regularizer
+ * @param[in] reg:  regularization value
+ * @param[in] rad: RBF scaling factor 
+ * @param[in] mordering: 0: no ordering, 1: Morton ordering.
+ * */
+int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_int mesh_points, int ndim, int kernel, 
+	 int isreg, double reg, double rad, int mordering){
+
+
+	STARSH_particles *particles;
+	STARSH_MALLOC(particles, 1);
+	(particles)->count = mesh_points;
+	(particles)->ndim = ndim;
+
+	double *mesh;
+	size_t nelem = mesh_points*ndim;
+	STARSH_MALLOC(mesh, nelem);
+
+	int i;
+
+
+	int n = floor(1 + sqrt(1 - (8 - mesh_points) / (double)6)) + 1;
+	int nb = (int)(6 * pow(n, 2) - 12 * n + 8);
+	double L = 0.5*n; // 0.5 : minimal distance between two neighboring mesh points
+
+	for (i=0; i<mesh_points; i++)
+	{
+		cube(&(mesh[i*3]), i, L, n);
+	}
+
+	if(mordering==1){
+		starsh_morton_zsort3(mesh_points, mesh);
+	}
+
+	(particles)->point = mesh;
+	(particles)->count = mesh_points;
+	(particles)->ndim = ndim;    
+
+	STARSH_MALLOC(*data, 1);
+	(*data)->particles = *particles;
+	free(particles);
+	(*data)->reg = reg;
+	(*data)->isreg = isreg;
+	(*data)->numobj = 1; //For example number of viruses within population
+	(*data)->mordering = mordering;
+	(*data)->kernel = kernel;
+	(*data)->rad = rad;
+        (*data)->denst = -1;
+       
+        return STARSH_SUCCESS;
+
+}
 
 void starsh_mddata_free(STARSH_mddata *data)
 	//! Free memory of @ref STARSH_mddata object.
