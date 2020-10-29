@@ -5,9 +5,9 @@
 #             University of Science and Technology (KAUST)
 #
 # @file examples/problem/CMakeLists.txt
-# @version 1.3.0
+# @version 0.1.0
 # @author Aleksandr Mikhalev
-# @date 2020-06-09
+# @date 2017-11-07
 
 
 set(examples_files
@@ -17,11 +17,8 @@ set(examples_files
     "minimal.c"
     "dense.c"
     "particles.c"
-    "rbf_virus.c"
-    "rbf_cube.c"
-    "acoustic.c"
+    "rbf.c"
     )
-
 
 file(COPY "particles.txt"
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

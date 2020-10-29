@@ -117,9 +117,4 @@ pipeline {
             }
         }
     }
-        post {
-		success {
-               		build '../hcore-dev/master'
-		}
-	}
 }

@@ -11,9 +11,9 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/mesh_deformation/cube.c
- * @version 1.3.0
+ * @version 0.1.1
  * @author Rabab Alomairy
- * @date 2020-06-09
+ * @date 2020-05-09
  */
 
 #include "common.h"
@@ -118,50 +118,4 @@ double diff(double*x, double*y)
         for (int i = 0; i < 3; i++)
                 r = r + pow(x[i] - y[i], 2);
         return pow(r, 0.5);
-}
-
-/*! Computing cube Coordinates
- * @param[inout] v: Mesh Coordinates
- * @param[in] index: element position
- * @param[in] L: edge length of cube
- * @param[in] n:  overall size of cube //TODO ask application pp
- */
-
-void cube(double* v, int index, double L, int n)
-{
-        double step = 1 / (double)(n - 1);
-        double x = -1;
-        double y = -1;
-        double z = -1;
-
-        if (index < 2 * pow(n, 2))
-        {
-                z = index / (int)pow(n, 2);
-                int ind = index - z*pow(n, 2);
-
-                x = (ind / n)* step;
-                y = (ind % n)* step;
-        }
-        else if ((index >= 2 * pow(n, 2)) && (index < 4 * (pow(n, 2) - n)))
-        {
-                int ind = index - 2 * pow(n, 2);
-                x = ind / (int)(pow(n, 2) - 2 * n);
-                ind =(int)(ind - x*(pow(n, 2) - 2 * n));
-
-                y = (ind % n)* step;
-                z = ((ind / n) + 1)* step;
-        }
-        else if ((index >= 4 * (pow(n, 2) - n)) && (index < 6 * pow(n, 2) - 12 * n + 8))
-        {
-                int ind = index - 4 * (pow(n, 2) - n);
-                y = ind / (int)(pow(n, 2) - 4 * n + 4);
-                ind =(int)(ind - y*(pow(n, 2) - 4 * n + 4));
-
-                x = ((ind / (n - 2)) + 1)* step;
-                z = ((ind % (n - 2)) + 1)* step;
-        }
-        v[0] = x*L;
-        v[1] = y*L;
-        v[2] = z*L;
-
 }

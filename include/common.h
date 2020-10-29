@@ -9,9 +9,9 @@
  * @cond
  * This command in pair with endcond will prevent file from being documented.
  *
- * @version 1.3.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2020-06-09
+ * @date 2017-11-07
  * */
 
 #ifndef __COMMON_H__

@@ -51,7 +51,7 @@ include(FindPkgConfig)
 
 # Create project and check C compiler
 cmake_policy(SET CMP0048 NEW)
-project(STARS-H VERSION 0.1.1 LANGUAGES C Fortran)
+project(STARS-H VERSION 0.1.1 LANGUAGES C)
 
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 

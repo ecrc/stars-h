@@ -5,9 +5,9 @@
  *             University of Science and Technology (KAUST)
  *
  * @file examples/problem/spatial.c
- * @version 1.3.0
+ * @version 0.1.0
  * @author Aleksandr Mikhalev
- * @date 2020-06-09
+ * @date 2020-
  * */
 
 #include <stdio.h>

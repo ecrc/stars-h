@@ -173,9 +173,6 @@ enum STARSH_SPATIAL_PARAM
 int starsh_ssdata_new(STARSH_ssdata **data, STARSH_int count, int ndim);
 int starsh_ssdata_init(STARSH_ssdata **data, STARSH_int count, int ndim,
 	double *point, double beta, double nu, double noise, double sigma);
-int starsh_ssdata_init_parsimonious(STARSH_ssdata **data, STARSH_int count, int ndim,
-    double *point, double sigma1, double sigma2, double beta, double nu1,
-    double nu2, double corr, double noise);
 int starsh_ssdata_generate(STARSH_ssdata **data, STARSH_int count, int ndim,
 	double beta, double nu, double noise,
 	enum STARSH_PARTICLES_PLACEMENT place, double sigma);

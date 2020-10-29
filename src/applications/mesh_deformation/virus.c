@@ -47,11 +47,9 @@ void starsh_generate_3d_virus(int nrows, int ncols,
 	double *mesh = data->particles.point;
 	double rad = data->rad;
 
-	if((data->numobj)>1 && (data->rad)<0 && (data->denst)<0){
-                rad=0.25*(data->numobj)*sqrt(3); // For uniform dist
-        }else if((data->numobj)>1 && (data->rad)<0 && (data->denst)>0){
-           rad= (sqrt(3)) * (pow(((4 * pi * (0.09 * 0.09 * 0.09) * (data->numobj)/ 3) / (data->denst) ), (1/3)) + 0.18); // For sphere packing
-        }
+	if((data->numobj)>1 && (data->rad)<0) rad=0.25*(data->numobj)*sqrt(3); // For uniform dist
+
+        //if((data->numobj)>1 && (data->rad)<0) rad= (sqrt(3)) * (pow(((4 * pi * (0.09 * 0.09 * 0.09) * (data->numobj)/ 3) / 0.14 ), (1/3)) + 0.18); // For sphere packing
 
 	double *A= (double *)result;
 
