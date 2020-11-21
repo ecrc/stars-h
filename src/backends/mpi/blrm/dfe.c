@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/mpi/blrm/dfe.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -144,6 +144,8 @@ double starsh_blrm__dfe_mpi(STARSH_blrm *matrix)
     value[1] *= value[1];
     double mpi_value[2] = {0, 0};
     MPI_Allreduce(&value, &mpi_value, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     return sqrt(mpi_value[0]/mpi_value[1]);
 }
 

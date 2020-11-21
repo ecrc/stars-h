@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['starsh_5facdata',['STARSH_acdata',['../starsh-acoustic_8h.html#af28d1b27625d85ebbaed45e578e450e0',1,'starsh-acoustic.h']]],
   ['starsh_5fblrf',['STARSH_blrf',['../group__blrf.html#ga603e3dada96a3851d91aae1829fe31ce',1,'starsh.h']]],
   ['starsh_5fblrm',['STARSH_blrm',['../group__blrm.html#ga8ecf2bacce076f552476fd267cfb7a3a',1,'starsh.h']]],
   ['starsh_5fblrm_5fapproximate',['STARSH_blrm_approximate',['../group__approximations.html#ga98a768a0526922b5da42f0be3357391b',1,'starsh.h']]],
@@ -9,6 +10,7 @@ var searchData=
   ['starsh_5fesdata',['STARSH_esdata',['../starsh-electrostatics_8h.html#a0dbb537f1b8537b86fdb2fa55cc5e04c',1,'starsh-electrostatics.h']]],
   ['starsh_5fint',['STARSH_int',['../starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147',1,'starsh.h']]],
   ['starsh_5fkernel',['STARSH_kernel',['../group__applications.html#ga6a0a04eaa529fb5f5d1606cc294f6848',1,'starsh.h']]],
+  ['starsh_5fmddata',['STARSH_mddata',['../starsh-rbf_8h.html#a6c1d969cd7f67c4263411983707e6804',1,'starsh-rbf.h']]],
   ['starsh_5fmindata',['STARSH_mindata',['../group__app-mindata.html#ga538877e2753b9d70710dd20cf7aff1d8',1,'starsh-minimal.h']]],
   ['starsh_5fparticles',['STARSH_particles',['../group__app-particles.html#ga7f43e92f0932ab47d036afe0fdff3bac',1,'starsh-particles.h']]],
   ['starsh_5fproblem',['STARSH_problem',['../group__problem.html#ga3f2d60630011df3a0757b0ee4797df19',1,'starsh.h']]],

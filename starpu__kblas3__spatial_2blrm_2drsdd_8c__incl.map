@@ -1,0 +1,10 @@
+<map id="src/backends/starpu_kblas3_spatial/blrm/drsdd.c" name="src/backends/starpu_kblas3_spatial/blrm/drsdd.c">
+<area shape="rect" id="node3" href="$starsh_8h.html" title="starsh.h" alt="" coords="312,259,381,285"/>
+<area shape="rect" id="node11" href="$starsh-spatial_8h.html" title="starsh&#45;spatial.h" alt="" coords="446,109,557,136"/>
+<area shape="rect" id="node6" href="$starsh-constants_8h.html" title="starsh&#45;constants.h" alt="" coords="213,333,344,360"/>
+<area shape="rect" id="node7" href="$starsh-mpi_8h.html" title="starsh&#45;mpi.h" alt="" coords="369,333,463,360"/>
+<area shape="rect" id="node8" href="$starsh-starpu_8h.html" title="starsh&#45;starpu.h" alt="" coords="488,333,597,360"/>
+<area shape="rect" id="node9" href="$starsh-mpi-starpu_8h.html" title="starsh&#45;mpi&#45;starpu.h" alt="" coords="622,333,757,360"/>
+<area shape="rect" id="node12" href="$starsh-particles_8h.html" title="starsh&#45;particles.h" alt="" coords="384,184,507,211"/>
+<area shape="rect" id="node15" href="$starsh-spatial-gsl_8h.html" title="starsh&#45;spatial&#45;gsl.h" alt="" coords="531,184,663,211"/>
+</map>

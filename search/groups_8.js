@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['minimal_20working_20example',['Minimal working example',['../group__app-mindata.html',1,'']]]
+  ['low_2drank_20dense_20routines',['Low-rank dense routines',['../group__lrdense.html',1,'']]]
 ];

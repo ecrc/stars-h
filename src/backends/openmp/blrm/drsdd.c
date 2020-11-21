@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/openmp/blrm/drsdd.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -229,7 +229,7 @@ int starsh_blrm__drsdd_omp(STARSH_blrm **matrix, STARSH_blrf *format,
         }
         STARSH_MALLOC(alloc_D, size_D);
         // For each near-field block compute its elements
-        #pragma omp parallel for schedule(dynamic,1)
+        //#pragma omp parallel for schedule(dynamic,1)
         for(bi = 0; bi < new_nblocks_near; bi++)
         {
             // Get indexes of corresponding block row and block column

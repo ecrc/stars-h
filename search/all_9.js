@@ -5,7 +5,7 @@ var searchData=
   ['kernels',['Kernels',['../group__app-spatial-kernels.html',1,'']]],
   ['k',['k',['../structstarsh__eddata.html#abb8d928405eb631fbe2c466d7885b47f',1,'starsh_eddata']]],
   ['kernel',['kernel',['../structstarsh__problem.html#af793dd4266ec81811023daed12ff08a5',1,'starsh_problem']]],
-  ['kernel_2ec',['kernel.c',['../kernel_8c.html',1,'']]],
+  ['kernel_2ec',['kernel.c',['../dense_2kernel_8c.html',1,'']]],
   ['kernel_5fcos_5f1d_2ec',['kernel_cos_1d.c',['../kernel__cos__1d_8c.html',1,'']]],
   ['kernel_5fcos_5f2d_2ec',['kernel_cos_2d.c',['../kernel__cos__2d_8c.html',1,'']]],
   ['kernel_5fcos_5f3d_2ec',['kernel_cos_3d.c',['../kernel__cos__3d_8c.html',1,'']]],

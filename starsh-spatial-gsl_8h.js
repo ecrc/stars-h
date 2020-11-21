@@ -19,5 +19,7 @@ var starsh_spatial_gsl_8h =
     [ "starsh_ssdata_block_matern_kernel_4d", "group__app-spatial-kernels.html#gab256d07fe74b3a556c57e2d1198a1eb6", null ],
     [ "starsh_ssdata_block_matern_kernel_4d_simd", "group__app-spatial-kernels.html#gaa13fe96528e0ba7224c8a01601b5c064", null ],
     [ "starsh_ssdata_block_matern_kernel_nd", "group__app-spatial-kernels.html#ga53eec071bd46d57be76cf7a96460ac03", null ],
-    [ "starsh_ssdata_block_matern_kernel_nd_simd", "group__app-spatial-kernels.html#ga642f3f189cc30eba45126150a29f8408", null ]
+    [ "starsh_ssdata_block_matern_kernel_nd_simd", "group__app-spatial-kernels.html#ga642f3f189cc30eba45126150a29f8408", null ],
+    [ "starsh_ssdata_block_parsimonious2_kernel_2d_simd", "group__app-spatial-kernels.html#ga294e201da19de96c78837b7abe164479", null ],
+    [ "starsh_ssdata_block_parsimonious_kernel_2d_simd", "group__app-spatial-kernels.html#gab870db8a8dec783810edfc0c49a89382", null ]
 ];

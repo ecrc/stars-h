@@ -8,7 +8,10 @@ var starsh_constants_8h =
       [ "STARSH_BACKEND_MPI", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a8bb01d2eb80c9a0697de4ba057000bb1", null ],
       [ "STARSH_BACKEND_MPI_OPENMP", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4aa3f613b52c437a3ceadd77c1d0702555", null ],
       [ "STARSH_BACKEND_STARPU", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4aec21d595d381efda38d0eeb98ae93bbf", null ],
-      [ "STARSH_BACKEND_MPI_STARPU", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a932514993af06b12ddf30c6a640d1c20", null ]
+      [ "STARSH_BACKEND_MPI_STARPU", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a932514993af06b12ddf30c6a640d1c20", null ],
+      [ "STARSH_BACKEND_STARPU_KBLAS", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4ad2cea211fb2ea01b88afcc126d8ca19b", null ],
+      [ "STARSH_BACKEND_STARPU_CUDA", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4ad6e3e431dc418a3704b86e90f1f9d99c", null ],
+      [ "STARSH_BACKEND_MPI_STARPU_KBLAS", "starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a2d31e912383de8c19b0443203df14cee", null ]
     ] ],
     [ "STARSH_BLRF_TYPE", "starsh-constants_8h.html#a97225e894b310e2bd118c009547aae9e", [
       [ "STARSH_TLR", "starsh-constants_8h.html#a97225e894b310e2bd118c009547aae9ea1da15aff60d290d87b7e9035051c5d8f", null ]

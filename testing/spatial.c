@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file testing/spatial.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -108,6 +108,7 @@ int main(int argc, char **argv)
         return 1;
     }
     // Measure time for 10 matvecs
+    /*
     double *x, *y;
     x = malloc(N*nrhs*sizeof(*x));
     y = malloc(N*nrhs*sizeof(*y));
@@ -119,5 +120,6 @@ int main(int argc, char **argv)
         starsh_blrm__dmml(M, nrhs, 1.0, x, N, 0.0, y, N);
     time1 = omp_get_wtime()-time1;
     printf("TIME FOR 10 BLRM MATVECS: %e secs\n", time1);
+    */
     return 0;
 }

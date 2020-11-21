@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/starpu/blrm/drsdd.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -27,6 +27,7 @@ int starsh_blrm__drsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
  * @ingroup blrm
  * */
 {
+    printf("IN STARPU (NO KBLAS)\n");
     STARSH_blrf *F = format;
     STARSH_problem *P = F->problem;
     STARSH_kernel *kernel = P->kernel;
@@ -278,8 +279,12 @@ int starsh_blrm__drsdd_starpu(STARSH_blrm **matrix, STARSH_blrf *format,
                 bj++;
             else
             {
-                far_U[bi-bj] = far_U[bi];
-                far_V[bi-bj] = far_V[bi];
+                int shape_U[2] = {far_U[bi]->shape[0], far_rank[bi]};
+                int shape_V[2] = {far_V[bi]->shape[0], far_rank[bi]};
+                array_from_buffer(far_U+bi-bj, 2, shape_U, 'd', 'F',
+                        far_U[bi]->data);
+                array_from_buffer(far_V+bi-bj, 2, shape_V, 'd', 'F',
+                        far_V[bi]->data);
                 far_rank[bi-bj] = far_rank[bi];
             }
         }

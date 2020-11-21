@@ -5,7 +5,7 @@
 #             University of Science and Technology (KAUST)
 #
 # @file src/backends/sequential/dense/CMakeLists.txt
-# @version 0.1.0
+# @version 0.3.0
 # @author Aleksandr Mikhalev
 # @date 2017-11-07
 
@@ -17,4 +17,5 @@ set(SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/dsdd.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dsvfr.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/dna.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/zrsdd.c"
     ${SRC} PARENT_SCOPE)

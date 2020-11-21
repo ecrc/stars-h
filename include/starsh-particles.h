@@ -5,9 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-particles.h
- * @version 0.1.0
+ * @version 0.3.0
+ * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_PARTICLES_H__
@@ -45,6 +46,8 @@ typedef struct starsh_particles
     //!< Coordinates of particles.
 } STARSH_particles;
 
+
+
 enum STARSH_PARTICLES_PLACEMENT
 //! Distribution of particles for starsh_particles_generate().
 /*! @ingroup app-particles
@@ -68,6 +71,12 @@ enum STARSH_PARTICLES_PLACEMENT
     //!< Old version of STARSH_PARTICLES_QUASIUNIFORM1 (for compatibility).
     STARSH_PARTICLES_OBSOLETE2 = -2,
     //!< Old version of STARSH_PARTICLES_QUASIUNIFORM2 (for compatibility).
+    STARSH_PARTICLES_OBSOLETE3 = -3,
+    //!< Uniform in [0,1] grid, but each grid coordinate is slightly shifted
+    // for 1D, 2D, and 3D cases -- use each location twice. (Parsimonious bivaritae case1).
+    STARSH_PARTICLES_OBSOLETE4 = -4,
+    //!< Uniform in [0,1] grid, but each grid coordinate is slightly shifted
+    // for 1D, 2D, and 3D cases-- use each location twice. (Parsimonious bivaritae case2).
 };
 
 int starsh_particles_new(STARSH_particles **data, STARSH_int count, int ndim);
@@ -91,6 +100,10 @@ int starsh_particles_generate_quasiuniform2(STARSH_particles **data,
 int starsh_particles_generate_obsolete1(STARSH_particles **data,
         STARSH_int count, int ndim);
 int starsh_particles_generate_obsolete2(STARSH_particles **data,
+        STARSH_int count, int ndim);
+int starsh_particles_generate_obsolete3(STARSH_particles **data,
+        STARSH_int count, int ndim);
+int starsh_particles_generate_obsolete4(STARSH_particles **data,
         STARSH_int count, int ndim);
 
 int starsh_particles_read_from_file(STARSH_particles **data, const char *fname,

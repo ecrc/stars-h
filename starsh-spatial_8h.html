@@ -113,7 +113,7 @@ Include dependency graph for starsh-spatial.h:</div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="starsh-spatial_8h__dep__incl.svg" width="100%" height="395"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="starsh-spatial_8h__dep__incl.svg" width="100%" height="406"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 </div>
@@ -148,7 +148,12 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a073d01fae148f2c5285f01035d2a9dc5">STARSH_SPATIAL_EXP_GCD</a> = 15, 
 <a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a60315aa622903a3c383fa7807b365c19">STARSH_SPATIAL_SQREXP_GCD</a> = 16, 
 <a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a38ab0f6601b7a55a06b032a230ae2015">STARSH_SPATIAL_MATERN_GCD</a> = 17, 
-<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af">STARSH_SPATIAL_MATERN2_GCD</a> = 18
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af">STARSH_SPATIAL_MATERN2_GCD</a> = 18, 
+<br />
+&#160;&#160;<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a9e09ab38ecef92b123f253e4e0f5ea30">STARSH_SPATIAL_PARSIMONIOUS_GCD</a> = 19, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a7a2bd283238e66ed14bdedadfb778ef3">STARSH_SPATIAL_PARSIMONIOUS2_GCD</a> = 20, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413afd074fd18e3265cfa6afbce6201671f7">STARSH_SPATIAL_PARSIMONIOUS_SIMD</a> = 21, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a216f741e92315cb749bee3ee489896d4">STARSH_SPATIAL_PARSIMONIOUS2_SIMD</a> = 22
 <br />
  }</td></tr>
 <tr class="memdesc:ga6643f5698ae19aba8e75447ce5655413"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of built-in kernels for <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020" title="Get kernel for spatial statistics problem. ">starsh_ssdata_get_kernel()</a>.  <a href="group__app-spatial.html#ga6643f5698ae19aba8e75447ce5655413">More...</a><br /></td></tr>
@@ -160,7 +165,11 @@ Enumerations</h2></td></tr>
 <a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbaccae5adca9441838c9715c4781a7563c">STARSH_SPATIAL_NOISE</a> = 4, 
 <br />
 &#160;&#160;<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba745bc5167a73360f29fc8b5c2bd44492">STARSH_SPATIAL_PLACE</a> = 5, 
-<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977">STARSH_SPATIAL_SIGMA</a> = 6
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977">STARSH_SPATIAL_SIGMA</a> = 6, 
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbab681a41878305d6b9c3c8aac17d44985">STARSH_SPATIAL_SIGMA2</a> = 7, 
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbabac3c67bbb6a4005bd904fabe0064098">STARSH_SPATIAL_NU2</a> = 8, 
+<br />
+&#160;&#160;<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba2428741bb16af7d5a1e1bb65070d9b88">STARSH_SPATIAL_CORR</a> = 9
 <br />
  }</td></tr>
 <tr class="memdesc:gaed230786777c7908cec46789ae5c42fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of parameters for <a class="el" href="group__applications.html#ga94421cafbbce57dfd835bb11c81722b0" title="Generates data and matrix kernel for one of predefined applications. ">starsh_application()</a>.  <a href="group__app-spatial.html#gaed230786777c7908cec46789ae5c42fb">More...</a><br /></td></tr>
@@ -174,6 +183,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">starsh_ssdata_init</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double *point, double beta, double nu, double noise, double sigma)</td></tr>
 <tr class="memdesc:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given data.  <a href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">More...</a><br /></td></tr>
 <tr class="separator:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919">starsh_ssdata_init_parsimonious</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double *point, double sigma1, double sigma2, double beta, double nu1, double nu2, double corr, double noise)</td></tr>
+<tr class="memdesc:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given data.  <a href="group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919">More...</a><br /></td></tr>
+<tr class="separator:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2c8179573a8efe78099559534fa300a0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga2c8179573a8efe78099559534fa300a0">starsh_ssdata_generate</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double beta, double nu, double noise, enum <a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a> place, double sigma)</td></tr>
 <tr class="memdesc:ga2c8179573a8efe78099559534fa300a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given distribution.  <a href="group__app-spatial.html#ga2c8179573a8efe78099559534fa300a0">More...</a><br /></td></tr>
 <tr class="separator:ga2c8179573a8efe78099559534fa300a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -261,13 +273,21 @@ Functions</h2></td></tr>
 <tr class="memitem:ga136479657e9a1b28c4bb719d3b9dadab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">starsh_ssdata_block_matern2_kernel_2d_simd_gcd</a> (int nrows, int ncols, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *irow, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *icol, void *row_data, void *col_data, void *result, int ld)</td></tr>
 <tr class="memdesc:ga136479657e9a1b28c4bb719d3b9dadab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mat&eacute;rn kernel for -dimensional spatial statistics problem.  <a href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">More...</a><br /></td></tr>
 <tr class="separator:ga136479657e9a1b28c4bb719d3b9dadab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeec9877a4fc1fa513a0830f1981e47da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial-kernels.html#gaeec9877a4fc1fa513a0830f1981e47da">starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd</a> (int nrows, int ncols, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *irow, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *icol, void *row_data, void *col_data, void *result, int ld)</td></tr>
+<tr class="memdesc:gaeec9877a4fc1fa513a0830f1981e47da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mat&eacute;rn kernel for -dimensional spatial statistics problem.  <a href="group__app-spatial-kernels.html#gaeec9877a4fc1fa513a0830f1981e47da">More...</a><br /></td></tr>
+<tr class="separator:gaeec9877a4fc1fa513a0830f1981e47da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5e2fbd76c456fa0bd7d2c5289c4fb796"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial-kernels.html#ga5e2fbd76c456fa0bd7d2c5289c4fb796">starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd</a> (int nrows, int ncols, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *irow, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> *icol, void *row_data, void *col_data, void *result, int ld)</td></tr>
+<tr class="memdesc:ga5e2fbd76c456fa0bd7d2c5289c4fb796"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mat&eacute;rn kernel for -dimensional spatial statistics problem.  <a href="group__app-spatial-kernels.html#ga5e2fbd76c456fa0bd7d2c5289c4fb796">More...</a><br /></td></tr>
+<tr class="separator:ga5e2fbd76c456fa0bd7d2c5289c4fb796"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section copyright"><dt>Copyright</dt><dd>(c) 2017 King Abdullah University of Science and Technology (KAUST). All rights reserved.</dd></dl>
 <p>STARS-H is a software package, provided by King Abdullah University of Science and Technology (KAUST)</p>
 <dl class="section version"><dt>Version</dt><dd>0.1.1 </dd></dl>
-<dl class="section author"><dt>Author</dt><dd>Aleksandr Mikhalev </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2018-11-06 </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Sameh Abdulah </dd>
+<dd>
+Aleksandr Mikhalev </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2020-06-04 </dd></dl>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

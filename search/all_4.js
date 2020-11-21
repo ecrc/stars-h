@@ -7,5 +7,6 @@ var searchData=
   ['electrostatics_2ec',['electrostatics.c',['../electrostatics_8c.html',1,'']]],
   ['entry_5fsize',['entry_size',['../structstarsh__problem.html#ac2336d0c98c54d371eecbf55a82b5746',1,'starsh_problem']]],
   ['environment',['Environment',['../group__environment.html',1,'(Global Namespace)'],['../environment.html',1,'(Global Namespace)']]],
-  ['examples',['Examples',['../examples.html',1,'']]]
+  ['examples',['Examples',['../examples.html',1,'']]],
+  ['expon',['Expon',['../starsh-rbf_8h.html#a08b5ea8d9cf207e89eddc94612696e3f',1,'kernels_rbf.c']]]
 ];

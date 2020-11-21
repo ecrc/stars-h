@@ -12,5 +12,9 @@ var searchData=
   ['col_5fcluster',['col_cluster',['../structstarsh__blrf.html#ac7c312d68f5006e662069ba78841f7e2',1,'starsh_blrf']]],
   ['col_5fdata',['col_data',['../structstarsh__problem.html#a32e88dc3d7559f5b8aa5686c4183f92b',1,'starsh_problem']]],
   ['common_2ec',['common.c',['../common_8c.html',1,'']]],
-  ['count',['count',['../structstarsh__randtlr.html#a1f5a851d87f1d18f92df50fcd90c0d11',1,'starsh_randtlr::count()'],['../structstarsh__mindata.html#a41b3a0f16c0a2375f18dba1c84451308',1,'starsh_mindata::count()'],['../structstarsh__particles.html#a9367a1f57cbbbf2927ccfb3d3d12dfde',1,'starsh_particles::count()']]]
+  ['corr',['corr',['../structstarsh__ssdata.html#a04801faeaeec9b72fe8d9dcc1fd388d4',1,'starsh_ssdata']]],
+  ['count',['count',['../structstarsh__randtlr.html#a1f5a851d87f1d18f92df50fcd90c0d11',1,'starsh_randtlr::count()'],['../structstarsh__mindata.html#a41b3a0f16c0a2375f18dba1c84451308',1,'starsh_mindata::count()'],['../structstarsh__particles.html#a9367a1f57cbbbf2927ccfb3d3d12dfde',1,'starsh_particles::count()']]],
+  ['ctps',['CTPS',['../starsh-rbf_8h.html#a751a9869ebd0f77849bd5baafd81a927',1,'kernels_rbf.c']]],
+  ['cube',['cube',['../starsh-rbf_8h.html#ac3fe7171b787c57143c20af22a519ba7',1,'kernels_rbf.c']]],
+  ['cube_2ec',['cube.c',['../cube_8c.html',1,'']]]
 ];

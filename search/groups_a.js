@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['problem',['Problem',['../group__problem.html',1,'']]]
+  ['n_2dbody',['N-body',['../group__app-particles.html',1,'']]]
 ];

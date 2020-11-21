@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/mpi_starpu/blrm/dsdd.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */

@@ -118,7 +118,11 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a8bb01d2eb80c9a0697de4ba057000bb1">STARSH_BACKEND_MPI</a> = 2, 
 <a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4aa3f613b52c437a3ceadd77c1d0702555">STARSH_BACKEND_MPI_OPENMP</a> = 3, 
 <a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4aec21d595d381efda38d0eeb98ae93bbf">STARSH_BACKEND_STARPU</a> = 4, 
-<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a932514993af06b12ddf30c6a640d1c20">STARSH_BACKEND_MPI_STARPU</a> = 5
+<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a932514993af06b12ddf30c6a640d1c20">STARSH_BACKEND_MPI_STARPU</a> = 5, 
+<br />
+&#160;&#160;<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4ad2cea211fb2ea01b88afcc126d8ca19b">STARSH_BACKEND_STARPU_KBLAS</a> = 6, 
+<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4ad6e3e431dc418a3704b86e90f1f9d99c">STARSH_BACKEND_STARPU_CUDA</a> = 7, 
+<a class="el" href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4a2d31e912383de8c19b0443203df14cee">STARSH_BACKEND_MPI_STARPU_KBLAS</a> = 8
 <br />
  }</td></tr>
 <tr class="memdesc:a2b9392473fc11e9477fda98b6c161be4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enum for backend types.  <a href="starsh-constants_8h.html#a2b9392473fc11e9477fda98b6c161be4">More...</a><br /></td></tr>
@@ -179,7 +183,7 @@ Enumerations</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section copyright"><dt>Copyright</dt><dd>(c) 2017 King Abdullah University of Science and Technology (KAUST). All rights reserved.</dd></dl>
 <p>STARS-H is a software package, provided by King Abdullah University of Science and Technology (KAUST)</p>
-<dl class="section version"><dt>Version</dt><dd>0.1.0 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>0.3.0 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Aleksandr Mikhalev </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2017-11-07 </dd></dl>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
@@ -212,6 +216,12 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="a2b9392473fc11e9477fda98b6c161be4aec21d595d381efda38d0eeb98ae93bbf"></a>STARSH_BACKEND_STARPU&#160;</td><td class="fielddoc"><p>StarPU (without MPI) </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a2b9392473fc11e9477fda98b6c161be4a932514993af06b12ddf30c6a640d1c20"></a>STARSH_BACKEND_MPI_STARPU&#160;</td><td class="fielddoc"><p>StarPU (with MPI) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a2b9392473fc11e9477fda98b6c161be4ad2cea211fb2ea01b88afcc126d8ca19b"></a>STARSH_BACKEND_STARPU_KBLAS&#160;</td><td class="fielddoc"><p>StarPU+KBLAS (without MPI) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a2b9392473fc11e9477fda98b6c161be4ad6e3e431dc418a3704b86e90f1f9d99c"></a>STARSH_BACKEND_STARPU_CUDA&#160;</td><td class="fielddoc"><p>StarPU+CUDA (without MPI) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a2b9392473fc11e9477fda98b6c161be4a2d31e912383de8c19b0443203df14cee"></a>STARSH_BACKEND_MPI_STARPU_KBLAS&#160;</td><td class="fielddoc"><p>MPI+StarPU+KBLAS. </p>
 </td></tr>
 </table>
 

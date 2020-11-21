@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/cluster.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -100,7 +100,7 @@ void starsh_cluster_info(STARSH_cluster *cluster)
         printf("tiled, ");
     else
         printf("hierarchical, ");
-    printf("%d blocks>\n", C->nblocks);
+    printf("%zd blocks>\n", C->nblocks);
 }
 
 int starsh_cluster_new_plain(STARSH_cluster **cluster, void *data,

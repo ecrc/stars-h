@@ -148,7 +148,12 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a073d01fae148f2c5285f01035d2a9dc5">STARSH_SPATIAL_EXP_GCD</a> = 15, 
 <a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a60315aa622903a3c383fa7807b365c19">STARSH_SPATIAL_SQREXP_GCD</a> = 16, 
 <a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a38ab0f6601b7a55a06b032a230ae2015">STARSH_SPATIAL_MATERN_GCD</a> = 17, 
-<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af">STARSH_SPATIAL_MATERN2_GCD</a> = 18
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af">STARSH_SPATIAL_MATERN2_GCD</a> = 18, 
+<br />
+&#160;&#160;<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a9e09ab38ecef92b123f253e4e0f5ea30">STARSH_SPATIAL_PARSIMONIOUS_GCD</a> = 19, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a7a2bd283238e66ed14bdedadfb778ef3">STARSH_SPATIAL_PARSIMONIOUS2_GCD</a> = 20, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413afd074fd18e3265cfa6afbce6201671f7">STARSH_SPATIAL_PARSIMONIOUS_SIMD</a> = 21, 
+<a class="el" href="group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a216f741e92315cb749bee3ee489896d4">STARSH_SPATIAL_PARSIMONIOUS2_SIMD</a> = 22
 <br />
  }</td></tr>
 <tr class="memdesc:ga6643f5698ae19aba8e75447ce5655413"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of built-in kernels for <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020" title="Get kernel for spatial statistics problem. ">starsh_ssdata_get_kernel()</a>.  <a href="group__app-spatial.html#ga6643f5698ae19aba8e75447ce5655413">More...</a><br /></td></tr>
@@ -160,7 +165,11 @@ Enumerations</h2></td></tr>
 <a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbaccae5adca9441838c9715c4781a7563c">STARSH_SPATIAL_NOISE</a> = 4, 
 <br />
 &#160;&#160;<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba745bc5167a73360f29fc8b5c2bd44492">STARSH_SPATIAL_PLACE</a> = 5, 
-<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977">STARSH_SPATIAL_SIGMA</a> = 6
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977">STARSH_SPATIAL_SIGMA</a> = 6, 
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbab681a41878305d6b9c3c8aac17d44985">STARSH_SPATIAL_SIGMA2</a> = 7, 
+<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbabac3c67bbb6a4005bd904fabe0064098">STARSH_SPATIAL_NU2</a> = 8, 
+<br />
+&#160;&#160;<a class="el" href="group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba2428741bb16af7d5a1e1bb65070d9b88">STARSH_SPATIAL_CORR</a> = 9
 <br />
  }</td></tr>
 <tr class="memdesc:gaed230786777c7908cec46789ae5c42fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of parameters for <a class="el" href="group__applications.html#ga94421cafbbce57dfd835bb11c81722b0" title="Generates data and matrix kernel for one of predefined applications. ">starsh_application()</a>.  <a href="group__app-spatial.html#gaed230786777c7908cec46789ae5c42fb">More...</a><br /></td></tr>
@@ -179,9 +188,15 @@ Functions</h2></td></tr>
 <tr class="memitem:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">starsh_ssdata_init</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double *point, double beta, double nu, double noise, double sigma)</td></tr>
 <tr class="memdesc:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given data.  <a href="#gac602caa5ca0d884031a7747dfb9bd0e0">More...</a><br /></td></tr>
 <tr class="separator:gac602caa5ca0d884031a7747dfb9bd0e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919">starsh_ssdata_init_parsimonious</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double *point, double sigma1, double sigma2, double beta, double nu1, double nu2, double corr, double noise)</td></tr>
+<tr class="memdesc:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given data.  <a href="#ga6d44430ea9696ebd6cf987b1e21b1919">More...</a><br /></td></tr>
+<tr class="separator:ga6d44430ea9696ebd6cf987b1e21b1919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2c8179573a8efe78099559534fa300a0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga2c8179573a8efe78099559534fa300a0">starsh_ssdata_generate</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double beta, double nu, double noise, enum <a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a> place, double sigma)</td></tr>
 <tr class="memdesc:ga2c8179573a8efe78099559534fa300a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given distribution.  <a href="#ga2c8179573a8efe78099559534fa300a0">More...</a><br /></td></tr>
 <tr class="separator:ga2c8179573a8efe78099559534fa300a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga863e910fd51c7d09c2af5698cf53ffb2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga863e910fd51c7d09c2af5698cf53ffb2">starsh_ssdata_generate_parsimonious</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, int <a class="el" href="kernel__matern2__4d_8c.html#ad08795e9e671720e6f0ec6b3407bf933">ndim</a>, double beta, double nu, double noise, enum <a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a> place, double sigma, double sigma2, double nu2, double corr)</td></tr>
+<tr class="memdesc:ga863e910fd51c7d09c2af5698cf53ffb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given distribution.  <a href="#ga863e910fd51c7d09c2af5698cf53ffb2">More...</a><br /></td></tr>
+<tr class="separator:ga863e910fd51c7d09c2af5698cf53ffb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2b3b97b97cf1cef31b90ed221bbeb7b8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga2b3b97b97cf1cef31b90ed221bbeb7b8">starsh_ssdata_generate_va</a> (<a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **data, <a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a> count, va_list args)</td></tr>
 <tr class="memdesc:ga2b3b97b97cf1cef31b90ed221bbeb7b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object with incomplete set of parameters.  <a href="#ga2b3b97b97cf1cef31b90ed221bbeb7b8">More...</a><br /></td></tr>
 <tr class="separator:ga2b3b97b97cf1cef31b90ed221bbeb7b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -197,6 +212,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga03ccb1214ad55202b5971736f370f273"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#ga03ccb1214ad55202b5971736f370f273">starsh_esdata_get_kernel</a> (<a class="el" href="group__applications.html#ga6a0a04eaa529fb5f5d1606cc294f6848">STARSH_kernel</a> **kernel, <a class="el" href="starsh-electrostatics_8h.html#a0dbb537f1b8537b86fdb2fa55cc5e04c">STARSH_esdata</a> *data, enum <a class="el" href="group__app-electrostatics.html#gae5ad9591f751d9e39763bcd851e4c3d7">STARSH_ELECTROSTATICS_KERNEL</a> type)</td></tr>
 <tr class="memdesc:ga03ccb1214ad55202b5971736f370f273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get kernel for electrostatics problem.  <a href="#ga03ccb1214ad55202b5971736f370f273">More...</a><br /></td></tr>
 <tr class="separator:ga03ccb1214ad55202b5971736f370f273"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafd0058ac9c78076294980ba0b165a2e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__app-spatial.html#gafd0058ac9c78076294980ba0b165a2e5">starsh_mddata_free</a> (<a class="el" href="starsh-rbf_8h.html#a6c1d969cd7f67c4263411983707e6804">STARSH_mddata</a> *data)</td></tr>
+<tr class="memdesc:gafd0058ac9c78076294980ba0b165a2e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free memory of <a class="el" href="starsh-rbf_8h.html#a6c1d969cd7f67c4263411983707e6804">STARSH_mddata</a> object.  <a href="#gafd0058ac9c78076294980ba0b165a2e5">More...</a><br /></td></tr>
+<tr class="separator:gafd0058ac9c78076294980ba0b165a2e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Template for spatial statistics problems. </p>
@@ -265,6 +283,14 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af"></a>STARSH_SPATIAL_MATERN2_GCD&#160;</td><td class="fielddoc"><p>Modified Mat&eacute;rn kernel with SIMD. </p><dl class="section see"><dt>See also</dt><dd>starsh_ssdata_block_matern2_kernel_nd_simd_gcd(). </dd></dl>
 </td></tr>
+<tr><td class="fieldname"><a id="gga6643f5698ae19aba8e75447ce5655413a9e09ab38ecef92b123f253e4e0f5ea30"></a>STARSH_SPATIAL_PARSIMONIOUS_GCD&#160;</td><td class="fielddoc"><p>Bivariate Modified parsimonious Mat&eacute;rn kernel with GCD. </p><dl class="section see"><dt>See also</dt><dd>starsh_ssdata_block_parsimonious_kernel_nd_simd_gcd(). </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6643f5698ae19aba8e75447ce5655413a7a2bd283238e66ed14bdedadfb778ef3"></a>STARSH_SPATIAL_PARSIMONIOUS2_GCD&#160;</td><td class="fielddoc"><p>Bivariate Modified parsimonious2 Mat&eacute;rn kernel with GCD. </p><dl class="section see"><dt>See also</dt><dd>starsh_ssdata_block_parsimonious_kernel_nd_simd_gcd(). </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6643f5698ae19aba8e75447ce5655413afd074fd18e3265cfa6afbce6201671f7"></a>STARSH_SPATIAL_PARSIMONIOUS_SIMD&#160;</td><td class="fielddoc"><p>Bivariate Modified parsimonious Mat&eacute;rn kernel with SIMD. </p><dl class="section see"><dt>See also</dt><dd>starsh_ssdata_block_parsimonious_kernel_nd_simd(). </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6643f5698ae19aba8e75447ce5655413a216f741e92315cb749bee3ee489896d4"></a>STARSH_SPATIAL_PARSIMONIOUS2_SIMD&#160;</td><td class="fielddoc"><p>Bivariate Modified parsimonious2 Mat&eacute;rnkernel with SIMD. </p><dl class="section see"><dt>See also</dt><dd>starsh_ssdata_block_parsimonious_kernel_nd_simd(). </dd></dl>
+</td></tr>
 </table>
 
 </div>
@@ -296,6 +322,12 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="ggaed230786777c7908cec46789ae5c42fba745bc5167a73360f29fc8b5c2bd44492"></a>STARSH_SPATIAL_PLACE&#160;</td><td class="fielddoc"><p>Distribution of particles (<code>place</code>, <a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a>). </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977"></a>STARSH_SPATIAL_SIGMA&#160;</td><td class="fielddoc"><p>Variance parameter (<code>sigma</code>, double). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaed230786777c7908cec46789ae5c42fbab681a41878305d6b9c3c8aac17d44985"></a>STARSH_SPATIAL_SIGMA2&#160;</td><td class="fielddoc"><p>Variance for the second variable (in the parsimonious bivariate case). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaed230786777c7908cec46789ae5c42fbabac3c67bbb6a4005bd904fabe0064098"></a>STARSH_SPATIAL_NU2&#160;</td><td class="fielddoc"><p>Order of Mat&eacute;rn kernel for the second variable (in the parsimonious bivariate case). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaed230786777c7908cec46789ae5c42fba2428741bb16af7d5a1e1bb65070d9b88"></a>STARSH_SPATIAL_CORR&#160;</td><td class="fielddoc"><p>spatial range parameter (define the correlation between the two variables in the parsimonious bivariate case). </p>
 </td></tr>
 </table>
 
@@ -346,6 +378,27 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Error code <a class="el" href="starsh-constants_8h.html#a6a0bd0c9246e66e42928f455933c2802">STARSH_ERRNO</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__app-electrostatics-kernels.html#ga39e580472e9f8988e8194a7a0a70cf00" title="Coulomb potential for n-dimensional electrostatics problem. ">starsh_esdata_block_coulomb_potential_kernel_nd()</a>, <a class="el" href="group__app-electrostatics-kernels.html#gaf80f998e26e4aad48663d54ad127a3fa" title="Coulomb potential for n-dimensional electrostatics problem. ">starsh_esdata_block_coulomb_potential_kernel_nd_simd()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="gafd0058ac9c78076294980ba0b165a2e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafd0058ac9c78076294980ba0b165a2e5">&#9670;&nbsp;</a></span>starsh_mddata_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void starsh_mddata_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="starsh-rbf_8h.html#a6c1d969cd7f67c4263411983707e6804">STARSH_mddata</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Free memory of <a class="el" href="starsh-rbf_8h.html#a6c1d969cd7f67c4263411983707e6804">STARSH_mddata</a> object. </p>
+<dl class="section see"><dt>See also</dt><dd>starsh_mddata_new(), starsh_mddata_init(), starsh_mddata_generate(). </dd></dl>
 
 </div>
 </div>
@@ -520,6 +573,108 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga863e910fd51c7d09c2af5698cf53ffb2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga863e910fd51c7d09c2af5698cf53ffb2">&#9670;&nbsp;</a></span>starsh_ssdata_generate_parsimonious()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int starsh_ssdata_generate_parsimonious </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a>&#160;</td>
+          <td class="paramname"><em>count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ndim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>beta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>nu</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>noise</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a>&#160;</td>
+          <td class="paramname"><em>place</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>sigma</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>sigma2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>nu2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>corr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given distribution. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Address of pointer to <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">count</td><td>Number of particles. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ndim</td><td>Dimensionality of space. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">beta</td><td>Correlation length. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nu</td><td>Smoothing parameter for Mat&eacute;rn kernel. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">noise</td><td>Value to add to diagonal elements. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">place</td><td>Placement strategy for spatial points. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sigma</td><td>Square of variance. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sigma2</td><td>Square of variance2. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nu2</td><td>Smoothing parameter for Mat&eacute;rn kernel. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">corr</td><td>Corr parameter for Mat&eacute;rn kernel. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Error code <a class="el" href="starsh-constants_8h.html#a6a0bd0c9246e66e42928f455933c2802">STARSH_ERRNO</a>. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__app-spatial.html#ga2b3b97b97cf1cef31b90ed221bbeb7b8" title="Generate STARSH_ssdata object with incomplete set of parameters. ">starsh_ssdata_generate_va()</a>, <a class="el" href="group__app-spatial.html#ga9776fd1c81a20c1e6b98b2b3a2346b12" title="Generate STARSH_ssdata object with incomplete set of parameters. ">starsh_ssdata_generate_el()</a>. </dd></dl>
+
+</div>
+</div>
 <a id="ga2b3b97b97cf1cef31b90ed221bbeb7b8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga2b3b97b97cf1cef31b90ed221bbeb7b8">&#9670;&nbsp;</a></span>starsh_ssdata_generate_va()</h2>
 
@@ -569,6 +724,12 @@ Functions</h2></td></tr>
 <td class="markdownTableBodyNone"><code>place</code>  </td><td class="markdownTableBodyNone"><a class="el" href="group__app-particles.html#gga7fc4063a100f5c5bb79f55a8cbb68882a50073ab2a256812095a662b8ec03292d">STARSH_PARTICLES_UNIFORM</a>  </td><td class="markdownTableBodyNone"><a class="el" href="group__app-particles.html#ga7fc4063a100f5c5bb79f55a8cbb68882">STARSH_PARTICLES_PLACEMENT</a>   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>sigma</code>  </td><td class="markdownTableBodyNone">1.0  </td><td class="markdownTableBodyNone">double   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>nu2</code>  </td><td class="markdownTableBodyNone">0.5  </td><td class="markdownTableBodyNone">double   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyNone">`sigma2  </td><td class="markdownTableBodyNone">1.0  </td><td class="markdownTableBodyNone">double   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>corr</code>  </td><td class="markdownTableBodyNone">0.5  </td><td class="markdownTableBodyNone">double   </td></tr>
 </table>
 <p>List of arguments <code>args</code> should look as pairs (Arg.constant, Value) with 0 as a last argument. For correspondance of arguments and arg.constants take a look at <a class="el" href="group__app-spatial.html#gaed230786777c7908cec46789ae5c42fb">STARSH_SPATIAL_PARAM</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -688,6 +849,106 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">double&#160;</td>
           <td class="paramname"><em>sigma</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object by given data. </p>
+<p>Array <code>point</code> should be stored in a special way: <code>x_1 x_2 ... x_count y_1 y_2 ... y_count z_1 z_2 ...</code>. This function does not allocate memory for coordinates and uses provided pointer <code>point</code>. Do not free memory of <code>point</code> until you finish using returned <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object. Do not forget to sort <code>data-&gt;particles</code> by <a class="el" href="group__app-particles.html#ga04e718800740aa764d6f782d8c661197" title="Sort particles in Z-order (Morton order). ">starsh_particles_zsort_inplace()</a> to take advantage of low-rank submatrices.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Address of pointer to <a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">count</td><td>Number of particles. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ndim</td><td>Dimensionality of space. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">point</td><td>Pointer to array of coordinates of particles. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">beta</td><td>Correlation length. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nu</td><td>Smoothing parameter for Mat&eacute;rn kernel. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">noise</td><td>Value to add to diagonal elements. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sigma</td><td>Square of variance. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Error code <a class="el" href="starsh-constants_8h.html#a6a0bd0c9246e66e42928f455933c2802">STARSH_ERRNO</a>. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__app-spatial.html#ga03162d637c08286350082ef61ba7654f" title="Allocate memory for STARSH_ssdata object. ">starsh_ssdata_new()</a>, <a class="el" href="group__app-spatial.html#ga68722ffbd11b01e44c52e0617370f8bb" title="Free memory of STARSH_ssdata object. ">starsh_ssdata_free()</a>, <a class="el" href="group__app-spatial.html#ga2c8179573a8efe78099559534fa300a0" title="Generate STARSH_ssdata object by given distribution. ">starsh_ssdata_generate()</a>, starsh_ssdata_read_from_file(), <a class="el" href="group__app-particles.html#ga04e718800740aa764d6f782d8c661197" title="Sort particles in Z-order (Morton order). ">starsh_particles_zsort_inplace()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga6d44430ea9696ebd6cf987b1e21b1919"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6d44430ea9696ebd6cf987b1e21b1919">&#9670;&nbsp;</a></span>starsh_ssdata_init_parsimonious()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int starsh_ssdata_init_parsimonious </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__app-spatial.html#gadebb79667b5113bd77e5754bf5db53bc">STARSH_ssdata</a> **&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="starsh_8h.html#a6fdf4e831e4adf1fa5d86314e0f4a147">STARSH_int</a>&#160;</td>
+          <td class="paramname"><em>count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ndim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>sigma1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>sigma2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>beta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>nu1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>nu2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>corr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>noise</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

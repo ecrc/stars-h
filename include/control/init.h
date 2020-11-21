@@ -5,13 +5,13 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/control/init.c
- * @version 0.1.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-08-13
  * */
 
 //! Set number of backends and default one
-#define BACKEND_NUM 6
+#define BACKEND_NUM 9
 #define BACKEND_DEFAULT STARSH_BACKEND_SEQUENTIAL
 #ifdef OPENMP
     #undef BACKEND_DEFAULT
@@ -58,6 +58,21 @@ struct
     {"MPI_STARPU", STARSH_BACKEND_MPI_STARPU},
 #else
     {"MPI_STARPU", STARSH_BACKEND_NOTSUPPORTED},
+#endif
+#if defined(STARPU) && defined(KBLAS)
+    {"STARPU_KBLAS", STARSH_BACKEND_STARPU_KBLAS},
+#else
+    {"STARPU_KBLAS", STARSH_BACKEND_NOTSUPPORTED},
+#endif
+#if defined(STARPU) && defined(CUDA)
+    {"STARPU_CUDA", STARSH_BACKEND_STARPU_CUDA},
+#else
+    {"STARPU_CUDA", STARSH_BACKEND_NOTSUPPORTED},
+#endif
+#if defined(STARPU) && defined(MPI) && defined(KBLAS)
+    {"MPI_STARPU_KBLAS", STARSH_BACKEND_MPI_STARPU_KBLAS},
+#else
+    {"MPI_STARPU_KBLAS", STARSH_BACKEND_NOTSUPPORTED},
 #endif
 };
 
@@ -137,9 +152,40 @@ static STARSH_blrm_approximate *(dlr_starpu_mpi[LRENGINE_NUM]) =
     #endif
 };
 
+//! Array of approximation functions for STARPU_KBLAS backend
+static STARSH_blrm_approximate *(dlr_starpu_kblas[LRENGINE_NUM]) =
+{
+    #if defined(STARPU) && defined(KBLAS)
+    starsh_blrm__dsdd_starpu, starsh_blrm__dsdd_starpu,
+    starsh_blrm__dqp3_starpu, starsh_blrm__drsdd_starpu_kblas2,//3_spatial,
+    starsh_blrm__drsdd_starpu_kblas3_spatial
+    #endif
+};
+
+//! Array of approximation functions for STARPU_CUDA backend
+static STARSH_blrm_approximate *(dlr_starpu_cuda[LRENGINE_NUM]) =
+{
+    #if defined(STARPU) && defined(CUDA)
+    starsh_blrm__dsdd_starpu, starsh_blrm__dsdd_starpu,
+    starsh_blrm__dqp3_starpu, starsh_blrm__drsdd_starpu_cuda,
+    starsh_blrm__drsdd_starpu_cuda
+    #endif
+};
+
+//! Array of approximation functions for MPI_STARPU_KBLAS backend
+static STARSH_blrm_approximate *(dlr_starpu_mpi_kblas[LRENGINE_NUM]) =
+{
+    #if defined(STARPU) && defined(MPI) && defined(KBLAS)
+    starsh_blrm__dsdd_mpi_starpu, starsh_blrm__dsdd_mpi_starpu,
+    starsh_blrm__dqp3_mpi_starpu, starsh_blrm__drsdd_mpi_starpu_kblas2,
+    starsh_blrm__drsdd_mpi_starpu_kblas2
+    #endif
+};
+
 //! Array of approximation functions, depending on backend
 static STARSH_blrm_approximate *(*dlr[BACKEND_NUM]) =
 {
-    dlr_seq, dlr_omp, dlr_mpi, dlr_mpi, dlr_starpu, dlr_starpu_mpi
+    dlr_seq, dlr_omp, dlr_mpi, dlr_mpi, dlr_starpu, dlr_starpu_mpi,
+    dlr_starpu_kblas, dlr_starpu_cuda, dlr_starpu_mpi_kblas,
 };
 

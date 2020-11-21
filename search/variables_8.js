@@ -14,5 +14,6 @@ var searchData=
   ['near_5fd',['near_D',['../structstarsh__blrm.html#a509d0ddb0e64d583bd850ae921ff7c1a',1,'starsh_blrm']]],
   ['nlevels',['nlevels',['../structstarsh__cluster.html#a7a4a4049cbdb6f33ef29e0e4c4c57401',1,'starsh_cluster']]],
   ['noise',['noise',['../structstarsh__ssdata.html#aaa3cb936939d08ada0979869b9335bca',1,'starsh_ssdata']]],
-  ['nu',['nu',['../structstarsh__ssdata.html#a0d21000dff090d662cb769cfc905f6a3',1,'starsh_ssdata']]]
+  ['nu',['nu',['../structstarsh__ssdata.html#a0d21000dff090d662cb769cfc905f6a3',1,'starsh_ssdata']]],
+  ['nu2',['nu2',['../structstarsh__ssdata.html#a5b5a5126bc9b542633d102daa4a59a7f',1,'starsh_ssdata']]]
 ];

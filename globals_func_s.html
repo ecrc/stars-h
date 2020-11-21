@@ -193,6 +193,9 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__blrm.html#gaaf9302e83ee7ca4d17f8a78563870ea0">drsdd.c</a>
 , <a class="el" href="group__approximations.html#gaaf9302e83ee7ca4d17f8a78563870ea0">starsh-mpi-starpu.h</a>
 </li>
+<li>starsh_blrm__drsdd_mpi_starpu_kblas()
+: <a class="el" href="group__blrm.html#ga03b0d44d31f921d3ea7a24220f618ac0">drsdd.c</a>
+</li>
 <li>starsh_blrm__drsdd_omp()
 : <a class="el" href="group__blrm.html#gabbcd69c3c9988868d5b7e9a939988e85">drsdd.c</a>
 , <a class="el" href="group__approximations.html#gabbcd69c3c9988868d5b7e9a939988e85">starsh.h</a>
@@ -200,6 +203,9 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 <li>starsh_blrm__drsdd_starpu()
 : <a class="el" href="group__blrm.html#gafa6b6997d7f5bc1cadd7bea083d5cd85">drsdd.c</a>
 , <a class="el" href="group__approximations.html#gafa6b6997d7f5bc1cadd7bea083d5cd85">starsh-starpu.h</a>
+</li>
+<li>starsh_blrm__drsdd_starpu_kblas3_spatial()
+: <a class="el" href="group__blrm.html#gad8bc299786287a9b2a3576e16df5a12c">drsdd.c</a>
 </li>
 <li>starsh_blrm__dsdd()
 : <a class="el" href="group__blrm.html#ga2791c0f8c5edfc5acafbaf93b5d7e8c9">dsdd.c</a>
@@ -315,9 +321,18 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__lrdense.html#gad4ad979a556236ff4d6ccb82e58f0d22">fake_init.c</a>
 , <a class="el" href="group__lrdense.html#gad4ad979a556236ff4d6ccb82e58f0d22">starsh-starpu.h</a>
 </li>
+<li>starsh_dense_kernel_mpi_starpu_kblas_cpu_far()
+: <a class="el" href="mpi__starpu__kblas_2blrm_2drsdd_8c.html#a8e78dd94622aa53a10de445cdd97eda8">drsdd.c</a>
+</li>
+<li>starsh_dense_kernel_mpi_starpu_kblas_cpu_near()
+: <a class="el" href="mpi__starpu__kblas_2blrm_2drsdd_8c.html#a9517243e6b33e906f11f1a2421e42273">drsdd.c</a>
+</li>
 <li>starsh_dense_kernel_starpu()
 : <a class="el" href="group__lrdense.html#ga25c158c005c45aa4dda584a4e0ee0c9e">kernel.c</a>
 , <a class="el" href="group__lrdense.html#ga25c158c005c45aa4dda584a4e0ee0c9e">starsh-starpu.h</a>
+</li>
+<li>starsh_dense_zlrrsdd()
+: <a class="el" href="zrsdd_8c.html#ad63f76d0db9c46a6aceb7cd461f2c7aa">zrsdd.c</a>
 </li>
 <li>starsh_eddata_block_cos_kernel_1d()
 : <a class="el" href="group__app-electrodynamics-kernels.html#gab87394d1224b59f3be633f2fef048892">kernel_cos_1d.c</a>
@@ -376,8 +391,8 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-electrodynamics-kernels.html#ga893fb7d07cc46acc7aad24bdc8ffd2cd">starsh-electrodynamics.h</a>
 </li>
 <li>starsh_eddata_block_sin_kernel_3d()
-: <a class="el" href="group__app-electrodynamics-kernels.html#ga4e23ef63deeed2ab9086f4c0c646da25">starsh-electrodynamics.h</a>
-, <a class="el" href="group__app-electrodynamics-kernels.html#ga4e23ef63deeed2ab9086f4c0c646da25">kernel_sin_3d.c</a>
+: <a class="el" href="group__app-electrodynamics-kernels.html#ga4e23ef63deeed2ab9086f4c0c646da25">kernel_sin_3d.c</a>
+, <a class="el" href="group__app-electrodynamics-kernels.html#ga4e23ef63deeed2ab9086f4c0c646da25">starsh-electrodynamics.h</a>
 </li>
 <li>starsh_eddata_block_sin_kernel_3d_simd()
 : <a class="el" href="group__app-electrodynamics-kernels.html#ga106b16c57dc407c0a0f39511b0840178">kernel_sin_3d.c</a>
@@ -495,6 +510,45 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__app-electrostatics.html#gaa94feb713fc3b323f6dd371276613ec4">electrostatics.c</a>
 , <a class="el" href="group__app-electrostatics.html#gaa94feb713fc3b323f6dd371276613ec4">starsh-electrostatics.h</a>
 </li>
+<li>starsh_generate_3d_acoustic()
+: <a class="el" href="acoustic_8c.html#ae854a48f03c718c5340819c4c84f00eb">acoustic.c</a>
+, <a class="el" href="starsh-acoustic_8h.html#ae854a48f03c718c5340819c4c84f00eb">starsh-acoustic.h</a>
+</li>
+<li>starsh_generate_3d_acoustic_coordinates()
+: <a class="el" href="mesh__acoustic_8c.html#a957406bd71f28e99a3ea85541e8bc274">mesh_acoustic.c</a>
+, <a class="el" href="starsh-acoustic_8h.html#a9c5fa2537084a5735e75312f8d329f18">starsh-acoustic.h</a>
+</li>
+<li>starsh_generate_3d_cube()
+: <a class="el" href="cube_8c.html#a27134c9ac4f38eb468e42292940e4232">cube.c</a>
+, <a class="el" href="starsh-rbf_8h.html#a27134c9ac4f38eb468e42292940e4232">starsh-rbf.h</a>
+</li>
+<li>starsh_generate_3d_cube_rhs()
+: <a class="el" href="cube_8c.html#a83466f406f1e6148bb9b1f38bd65a19b">cube.c</a>
+</li>
+<li>starsh_generate_3d_rbf_mesh_coordinates_cube()
+: <a class="el" href="mesh__rbf_8c.html#af5e4552143db16a49120c83fcba25921">mesh_rbf.c</a>
+, <a class="el" href="starsh-rbf_8h.html#af5e4552143db16a49120c83fcba25921">starsh-rbf.h</a>
+</li>
+<li>starsh_generate_3d_rbf_mesh_coordinates_virus()
+: <a class="el" href="mesh__rbf_8c.html#adf0215ad78b2a413f76cef6767979a7d">mesh_rbf.c</a>
+, <a class="el" href="starsh-rbf_8h.html#adf0215ad78b2a413f76cef6767979a7d">starsh-rbf.h</a>
+</li>
+<li>starsh_generate_3d_virus()
+: <a class="el" href="virus_8c.html#a4532b709262d11403732eef6cda4188a">virus.c</a>
+, <a class="el" href="starsh-rbf_8h.html#a4532b709262d11403732eef6cda4188a">starsh-rbf.h</a>
+</li>
+<li>starsh_generate_3d_virus_rhs()
+: <a class="el" href="virus_8c.html#a064934615bf38414c3703724a8da3408">virus.c</a>
+, <a class="el" href="starsh-rbf_8h.html#a064934615bf38414c3703724a8da3408">starsh-rbf.h</a>
+</li>
+<li>starsh_generate_acoustic_near_sca()
+: <a class="el" href="acoustic_8c.html#ac7962cc8d2bd523403f577d0460d8309">acoustic.c</a>
+, <a class="el" href="starsh-acoustic_8h.html#af6e93bfaee40aa647d4b24d53ee687c2">starsh-acoustic.h</a>
+</li>
+<li>starsh_generate_acoustic_rhs()
+: <a class="el" href="acoustic_8c.html#a83710c1f2bf4daeda1016c396f96f69f">acoustic.c</a>
+, <a class="el" href="starsh-acoustic_8h.html#a83710c1f2bf4daeda1016c396f96f69f">starsh-acoustic.h</a>
+</li>
 <li>starsh_init()
 : <a class="el" href="group__environment.html#ga02f4c1774b91519ff6c82f3204374e48">init.c</a>
 , <a class="el" href="group__environment.html#ga02f4c1774b91519ff6c82f3204374e48">starsh.h</a>
@@ -506,6 +560,10 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 <li>starsh_itersolvers__dcg_omp()
 : <a class="el" href="group__solvers.html#ga74288a9ab0e9bd65487f91130373c403">cg.c</a>
 , <a class="el" href="group__iter.html#ga74288a9ab0e9bd65487f91130373c403">starsh.h</a>
+</li>
+<li>starsh_mddata_free()
+: <a class="el" href="group__app-spatial.html#gafd0058ac9c78076294980ba0b165a2e5">mesh_rbf.c</a>
+, <a class="el" href="group__app-spatial.html#gafd0058ac9c78076294980ba0b165a2e5">starsh-rbf.h</a>
 </li>
 <li>starsh_mindata_block_kernel()
 : <a class="el" href="minimal_8c.html#a8a4350a7c78f22141e177c8c62533f53">minimal.c</a>
@@ -538,6 +596,14 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 <li>starsh_particles_generate_obsolete2()
 : <a class="el" href="group__app-particles.html#ga3116147cd9dcf8139c9675c6adc082e2">particles.c</a>
 , <a class="el" href="group__app-particles.html#ga3116147cd9dcf8139c9675c6adc082e2">starsh-particles.h</a>
+</li>
+<li>starsh_particles_generate_obsolete3()
+: <a class="el" href="group__app-particles.html#gacdc35a60771b9d74999c58ced930bacf">particles.c</a>
+, <a class="el" href="group__app-particles.html#gacdc35a60771b9d74999c58ced930bacf">starsh-particles.h</a>
+</li>
+<li>starsh_particles_generate_obsolete4()
+: <a class="el" href="group__app-particles.html#ga53cd7cea1f696b4055ce77ebf2d82718">particles.c</a>
+, <a class="el" href="group__app-particles.html#ga53cd7cea1f696b4055ce77ebf2d82718">starsh-particles.h</a>
 </li>
 <li>starsh_particles_generate_quasiuniform1()
 : <a class="el" href="group__app-particles.html#gad29970dc9d70273c0be7c076d462dabc">particles.c</a>
@@ -572,32 +638,32 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-particles.html#ga9dff1a75ad418344a5ba575efae83d2c">starsh-particles.h</a>
 </li>
 <li>starsh_particles_read_from_file_pointer()
-: <a class="el" href="group__app-particles.html#gacf23efaf06fb5b8040c51d8628d4c716">particles.c</a>
-, <a class="el" href="group__app-particles.html#gacf23efaf06fb5b8040c51d8628d4c716">starsh-particles.h</a>
+: <a class="el" href="group__app-particles.html#gacf23efaf06fb5b8040c51d8628d4c716">starsh-particles.h</a>
+, <a class="el" href="group__app-particles.html#gacf23efaf06fb5b8040c51d8628d4c716">particles.c</a>
 </li>
 <li>starsh_particles_read_from_file_pointer_ascii()
 : <a class="el" href="group__app-particles.html#ga7815480986fce153984892645ed4792b">particles.c</a>
 , <a class="el" href="group__app-particles.html#ga7815480986fce153984892645ed4792b">starsh-particles.h</a>
 </li>
 <li>starsh_particles_read_from_file_pointer_binary()
-: <a class="el" href="group__app-particles.html#gaf98cd4c86b3c1ca3a633f2905ab5ee10">particles.c</a>
-, <a class="el" href="group__app-particles.html#gaf98cd4c86b3c1ca3a633f2905ab5ee10">starsh-particles.h</a>
+: <a class="el" href="group__app-particles.html#gaf98cd4c86b3c1ca3a633f2905ab5ee10">starsh-particles.h</a>
+, <a class="el" href="group__app-particles.html#gaf98cd4c86b3c1ca3a633f2905ab5ee10">particles.c</a>
 </li>
 <li>starsh_particles_write_to_file()
-: <a class="el" href="group__app-particles.html#ga9077513e854ca188554b484d0db69a0b">starsh-particles.h</a>
-, <a class="el" href="group__app-particles.html#ga9077513e854ca188554b484d0db69a0b">particles.c</a>
+: <a class="el" href="group__app-particles.html#ga9077513e854ca188554b484d0db69a0b">particles.c</a>
+, <a class="el" href="group__app-particles.html#ga9077513e854ca188554b484d0db69a0b">starsh-particles.h</a>
 </li>
 <li>starsh_particles_write_to_file_pointer()
-: <a class="el" href="group__app-particles.html#ga9912c6114058292decf9836bf95597b1">particles.c</a>
-, <a class="el" href="group__app-particles.html#ga9912c6114058292decf9836bf95597b1">starsh-particles.h</a>
+: <a class="el" href="group__app-particles.html#ga9912c6114058292decf9836bf95597b1">starsh-particles.h</a>
+, <a class="el" href="group__app-particles.html#ga9912c6114058292decf9836bf95597b1">particles.c</a>
 </li>
 <li>starsh_particles_write_to_file_pointer_ascii()
 : <a class="el" href="group__app-particles.html#gaada625c8ea0f0cf0322267b14c32c33a">starsh-particles.h</a>
 , <a class="el" href="group__app-particles.html#gaada625c8ea0f0cf0322267b14c32c33a">particles.c</a>
 </li>
 <li>starsh_particles_write_to_file_pointer_binary()
-: <a class="el" href="group__app-particles.html#ga2703157afb982dce5115103aed323703">particles.c</a>
-, <a class="el" href="group__app-particles.html#ga2703157afb982dce5115103aed323703">starsh-particles.h</a>
+: <a class="el" href="group__app-particles.html#ga2703157afb982dce5115103aed323703">starsh-particles.h</a>
+, <a class="el" href="group__app-particles.html#ga2703157afb982dce5115103aed323703">particles.c</a>
 </li>
 <li>starsh_particles_zsort_inplace()
 : <a class="el" href="group__app-particles.html#ga04e718800740aa764d6f782d8c661197">particles.c</a>
@@ -626,36 +692,36 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-randtlr.html#ga3e92f6ee00212d12bade07d40cf1a4a4">starsh-randtlr.h</a>
 </li>
 <li>starsh_randtlr_free()
-: <a class="el" href="group__app-randtlr.html#ga37fe2bb1698542a9e798236142c9b4dd">randtlr.c</a>
-, <a class="el" href="group__app-randtlr.html#ga37fe2bb1698542a9e798236142c9b4dd">starsh-randtlr.h</a>
+: <a class="el" href="group__app-randtlr.html#ga37fe2bb1698542a9e798236142c9b4dd">starsh-randtlr.h</a>
+, <a class="el" href="group__app-randtlr.html#ga37fe2bb1698542a9e798236142c9b4dd">randtlr.c</a>
 </li>
 <li>starsh_randtlr_generate()
-: <a class="el" href="group__app-randtlr.html#ga7bacedb8f595aa01f1c2a421107e4e5d">randtlr.c</a>
-, <a class="el" href="group__app-randtlr.html#ga7bacedb8f595aa01f1c2a421107e4e5d">starsh-randtlr.h</a>
+: <a class="el" href="group__app-randtlr.html#ga7bacedb8f595aa01f1c2a421107e4e5d">starsh-randtlr.h</a>
+, <a class="el" href="group__app-randtlr.html#ga7bacedb8f595aa01f1c2a421107e4e5d">randtlr.c</a>
 </li>
 <li>starsh_randtlr_generate_el()
 : <a class="el" href="group__app-randtlr.html#ga0244a79b81dd795435f1b7e0497425b9">starsh-randtlr.h</a>
 , <a class="el" href="group__app-randtlr.html#ga0244a79b81dd795435f1b7e0497425b9">randtlr.c</a>
 </li>
 <li>starsh_randtlr_generate_va()
-: <a class="el" href="group__app-randtlr.html#ga26fe21d237e1fe58c54191af9109cbe4">starsh-randtlr.h</a>
-, <a class="el" href="group__app-randtlr.html#ga26fe21d237e1fe58c54191af9109cbe4">randtlr.c</a>
+: <a class="el" href="group__app-randtlr.html#ga26fe21d237e1fe58c54191af9109cbe4">randtlr.c</a>
+, <a class="el" href="group__app-randtlr.html#ga26fe21d237e1fe58c54191af9109cbe4">starsh-randtlr.h</a>
 </li>
 <li>starsh_randtlr_get_kernel()
-: <a class="el" href="group__app-randtlr.html#ga56c8691a87b546aadc9e12fa1ec1d658">randtlr.c</a>
-, <a class="el" href="group__app-randtlr.html#ga56c8691a87b546aadc9e12fa1ec1d658">starsh-randtlr.h</a>
+: <a class="el" href="group__app-randtlr.html#ga56c8691a87b546aadc9e12fa1ec1d658">starsh-randtlr.h</a>
+, <a class="el" href="group__app-randtlr.html#ga56c8691a87b546aadc9e12fa1ec1d658">randtlr.c</a>
 </li>
 <li>starsh_set_backend()
 : <a class="el" href="group__environment.html#gadcbe7090a73d2340305983e46a527a50">starsh.h</a>
 , <a class="el" href="group__environment.html#gadcbe7090a73d2340305983e46a527a50">init.c</a>
 </li>
 <li>starsh_set_lrengine()
-: <a class="el" href="group__environment.html#ga732cb7657f720adca5ee395aeaf104a3">init.c</a>
-, <a class="el" href="group__environment.html#ga732cb7657f720adca5ee395aeaf104a3">starsh.h</a>
+: <a class="el" href="group__environment.html#ga732cb7657f720adca5ee395aeaf104a3">starsh.h</a>
+, <a class="el" href="group__environment.html#ga732cb7657f720adca5ee395aeaf104a3">init.c</a>
 </li>
 <li>starsh_set_oversample()
-: <a class="el" href="group__environment.html#gac762d6888f8cbeb909eed1f6267e4f94">starsh.h</a>
-, <a class="el" href="group__environment.html#gac762d6888f8cbeb909eed1f6267e4f94">init.c</a>
+: <a class="el" href="group__environment.html#gac762d6888f8cbeb909eed1f6267e4f94">init.c</a>
+, <a class="el" href="group__environment.html#gac762d6888f8cbeb909eed1f6267e4f94">starsh.h</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_1d()
 : <a class="el" href="group__app-spatial-kernels.html#ga5995a76f37f766c2c82fee5ffab374c0">starsh-spatial.h</a>
@@ -666,28 +732,28 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-spatial-kernels.html#gaaea6b544f1e68cb74c5bf7ca7bab36ab">kernel_exp_1d.c</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_2d()
-: <a class="el" href="group__app-spatial-kernels.html#gaa00d41812279d2c0c076e1ee24b87ef5">kernel_exp_2d.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#gaa00d41812279d2c0c076e1ee24b87ef5">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#gaa00d41812279d2c0c076e1ee24b87ef5">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#gaa00d41812279d2c0c076e1ee24b87ef5">kernel_exp_2d.c</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_2d_simd()
-: <a class="el" href="group__app-spatial-kernels.html#gad2b4e6dce4f9747e47b0d798573bd9f9">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#gad2b4e6dce4f9747e47b0d798573bd9f9">kernel_exp_2d.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#gad2b4e6dce4f9747e47b0d798573bd9f9">kernel_exp_2d.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#gad2b4e6dce4f9747e47b0d798573bd9f9">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_2d_simd_gcd()
-: <a class="el" href="group__app-spatial-kernels.html#ga1147dc2832157e80c41cfaf0bb3700be">spatial.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga1147dc2832157e80c41cfaf0bb3700be">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga1147dc2832157e80c41cfaf0bb3700be">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga1147dc2832157e80c41cfaf0bb3700be">spatial.c</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_3d()
-: <a class="el" href="group__app-spatial-kernels.html#gad0d418bff1d109ed08470fc1e32568ea">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#gad0d418bff1d109ed08470fc1e32568ea">kernel_exp_3d.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#gad0d418bff1d109ed08470fc1e32568ea">kernel_exp_3d.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#gad0d418bff1d109ed08470fc1e32568ea">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_3d_simd()
-: <a class="el" href="group__app-spatial-kernels.html#ga96fc13854a3551dfdcb4b864e50f2235">kernel_exp_3d.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga96fc13854a3551dfdcb4b864e50f2235">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga96fc13854a3551dfdcb4b864e50f2235">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga96fc13854a3551dfdcb4b864e50f2235">kernel_exp_3d.c</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_4d()
-: <a class="el" href="group__app-spatial-kernels.html#gac42d85cd4a5d377082d5c23d481fce67">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#gac42d85cd4a5d377082d5c23d481fce67">kernel_exp_4d.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#gac42d85cd4a5d377082d5c23d481fce67">kernel_exp_4d.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#gac42d85cd4a5d377082d5c23d481fce67">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_4d_simd()
 : <a class="el" href="group__app-spatial-kernels.html#ga2dff989cbf43215f3411cdd6c30ebd16">starsh-spatial.h</a>
@@ -698,8 +764,8 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-spatial-kernels.html#ga03e3784195d05f7b515000e96cea594c">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_exp_kernel_nd_simd()
-: <a class="el" href="group__app-spatial-kernels.html#ga6b7754115c8351dd3102b405c325b3fb">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga6b7754115c8351dd3102b405c325b3fb">kernel_exp_nd.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga6b7754115c8351dd3102b405c325b3fb">kernel_exp_nd.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga6b7754115c8351dd3102b405c325b3fb">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_matern2_kernel_1d()
 : <a class="el" href="group__app-spatial-kernels.html#ga4a28923fb9b2f6d035d89cedf78aaf94">kernel_matern2_1d.c</a>
@@ -714,8 +780,8 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__app-spatial-kernels.html#gaf67e5ef4dd4afef137311598d64638d5">kernel_matern2_2d.c</a>
 </li>
 <li>starsh_ssdata_block_matern2_kernel_2d_simd_gcd()
-: <a class="el" href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">spatial.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">spatial.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_matern2_kernel_3d()
 : <a class="el" href="group__app-spatial-kernels.html#gada8a895e25c5818c3c772ac458be3e16">kernel_matern2_3d.c</a>
@@ -748,8 +814,8 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__app-spatial-kernels.html#ga2fb9b9783b43a239de548723f2fcb02c">kernel_matern_2d.c</a>
 </li>
 <li>starsh_ssdata_block_matern_kernel_2d_simd_gcd()
-: <a class="el" href="group__app-spatial-kernels.html#gacb2440d2f954554a87c8a53436de3f35">spatial.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#gacb2440d2f954554a87c8a53436de3f35">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#gacb2440d2f954554a87c8a53436de3f35">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#gacb2440d2f954554a87c8a53436de3f35">spatial.c</a>
 </li>
 <li>starsh_ssdata_block_matern_kernel_3d()
 : <a class="el" href="group__app-spatial-kernels.html#ga7900da84b3d3f23f2fc9c3d35b1b4dc5">kernel_matern_3d.c</a>
@@ -769,21 +835,35 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 <li>starsh_ssdata_block_matern_kernel_nd_simd()
 : <a class="el" href="group__app-spatial-kernels.html#ga642f3f189cc30eba45126150a29f8408">kernel_matern_nd.c</a>
 </li>
+<li>starsh_ssdata_block_parsimonious2_kernel_2d_simd()
+: <a class="el" href="group__app-spatial-kernels.html#ga294e201da19de96c78837b7abe164479">spatial.c</a>
+</li>
+<li>starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd()
+: <a class="el" href="group__app-spatial-kernels.html#ga5e2fbd76c456fa0bd7d2c5289c4fb796">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga5e2fbd76c456fa0bd7d2c5289c4fb796">spatial.c</a>
+</li>
+<li>starsh_ssdata_block_parsimonious_kernel_2d_simd()
+: <a class="el" href="group__app-spatial-kernels.html#gab870db8a8dec783810edfc0c49a89382">spatial.c</a>
+</li>
+<li>starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd()
+: <a class="el" href="group__app-spatial-kernels.html#gaeec9877a4fc1fa513a0830f1981e47da">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#gaeec9877a4fc1fa513a0830f1981e47da">spatial.c</a>
+</li>
 <li>starsh_ssdata_block_sqrexp_kernel_1d()
 : <a class="el" href="group__app-spatial-kernels.html#gaf2240bd8827526019ad38d9242676262">kernel_sqrexp_1d.c</a>
 , <a class="el" href="group__app-spatial-kernels.html#gaf2240bd8827526019ad38d9242676262">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_1d_simd()
-: <a class="el" href="group__app-spatial-kernels.html#gaa3b5734f535466add011babc974ff173">kernel_sqrexp_1d.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#gaa3b5734f535466add011babc974ff173">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#gaa3b5734f535466add011babc974ff173">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#gaa3b5734f535466add011babc974ff173">kernel_sqrexp_1d.c</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_2d()
 : <a class="el" href="group__app-spatial-kernels.html#ga16a5c44af744f7f1bfdd5308cdce29b2">kernel_sqrexp_2d.c</a>
 , <a class="el" href="group__app-spatial-kernels.html#ga16a5c44af744f7f1bfdd5308cdce29b2">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_2d_simd()
-: <a class="el" href="group__app-spatial-kernels.html#ga38893398acf5266b3ca8d9d6520947f4">kernel_sqrexp_2d.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga38893398acf5266b3ca8d9d6520947f4">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga38893398acf5266b3ca8d9d6520947f4">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga38893398acf5266b3ca8d9d6520947f4">kernel_sqrexp_2d.c</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd()
 : <a class="el" href="group__app-spatial-kernels.html#ga2a7dd88227baeb20562cb0795d7a2699">starsh-spatial.h</a>
@@ -794,8 +874,8 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-spatial-kernels.html#gac860a1145949538da4c739ac22e3d55b">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_3d_simd()
-: <a class="el" href="group__app-spatial-kernels.html#ga40e3cd88f3ee23fc4a6417878fcc8994">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga40e3cd88f3ee23fc4a6417878fcc8994">kernel_sqrexp_3d.c</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga40e3cd88f3ee23fc4a6417878fcc8994">kernel_sqrexp_3d.c</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga40e3cd88f3ee23fc4a6417878fcc8994">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_4d()
 : <a class="el" href="group__app-spatial-kernels.html#gae11f4521b2e28a871b4a15fe3c2458cb">starsh-spatial.h</a>
@@ -806,16 +886,16 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 , <a class="el" href="group__app-spatial-kernels.html#gaa934e04239350539998d8edf170adbaf">kernel_sqrexp_4d.c</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_nd()
-: <a class="el" href="group__app-spatial-kernels.html#ga21210f905779aee69b2656440bfe8a58">kernel_sqrexp_nd.c</a>
-, <a class="el" href="group__app-spatial-kernels.html#ga21210f905779aee69b2656440bfe8a58">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial-kernels.html#ga21210f905779aee69b2656440bfe8a58">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial-kernels.html#ga21210f905779aee69b2656440bfe8a58">kernel_sqrexp_nd.c</a>
 </li>
 <li>starsh_ssdata_block_sqrexp_kernel_nd_simd()
 : <a class="el" href="group__app-spatial-kernels.html#ga9253604f9950089b0834c553db6a1687">starsh-spatial.h</a>
 , <a class="el" href="group__app-spatial-kernels.html#ga9253604f9950089b0834c553db6a1687">kernel_sqrexp_nd.c</a>
 </li>
 <li>starsh_ssdata_free()
-: <a class="el" href="group__app-spatial.html#ga68722ffbd11b01e44c52e0617370f8bb">starsh-spatial.h</a>
-, <a class="el" href="group__app-spatial.html#ga68722ffbd11b01e44c52e0617370f8bb">spatial.c</a>
+: <a class="el" href="group__app-spatial.html#ga68722ffbd11b01e44c52e0617370f8bb">spatial.c</a>
+, <a class="el" href="group__app-spatial.html#ga68722ffbd11b01e44c52e0617370f8bb">starsh-spatial.h</a>
 </li>
 <li>starsh_ssdata_generate()
 : <a class="el" href="group__app-spatial.html#ga2c8179573a8efe78099559534fa300a0">spatial.c</a>
@@ -825,21 +905,28 @@ $(document).ready(function(){initNavTree('globals_func_s.html','');});
 : <a class="el" href="group__app-spatial.html#ga9776fd1c81a20c1e6b98b2b3a2346b12">starsh-spatial.h</a>
 , <a class="el" href="group__app-spatial.html#ga9776fd1c81a20c1e6b98b2b3a2346b12">spatial.c</a>
 </li>
+<li>starsh_ssdata_generate_parsimonious()
+: <a class="el" href="group__app-spatial.html#ga863e910fd51c7d09c2af5698cf53ffb2">spatial.c</a>
+</li>
 <li>starsh_ssdata_generate_va()
 : <a class="el" href="group__app-spatial.html#ga2b3b97b97cf1cef31b90ed221bbeb7b8">starsh-spatial.h</a>
 , <a class="el" href="group__app-spatial.html#ga2b3b97b97cf1cef31b90ed221bbeb7b8">spatial.c</a>
 </li>
 <li>starsh_ssdata_get_kernel()
-: <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020">spatial.c</a>
-, <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020">spatial.c</a>
 </li>
 <li>starsh_ssdata_init()
-: <a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">spatial.c</a>
-, <a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0">spatial.c</a>
+</li>
+<li>starsh_ssdata_init_parsimonious()
+: <a class="el" href="group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919">spatial.c</a>
 </li>
 <li>starsh_ssdata_new()
-: <a class="el" href="group__app-spatial.html#ga03162d637c08286350082ef61ba7654f">spatial.c</a>
-, <a class="el" href="group__app-spatial.html#ga03162d637c08286350082ef61ba7654f">starsh-spatial.h</a>
+: <a class="el" href="group__app-spatial.html#ga03162d637c08286350082ef61ba7654f">starsh-spatial.h</a>
+, <a class="el" href="group__app-spatial.html#ga03162d637c08286350082ef61ba7654f">spatial.c</a>
 </li>
 <li>SVD_get_rank()
 : <a class="el" href="group__array.html#ga9b3e4e146cd26a3b27623c82320b0e8d">array.c</a>

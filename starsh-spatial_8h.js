@@ -13,7 +13,11 @@ var starsh_spatial_8h =
       [ "STARSH_SPATIAL_EXP_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a073d01fae148f2c5285f01035d2a9dc5", null ],
       [ "STARSH_SPATIAL_SQREXP_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a60315aa622903a3c383fa7807b365c19", null ],
       [ "STARSH_SPATIAL_MATERN_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a38ab0f6601b7a55a06b032a230ae2015", null ],
-      [ "STARSH_SPATIAL_MATERN2_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af", null ]
+      [ "STARSH_SPATIAL_MATERN2_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a68d5484d686b9d7a6e08931fd5a5b8af", null ],
+      [ "STARSH_SPATIAL_PARSIMONIOUS_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a9e09ab38ecef92b123f253e4e0f5ea30", null ],
+      [ "STARSH_SPATIAL_PARSIMONIOUS2_GCD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a7a2bd283238e66ed14bdedadfb778ef3", null ],
+      [ "STARSH_SPATIAL_PARSIMONIOUS_SIMD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413afd074fd18e3265cfa6afbce6201671f7", null ],
+      [ "STARSH_SPATIAL_PARSIMONIOUS2_SIMD", "group__app-spatial.html#gga6643f5698ae19aba8e75447ce5655413a216f741e92315cb749bee3ee489896d4", null ]
     ] ],
     [ "STARSH_SPATIAL_PARAM", "group__app-spatial.html#gaed230786777c7908cec46789ae5c42fb", [
       [ "STARSH_SPATIAL_NDIM", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbaa7129582f7c56f532552875098ba69d0", null ],
@@ -21,7 +25,10 @@ var starsh_spatial_8h =
       [ "STARSH_SPATIAL_NU", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba8f70a3220b6bd06c6b9aaeb943dfe384", null ],
       [ "STARSH_SPATIAL_NOISE", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbaccae5adca9441838c9715c4781a7563c", null ],
       [ "STARSH_SPATIAL_PLACE", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba745bc5167a73360f29fc8b5c2bd44492", null ],
-      [ "STARSH_SPATIAL_SIGMA", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977", null ]
+      [ "STARSH_SPATIAL_SIGMA", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba1dae6145d2151ee302253c9c29a85977", null ],
+      [ "STARSH_SPATIAL_SIGMA2", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbab681a41878305d6b9c3c8aac17d44985", null ],
+      [ "STARSH_SPATIAL_NU2", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fbabac3c67bbb6a4005bd904fabe0064098", null ],
+      [ "STARSH_SPATIAL_CORR", "group__app-spatial.html#ggaed230786777c7908cec46789ae5c42fba2428741bb16af7d5a1e1bb65070d9b88", null ]
     ] ],
     [ "starsh_ssdata_block_exp_kernel_1d", "group__app-spatial-kernels.html#ga5995a76f37f766c2c82fee5ffab374c0", null ],
     [ "starsh_ssdata_block_exp_kernel_1d_simd", "group__app-spatial-kernels.html#gaaea6b544f1e68cb74c5bf7ca7bab36ab", null ],
@@ -36,6 +43,8 @@ var starsh_spatial_8h =
     [ "starsh_ssdata_block_exp_kernel_nd_simd", "group__app-spatial-kernels.html#ga6b7754115c8351dd3102b405c325b3fb", null ],
     [ "starsh_ssdata_block_matern2_kernel_2d_simd_gcd", "group__app-spatial-kernels.html#ga136479657e9a1b28c4bb719d3b9dadab", null ],
     [ "starsh_ssdata_block_matern_kernel_2d_simd_gcd", "group__app-spatial-kernels.html#gacb2440d2f954554a87c8a53436de3f35", null ],
+    [ "starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd", "group__app-spatial-kernels.html#ga5e2fbd76c456fa0bd7d2c5289c4fb796", null ],
+    [ "starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd", "group__app-spatial-kernels.html#gaeec9877a4fc1fa513a0830f1981e47da", null ],
     [ "starsh_ssdata_block_sqrexp_kernel_1d", "group__app-spatial-kernels.html#gaf2240bd8827526019ad38d9242676262", null ],
     [ "starsh_ssdata_block_sqrexp_kernel_1d_simd", "group__app-spatial-kernels.html#gaa3b5734f535466add011babc974ff173", null ],
     [ "starsh_ssdata_block_sqrexp_kernel_2d", "group__app-spatial-kernels.html#ga16a5c44af744f7f1bfdd5308cdce29b2", null ],
@@ -53,5 +62,6 @@ var starsh_spatial_8h =
     [ "starsh_ssdata_generate_va", "group__app-spatial.html#ga2b3b97b97cf1cef31b90ed221bbeb7b8", null ],
     [ "starsh_ssdata_get_kernel", "group__app-spatial.html#ga9b5f2122f5027f2e284934fad0720020", null ],
     [ "starsh_ssdata_init", "group__app-spatial.html#gac602caa5ca0d884031a7747dfb9bd0e0", null ],
+    [ "starsh_ssdata_init_parsimonious", "group__app-spatial.html#ga6d44430ea9696ebd6cf987b1e21b1919", null ],
     [ "starsh_ssdata_new", "group__app-spatial.html#ga03162d637c08286350082ef61ba7654f", null ]
 ];

@@ -4,6 +4,8 @@ var particles_8c =
     [ "starsh_particles_generate", "group__app-particles.html#gae846951924c0637ef8dbeb664d161cfb", null ],
     [ "starsh_particles_generate_obsolete1", "group__app-particles.html#gafaf03d4bd8381850cb1a5c331dcd1fdc", null ],
     [ "starsh_particles_generate_obsolete2", "group__app-particles.html#ga3116147cd9dcf8139c9675c6adc082e2", null ],
+    [ "starsh_particles_generate_obsolete3", "group__app-particles.html#gacdc35a60771b9d74999c58ced930bacf", null ],
+    [ "starsh_particles_generate_obsolete4", "group__app-particles.html#ga53cd7cea1f696b4055ce77ebf2d82718", null ],
     [ "starsh_particles_generate_quasiuniform1", "group__app-particles.html#gad29970dc9d70273c0be7c076d462dabc", null ],
     [ "starsh_particles_generate_quasiuniform2", "group__app-particles.html#gaa0ca1d548766dc6ab24fd1090961c77c", null ],
     [ "starsh_particles_generate_rand", "group__app-particles.html#gac6324a2b31e9ff2c4c081fb4dd0e135c", null ],

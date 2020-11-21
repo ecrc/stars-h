@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['kernel_2ec',['kernel.c',['../kernel_8c.html',1,'']]],
+  ['kernel_2ec',['kernel.c',['../dense_2kernel_8c.html',1,'']]],
   ['kernel_5fcos_5f1d_2ec',['kernel_cos_1d.c',['../kernel__cos__1d_8c.html',1,'']]],
   ['kernel_5fcos_5f2d_2ec',['kernel_cos_2d.c',['../kernel__cos__2d_8c.html',1,'']]],
   ['kernel_5fcos_5f3d_2ec',['kernel_cos_3d.c',['../kernel__cos__3d_8c.html',1,'']]],

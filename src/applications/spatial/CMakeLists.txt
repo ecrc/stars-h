@@ -5,7 +5,7 @@
 #             University of Science and Technology (KAUST)
 #
 # @file src/applications/spatial/CMakeLists.txt
-# @version 0.1.0
+# @version 0.3.0
 # @author Aleksandr Mikhalev
 # @date 2017-11-07
 
@@ -34,7 +34,6 @@ if(GSL_FOUND OR DOCS STREQUAL "FULL")
         "${CMAKE_CURRENT_BINARY_DIR}" OUTPUT_VARIABLE generated_files2)
     list(APPEND generated_files ${generated_files2})
 endif()
-
 #message("${generated_files}")
 set(STARSH_SRC
     ${generated_files}

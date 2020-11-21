@@ -5,9 +5,10 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-spatial-gsl.h
- * @version 0.1.0
+ * @version 0.3.0
+ * @author sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2017-11-07
+ * @date 2020-06-09
  * */
 
 #ifndef __STARSH_SPATIAL_GSL_H__
@@ -84,6 +85,13 @@ void starsh_ssdata_block_matern2_kernel_nd_simd(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int ld);
 
+void starsh_ssdata_block_parsimonious_kernel_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
+
+void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld);
 //! @}
 // End of group
 
