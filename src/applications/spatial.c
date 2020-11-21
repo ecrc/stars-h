@@ -1828,3 +1828,39 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 }
 #endif // GSL
 
+#ifdef CUDA
+void starsh_ssdata_togpu(STARSH_ssdata **dest, STARSH_ssdata *src)
+{
+    void *dest_points;
+    size_t points_size = sizeof(double) * src->particles.ndim *
+            src->particles.count;
+    //printf("COPY to GPU: %zu bytes\n", points_size);
+    cudaError_t err = cudaSuccess;
+    err = cudaMalloc(&dest_points, points_size);
+    if(err != cudaSuccess)
+        printf("cudaMalloc error\n");
+    //printf("points address: %p\n", dest_points);
+    err = cudaMemcpy(dest_points, src->particles.point, points_size,
+            cudaMemcpyHostToDevice);
+    if(err != cudaSuccess)
+        printf("cudaMemcpy error\n");
+    STARSH_ssdata tmp;
+    tmp = *src;
+    tmp.particles.point = dest_points;
+    err = cudaMalloc(dest, sizeof(STARSH_ssdata));
+    if(err != cudaSuccess)
+        printf("cudaMalloc error\n");
+    err = cudaMemcpy(*dest, &tmp, sizeof(STARSH_ssdata), cudaMemcpyHostToDevice);
+    if(err != cudaSuccess)
+        printf("cudaMemcpy error\n");
+    //printf("Succesfully copied into GPU\n");
+}
+
+void starsh_ssdata_free_gpu(STARSH_ssdata *data)
+{
+    STARSH_ssdata tmp;
+    cudaMemcpy(&tmp, data, sizeof(STARSH_ssdata), cudaMemcpyDeviceToHost);
+    cudaFree(tmp.particles.point);
+    cudaFree(data);
+}
+#endif // CUDA

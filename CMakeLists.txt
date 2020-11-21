@@ -51,7 +51,7 @@ include(FindPkgConfig)
 
 # Create project and check C compiler
 cmake_policy(SET CMP0048 NEW)
-project(STARS-H VERSION 0.1.1 LANGUAGES C Fortran)
+project(STARS-H VERSION 0.3.0 LANGUAGES C Fortran)
 
 message(STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION}")
 
@@ -69,6 +69,12 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING
 option(OPENMP "Use OpenMP" ON)
 option(MPI "Use MPI" ON)
 option(STARPU "Use StarPU" ON)
+# Since KBLAS does not support pkg-config, it is OFF by default, since user has
+# to provide path by means of
+# CFLAGS="-I/path/to/kblas/include -L/path/to/kblas/lib"
+option(KBLAS "Use KBLAS" ON)
+option(CUDA "Use CUDA" ON)
+#set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode arch=compute_70,code=sm_70")
 
 # Option to force using parallel blas instead of sequential
 option(USE_PARALLEL_BLAS "Prefer parallel blas libraries" OFF)
@@ -109,7 +115,7 @@ endif()
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # the RPATH to be used when installing
 #set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Packaging (make package)
 #set(CPACK_PACKAGE_VERSION ${STARSH_VERSION})
 #set(CPACK_GENERATOR "TGZ")
@@ -173,6 +179,25 @@ if(STARPU)
         set(STARPU OFF)
     endif()
 endif()
+
+# KBLAS depends on CUDA
+if(KBLAS)
+    set(CUDA ON)
+endif()
+
+# Check CUDA option
+if(CUDA)
+    # If CUDA itself is available
+    if(CMAKE_CUDA_COMPILER)
+        enable_language(CUDA)
+        add_definitions("-DCUDA")
+    # If it is not available
+    else()
+        set(CUDA OFF)
+        # Also disable dependent KBLAS option
+        set(KBLAS OFF)
+    endif()
+endif(CUDA)
 
 # Check if GNU Scientific Library is available (for Matern kernel and
 # Bessel function)
@@ -306,6 +331,17 @@ if(BLA_VENDOR MATCHES "Intel")
     add_definitions("-DMKL")
 endif()
 
+if(STARPU AND KBLAS)
+    add_definitions("-DKBLAS")
+#    find_package(MAGMA)
+#    if(MAGMA_FOUND)
+#        include_directories(${MAGMA_INCLUDE_DIRS})
+#        link_directories(${MAGMA_LIBRARY_DIRS})
+#        add_definitions("-DKBLAS")
+#    else()
+#        set(KBLAS OFF)
+#    endif()
+endif()
 
 ###############################################################################
 ##                          PRINT CONFIGURATION                              ##

@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-constants.h
- * @version 1.3.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -30,8 +30,14 @@ enum STARSH_BACKEND
     //!< Hybrid MPI + OpenMP
     STARSH_BACKEND_STARPU = 4,
     //!< StarPU (without MPI)
-    STARSH_BACKEND_MPI_STARPU = 5
+    STARSH_BACKEND_MPI_STARPU = 5,
     //!< StarPU (with MPI)
+    STARSH_BACKEND_STARPU_KBLAS = 6,
+    //!< StarPU+KBLAS (without MPI)
+    STARSH_BACKEND_STARPU_CUDA = 7,
+    //!< StarPU+CUDA (without MPI)
+    STARSH_BACKEND_MPI_STARPU_KBLAS = 8,
+    //!< MPI+StarPU+KBLAS
 };
 
 //! Enum for low-rank engine (approximation technique)

@@ -13,7 +13,7 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/electrodynamics/kernel_sin.c
- * @version 1.3.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  */

@@ -275,4 +275,10 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
 // defined
 #include "starsh-spatial-gsl.h"
 
+// Add function that copies data to GPU
+#ifdef CUDA
+void starsh_ssdata_togpu(STARSH_ssdata **dest, STARSH_ssdata *src);
+void starsh_ssdata_free_gpu(STARSH_ssdata *data);
+#endif // CUDA
+
 #endif // __STARSH_SPATIAL_H__

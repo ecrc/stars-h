@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file testing/mpi_starpu_spatial.c
- * @version 1.3.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -157,6 +157,7 @@ int main(int argc, char **argv)
         MPI_Finalize();
         return 1;
     }
+    //*/
     // Measure time for 10 BLRM matvecs and for 10 BLRM TLR matvecs
     /* Not performed due to no matvec yet with STARPU
     double *x, *y, *y_tlr;

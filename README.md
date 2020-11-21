@@ -1,19 +1,16 @@
 What is STARS-H?
 ================
 
-STARS-H is a **high performance parallel open-source** package of **Software
-for Testing Accuracy, Reliability and Scalability of Hierarchical
-computations**. It
-provides a hierarchical matrix market in order to benchmark performance of
-various libraries for hierarchical matrix compressions and computations
-(including itself). **Why hierarchical matrices?** Because such matrices arise
-in many PDEs and use much less memory, while requiring fewer flops for
-computations. There are several hierarchical data formats, each one with its
-own performance and memory footprint. STARS-H intends to provide a standard for
-assessing accuracy and performance of hierarchical matrix libraries on a given
-hardware architecture environment. STARS-H currently supports the tile low-rank
-(TLR) data format for approximation on shared and distributed-memory systems,
-using MPI, OpenMP and task-based programming models.
+The Software for Testing Accuracy, Reliability and Scalability of Hierarchical (STARS-H)
+computations is a parallel  library that provides a high performance matrix market of
+rank structured matrix operators. STARS-H supports various matrix kernels that are
+proxies for many scientific applications, and optionally compresses them by exploiting
+their data sparsity. This translates into a lower arithmetic complexity and memory footprint.
+STARS-H intends to provide a standard software environment for assessing accuracy and performance
+of 𝓗-matrix libraries on a given hardware architecture. STARS-H currently supports
+the tile low-rank (TLR) data format for approximation on shared and distributed-memory systems,
+possibly equipped with GPUs, using MPI, OpenMP and task-based programming models.
+
 
 Vision of STARS-H
 =================
@@ -49,7 +46,7 @@ Applications in matrix-free form:
 3. Electrodynamics (sin(kr)/r and cos(kr)/r)
 4. Random synthetic TLR matrix
 5. Spatial statistics (exponential, square exponential and matern kernels)
-6. Mesh deformation using radial basis function (gaussian, exponential, inverse quadratic, inverse multi-quadratic, CPTS, and Wendland kernels)
+6. Mesh deformation using radial basis functions, i.e., Gaussian, exponential, inverse quadratic, inverse multi-quadratic, CPTS, and Wendland kernels.
 7. Acoustic scattering
 
 
@@ -137,6 +134,12 @@ and have additional steps on approximation of corresponding matrices.
 
 *Important notice: the approximation phase does not require the entire dense matrix 
 to be stored, since matrix elements are computed on the fly.*
+
+Dataset
+========
+
+Please see Data.md for information about dataset.
+
 
 
 ![Handout](docs/STARS-H-final.png)

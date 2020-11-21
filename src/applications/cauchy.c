@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/cauchy.c
- * @version 1.3.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */

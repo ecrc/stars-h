@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/sequential/dense/zrsdd.c
- * @version 1.3.0
+ * @version 0.3.0
  * @author Rabab Alomairy
  * @author Kadir Akbudak
  * @author Aleksandr Mikhalev

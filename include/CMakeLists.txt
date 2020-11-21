@@ -5,7 +5,7 @@
 #             University of Science and Technology (KAUST)
 #
 # @file CMakeLists.txt
-# @version 1.3.0
+# @version 0.3.0
 # @author Eduardo Gonzalez Fisher
 # @author Aleksandr Mikhalev
 # @date 2020-06-09

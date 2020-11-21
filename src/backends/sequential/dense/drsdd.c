@@ -5,7 +5,7 @@
  *             University of Science and Technology (KAUST)
  *
  * @file src/backends/sequential/dense/drsdd.c
- * @version 1.3.0
+ * @version 0.3.0
  * @author Aleksandr Mikhalev
  * @date 2017-11-07
  * */
@@ -56,7 +56,7 @@ void starsh_dense_dlrrsdd(int nrows, int ncols, double *D, int ldD, double *U,
     int svdqr_lwork = lwork-(size_t)mn2*(2*ncols+nrows+mn2+1);
     int iseed[4] = {0, 0, 0, 1};
     // Generate random matrix X
-    LAPACKE_dlarnv_work(3, iseed, nrows*mn2, X);
+    LAPACKE_dlarnv_work(3, iseed, ncols*mn2, X);
     // Multiply by random matrix
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, mn2,
             ncols, 1.0, D, ldD, X, ncols, 0.0, Q, nrows);
