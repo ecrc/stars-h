@@ -238,7 +238,7 @@ struct starsh_problem
 
 int starsh_problem_new(STARSH_problem **problem, int ndim, STARSH_int *shape,
         char symm, char dtype, void *row_data, void *col_data,
-        STARSH_kernel *kernel, char *name);
+        STARSH_kernel *kernel, const char *name);
 void starsh_problem_free(STARSH_problem *problem);
 void starsh_problem_info(STARSH_problem *problem);
 int starsh_problem_get_block(STARSH_problem *problem, int nrows, int ncols,
