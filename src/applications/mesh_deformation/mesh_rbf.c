@@ -216,7 +216,7 @@ static void starsh_morton_zsort3(int n, double *points)
  * @param[in] denst: density scaling factor  
  * @param[in] mordering: 0: no ordering, 1: Morton ordering.
  * */
-int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, int kernel, 
+int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, const char *file_name, STARSH_int mesh_points, int ndim, int kernel,
 		int numobj, int isreg, double reg, double rad, double denst, int mordering){
 
 

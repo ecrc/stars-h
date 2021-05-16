@@ -52,7 +52,7 @@ void starsh_generate_3d_cube(int nrows, int ncols,
         STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
         void *result, int lda);
 void starsh_generate_3d_virus_rhs(STARSH_int mesh_points, double *A);
-int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, char *file_name, STARSH_int mesh_points, int ndim, 
+int starsh_generate_3d_rbf_mesh_coordinates_virus(STARSH_mddata **data, const char *file_name, STARSH_int mesh_points, int ndim,
 	int kernel, int numobj, int isreg, double reg, double rad, double denst, int mordering);
 int starsh_generate_3d_rbf_mesh_coordinates_cube(STARSH_mddata **data, STARSH_int mesh_points, int ndim, int kernel,
          int isreg, double reg, double rad, int mordering);

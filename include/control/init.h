@@ -96,7 +96,7 @@ struct
 //! Parameters of STARS-H
 struct starsh_params starsh_params =
 {
-    STARSH_BACKEND_NOTSELECTED, STARSH_LRENGINE_NOTSELECTED, -1
+    STARSH_BACKEND_NOTSELECTED, STARSH_LRENGINE_NOTSELECTED, -1, {0, 0, 0, 1}
 };
 
 const static struct starsh_params starsh_params_default =
