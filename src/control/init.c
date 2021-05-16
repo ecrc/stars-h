@@ -173,3 +173,18 @@ int starsh_set_oversample(const char *string)
     starsh_params.oversample = value;
     return STARSH_SUCCESS;
 }
+
+int starsh_set_seed(const int *seed)
+//! Set random seed
+/*! @param[in] seed: seed that contains 4 int parameters
+ *      Default: {0, 0, 0, 1}.
+ * @return Error code @ref STARSH_ERRNO.
+ * @sa starsh_init().
+ * */
+{
+    for (int i = 0; i < 4; i++)
+    {
+        starsh_params.iseed[i] = seed[i];
+    }
+    return STARSH_SUCCESS;
+}

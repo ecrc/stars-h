@@ -42,6 +42,7 @@ struct starsh_params
     //!< What low-rank engine to use (e.g. RSVD).
     int oversample;
     //!< Oversampling parameter for RSVD and RRQR.
+    int iseed[4];
 };
 
 //! Built-in parameters of STARS-H, accessible through environment.
@@ -51,6 +52,7 @@ int starsh_init();
 int starsh_set_backend(const char *string);
 int starsh_set_lrengine(const char *string);
 int starsh_set_oversample(const char *string);
+int starsh_set_seed(const int *iseed);
 
 //! @}
 // End of group

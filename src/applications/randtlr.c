@@ -74,14 +74,13 @@ int starsh_randtlr_generate(STARSH_randtlr **data, STARSH_int count,
         return STARSH_WRONG_PARAMETER;
     }
     STARSH_int nblocks = count/block_size;
-    int iseed[4] = {0, 0, 0, 1};
     double *U, *S, *tau, *work;
     int lwork = block_size;
     STARSH_MALLOC(U, count*block_size);
     STARSH_MALLOC(S, block_size);
     STARSH_MALLOC(tau, block_size);
     STARSH_MALLOC(work, lwork);
-    LAPACKE_dlarnv_work(3, iseed, count*block_size, U);
+    LAPACKE_dlarnv_work(3, starsh_params.iseed, count*block_size, U);
     for(STARSH_int i = 0; i < nblocks; i++)
     {
         LAPACKE_dgeqrf_work(LAPACK_COL_MAJOR, block_size, block_size,

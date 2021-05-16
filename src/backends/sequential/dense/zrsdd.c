@@ -66,11 +66,10 @@ double* starsh_dense_zlrrsdd(int nrows, int ncols, double _Complex  *D, int ldD,
     svd_V = svd_S+mn2;
     svdqr_work = svd_V+ncols*mn2;
     int svdqr_lwork = lwork-(size_t)mn2*(2*ncols+nrows+mn2+1);
-    int iseed[4] = {0, 0, 0, 1};
     double _Complex zero = (double _Complex) 0.0;
     double _Complex one = (double _Complex) 1.0;
     // Generate random matrix X
-    LAPACKE_zlarnv_work(3, iseed, nrows*mn2, X);
+    LAPACKE_zlarnv_work(3, starsh_params.iseed, nrows*mn2, X);
     // Multiply by random matrix
     cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nrows, mn2,
             ncols, &one, D, ldD, X, ncols, &zero, Q, nrows);
