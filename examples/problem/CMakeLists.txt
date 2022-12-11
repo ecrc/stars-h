@@ -13,6 +13,7 @@
 set(examples_files
     "spatial.c"
     "spatial_bivariate.c"
+    "spatial_non_gaussian.c"    
     "randtlr.c"
     "minimal.c"
     "dense.c"

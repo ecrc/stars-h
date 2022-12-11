@@ -1,11 +1,11 @@
-/*! @copyright (c) 2020 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
  * @file examples/problem/rbf_cube.c
- * @version 0.3.0
+ * @version 0.3.1
  * @auther Rabab Alomairy
  * @author Aleksandr Mikhalev
  * @date 2020-06-09

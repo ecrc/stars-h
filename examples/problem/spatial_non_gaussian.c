@@ -4,9 +4,9 @@
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
- * @file examples/problem/spatial.c
+ * @file examples/problem/spatial_non_gaussian.c
  * @version 0.3.1
- * @author Aleksandr Mikhalev
+ * @author Sameh Abdulah
  * @date 2020-06-09
  * */
 
@@ -19,15 +19,13 @@ int main(int argc, char **argv)
 {
     int problem_ndim = 2;
     // Possible values for kernel_type are:
-    int kernel_type = STARSH_SPATIAL_PARSIMONIOUS_SIMD;
+    int kernel_type = STARSH_SPATIAL_NON_GAUSSIAN_SIMD;
     // Correlation length
     double beta = 0.1;
     // Smoothing parameter for Matern kernel
     double nu = 0.5;
-    double nu2 = 0.5;
     // Scaling factor
     double sigma = 1.0;
-    double sigma2 = 1.0;
     // Set level of noise
     double noise = 0;
     // Bivariate correlation
@@ -40,7 +38,7 @@ int main(int argc, char **argv)
     STARSH_int shape[2] = {N, N};
     // OBSOLETE3 for kernel PARSIMONIOUS and
     // OBSOLETE4 for kernel PARSIMONIOUS2
-    enum STARSH_PARTICLES_PLACEMENT place = STARSH_PARTICLES_OBSOLETE3;
+    enum STARSH_PARTICLES_PLACEMENT place = STARSH_PARTICLES_OBSOLETE1;
     int info;
     srand(0);
     // Generate data for spatial statistics problem
@@ -55,15 +53,15 @@ int main(int argc, char **argv)
     //   Matern kernel
     // STARSH_SPATIAL_NOISE to indicate next parameter is a noise
     // 0 at the end to indicate end of arguments
-    info = starsh_application((void **)&data, &kernel, N, dtype,
-            STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
-            STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu,
-            STARSH_SPATIAL_NU2, nu2, STARSH_SPATIAL_SIGMA, sigma,
-            STARSH_SPATIAL_SIGMA2, sigma2,
-            STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place, 0);
+	info = starsh_application((void **)&data, &kernel, N, dtype, 
+			STARSH_SPATIAL, kernel_type, STARSH_SPATIAL_NDIM, problem_ndim,
+			STARSH_SPATIAL_BETA, beta, STARSH_SPATIAL_NU, nu, 
+			STARSH_SPATIAL_NOISE, noise, STARSH_SPATIAL_PLACE, place,
+			STARSH_SPATIAL_SIGMA, 1.0,
+            0);
     if(info != 0)
     {
-        printf("wrong parameters for spatial statistics problem\n");
+        printf("wrong parameters for the non-gaussian spatial statistics problem\n");
         return info;
     }
     // Init problem with given data and kernel and print short info
