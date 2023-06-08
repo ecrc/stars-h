@@ -1,11 +1,11 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh.h
- * @version 0.1.1
+ * @version 0.3.1
  * @author Aleksandr Mikhalev
  * @date 2018-11-06
  * */

@@ -1,14 +1,14 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
  * @file src/applications/spatial.c
- * @version 0.1.1
+ * @version 0.3.1
  * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
- * @date 2020-06-04
+ * @date 2022-10-10
  */
 
 #include "common.h"
@@ -539,8 +539,10 @@ static int starsh_ssdata_get_kernel_1d(STARSH_kernel **kernel,
             return STARSH_WRONG_PARAMETER;
             break;
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:    
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("Bivariate kernel works currently only in 2D space");
             return STARSH_WRONG_PARAMETER;
@@ -596,6 +598,12 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
                 *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd;
                 break;
             }
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD:
+            {
+                printf("STARSH_SPATIAL_NON_GAUSSIAN_SIMD\n");
+                *kernel = starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd;
+                break;
+            }
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
             *kernel = starsh_ssdata_block_parsimonious2_kernel_2d_simd;
             break;
@@ -604,14 +612,20 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
             break;
         case STARSH_SPATIAL_MATERN2_GCD:
             {
-                //printf("STARSH_SPATIAL_MATERN2_GCD(hi)\n");
+                printf("STARSH_SPATIAL_MATERN2_GCD\n");
                 *kernel = starsh_ssdata_block_matern2_kernel_2d_simd_gcd;
                 break;
             }
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
             {
-                //printf("STARSH_SPATIAL_PARSIMONIOUS_GCD(hi)\n");
+                printf("STARSH_SPATIAL_PARSIMONIOUS_GCD\n");
                 *kernel = starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd;
+                break;
+            }
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:
+            {
+                printf("STARSH_SPATIAL_NON_GAUSSIAN_GCD\n");
+                *kernel = starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd_gcd;
                 break;
             }
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
@@ -623,10 +637,12 @@ static int starsh_ssdata_get_kernel_2d(STARSH_kernel **kernel,
         case STARSH_SPATIAL_MATERN2:
         case STARSH_SPATIAL_MATERN2_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
         case STARSH_SPATIAL_MATERN_GCD:
         case STARSH_SPATIAL_MATERN2_GCD:
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("Matern kernel requires GSL library, which was "
                     "not found");
@@ -691,8 +707,10 @@ static int starsh_ssdata_get_kernel_3d(STARSH_kernel **kernel,
             return STARSH_WRONG_PARAMETER;
             break;
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:    
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("Bivariate kernel works currently only in 2D space");
             return STARSH_WRONG_PARAMETER;
@@ -755,8 +773,10 @@ static int starsh_ssdata_get_kernel_4d(STARSH_kernel **kernel,
             return STARSH_WRONG_PARAMETER;
             break;
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:    
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("Bivariate kernel works currently only in 2D space");
             return STARSH_WRONG_PARAMETER;
@@ -773,7 +793,7 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
     // Get corresponding kernel for n-dimensional spatial statistics problem.
     // This function is static not to be visible outside this module.
 {
-    //printf("%============99999999999999999999999 \n" );
+
     switch(type)
     {
         case STARSH_SPATIAL_EXP:
@@ -821,7 +841,9 @@ static int starsh_ssdata_get_kernel_nd(STARSH_kernel **kernel,
             break;
         case STARSH_SPATIAL_PARSIMONIOUS_SIMD:
         case STARSH_SPATIAL_PARSIMONIOUS2_SIMD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_SIMD: 
         case STARSH_SPATIAL_PARSIMONIOUS_GCD:
+        case STARSH_SPATIAL_NON_GAUSSIAN_GCD:       
         case STARSH_SPATIAL_PARSIMONIOUS2_GCD:
             STARSH_ERROR("Bivariate kernel works currently only in 2D space");
             return STARSH_WRONG_PARAMETER;
@@ -951,7 +973,6 @@ void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
     size_t count1 = data1->particles.count;
     size_t count2 = data2->particles.count;
     double *x1[2], *x2[2];
-    //printf("%===============%f(4), \n", sigma);
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
 #pragma omp simd
@@ -1030,7 +1051,6 @@ void starsh_ssdata_block_sqrexp_kernel_2d_simd_gcd(int nrows, int ncols,
     double *x1[2], *x2[2];
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
-    //printf("%===============(3)%f, \n", sigma);
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
@@ -1114,7 +1134,6 @@ void starsh_ssdata_block_matern_kernel_2d_simd_gcd(int nrows, int ncols,
     double *x1[2], *x2[2];
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
-    //printf("%===============(2)%f, \n", sigma);
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
@@ -1197,7 +1216,6 @@ void starsh_ssdata_block_matern2_kernel_2d_simd_gcd(int nrows, int ncols,
     double *x1[2], *x2[2];
     x1[0] = data1->particles.point;
     x2[0] = data2->particles.point;
-    //printf("%(14)===============(test)%f, \n", sigma);
 #pragma omp simd
     for(i = 1; i < 2; i++)
     {
@@ -1282,7 +1300,6 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
     double sigma2 = data1->sigma2;
     double corr  = data1->corr;
 
-    //printf("%(13)===============%f, %f, %f, %f, %f, %f\n", sigma1, sigma2, beta, nu1, nu2, corr);
     // Get coordinates
     STARSH_int count1 = data1->particles.count;
     STARSH_int count2 = data2->particles.count;
@@ -1826,6 +1843,169 @@ void starsh_ssdata_block_parsimonious2_kernel_2d_simd(int nrows, int ncols,
 
 
 }
+
+
+void starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+    //! Non-Gaussian Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
+    /*! Fills matrix \f$ A \f$ with values
+     * \f[
+     *      A_{ij} = \sigma^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left( \sqrt{2 \nu}
+     *      \frac{r_{ij}}{\beta} \right)^{\nu} K_{\nu} \left( \sqrt{2 \nu}
+     *      \frac{r_{ij}}{\beta} \right) + \mu \delta(r_{ij}),
+     * \f]
+     * where \f$ \Gamma \f$ is the Gamma function, \f$ K_{\nu} \f$ is the modified
+     * Bessel function of the second kind, \f$ \delta \f$ is the delta function
+     * \f[
+     *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+     *      \end{array} \right.,
+     * \f]
+     * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+     * points and variance \f$ \sigma \f$, correlation length \f$ \beta \f$,
+     * smoothing parameter \f$ \nu \f$ and noise \f$ \mu \f$ come from \p
+     * row_data (\ref STARSH_ssdata object). No memory is allocated in this
+     * function!
+     *
+     * Uses SIMD instructions.
+     *
+     * @param[in] nrows: Number of rows of \f$ A \f$.
+     * @param[in] ncols: Number of columns of \f$ A \f$.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+     * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+     * @param[out] result: Pointer to memory of \f$ A \f$.
+     * @param[in] ld: Leading dimension of `result`.
+     * @ingroup app-spatial-kernels
+     * */
+{
+
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    double beta = data1->beta;
+    double nu = data1->nu;
+    double noise = data1->noise;
+    double sigma = 1; //data1->sigma;  Set to 1 in the non-Gaussian case.
+    // Get coordinates
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+#pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+#pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = 0.0;
+            for(k = 0; k < 2; k++)
+            {
+                tmp = x1[k][irow[i]]-x2[k][icol[j]];
+                dist += tmp*tmp;
+            }
+            dist = 4 * sqrt(2*nu)* (sqrt(dist)/beta);
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                    gsl_sf_gamma(nu)*pow(dist, nu)*
+                    gsl_sf_bessel_Knu(nu, dist);
+        }
+    }
+}
+
+
+void starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd_gcd(int nrows, int ncols,
+        STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+        void *result, int ld)
+    //! Non-Gaussian Mat&eacute;rn kernel for @NDIM-dimensional spatial statistics problem
+    /*! Fills matrix \f$ A \f$ with values
+     * \f[
+     *      A_{ij} = \sigma^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left( \sqrt{2 \nu}
+     *      \frac{r_{ij}}{\beta} \right)^{\nu} K_{\nu} \left( \sqrt{2 \nu}
+     *      \frac{r_{ij}}{\beta} \right) + \mu \delta(r_{ij}),
+     * \f]
+     * where \f$ \Gamma \f$ is the Gamma function, \f$ K_{\nu} \f$ is the modified
+     * Bessel function of the second kind, \f$ \delta \f$ is the delta function
+     * \f[
+     *      \delta(x) = \left\{ \begin{array}{ll} 0, & x \ne 0\\ 1, & x = 0
+     *      \end{array} \right.,
+     * \f]
+     * \f$ r_{ij} \f$ is a distance between \f$i\f$-th and \f$j\f$-th spatial
+     * points and variance \f$ \sigma \f$, correlation length \f$ \beta \f$,
+     * smoothing parameter \f$ \nu \f$ and noise \f$ \mu \f$ come from \p
+     * row_data (\ref STARSH_ssdata object). No memory is allocated in this
+     * function!
+     *
+     * Uses SIMD instructions.
+     *
+     * @param[in] nrows: Number of rows of \f$ A \f$.
+     * @param[in] ncols: Number of columns of \f$ A \f$.
+     * @param[in] irow: Array of row indexes.
+     * @param[in] icol: Array of column indexes.
+     * @param[in] row_data: Pointer to physical data (\ref STARSH_ssdata object).
+     * @param[in] col_data: Pointer to physical data (\ref STARSH_ssdata object).
+     * @param[out] result: Pointer to memory of \f$ A \f$.
+     * @param[in] ld: Leading dimension of `result`.
+     * @ingroup app-spatial-kernels
+     * */
+{
+
+    int i, j, k;
+    STARSH_ssdata *data1 = row_data;
+    STARSH_ssdata *data2 = col_data;
+    double tmp, dist;
+    // Read parameters
+    double beta = data1->beta;
+    double nu = data1->nu;
+    double noise = data1->noise;
+    double sigma = 1; //data1->sigma;  Set to 1 in the non-Gaussian case.
+    // Get coordinates
+    STARSH_int count1 = data1->particles.count;
+    STARSH_int count2 = data2->particles.count;
+    double *x1[2], *x2[2];
+    x1[0] = data1->particles.point;
+    x2[0] = data2->particles.point;
+    #pragma omp simd
+    for(i = 1; i < 2; i++)
+    {
+        x1[i] = x1[0]+i*count1;
+        x2[i] = x2[0]+i*count2;
+    }
+    double *x1_cur, *x2_cur;
+    double *buffer = result;
+    // Fill column-major matrix
+#pragma omp simd
+    for(j = 0; j < ncols; j++)
+    {
+        for(i = 0; i < nrows; i++)
+        {
+            dist = distanceEarth(x1[0][irow[i]], x1[1][irow[i]],
+                    x2[0][icol[j]], x2[1][icol[j]]);
+            dist = 4 * sqrt(2*nu)* (dist/beta);
+            if(dist == 0)
+                buffer[j*(size_t)ld+i] = sigma+noise;
+            else
+                buffer[j*(size_t)ld+i] = sigma*pow(2.0, 1.0-nu)/
+                    gsl_sf_gamma(nu)*pow(dist, nu)*
+                    gsl_sf_bessel_Knu(nu, dist);
+        }
+    }
+}
+
 #endif // GSL
 
 #ifdef CUDA

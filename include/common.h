@@ -1,4 +1,4 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
@@ -9,7 +9,7 @@
  * @cond
  * This command in pair with endcond will prevent file from being documented.
  *
- * @version 0.3.0
+ * @version 0.3.1
  * @author Aleksandr Mikhalev
  * @date 2020-06-09
  * */

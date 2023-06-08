@@ -30,12 +30,12 @@ pipeline {
                     # if any command exits with value other than 0 (zero)
 
                     # loads modules
-                    module load gcc/5.5.0
-                    module load mkl/2018-initial
-                    module load openmpi/3.0.0-gcc-5.5.0
-                    module load starpu/1.2.3-gcc-5.5.0-mkl-openmpi-3.0.0
-                    module load gsl/2.4-gcc-5.5.0
-                    module load cmake/3.9.6
+                    module load gcc/10.2.0
+                    module load mkl/2020.0.166
+                    module load openmpi/4.1.0-gcc-10.2.0
+                    module load starpu/1.2.10-gcc-10.2.0-mkl-openmpi-4.1.0
+                    module load gsl/2.6-gcc-10.2.0
+                    module load cmake/3.21.2
 
                     # variables
                     BUILDDIR="$WORKSPACE/build/"
@@ -63,12 +63,12 @@ pipeline {
                     # if any command exits with value other than 0 (zero)
 
                     # loads modules
-                    module load gcc/5.5.0
-                    module load mkl/2018-initial
-                    module load openmpi/3.0.0-gcc-5.5.0
-                    module load starpu/1.2.3-gcc-5.5.0-mkl-openmpi-3.0.0
-                    module load gsl/2.4-gcc-5.5.0
-                    module load cmake/3.9.6
+                    module load gcc/10.2.0
+                    module load mkl/2020.0.166
+                    module load openmpi/4.1.0-gcc-10.2.0
+                    module load starpu/1.2.10-gcc-10.2.0-mkl-openmpi-4.1.0
+                    module load gsl/2.6-gcc-10.2.0
+                    module load cmake/3.21.2
 
                     # variables
                     BUILDDIR="$WORKSPACE/build/"

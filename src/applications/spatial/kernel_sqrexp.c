@@ -1,4 +1,4 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
@@ -13,7 +13,7 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/spatial/kernel_sqrexp.c
- * @version 0.1.1
+ * @version 0.3.1
  * @author Aleksandr Mikhalev
  * @date 2018-11-06
  */

@@ -1,4 +1,4 @@
-/*! @copyright (c) 2020 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
@@ -11,7 +11,7 @@
  * STARS-H, simply do substitutions yourself.
  *
  * @file src/applications/mesh_deformation/cube.c
- * @version 0.3.0
+ * @version 0.3.1
  * @author Rabab Alomairy
  * @date 2020-06-09
  */

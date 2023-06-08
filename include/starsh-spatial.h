@@ -1,11 +1,11 @@
-/*! @copyright (c) 2017 King Abdullah University of Science and
+/*! @copyright (c) 2017-2022 King Abdullah University of Science and 
  *                      Technology (KAUST). All rights reserved.
  *
  * STARS-H is a software package, provided by King Abdullah
  *             University of Science and Technology (KAUST)
  *
  * @file include/starsh-spatial.h
- * @version 0.1.1
+ * @version 0.3.1
  * @author Sameh Abdulah
  * @author Aleksandr Mikhalev
  * @date 2020-06-04
@@ -136,6 +136,14 @@ enum STARSH_SPATIAL_KERNEL
     /*!< Bivariate Modified parsimonious2 Mat&eacute;rnkernel with SIMD.
      * @sa starsh_ssdata_block_parsimonious_kernel_nd_simd().
      * */
+    STARSH_SPATIAL_NON_GAUSSIAN_GCD = 23,
+    /*!< Bivariate Modified parsimonious Mat&eacute;rn kernel with GCD.
+     *      * @sa starsh_ssdata_block_parsimonious_kernel_nd_simd_gcd().
+     *           * */
+    STARSH_SPATIAL_NON_GAUSSIAN_SIMD = 24,
+    /*!< Bivariate Modified parsimonious Mat&eacute;rn kernel with SIMD.
+     *      * @sa starsh_ssdata_block_parsimonious_kernel_nd_simd().
+     *           * */
 };
 
 enum STARSH_SPATIAL_PARAM
@@ -251,7 +259,9 @@ void starsh_ssdata_block_sqrexp_kernel_4d_simd(int nrows, int ncols,
 void starsh_ssdata_block_sqrexp_kernel_nd_simd(int nrows, int ncols,
 	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
 	void *result, int ld);
-
+void starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd(int nrows, int ncols,
+	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+	void *result, int ld);
 
 void starsh_ssdata_block_exp_kernel_2d_simd_gcd(int nrows, int ncols,
 	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
@@ -269,6 +279,9 @@ void starsh_ssdata_block_parsimonious_kernel_2d_simd_gcd(int nrows, int ncols,
 	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
 	void *result, int ld);
 void starsh_ssdata_block_parsimonious2_kernel_2d_simd_gcd(int nrows, int ncols,
+	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
+	void *result, int ld);
+void starsh_ssdata_block_matern_kernel_non_gaussian_2d_simd_gcd(int nrows, int ncols,
 	STARSH_int *irow, STARSH_int *icol, void *row_data, void *col_data,
 	void *result, int ld);
 // Add definitions for other kernels after Doxygen groups have already been

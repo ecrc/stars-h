@@ -24,6 +24,9 @@ all_files = src_files+h_files
 with open("../VERSION.txt", "r") as fd:
     version = fd.readline()[:-1]
 
+with open("../COPYRIGHTS.txt", "r") as fd:
+    copyrights = fd.readline()[:-1]
+
 date = date.today()
 strdate = str(date)
 
@@ -39,11 +42,17 @@ for fname in all_files:
                 if newline != line:
                     print("Warning: updated version of {}".format(fname))
                 line = newline
-            ind = line.find(r"@date")
+#            ind = line.find(r"@date")
+ #           if ind != -1:
+  #              newline = line[:ind+6]+strdate+"\n"
+   #             if newline != line:
+    #                print("Warning: updated date of {}".format(fname))
+     #           line = newline
+            ind = line.find(r"@copyright")
             if ind != -1:
-                newline = line[:ind+6]+strdate+"\n"
+                newline = line[:ind+15]+copyrights+"\n"
                 if newline != line:
-                    print("Warning: updated date of {}".format(fname))
+                    print("Warning: updated copyrights of {}".format(fname))
                 line = newline
             fd.write(line)
     print("File {} was succesfully processed".format(fname))
