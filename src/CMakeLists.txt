@@ -33,6 +33,9 @@ add_library(starsh STATIC ${STARSH_SRC} ${BACKENDS_OBJECTS})
 # Install STARS-H library
 install(TARGETS starsh DESTINATION ${LIBDIR})
 
+# Add including path for STARS-H
+target_include_directories(starsh PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
 # Add compile and link flags for STARS-H
 target_link_libraries(starsh PRIVATE gfortran)
 
