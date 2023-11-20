@@ -35,16 +35,16 @@ endif()
 
 # Check if ECRC CMake modules are there
 # This modules are used to find all required and optional dependencies
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/ecrc/modules")
     message(FATAL_ERROR "ECRC CMake modules were not found.\nHave you done: "
         "'git submodule update --init'?")
 endif()
 
 # Append path to CMake modules and init ECRC CMake modules
 set(ECRC_CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/cmake_modules/ecrc/modules")
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/ecrc/modules")
 list(APPEND CMAKE_MODULE_PATH "${ECRC_CMAKE_MODULE_PATH}")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 include(EcrcInit)
 include(GenPkgConfig)
 find_package(PkgConfig REQUIRED)
@@ -397,4 +397,3 @@ endif()
 if(NOT DOCS STREQUAL "OFF")
     add_subdirectory("docs")
 endif()
-
