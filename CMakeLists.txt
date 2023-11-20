@@ -27,7 +27,7 @@
 cmake_minimum_required(VERSION 3.2.3)
 
 # Restrict building in top-level directory
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
     message(FATAL_ERROR "In-source builds are not allowed.\nPlease create a "
         "build directory first and execute cmake configuration from this "
         "directory. Example: mkdir build && cd build && cmake ..")
@@ -123,7 +123,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 find_package(PkgConfig REQUIRED)
 
 # Set path to header files of STARS-H
-include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 
 ###############################################################################
@@ -350,7 +350,7 @@ endif()
 ##                          PRINT CONFIGURATION                              ##
 ###############################################################################
 
-get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_SOURCE_DIR}
+get_directory_property(STARSH_DEFINITIONS_LIST DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMPILE_DEFINITIONS)
 include(PrintOpts)
 
