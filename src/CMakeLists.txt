@@ -34,6 +34,8 @@ add_library(starsh STATIC ${STARSH_SRC} ${BACKENDS_OBJECTS})
 install(TARGETS starsh DESTINATION ${LIBDIR})
 
 # Add compile and link flags for STARS-H
+target_link_libraries(starsh PRIVATE gfortran)
+
 if(OPENMP)
     target_compile_options(starsh PUBLIC "${OpenMP_C_FLAGS}")
     target_link_libraries(starsh PUBLIC "${OpenMP_C_FLAGS}")
