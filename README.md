@@ -142,4 +142,4 @@ Please see Data.md for information about dataset.
 
 
 
-![Handout](docs/STARS-H-final.png)
+![Handout](docs/STARSH-Final.png)
