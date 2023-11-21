@@ -11,25 +11,25 @@
 
 
 EXECUTE_PROCESS(COMMAND "python"
-    "../misc_scripts/code_generation/applications/particles/kernel_nd.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../misc_scripts/code_generation/applications/particles/kernel_nd.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/kernel_exp.c" "${CMAKE_CURRENT_BINARY_DIR}"
     OUTPUT_VARIABLE generated_files)
 
 EXECUTE_PROCESS(COMMAND "python"
-    "../misc_scripts/code_generation/applications/particles/kernel_nd.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../misc_scripts/code_generation/applications/particles/kernel_nd.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/kernel_sqrexp.c" "${CMAKE_CURRENT_BINARY_DIR}"
     OUTPUT_VARIABLE generated_files2)
 list(APPEND generated_files ${generated_files2})
 
 if(GSL_FOUND OR DOCS STREQUAL "FULL")
     EXECUTE_PROCESS(COMMAND "python"
-        "../misc_scripts/code_generation/applications/particles/kernel_nd.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../misc_scripts/code_generation/applications/particles/kernel_nd.py"
         "${CMAKE_CURRENT_SOURCE_DIR}/kernel_matern.c"
         "${CMAKE_CURRENT_BINARY_DIR}" OUTPUT_VARIABLE generated_files2)
     list(APPEND generated_files ${generated_files2})
     
     EXECUTE_PROCESS(COMMAND "python"
-        "../misc_scripts/code_generation/applications/particles/kernel_nd.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../misc_scripts/code_generation/applications/particles/kernel_nd.py"
         "${CMAKE_CURRENT_SOURCE_DIR}/kernel_matern2.c"
         "${CMAKE_CURRENT_BINARY_DIR}" OUTPUT_VARIABLE generated_files2)
     list(APPEND generated_files ${generated_files2})
