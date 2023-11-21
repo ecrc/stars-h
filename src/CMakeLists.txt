@@ -39,6 +39,8 @@ target_include_directories(starsh PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 # Add compile and link flags for STARS-H
 target_link_libraries(starsh PRIVATE gfortran)
 
+target_link_libraries(starsh PRIVATE ${LAPACK_LIBRARIES} ${LAPACKE_LIBRARIES})
+
 if(OPENMP)
     target_compile_options(starsh PUBLIC "${OpenMP_C_FLAGS}")
     target_link_libraries(starsh PUBLIC "${OpenMP_C_FLAGS}")
